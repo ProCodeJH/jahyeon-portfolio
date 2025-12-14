@@ -1,218 +1,281 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Link } from "wouter";
-import { ExternalLink, Loader2, Award, Calendar, Building, ShieldCheck } from "lucide-react";
+import { ExternalLink, Loader2, Award, Calendar, Building, ShieldCheck, X, CheckCircle } from "lucide-react";
+
+function useInView(threshold = 0.1) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isInView, setIsInView] = useState(false);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setIsInView(true); },
+      { threshold }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [threshold]);
+  return { ref, isInView };
+}
+
+function AnimatedSection({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+  const { ref, isInView } = useInView(0.1);
+  return (
+    <div ref={ref} className={`transition-all duration-700 ease-out ${className}`} style={{ transform: isInView ? "translateY(0)" : "translateY(40px)", opacity: isInView ? 1 : 0, transitionDelay: `${delay}ms` }}>
+      {children}
+    </div>
+  );
+}
 
 export default function Certifications() {
   const { data: certifications, isLoading } = trpc.certifications.list.useQuery();
   const [selectedCert, setSelectedCert] = useState<any>(null);
+  const [cursorVariant, setCursorVariant] = useState("default");
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => setMousePosition({ x: e.clientX, y: e.clientY });
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-[#050505] text-white overflow-x-hidden">
+      {/* Custom Cursor */}
+      <div 
+        className="fixed w-4 h-4 bg-emerald-400 rounded-full pointer-events-none z-[100] mix-blend-difference transition-transform duration-100"
+        style={{ left: mousePosition.x - 8, top: mousePosition.y - 8, transform: cursorVariant === "hover" ? "scale(3)" : "scale(1)" }}
+      />
+
       {/* Navigation */}
-      <nav className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/">
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity cursor-pointer">
-                Gu Jahyeon
-              </span>
-            </Link>
-            <div className="flex items-center gap-8">
-              <Link href="/about">
-                <span className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors cursor-pointer">
-                  About
-                </span>
-              </Link>
-              <Link href="/projects">
-                <span className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors cursor-pointer">
-                  Projects
-                </span>
-              </Link>
-              <Link href="/certifications">
-                <span className="text-sm font-medium text-blue-600 cursor-pointer">
-                  Certifications
-                </span>
-              </Link>
-              <Link href="/resources">
-                <span className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors cursor-pointer">
-                  Resources
-                </span>
-              </Link>
+      <nav className="fixed top-0 left-0 right-0 z-50">
+        <div className="mx-6 lg:mx-12 mt-6">
+          <div className="bg-white/[0.03] backdrop-blur-2xl border border-white/[0.05] rounded-2xl px-8 py-4">
+            <div className="flex items-center justify-between">
+              <Link href="/"><span className="text-2xl font-extralight tracking-[0.3em] cursor-pointer hover:text-emerald-400 transition-colors">JH</span></Link>
+              <div className="hidden md:flex items-center gap-12">
+                {["About", "Projects", "Certifications", "Resources"].map((item) => (
+                  <Link key={item} href={`/${item.toLowerCase()}`}>
+                    <span className={`text-sm font-light transition-all cursor-pointer tracking-wider ${item === "Certifications" ? "text-white" : "text-white/50 hover:text-white"}`}>{item}</span>
+                  </Link>
+                ))}
+              </div>
+              <div className="w-16" />
             </div>
           </div>
         </div>
       </nav>
 
-      <div className="container mx-auto px-6 py-12">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 rounded-full text-green-600 text-sm font-medium mb-4">
-            <Award className="h-4 w-4" />
-            자격 및 인증
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Certifications
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            임베디드 시스템 및 관련 기술 분야에서 취득한 전문 자격증입니다.
-          </p>
+      {/* Header */}
+      <section className="pt-40 pb-16">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+          <AnimatedSection>
+            <p className="text-emerald-400 font-mono text-sm tracking-[0.3em] mb-6 uppercase">Credentials</p>
+            <h1 className="text-5xl md:text-7xl font-extralight mb-6">
+              <span className="text-emerald-400">Certifications</span>
+            </h1>
+            <p className="text-white/40 text-xl max-w-2xl">
+              Professional certifications in embedded systems, programming, and related technologies.
+            </p>
+          </AnimatedSection>
         </div>
+      </section>
 
-        {/* Certifications Grid */}
-        {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <Loader2 className="h-10 w-10 animate-spin text-blue-600 mb-4" />
-            <p className="text-gray-500">자격증을 불러오는 중...</p>
-          </div>
-        ) : !certifications?.length ? (
-          <div className="text-center py-20">
-            <div className="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <Award className="h-10 w-10 text-gray-400" />
+      {/* Certifications Grid */}
+      <section className="py-12 pb-32">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-32">
+              <Loader2 className="w-10 h-10 animate-spin text-emerald-400 mb-4" />
+              <p className="text-white/40">Loading certifications...</p>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">자격증이 없습니다</h3>
-            <p className="text-gray-500">아직 등록된 자격증이 없습니다.</p>
-          </div>
-        ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {certifications.map((cert) => (
-              <Card 
-                key={cert.id} 
-                className="group overflow-hidden border-0 shadow-sm hover:shadow-xl transition-all duration-300 bg-white rounded-2xl cursor-pointer"
-                onClick={() => setSelectedCert(cert)}
-              >
-                {/* Image */}
-                <div className="aspect-[4/3] overflow-hidden bg-gradient-to-br from-green-50 to-blue-50 relative">
-                  {cert.imageUrl ? (
-                    <img 
-                      src={cert.imageUrl} 
-                      alt={cert.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <div className="w-24 h-24 rounded-full bg-gradient-to-r from-green-500 to-blue-500 flex items-center justify-center">
-                        <Award className="h-12 w-12 text-white" />
+          ) : !certifications?.length ? (
+            <div className="text-center py-32">
+              <div className="w-24 h-24 rounded-3xl bg-white/[0.02] flex items-center justify-center mx-auto mb-6">
+                <Award className="w-12 h-12 text-white/10" />
+              </div>
+              <h3 className="text-2xl font-light mb-2">No certifications found</h3>
+              <p className="text-white/40">Certifications will appear here once added.</p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {certifications.map((cert, index) => (
+                <AnimatedSection key={cert.id} delay={index * 100}>
+                  <div 
+                    className="group rounded-3xl overflow-hidden bg-white/[0.02] border border-white/5 hover:border-emerald-400/30 transition-all duration-500 cursor-pointer"
+                    onClick={() => setSelectedCert(cert)}
+                    onMouseEnter={() => setCursorVariant("hover")}
+                    onMouseLeave={() => setCursorVariant("default")}
+                  >
+                    <div className="aspect-[4/3] overflow-hidden relative">
+                      {cert.imageUrl ? (
+                        <img 
+                          src={cert.imageUrl} 
+                          alt={cert.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-emerald-500/20 via-blue-500/20 to-purple-500/20 flex items-center justify-center">
+                          <div className="w-28 h-28 rounded-full bg-gradient-to-br from-emerald-400 to-blue-500 flex items-center justify-center">
+                            <Award className="w-14 h-14 text-white" />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Verified badge */}
+                      <div className="absolute top-4 right-4">
+                        <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-mono backdrop-blur-xl">
+                          <ShieldCheck className="w-3 h-3" />
+                          Verified
+                        </span>
+                      </div>
+
+                      {/* Gradient overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      
+                      {/* View button on hover */}
+                      <div className="absolute bottom-4 left-4 right-4 translate-y-10 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                        <Button className="w-full rounded-xl bg-white text-black hover:bg-emerald-400 h-12">
+                          View Details
+                        </Button>
                       </div>
                     </div>
-                  )}
-                  
-                  {/* Verified Badge */}
-                  <div className="absolute top-3 right-3">
-                    <div className="flex items-center gap-1 px-3 py-1 bg-green-500 text-white rounded-full text-xs font-medium">
-                      <ShieldCheck className="h-3 w-3" />
-                      인증됨
+
+                    <div className="p-6">
+                      <h3 className="text-xl font-light mb-3 group-hover:text-emerald-400 transition-colors line-clamp-1">
+                        {cert.title}
+                      </h3>
+                      <div className="flex items-center gap-2 text-white/40 text-sm mb-3">
+                        <Building className="w-4 h-4 text-emerald-400" />
+                        {cert.issuer}
+                      </div>
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-1.5 text-white/30">
+                          <Calendar className="w-3 h-3" />
+                          {cert.issueDate}
+                        </div>
+                        {cert.expiryDate && (
+                          <span className="px-2 py-1 rounded-full bg-white/5 text-white/30">
+                            Exp: {cert.expiryDate}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
+                </AnimatedSection>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Certification Modal */}
+      {selectedCert && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-6"
+          onClick={() => setSelectedCert(null)}
+        >
+          <div 
+            className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl bg-[#0a0a0a] border border-white/10"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="p-6 border-b border-white/5 flex items-start justify-between">
+              <div className="flex items-start gap-5">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-blue-500 flex items-center justify-center flex-shrink-0">
+                  <Award className="w-8 h-8 text-white" />
                 </div>
-
-                <CardContent className="p-5">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors line-clamp-1">
-                    {cert.title}
-                  </h3>
-                  
-                  <div className="flex items-center gap-2 text-gray-500 text-sm mb-3">
-                    <Building className="h-4 w-4" />
-                    {cert.issuer}
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-mono">
+                      <CheckCircle className="w-3 h-3" />
+                      Verified
+                    </span>
                   </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-gray-500 text-sm">
-                      <Calendar className="h-4 w-4" />
-                      {cert.issueDate}
-                    </div>
-                    {cert.expiryDate && (
-                      <Badge variant="outline" className="text-xs">
-                        ~{cert.expiryDate}
-                      </Badge>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Certification Detail Modal */}
-      <Dialog open={!!selectedCert} onOpenChange={(open) => !open && setSelectedCert(null)}>
-        <DialogContent className="max-w-2xl bg-white rounded-2xl">
-          {selectedCert && (
-            <>
-              <DialogHeader>
-                <div className="flex items-start gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-r from-green-500 to-blue-500 flex items-center justify-center flex-shrink-0">
-                    <Award className="h-7 w-7 text-white" />
-                  </div>
-                  <div>
-                    <DialogTitle className="text-2xl font-bold text-gray-900">
-                      {selectedCert.title}
-                    </DialogTitle>
-                    <p className="text-gray-500 mt-1">{selectedCert.issuer}</p>
-                  </div>
+                  <h2 className="text-2xl font-light">{selectedCert.title}</h2>
+                  <p className="text-white/40 mt-1">{selectedCert.issuer}</p>
                 </div>
-              </DialogHeader>
-              
-              {selectedCert.imageUrl && (
-                <div className="aspect-video overflow-hidden rounded-xl bg-gray-100 mt-4">
+              </div>
+              <button 
+                onClick={() => setSelectedCert(null)}
+                className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors flex-shrink-0"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Certificate Image */}
+            {selectedCert.imageUrl && (
+              <div className="p-6 border-b border-white/5">
+                <div className="rounded-2xl overflow-hidden bg-white/5">
                   <img 
                     src={selectedCert.imageUrl} 
                     alt={selectedCert.title}
-                    className="w-full h-full object-contain"
+                    className="w-full h-auto"
                   />
+                </div>
+              </div>
+            )}
+
+            {/* Details */}
+            <div className="p-6 space-y-6">
+              {/* Dates */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/5">
+                  <p className="text-white/40 text-sm mb-2">Issue Date</p>
+                  <p className="text-lg font-light flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-emerald-400" />
+                    {selectedCert.issueDate}
+                  </p>
+                </div>
+                {selectedCert.expiryDate && (
+                  <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/5">
+                    <p className="text-white/40 text-sm mb-2">Expiry Date</p>
+                    <p className="text-lg font-light flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-orange-400" />
+                      {selectedCert.expiryDate}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Credential ID */}
+              {selectedCert.credentialId && (
+                <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/5">
+                  <p className="text-white/40 text-sm mb-2">Credential ID</p>
+                  <p className="font-mono text-emerald-400 break-all">{selectedCert.credentialId}</p>
                 </div>
               )}
 
-              <div className="space-y-4 mt-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <p className="text-sm text-gray-500 mb-1">발급일</p>
-                    <p className="font-medium text-gray-900">{selectedCert.issueDate}</p>
-                  </div>
-                  {selectedCert.expiryDate && (
-                    <div className="bg-gray-50 rounded-xl p-4">
-                      <p className="text-sm text-gray-500 mb-1">만료일</p>
-                      <p className="font-medium text-gray-900">{selectedCert.expiryDate}</p>
-                    </div>
-                  )}
+              {/* Description */}
+              {selectedCert.description && (
+                <div>
+                  <p className="text-white/40 text-sm mb-3">Description</p>
+                  <p className="text-white/70 leading-relaxed">{selectedCert.description}</p>
                 </div>
+              )}
 
-                {selectedCert.credentialId && (
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <p className="text-sm text-gray-500 mb-1">자격증 번호</p>
-                    <p className="font-mono text-gray-900">{selectedCert.credentialId}</p>
-                  </div>
-                )}
-
-                {selectedCert.description && (
-                  <div>
-                    <p className="text-sm text-gray-500 mb-2">설명</p>
-                    <p className="text-gray-700">{selectedCert.description}</p>
-                  </div>
-                )}
-
-                {selectedCert.credentialUrl && (
-                  <Button className="w-full rounded-xl bg-gray-900 hover:bg-gray-800" asChild>
-                    <a href={selectedCert.credentialUrl} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      자격증 확인하기
-                    </a>
-                  </Button>
-                )}
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+              {/* Verify Button */}
+              {selectedCert.credentialUrl && (
+                <Button 
+                  className="w-full rounded-xl bg-white text-black hover:bg-emerald-400 h-14 text-base"
+                  asChild
+                >
+                  <a href={selectedCert.credentialUrl} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="w-5 h-5 mr-2" />
+                    Verify Credential
+                  </a>
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
-      <footer className="border-t bg-white py-12 mt-20">
-        <div className="container mx-auto px-6 text-center">
-          <p className="text-gray-500">© 2024 Gu Jahyeon. Embedded Systems Developer.</p>
+      <footer className="py-12 border-t border-white/5">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center text-white/20 text-sm">
+          © 2024 Gu Jahyeon. All rights reserved.
         </div>
       </footer>
     </div>
