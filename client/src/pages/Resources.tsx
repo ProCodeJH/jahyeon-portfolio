@@ -2,13 +2,17 @@ import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { ExternalLink, Loader2, Award, Calendar, Building, ShieldCheck, X } from "lucide-react";
+import { Download, Loader2, FileText, Video, ExternalLink, Play, Presentation, BookOpen, Terminal, Cpu, Code, X, Eye } from "lucide-react";
+import { toast } from "sonner";
 
 function useInView(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null);
   const [isInView, setIsInView] = useState(false);
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setIsInView(true); }, { threshold });
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setIsInView(true); },
+      { threshold }
+    );
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
   }, [threshold]);
@@ -24,105 +28,307 @@ function AnimatedSection({ children, className = "", delay = 0 }: { children: Re
   );
 }
 
-export default function Certifications() {
-  const { data: certifications, isLoading } = trpc.certifications.list.useQuery();
-  const [selectedCert, setSelectedCert] = useState<any>(null);
+const CATEGORIES = [
+  { value: "all", label: "All", icon: FileText, color: "#6B7280" },
+  { value: "daily_life", label: "Daily Videos", icon: Video, color: "#EC4899" },
+  { value: "lecture_c", label: "C Lectures", icon: Terminal, color: "#3B82F6" },
+  { value: "lecture_arduino", label: "Arduino", icon: Cpu, color: "#10B981" },
+  { value: "lecture_python", label: "Python", icon: Code, color: "#F59E0B" },
+  { value: "presentation", label: "Presentations", icon: Presentation, color: "#8B5CF6" },
+];
+
+export default function Resources() {
+  const { data: resources, isLoading } = trpc.resources.list.useQuery();
+  const incrementDownload = trpc.resources.incrementDownload.useMutation();
+  const [activeCategory, setActiveCategory] = useState("all");
+  const [selectedVideo, setSelectedVideo] = useState<any>(null);
+  const [cursorVariant, setCursorVariant] = useState("default");
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => setMousePosition({ x: e.clientX, y: e.clientY });
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  const filteredResources = resources?.filter((r) => activeCategory === "all" || r.category === activeCategory);
+
+  const handleDownload = async (resource: any) => {
+    try {
+      await incrementDownload.mutateAsync({ id: resource.id });
+      window.open(resource.fileUrl, '_blank');
+      toast.success(`Downloading ${resource.fileName}`);
+    } catch {
+      toast.error("Download failed");
+    }
+  };
+
+  const getYouTubeId = (url: string) => {
+    const match = url?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+    return match ? match[1] : null;
+  };
+
+  const getYouTubeThumbnail = (url: string) => {
+    const videoId = getYouTubeId(url);
+    return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : null;
+  };
+
+  const isYouTubeUrl = (url: string) => url?.includes('youtube.com') || url?.includes('youtu.be');
+  const isPPT = (mimeType: string, fileName: string) => mimeType?.includes('presentation') || mimeType?.includes('powerpoint') || fileName?.endsWith('.ppt') || fileName?.endsWith('.pptx');
+  const isPDF = (mimeType: string, fileName: string) => mimeType?.includes('pdf') || fileName?.endsWith('.pdf');
+
+  const formatFileSize = (bytes: number) => {
+    if (!bytes) return "N/A";
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  };
+
+  const getFileIcon = (resource: any) => {
+    if (isYouTubeUrl(resource.fileUrl)) return <Video className="w-6 h-6 text-red-400" />;
+    if (isPPT(resource.mimeType, resource.fileName)) return <Presentation className="w-6 h-6 text-orange-400" />;
+    if (isPDF(resource.mimeType, resource.fileName)) return <FileText className="w-6 h-6 text-red-400" />;
+    if (resource.mimeType?.startsWith('video/')) return <Video className="w-6 h-6 text-purple-400" />;
+    return <FileText className="w-6 h-6 text-blue-400" />;
+  };
+
+  const getCategoryColor = (category: string) => CATEGORIES.find(c => c.value === category)?.color || "#6B7280";
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen bg-[#050505] text-white overflow-x-hidden">
+      {/* Custom Cursor */}
+      <div 
+        className="fixed w-4 h-4 bg-emerald-400 rounded-full pointer-events-none z-[100] mix-blend-difference transition-transform duration-100"
+        style={{ left: mousePosition.x - 8, top: mousePosition.y - 8, transform: cursorVariant === "hover" ? "scale(3)" : "scale(1)" }}
+      />
+
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="flex items-center justify-between h-20">
-            <Link href="/"><span className="text-xl font-light tracking-wider cursor-pointer hover:opacity-70 transition-opacity">JAHYEON<span className="text-emerald-400">.</span></span></Link>
-            <div className="hidden md:flex items-center gap-12">
-              {["About", "Projects", "Certifications", "Resources"].map((item) => (
-                <Link key={item} href={`/${item.toLowerCase()}`}>
-                  <span className={`text-sm font-light transition-colors cursor-pointer tracking-wide ${item === "Certifications" ? "text-white" : "text-white/60 hover:text-white"}`}>{item}</span>
-                </Link>
-              ))}
+      <nav className="fixed top-0 left-0 right-0 z-50">
+        <div className="mx-6 lg:mx-12 mt-6">
+          <div className="bg-white/[0.03] backdrop-blur-2xl border border-white/[0.05] rounded-2xl px-8 py-4">
+            <div className="flex items-center justify-between">
+              <Link href="/"><span className="text-2xl font-extralight tracking-[0.3em] cursor-pointer hover:text-emerald-400 transition-colors">JH</span></Link>
+              <div className="hidden md:flex items-center gap-12">
+                {["About", "Projects", "Certifications", "Resources"].map((item) => (
+                  <Link key={item} href={`/${item.toLowerCase()}`}>
+                    <span className={`text-sm font-light transition-all cursor-pointer tracking-wider ${item === "Resources" ? "text-white" : "text-white/50 hover:text-white"}`}>{item}</span>
+                  </Link>
+                ))}
+              </div>
+              <div className="w-16" />
             </div>
-            <div className="w-20" />
           </div>
         </div>
       </nav>
 
       {/* Header */}
-      <section className="pt-40 pb-16">
+      <section className="pt-40 pb-12">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <AnimatedSection>
-            <p className="text-emerald-400 font-mono text-sm tracking-widest mb-6">CREDENTIALS</p>
-            <h1 className="text-4xl md:text-6xl font-light mb-6"><span className="text-emerald-400">Certifications</span></h1>
-            <p className="text-white/50 text-xl max-w-2xl">Professional certifications in embedded systems, programming, and related technologies.</p>
+            <p className="text-emerald-400 font-mono text-sm tracking-[0.3em] mb-6 uppercase">Learning Materials</p>
+            <h1 className="text-5xl md:text-7xl font-extralight mb-6">
+              <span className="text-emerald-400">Resources</span> & Downloads
+            </h1>
+            <p className="text-white/40 text-xl max-w-2xl">
+              Access lecture materials, code samples, presentations, and video tutorials.
+            </p>
           </AnimatedSection>
         </div>
       </section>
 
-      {/* Grid */}
-      <section className="pb-32">
+      {/* Filter */}
+      <section className="py-8 sticky top-24 z-40">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+          <AnimatedSection delay={100}>
+            <div className="flex flex-wrap gap-3 p-2 bg-white/[0.02] backdrop-blur-xl border border-white/5 rounded-2xl inline-flex">
+              {CATEGORIES.map((category) => {
+                const Icon = category.icon;
+                const isActive = activeCategory === category.value;
+                return (
+                  <button
+                    key={category.value}
+                    onClick={() => setActiveCategory(category.value)}
+                    className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-light transition-all duration-300 ${isActive ? "bg-white text-black" : "text-white/50 hover:text-white hover:bg-white/5"}`}
+                    onMouseEnter={() => setCursorVariant("hover")}
+                    onMouseLeave={() => setCursorVariant("default")}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {category.label}
+                  </button>
+                );
+              })}
+            </div>
+          </AnimatedSection>
+        </div>
+      </section>
+
+      {/* Resources Grid */}
+      <section className="py-12 pb-32">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-32">
               <Loader2 className="w-10 h-10 animate-spin text-emerald-400 mb-4" />
-              <p className="text-white/40">Loading certifications...</p>
+              <p className="text-white/40">Loading resources...</p>
             </div>
-          ) : !certifications?.length ? (
+          ) : !filteredResources?.length ? (
             <div className="text-center py-32">
-              <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-6"><Award className="w-10 h-10 text-white/20" /></div>
-              <h3 className="text-xl font-light mb-2">No certifications found</h3>
-              <p className="text-white/40">Certifications will appear here once added.</p>
+              <div className="w-24 h-24 rounded-3xl bg-white/[0.02] flex items-center justify-center mx-auto mb-6">
+                <FileText className="w-12 h-12 text-white/10" />
+              </div>
+              <h3 className="text-2xl font-light mb-2">No resources found</h3>
+              <p className="text-white/40">No resources in this category yet.</p>
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {certifications.map((cert, index) => (
-                <AnimatedSection key={cert.id} delay={index * 100}>
-                  <div className="group rounded-2xl overflow-hidden bg-white/[0.02] border border-white/5 hover:border-emerald-400/30 transition-all duration-300 cursor-pointer" onClick={() => setSelectedCert(cert)}>
-                    <div className="aspect-[4/3] overflow-hidden relative">
-                      {cert.imageUrl ? (
-                        <img src={cert.imageUrl} alt={cert.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-emerald-500/10 to-blue-500/10 flex items-center justify-center">
-                          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-400 to-blue-500 flex items-center justify-center"><Award className="w-12 h-12 text-white" /></div>
+              {filteredResources.map((resource, index) => {
+                const thumbnail = resource.thumbnailUrl || (resource.fileUrl && isYouTubeUrl(resource.fileUrl) ? getYouTubeThumbnail(resource.fileUrl) : null);
+                const isVideo = resource.fileUrl && isYouTubeUrl(resource.fileUrl);
+                const isPPTFile = isPPT(resource.mimeType, resource.fileName);
+
+                return (
+                  <AnimatedSection key={resource.id} delay={index * 50}>
+                    <div 
+                      className="group rounded-3xl overflow-hidden bg-white/[0.02] border border-white/5 hover:border-emerald-400/30 transition-all duration-500"
+                      onMouseEnter={() => setCursorVariant("hover")}
+                      onMouseLeave={() => setCursorVariant("default")}
+                    >
+                      <div className="aspect-video overflow-hidden relative">
+                        {thumbnail ? (
+                          <>
+                            <img 
+                              src={thumbnail} 
+                              alt={resource.title}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                            />
+                            {isVideo && (
+                              <div 
+                                className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                onClick={() => setSelectedVideo(resource)}
+                              >
+                                <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center hover:scale-110 transition-transform">
+                                  <Play className="w-8 h-8 text-black ml-1" />
+                                </div>
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-white/5 to-white/[0.02] flex items-center justify-center">
+                            {getFileIcon(resource)}
+                          </div>
+                        )}
+
+                        {/* Category badge */}
+                        <div className="absolute top-4 left-4">
+                          <span 
+                            className="px-3 py-1.5 rounded-full text-xs font-mono uppercase tracking-wider backdrop-blur-xl"
+                            style={{ backgroundColor: getCategoryColor(resource.category) + "30", color: getCategoryColor(resource.category) }}
+                          >
+                            {CATEGORIES.find(c => c.value === resource.category)?.label || resource.category}
+                          </span>
                         </div>
-                      )}
-                      <div className="absolute top-3 right-3"><span className="flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs"><ShieldCheck className="w-3 h-3" />Verified</span></div>
-                    </div>
-                    <div className="p-5">
-                      <h3 className="text-lg font-medium mb-2 group-hover:text-emerald-400 transition-colors line-clamp-1">{cert.title}</h3>
-                      <div className="flex items-center gap-2 text-white/40 text-sm mb-3"><Building className="w-4 h-4" />{cert.issuer}</div>
-                      <div className="flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-1 text-white/40"><Calendar className="w-3 h-3" />{cert.issueDate}</div>
-                        {cert.expiryDate && <span className="px-2 py-1 rounded-full bg-white/5 text-white/40">Expires: {cert.expiryDate}</span>}
+
+                        {/* File type badge */}
+                        {isPPTFile && (
+                          <div className="absolute top-4 right-4">
+                            <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-500/20 text-orange-400 text-xs font-mono backdrop-blur-xl">
+                              <Presentation className="w-3 h-3" />
+                              PPT
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="p-6">
+                        <h3 className="text-lg font-light mb-2 group-hover:text-emerald-400 transition-colors line-clamp-1">
+                          {resource.title}
+                        </h3>
+                        {resource.description && (
+                          <p className="text-white/40 text-sm mb-4 line-clamp-2">{resource.description}</p>
+                        )}
+                        
+                        <div className="flex items-center justify-between text-xs text-white/30 mb-5">
+                          <span>{formatFileSize(resource.fileSize)}</span>
+                          <span className="flex items-center gap-1">
+                            <Download className="w-3 h-3" />
+                            {resource.downloadCount || 0}
+                          </span>
+                        </div>
+
+                        <div className="flex gap-3">
+                          {isVideo ? (
+                            <Button 
+                              className="flex-1 rounded-xl bg-white text-black hover:bg-emerald-400 h-12"
+                              onClick={() => setSelectedVideo(resource)}
+                            >
+                              <Play className="w-4 h-4 mr-2" />
+                              Watch
+                            </Button>
+                          ) : (
+                            <Button 
+                              className="flex-1 rounded-xl bg-white text-black hover:bg-emerald-400 h-12"
+                              onClick={() => handleDownload(resource)}
+                            >
+                              <Download className="w-4 h-4 mr-2" />
+                              Download
+                            </Button>
+                          )}
+                          {resource.fileUrl && !isVideo && (
+                            <Button 
+                              variant="outline" 
+                              className="rounded-xl border-white/10 bg-transparent hover:bg-white/10 h-12 w-12 p-0"
+                              onClick={() => window.open(resource.fileUrl, '_blank')}
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </AnimatedSection>
-              ))}
+                  </AnimatedSection>
+                );
+              })}
             </div>
           )}
         </div>
       </section>
 
-      {/* Modal */}
-      {selectedCert && (
-        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-6" onClick={() => setSelectedCert(null)}>
-          <div className="w-full max-w-2xl rounded-2xl overflow-hidden bg-[#0a0a0a] border border-white/10" onClick={(e) => e.stopPropagation()}>
-            <div className="p-6 border-b border-white/10 flex items-start justify-between">
-              <div className="flex items-start gap-4">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-400 to-blue-500 flex items-center justify-center flex-shrink-0"><Award className="w-7 h-7 text-white" /></div>
-                <div><h2 className="text-2xl font-light">{selectedCert.title}</h2><p className="text-white/40 mt-1">{selectedCert.issuer}</p></div>
+      {/* Video Modal */}
+      {selectedVideo && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-6"
+          onClick={() => setSelectedVideo(null)}
+        >
+          <div 
+            className="w-full max-w-6xl rounded-3xl overflow-hidden bg-[#0a0a0a] border border-white/10"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="p-6 border-b border-white/5 flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-light">{selectedVideo.title}</h3>
+                {selectedVideo.description && (
+                  <p className="text-white/40 text-sm mt-1">{selectedVideo.description}</p>
+                )}
               </div>
-              <button className="text-white/40 hover:text-white p-2" onClick={() => setSelectedCert(null)}><X className="w-5 h-5" /></button>
+              <button 
+                className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+                onClick={() => setSelectedVideo(null)}
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
-            {selectedCert.imageUrl && <div className="aspect-video bg-black/50"><img src={selectedCert.imageUrl} alt={selectedCert.title} className="w-full h-full object-contain" /></div>}
-            <div className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 rounded-xl bg-white/[0.02]"><p className="text-white/40 text-sm mb-1">Issue Date</p><p className="font-medium">{selectedCert.issueDate}</p></div>
-                {selectedCert.expiryDate && <div className="p-4 rounded-xl bg-white/[0.02]"><p className="text-white/40 text-sm mb-1">Expiry Date</p><p className="font-medium">{selectedCert.expiryDate}</p></div>}
-              </div>
-              {selectedCert.credentialId && <div className="p-4 rounded-xl bg-white/[0.02]"><p className="text-white/40 text-sm mb-1">Credential ID</p><p className="font-mono text-emerald-400">{selectedCert.credentialId}</p></div>}
-              {selectedCert.description && <div><p className="text-white/40 text-sm mb-2">Description</p><p className="text-white/70">{selectedCert.description}</p></div>}
-              {selectedCert.credentialUrl && <Button className="w-full rounded-xl bg-white text-black hover:bg-white/90" asChild><a href={selectedCert.credentialUrl} target="_blank" rel="noopener noreferrer"><ExternalLink className="w-4 h-4 mr-2" />Verify Credential</a></Button>}
+            <div className="aspect-video bg-black">
+              {isYouTubeUrl(selectedVideo.fileUrl) ? (
+                <iframe 
+                  src={`https://www.youtube.com/embed/${getYouTubeId(selectedVideo.fileUrl)}?autoplay=1`}
+                  className="w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                <video controls autoPlay className="w-full h-full">
+                  <source src={selectedVideo.fileUrl} type={selectedVideo.mimeType} />
+                </video>
+              )}
             </div>
           </div>
         </div>
@@ -130,7 +336,9 @@ export default function Certifications() {
 
       {/* Footer */}
       <footer className="py-12 border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center text-white/30 text-sm">© 2024 Gu Jahyeon. All rights reserved.</div>
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center text-white/20 text-sm">
+          © 2024 Gu Jahyeon. All rights reserved.
+        </div>
       </footer>
     </div>
   );
