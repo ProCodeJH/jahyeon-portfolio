@@ -1,215 +1,317 @@
+import { useEffect, useRef, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
-import { Cpu, Code, Wrench, Award, ArrowRight, Github, Mail, ChevronRight, Zap, Shield, Terminal } from "lucide-react";
+import { ArrowRight, ArrowDown, Github, Linkedin, Mail, ChevronRight, Cpu, Code, Database, Zap } from "lucide-react";
 
-const SKILLS = [
-  { name: "C/C++", level: 95 },
-  { name: "Arduino", level: 90 },
-  { name: "Python", level: 85 },
-  { name: "Embedded Systems", level: 90 },
-  { name: "IoT", level: 85 },
-  { name: "RTOS", level: 80 },
-];
+// Intersection Observer Hook for scroll animations
+function useInView(threshold = 0.1) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isInView, setIsInView] = useState(false);
 
-const FEATURES = [
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true);
+        }
+      },
+      { threshold }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => observer.disconnect();
+  }, [threshold]);
+
+  return { ref, isInView };
+}
+
+// Animated Section Component
+function AnimatedSection({ 
+  children, 
+  className = "", 
+  delay = 0 
+}: { 
+  children: React.ReactNode; 
+  className?: string; 
+  delay?: number;
+}) {
+  const { ref, isInView } = useInView(0.1);
+  
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-1000 ease-out ${className}`}
+      style={{
+        transform: isInView ? "translateY(0)" : "translateY(60px)",
+        opacity: isInView ? 1 : 0,
+        transitionDelay: `${delay}ms`,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+const EXPERTISE = [
   {
     icon: Cpu,
-    title: "임베디드 시스템",
-    description: "마이크로컨트롤러 프로그래밍, 하드웨어 인터페이싱, 시스템 최적화",
-    color: "from-blue-500 to-blue-600",
+    title: "Embedded Systems",
+    description: "MCU programming, firmware development, and real-time system design with C/C++",
   },
   {
     icon: Code,
-    title: "펌웨어 개발",
-    description: "C/C++ 저수준 프로그래밍, 부트로더, 디바이스 드라이버",
-    color: "from-purple-500 to-purple-600",
+    title: "Software Development",
+    description: "Full-stack development with Python, Java, and modern web technologies",
   },
   {
-    icon: Wrench,
-    title: "IoT 솔루션",
-    description: "연결된 디바이스, 센서 네트워크, 클라우드 통합",
-    color: "from-green-500 to-green-600",
+    icon: Database,
+    title: "Data Analysis",
+    description: "System optimization through data-driven insights and automation",
   },
   {
-    icon: Shield,
-    title: "RTOS & 실시간",
-    description: "실시간 운영체제, 태스크 스케줄링, 결정적 시스템",
-    color: "from-orange-500 to-orange-600",
+    icon: Zap,
+    title: "IoT & Automation",
+    description: "Connected devices, sensor integration, and industrial automation solutions",
+  },
+];
+
+const EXPERIENCE = [
+  {
+    period: "2025.04 - Present",
+    company: "SHL Co., Ltd.",
+    role: "Logistics Management",
+    description: "Product flow management and process optimization",
+  },
+  {
+    period: "2023.06 - 2024.07",
+    company: "LG Electronics",
+    role: "Senior Research Institute",
+    description: "Washing machine firmware data analysis, sensor control verification, serial communication-based automation",
+  },
+  {
+    period: "2022.06 - 2022.12",
+    company: "Nordground",
+    role: "Data Analyst",
+    description: "Data-driven problem solving and system optimization",
+  },
+  {
+    period: "2021.12 - 2022.06",
+    company: "UHS Co., Ltd.",
+    role: "Embedded Developer",
+    description: "H/W manufacturing and S/W DB system development",
   },
 ];
 
 export default function Home() {
   const { data: projects } = trpc.projects.list.useQuery();
-  const { data: certifications } = trpc.certifications.list.useQuery();
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
-  const featuredProjects = projects?.slice(0, 3) || [];
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({
+        x: (e.clientX / window.innerWidth - 0.5) * 20,
+        y: (e.clientY / window.innerHeight - 0.5) * 20,
+      });
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#0a0a0a] text-white overflow-x-hidden">
       {/* Navigation */}
-      <nav className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-white/5">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+          <div className="flex items-center justify-between h-20">
             <Link href="/">
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity cursor-pointer">
-                Gu Jahyeon
+              <span className="text-xl font-light tracking-wider cursor-pointer hover:opacity-70 transition-opacity">
+                JAHYEON<span className="text-emerald-400">.</span>
               </span>
             </Link>
-            <div className="flex items-center gap-8">
-              <Link href="/about">
-                <span className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors cursor-pointer">
-                  About
-                </span>
-              </Link>
-              <Link href="/projects">
-                <span className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors cursor-pointer">
-                  Projects
-                </span>
-              </Link>
-              <Link href="/certifications">
-                <span className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors cursor-pointer">
-                  Certifications
-                </span>
-              </Link>
-              <Link href="/resources">
-                <span className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors cursor-pointer">
-                  Resources
-                </span>
-              </Link>
-              <Link href="/admin">
-                <Button size="sm" variant="outline" className="rounded-full">
-                  Admin
-                </Button>
-              </Link>
+            
+            <div className="hidden md:flex items-center gap-12">
+              {["About", "Projects", "Certifications", "Resources"].map((item) => (
+                <Link key={item} href={`/${item.toLowerCase()}`}>
+                  <span className="text-sm font-light text-white/60 hover:text-white transition-colors cursor-pointer tracking-wide">
+                    {item}
+                  </span>
+                </Link>
+              ))}
             </div>
+
+            <Link href="/admin">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="rounded-full border-white/20 bg-transparent text-white hover:bg-white hover:text-black transition-all"
+              >
+                Admin
+              </Button>
+            </Link>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        {/* Background Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50" />
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-100 rounded-full blur-3xl opacity-30 -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-purple-100 rounded-full blur-3xl opacity-30 translate-y-1/2 -translate-x-1/2" />
-        
-        <div className="container mx-auto px-6 py-20 md:py-32 relative">
+      <section className="min-h-screen flex items-center justify-center relative pt-20">
+        {/* Background gradient orbs */}
+        <div 
+          className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[150px]"
+          style={{
+            transform: `translate(${mousePosition.x}px, ${mousePosition.y}px)`,
+          }}
+        />
+        <div 
+          className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[120px]"
+          style={{
+            transform: `translate(${-mousePosition.x}px, ${-mousePosition.y}px)`,
+          }}
+        />
+
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
           <div className="max-w-4xl">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 rounded-full text-blue-700 text-sm font-medium mb-6">
-              <Zap className="h-4 w-4" />
-              임베디드 시스템 전문가
-            </div>
+            <AnimatedSection>
+              <p className="text-emerald-400 font-mono text-sm tracking-widest mb-6">
+                EMBEDDED SYSTEMS ENGINEER
+              </p>
+            </AnimatedSection>
             
-            <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight">
-              안녕하세요,
-              <br />
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                구자현
-              </span>
-              입니다
-            </h1>
+            <AnimatedSection delay={100}>
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-light leading-[0.95] mb-8">
+                Building the bridge
+                <br />
+                between <span className="text-emerald-400">hardware</span>
+                <br />
+                and <span className="text-emerald-400">software</span>
+              </h1>
+            </AnimatedSection>
             
-            <p className="text-xl md:text-2xl text-gray-600 mb-10 leading-relaxed max-w-2xl">
-              IoT, 펌웨어 개발, 실시간 운영체제를 전문으로 하는 임베디드 시스템 개발자입니다.
-              현대 세계를 위한 효율적이고 신뢰할 수 있는 솔루션을 구축합니다.
-            </p>
-            
-            <div className="flex flex-wrap gap-4">
-              <Link href="/projects">
-                <Button size="lg" className="rounded-full bg-gray-900 hover:bg-gray-800 text-white px-8 h-12 text-base">
-                  프로젝트 보기
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              <Link href="/about">
-                <Button size="lg" variant="outline" className="rounded-full px-8 h-12 text-base border-gray-300">
-                  더 알아보기
-                </Button>
-              </Link>
-            </div>
+            <AnimatedSection delay={200}>
+              <p className="text-xl md:text-2xl text-white/50 font-light leading-relaxed max-w-2xl mb-12">
+                I transform complex systems into elegant solutions. 
+                Specializing in firmware development, IoT integration, 
+                and data-driven automation.
+              </p>
+            </AnimatedSection>
+
+            <AnimatedSection delay={300}>
+              <div className="flex flex-wrap gap-4">
+                <Link href="/projects">
+                  <Button 
+                    size="lg" 
+                    className="rounded-full bg-white text-black hover:bg-white/90 px-8 h-14 text-base font-medium group"
+                  >
+                    View Projects
+                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+                <Link href="/about">
+                  <Button 
+                    size="lg" 
+                    variant="outline" 
+                    className="rounded-full border-white/20 bg-transparent text-white hover:bg-white/10 px-8 h-14 text-base font-light"
+                  >
+                    About Me
+                  </Button>
+                </Link>
+              </div>
+            </AnimatedSection>
 
             {/* Stats */}
-            <div className="flex gap-12 mt-16 pt-8 border-t border-gray-200">
-              <div>
-                <div className="text-4xl font-bold text-gray-900">{projects?.length || 0}+</div>
-                <div className="text-gray-500 mt-1">프로젝트</div>
+            <AnimatedSection delay={400}>
+              <div className="flex gap-16 mt-20 pt-12 border-t border-white/10">
+                <div>
+                  <div className="text-4xl md:text-5xl font-light text-white">3+</div>
+                  <div className="text-white/40 mt-2 text-sm tracking-wide">Years Experience</div>
+                </div>
+                <div>
+                  <div className="text-4xl md:text-5xl font-light text-white">{projects?.length || 0}+</div>
+                  <div className="text-white/40 mt-2 text-sm tracking-wide">Projects</div>
+                </div>
+                <div>
+                  <div className="text-4xl md:text-5xl font-light text-white">4</div>
+                  <div className="text-white/40 mt-2 text-sm tracking-wide">Companies</div>
+                </div>
               </div>
-              <div>
-                <div className="text-4xl font-bold text-gray-900">{certifications?.length || 0}+</div>
-                <div className="text-gray-500 mt-1">자격증</div>
-              </div>
-              <div>
-                <div className="text-4xl font-bold text-gray-900">3+</div>
-                <div className="text-gray-500 mt-1">년 경험</div>
-              </div>
-            </div>
+            </AnimatedSection>
           </div>
+        </div>
+
+        {/* Scroll indicator */}
+        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 animate-bounce">
+          <span className="text-white/30 text-xs tracking-widest">SCROLL</span>
+          <ArrowDown className="w-4 h-4 text-white/30" />
         </div>
       </section>
 
-      {/* Features Grid */}
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">전문 분야</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              임베디드 시스템 개발의 다양한 영역에서 전문성을 갖추고 있습니다
-            </p>
-          </div>
-          
+      {/* Expertise Section */}
+      <section className="py-32 relative">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+          <AnimatedSection>
+            <p className="text-emerald-400 font-mono text-sm tracking-widest mb-4">EXPERTISE</p>
+            <h2 className="text-4xl md:text-5xl font-light mb-20">
+              What I bring to<br />the table
+            </h2>
+          </AnimatedSection>
+
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {FEATURES.map((feature, index) => {
-              const Icon = feature.icon;
+            {EXPERTISE.map((item, index) => {
+              const Icon = item.icon;
               return (
-                <Card key={index} className="border-0 shadow-sm hover:shadow-xl transition-all duration-300 bg-white rounded-2xl overflow-hidden group">
-                  <CardContent className="p-6">
-                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-r ${feature.color} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}>
-                      <Icon className="h-7 w-7 text-white" />
+                <AnimatedSection key={index} delay={index * 100}>
+                  <div className="group p-8 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-emerald-400/30 hover:bg-white/[0.04] transition-all duration-500">
+                    <div className="w-12 h-12 rounded-xl bg-emerald-400/10 flex items-center justify-center mb-6 group-hover:bg-emerald-400/20 transition-colors">
+                      <Icon className="w-6 h-6 text-emerald-400" />
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                    <p className="text-gray-600 text-sm leading-relaxed">{feature.description}</p>
-                  </CardContent>
-                </Card>
+                    <h3 className="text-lg font-medium mb-3">{item.title}</h3>
+                    <p className="text-white/40 text-sm leading-relaxed">{item.description}</p>
+                  </div>
+                </AnimatedSection>
               );
             })}
           </div>
         </div>
       </section>
 
-      {/* Skills Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+      {/* Experience Section */}
+      <section className="py-32 relative bg-white/[0.01]">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+          <div className="grid lg:grid-cols-2 gap-20">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">기술 스택</h2>
-              <p className="text-xl text-gray-600 mb-8">
-                다양한 프로그래밍 언어와 기술에 대한 깊은 이해를 바탕으로 최적의 솔루션을 제공합니다.
-              </p>
-              <Link href="/projects">
-                <Button variant="outline" className="rounded-full">
-                  프로젝트에서 확인하기
-                  <ChevronRight className="ml-1 h-4 w-4" />
-                </Button>
-              </Link>
+              <AnimatedSection>
+                <p className="text-emerald-400 font-mono text-sm tracking-widest mb-4">EXPERIENCE</p>
+                <h2 className="text-4xl md:text-5xl font-light mb-8">
+                  Professional<br />journey
+                </h2>
+                <p className="text-white/40 text-lg leading-relaxed mb-8">
+                  From embedded systems development at UHS to firmware analysis at LG Electronics, 
+                  I've built expertise across the full hardware-software stack.
+                </p>
+                <Link href="/about">
+                  <Button variant="link" className="text-emerald-400 hover:text-emerald-300 p-0 h-auto">
+                    Read full story
+                    <ChevronRight className="w-4 h-4 ml-1" />
+                  </Button>
+                </Link>
+              </AnimatedSection>
             </div>
-            
-            <div className="space-y-5">
-              {SKILLS.map((skill, index) => (
-                <div key={index}>
-                  <div className="flex justify-between mb-2">
-                    <span className="font-medium text-gray-900">{skill.name}</span>
-                    <span className="text-gray-500">{skill.level}%</span>
+
+            <div className="space-y-8">
+              {EXPERIENCE.map((exp, index) => (
+                <AnimatedSection key={index} delay={index * 100}>
+                  <div className="relative pl-8 border-l border-white/10 hover:border-emerald-400/50 transition-colors group">
+                    <div className="absolute left-0 top-0 w-2 h-2 rounded-full bg-white/20 -translate-x-[5px] group-hover:bg-emerald-400 transition-colors" />
+                    <p className="text-white/30 text-sm font-mono mb-2">{exp.period}</p>
+                    <h3 className="text-xl font-medium mb-1">{exp.company}</h3>
+                    <p className="text-emerald-400 text-sm mb-2">{exp.role}</p>
+                    <p className="text-white/40 text-sm">{exp.description}</p>
                   </div>
-                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-1000"
-                      style={{ width: `${skill.level}%` }}
-                    />
-                  </div>
-                </div>
+                </AnimatedSection>
               ))}
             </div>
           </div>
@@ -217,96 +319,115 @@ export default function Home() {
       </section>
 
       {/* Featured Projects */}
-      {featuredProjects.length > 0 && (
-        <section className="py-20 bg-gray-50">
-          <div className="container mx-auto px-6">
-            <div className="flex items-end justify-between mb-12">
-              <div>
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">최근 프로젝트</h2>
-                <p className="text-xl text-gray-600">최근에 진행한 프로젝트들을 확인해보세요</p>
+      {projects && projects.length > 0 && (
+        <section className="py-32">
+          <div className="max-w-7xl mx-auto px-6 lg:px-12">
+            <AnimatedSection>
+              <div className="flex items-end justify-between mb-16">
+                <div>
+                  <p className="text-emerald-400 font-mono text-sm tracking-widest mb-4">PROJECTS</p>
+                  <h2 className="text-4xl md:text-5xl font-light">Selected works</h2>
+                </div>
+                <Link href="/projects">
+                  <Button variant="link" className="text-white/60 hover:text-white p-0 h-auto hidden md:flex">
+                    View all projects
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
               </div>
-              <Link href="/projects">
-                <Button variant="outline" className="rounded-full hidden md:flex">
-                  전체 보기
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-            
+            </AnimatedSection>
+
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredProjects.map((project) => (
-                <Card key={project.id} className="border-0 shadow-sm hover:shadow-xl transition-all duration-300 bg-white rounded-2xl overflow-hidden group">
-                  {project.imageUrl && (
-                    <div className="aspect-video overflow-hidden bg-gray-100">
-                      <img 
-                        src={project.imageUrl} 
-                        alt={project.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
+              {projects.slice(0, 3).map((project, index) => (
+                <AnimatedSection key={project.id} delay={index * 100}>
+                  <div className="group relative rounded-2xl overflow-hidden bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all">
+                    <div className="aspect-video bg-gradient-to-br from-white/5 to-white/[0.02] overflow-hidden">
+                      {project.imageUrl ? (
+                        <img 
+                          src={project.imageUrl} 
+                          alt={project.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Code className="w-12 h-12 text-white/10" />
+                        </div>
+                      )}
                     </div>
-                  )}
-                  <CardContent className="p-5">
-                    <Badge className="mb-3 bg-blue-100 text-blue-700 hover:bg-blue-100">
-                      {project.category}
-                    </Badge>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
-                      {project.title}
-                    </h3>
-                    <p className="text-gray-600 text-sm line-clamp-2">{project.description}</p>
-                  </CardContent>
-                </Card>
+                    <div className="p-6">
+                      <p className="text-emerald-400 text-xs font-mono uppercase tracking-wider mb-2">
+                        {project.category}
+                      </p>
+                      <h3 className="text-lg font-medium mb-2 group-hover:text-emerald-400 transition-colors">
+                        {project.title}
+                      </h3>
+                      <p className="text-white/40 text-sm line-clamp-2">{project.description}</p>
+                    </div>
+                  </div>
+                </AnimatedSection>
               ))}
-            </div>
-            
-            <div className="text-center mt-8 md:hidden">
-              <Link href="/projects">
-                <Button variant="outline" className="rounded-full">
-                  전체 보기
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
             </div>
           </div>
         </section>
       )}
 
       {/* CTA Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-6">
-          <Card className="bg-gradient-to-r from-gray-900 to-gray-800 border-0 rounded-3xl overflow-hidden">
-            <CardContent className="p-12 md:p-16 text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                함께 프로젝트를 진행해보세요
+      <section className="py-32 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-500/5 to-transparent" />
+        
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+          <AnimatedSection>
+            <div className="text-center max-w-3xl mx-auto">
+              <h2 className="text-4xl md:text-6xl font-light mb-8">
+                Let's build something<br />
+                <span className="text-emerald-400">extraordinary</span>
               </h2>
-              <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-                임베디드 시스템 개발에 관한 문의나 협업 제안을 환영합니다
+              <p className="text-white/40 text-xl mb-12">
+                I'm always open to discussing new projects, creative ideas, 
+                or opportunities to be part of your vision.
               </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <Button size="lg" className="rounded-full bg-white text-gray-900 hover:bg-gray-100 px-8">
-                  <Mail className="mr-2 h-5 w-5" />
-                  연락하기
-                </Button>
-                <Button size="lg" variant="outline" className="rounded-full border-white/30 text-white hover:bg-white/10 px-8">
-                  <Github className="mr-2 h-5 w-5" />
-                  GitHub
-                </Button>
+              <div className="flex justify-center gap-6">
+                <a href="mailto:contact@jahyeon.com">
+                  <Button 
+                    size="lg" 
+                    className="rounded-full bg-white text-black hover:bg-white/90 px-8 h-14"
+                  >
+                    <Mail className="w-5 h-5 mr-2" />
+                    Get in Touch
+                  </Button>
+                </a>
+                <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+                  <Button 
+                    size="lg" 
+                    variant="outline" 
+                    className="rounded-full border-white/20 bg-transparent hover:bg-white/10 px-8 h-14"
+                  >
+                    <Github className="w-5 h-5 mr-2" />
+                    GitHub
+                  </Button>
+                </a>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </AnimatedSection>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t bg-white py-12">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="text-gray-500">© 2024 Gu Jahyeon. All rights reserved.</div>
+      <footer className="py-12 border-t border-white/5">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <p className="text-white/30 text-sm">
+              © 2024 Gu Jahyeon. All rights reserved.
+            </p>
             <div className="flex items-center gap-6">
-              <a href="#" className="text-gray-400 hover:text-gray-600 transition-colors">
-                <Github className="h-5 w-5" />
+              <a href="https://github.com" className="text-white/30 hover:text-white transition-colors">
+                <Github className="w-5 h-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-gray-600 transition-colors">
-                <Mail className="h-5 w-5" />
+              <a href="https://linkedin.com" className="text-white/30 hover:text-white transition-colors">
+                <Linkedin className="w-5 h-5" />
+              </a>
+              <a href="mailto:contact@jahyeon.com" className="text-white/30 hover:text-white transition-colors">
+                <Mail className="w-5 h-5" />
               </a>
             </div>
           </div>
