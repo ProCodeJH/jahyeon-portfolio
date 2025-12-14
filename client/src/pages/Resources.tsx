@@ -2,8 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { Download, Loader2, FileText, Code, Video, ExternalLink, Play, Presentation, BookOpen, Terminal, Cpu } from "lucide-react";
-import { toast } from "sonner";
+import { ExternalLink, Loader2, Award, Calendar, Building, ShieldCheck, X } from "lucide-react";
 
 function useInView(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null);
@@ -25,54 +24,9 @@ function AnimatedSection({ children, className = "", delay = 0 }: { children: Re
   );
 }
 
-const RESOURCE_CATEGORIES = [
-  { value: "all", label: "All Resources", icon: FileText },
-  { value: "daily_life", label: "Daily Videos", icon: Video },
-  { value: "lecture_materials", label: "Lectures", icon: BookOpen },
-  { value: "arduino_projects", label: "Arduino", icon: Cpu },
-  { value: "c_projects", label: "C Projects", icon: Terminal },
-  { value: "python_projects", label: "Python", icon: Code },
-];
-
-export default function Resources() {
-  const { data: resources, isLoading } = trpc.resources.list.useQuery();
-  const incrementDownload = trpc.resources.incrementDownload.useMutation();
-  const [activeTab, setActiveTab] = useState("all");
-  const [selectedVideo, setSelectedVideo] = useState<any>(null);
-
-  const filteredResources = resources?.filter((resource) => activeTab === "all" || resource.category === activeTab);
-
-  const handleDownload = async (resource: any) => {
-    try {
-      await incrementDownload.mutateAsync({ id: resource.id });
-      window.open(resource.fileUrl, '_blank');
-      toast.success(`Downloading ${resource.fileName}`);
-    } catch (error) {
-      toast.error("Failed to download file");
-    }
-  };
-
-  const getYouTubeId = (url: string) => {
-    const match = url?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
-    return match ? match[1] : null;
-  };
-
-  const getYouTubeThumbnail = (url: string) => {
-    const videoId = getYouTubeId(url);
-    return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : null;
-  };
-
-  const isYouTubeUrl = (url: string) => url?.includes('youtube.com') || url?.includes('youtu.be');
-  const isPPT = (mimeType: string, fileName: string) => mimeType?.includes('presentation') || mimeType?.includes('powerpoint') || fileName?.endsWith('.ppt') || fileName?.endsWith('.pptx');
-
-  const formatFileSize = (bytes: number) => {
-    if (!bytes) return "N/A";
-    if (bytes < 1024) return bytes + " B";
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
-    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
-  };
-
-  const getCategoryInfo = (category: string) => RESOURCE_CATEGORIES.find(c => c.value === category) || RESOURCE_CATEGORIES[0];
+export default function Certifications() {
+  const { data: certifications, isLoading } = trpc.certifications.list.useQuery();
+  const [selectedCert, setSelectedCert] = useState<any>(null);
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
@@ -84,7 +38,7 @@ export default function Resources() {
             <div className="hidden md:flex items-center gap-12">
               {["About", "Projects", "Certifications", "Resources"].map((item) => (
                 <Link key={item} href={`/${item.toLowerCase()}`}>
-                  <span className={`text-sm font-light transition-colors cursor-pointer tracking-wide ${item === "Resources" ? "text-white" : "text-white/60 hover:text-white"}`}>{item}</span>
+                  <span className={`text-sm font-light transition-colors cursor-pointer tracking-wide ${item === "Certifications" ? "text-white" : "text-white/60 hover:text-white"}`}>{item}</span>
                 </Link>
               ))}
             </div>
@@ -97,116 +51,78 @@ export default function Resources() {
       <section className="pt-40 pb-16">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <AnimatedSection>
-            <p className="text-emerald-400 font-mono text-sm tracking-widest mb-6">LEARNING MATERIALS</p>
-            <h1 className="text-4xl md:text-6xl font-light mb-6"><span className="text-emerald-400">Resources</span> & Downloads</h1>
-            <p className="text-white/50 text-xl max-w-2xl">Access lecture materials, code samples, presentations, and video tutorials.</p>
+            <p className="text-emerald-400 font-mono text-sm tracking-widest mb-6">CREDENTIALS</p>
+            <h1 className="text-4xl md:text-6xl font-light mb-6"><span className="text-emerald-400">Certifications</span></h1>
+            <p className="text-white/50 text-xl max-w-2xl">Professional certifications in embedded systems, programming, and related technologies.</p>
           </AnimatedSection>
         </div>
       </section>
 
-      {/* Filter */}
-      <section className="pb-12">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <AnimatedSection delay={100}>
-            <div className="flex flex-wrap gap-3">
-              {RESOURCE_CATEGORIES.map((category) => {
-                const Icon = category.icon;
-                return (
-                  <button key={category.value} onClick={() => setActiveTab(category.value)} className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-light transition-all ${activeTab === category.value ? "bg-white text-black" : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"}`}>
-                    <Icon className="w-4 h-4" />{category.label}
-                  </button>
-                );
-              })}
-            </div>
-          </AnimatedSection>
-        </div>
-      </section>
-
-      {/* Resources Grid */}
+      {/* Grid */}
       <section className="pb-32">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-32">
               <Loader2 className="w-10 h-10 animate-spin text-emerald-400 mb-4" />
-              <p className="text-white/40">Loading resources...</p>
+              <p className="text-white/40">Loading certifications...</p>
             </div>
-          ) : !filteredResources?.length ? (
+          ) : !certifications?.length ? (
             <div className="text-center py-32">
-              <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-6"><FileText className="w-10 h-10 text-white/20" /></div>
-              <h3 className="text-xl font-light mb-2">No resources found</h3>
-              <p className="text-white/40">No resources in this category yet.</p>
+              <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-6"><Award className="w-10 h-10 text-white/20" /></div>
+              <h3 className="text-xl font-light mb-2">No certifications found</h3>
+              <p className="text-white/40">Certifications will appear here once added.</p>
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredResources.map((resource, index) => {
-                const categoryInfo = getCategoryInfo(resource.category);
-                const thumbnail = resource.thumbnailUrl || (resource.fileUrl && isYouTubeUrl(resource.fileUrl) ? getYouTubeThumbnail(resource.fileUrl) : null);
-                const isVideo = resource.fileUrl && isYouTubeUrl(resource.fileUrl);
-                const isPPTFile = isPPT(resource.mimeType, resource.fileName);
-
-                return (
-                  <AnimatedSection key={resource.id} delay={index * 50}>
-                    <div className="group rounded-2xl overflow-hidden bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all duration-300">
-                      <div className="aspect-video overflow-hidden relative">
-                        {thumbnail ? (
-                          <>
-                            <img src={thumbnail} alt={resource.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                            {isVideo && (
-                              <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" onClick={() => setSelectedVideo(resource)}>
-                                <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center"><Play className="w-6 h-6 text-black ml-1" /></div>
-                              </div>
-                            )}
-                          </>
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-white/5 to-white/[0.02] flex items-center justify-center text-white/20">
-                            {isPPTFile ? <Presentation className="w-8 h-8" /> : <FileText className="w-8 h-8" />}
-                          </div>
-                        )}
-                        <div className="absolute top-3 left-3"><span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm text-white text-xs font-mono">{categoryInfo.label}</span></div>
-                        {isPPTFile && <div className="absolute top-3 right-3"><span className="px-2 py-1 rounded-full bg-orange-500/20 text-orange-400 text-xs font-mono flex items-center gap-1"><Presentation className="w-3 h-3" />PPT</span></div>}
-                      </div>
-
-                      <div className="p-5">
-                        <h3 className="text-lg font-medium mb-2 group-hover:text-emerald-400 transition-colors line-clamp-1">{resource.title}</h3>
-                        {resource.description && <p className="text-white/40 text-sm mb-4 line-clamp-2">{resource.description}</p>}
-                        <div className="flex items-center justify-between text-xs text-white/30 mb-4">
-                          <span>{formatFileSize(resource.fileSize)}</span>
-                          <span>{resource.downloadCount || 0} downloads</span>
+              {certifications.map((cert, index) => (
+                <AnimatedSection key={cert.id} delay={index * 100}>
+                  <div className="group rounded-2xl overflow-hidden bg-white/[0.02] border border-white/5 hover:border-emerald-400/30 transition-all duration-300 cursor-pointer" onClick={() => setSelectedCert(cert)}>
+                    <div className="aspect-[4/3] overflow-hidden relative">
+                      {cert.imageUrl ? (
+                        <img src={cert.imageUrl} alt={cert.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-emerald-500/10 to-blue-500/10 flex items-center justify-center">
+                          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-400 to-blue-500 flex items-center justify-center"><Award className="w-12 h-12 text-white" /></div>
                         </div>
-                        <div className="flex gap-2">
-                          {isVideo ? (
-                            <Button className="flex-1 rounded-xl bg-white text-black hover:bg-white/90" onClick={() => setSelectedVideo(resource)}><Play className="w-4 h-4 mr-2" />Watch</Button>
-                          ) : (
-                            <Button className="flex-1 rounded-xl bg-white text-black hover:bg-white/90" onClick={() => handleDownload(resource)}><Download className="w-4 h-4 mr-2" />Download</Button>
-                          )}
-                          {resource.fileUrl && !isVideo && (
-                            <Button variant="outline" className="rounded-xl border-white/10 bg-transparent hover:bg-white/10" onClick={() => window.open(resource.fileUrl, '_blank')}><ExternalLink className="w-4 h-4" /></Button>
-                          )}
-                        </div>
+                      )}
+                      <div className="absolute top-3 right-3"><span className="flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs"><ShieldCheck className="w-3 h-3" />Verified</span></div>
+                    </div>
+                    <div className="p-5">
+                      <h3 className="text-lg font-medium mb-2 group-hover:text-emerald-400 transition-colors line-clamp-1">{cert.title}</h3>
+                      <div className="flex items-center gap-2 text-white/40 text-sm mb-3"><Building className="w-4 h-4" />{cert.issuer}</div>
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-1 text-white/40"><Calendar className="w-3 h-3" />{cert.issueDate}</div>
+                        {cert.expiryDate && <span className="px-2 py-1 rounded-full bg-white/5 text-white/40">Expires: {cert.expiryDate}</span>}
                       </div>
                     </div>
-                  </AnimatedSection>
-                );
-              })}
+                  </div>
+                </AnimatedSection>
+              ))}
             </div>
           )}
         </div>
       </section>
 
-      {/* Video Modal */}
-      {selectedVideo && (
-        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-6" onClick={() => setSelectedVideo(null)}>
-          <div className="w-full max-w-5xl rounded-2xl overflow-hidden bg-[#0a0a0a]" onClick={(e) => e.stopPropagation()}>
-            <div className="p-4 border-b border-white/10 flex items-center justify-between">
-              <div><h3 className="text-lg font-medium">{selectedVideo.title}</h3>{selectedVideo.description && <p className="text-white/40 text-sm">{selectedVideo.description}</p>}</div>
-              <button className="text-white/40 hover:text-white" onClick={() => setSelectedVideo(null)}>✕</button>
+      {/* Modal */}
+      {selectedCert && (
+        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-6" onClick={() => setSelectedCert(null)}>
+          <div className="w-full max-w-2xl rounded-2xl overflow-hidden bg-[#0a0a0a] border border-white/10" onClick={(e) => e.stopPropagation()}>
+            <div className="p-6 border-b border-white/10 flex items-start justify-between">
+              <div className="flex items-start gap-4">
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-400 to-blue-500 flex items-center justify-center flex-shrink-0"><Award className="w-7 h-7 text-white" /></div>
+                <div><h2 className="text-2xl font-light">{selectedCert.title}</h2><p className="text-white/40 mt-1">{selectedCert.issuer}</p></div>
+              </div>
+              <button className="text-white/40 hover:text-white p-2" onClick={() => setSelectedCert(null)}><X className="w-5 h-5" /></button>
             </div>
-            <div className="aspect-video bg-black">
-              {isYouTubeUrl(selectedVideo.fileUrl) ? (
-                <iframe src={`https://www.youtube.com/embed/${getYouTubeId(selectedVideo.fileUrl)}?autoplay=1`} className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
-              ) : (
-                <video controls autoPlay className="w-full h-full"><source src={selectedVideo.fileUrl} type={selectedVideo.mimeType} /></video>
-              )}
+            {selectedCert.imageUrl && <div className="aspect-video bg-black/50"><img src={selectedCert.imageUrl} alt={selectedCert.title} className="w-full h-full object-contain" /></div>}
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 rounded-xl bg-white/[0.02]"><p className="text-white/40 text-sm mb-1">Issue Date</p><p className="font-medium">{selectedCert.issueDate}</p></div>
+                {selectedCert.expiryDate && <div className="p-4 rounded-xl bg-white/[0.02]"><p className="text-white/40 text-sm mb-1">Expiry Date</p><p className="font-medium">{selectedCert.expiryDate}</p></div>}
+              </div>
+              {selectedCert.credentialId && <div className="p-4 rounded-xl bg-white/[0.02]"><p className="text-white/40 text-sm mb-1">Credential ID</p><p className="font-mono text-emerald-400">{selectedCert.credentialId}</p></div>}
+              {selectedCert.description && <div><p className="text-white/40 text-sm mb-2">Description</p><p className="text-white/70">{selectedCert.description}</p></div>}
+              {selectedCert.credentialUrl && <Button className="w-full rounded-xl bg-white text-black hover:bg-white/90" asChild><a href={selectedCert.credentialUrl} target="_blank" rel="noopener noreferrer"><ExternalLink className="w-4 h-4 mr-2" />Verify Credential</a></Button>}
             </div>
           </div>
         </div>
