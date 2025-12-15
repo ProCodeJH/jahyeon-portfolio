@@ -1,323 +1,154 @@
-import { COOKIE_NAME } from "@shared/const";
-import { getSessionCookieOptions } from "./_core/cookies";
-import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
-import { storagePut } from "./storage";
-import { nanoid } from "nanoid";
-import * as db from "./db";
+import { initTRPC, TRPCError } from "@trpc/server";
+import { db } from "./db";
+import { projects, certifications, resources, analytics, users, sessions } from "@shared/schema";
+import { eq, desc, sql, and, gte } from "drizzle-orm";
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 
-// Declare global type for upload chunks
-declare global {
-  var uploadChunks: Map<string, {
-    chunks: (Buffer | null)[];
-    receivedCount: number;
-    totalChunks: number;
-    fileName: string;
-    contentType: string;
-  }> | undefined;
+const t = initTRPC.context<{ userId?: string }>().create();
+
+const s3Client = new S3Client({
+  region: "auto",
+  endpoint: process.env.R2_ENDPOINT,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID || "",
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || "",
+  },
+});
+
+const R2_BUCKET = process.env.R2_BUCKET || "portfolio-files";
+const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL || "";
+
+const isAuthenticated = t.middleware(async ({ ctx, next }) => {
+  if (!ctx.userId) throw new TRPCError({ code: "UNAUTHORIZED", message: "Not authenticated" });
+  return next({ ctx: { ...ctx, userId: ctx.userId } });
+});
+
+const publicProcedure = t.procedure;
+const protectedProcedure = t.procedure.use(isAuthenticated);
+
+async function uploadToR2(fileName: string, fileContent: Buffer, contentType: string): Promise<{ url: string; key: string }> {
+  const key = `uploads/${Date.now()}-${fileName.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+  await s3Client.send(new PutObjectCommand({ Bucket: R2_BUCKET, Key: key, Body: fileContent, ContentType: contentType }));
+  return { url: `${R2_PUBLIC_URL}/${key}`, key };
 }
 
-export const appRouter = router({
-  auth: router({
-    me: publicProcedure.query(opts => opts.ctx.user),
-    logout: publicProcedure.mutation(({ ctx }) => {
-      const cookieOptions = getSessionCookieOptions(ctx.req);
-      ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
-      return {
-        success: true,
-      } as const;
+async function deleteFromR2(key: string): Promise<void> {
+  if (!key) return;
+  try { await s3Client.send(new DeleteObjectCommand({ Bucket: R2_BUCKET, Key: key })); } catch (e) { console.error("R2 delete error:", e); }
+}
+
+export const appRouter = t.router({
+  auth: t.router({
+    login: publicProcedure.input(z.object({ password: z.string() })).mutation(async ({ input }) => {
+      const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
+      if (input.password !== adminPassword) throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid password" });
+      const sessionToken = crypto.randomUUID();
+      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      let user = await db.query.users.findFirst({ where: eq(users.username, "admin") });
+      if (!user) { const [newUser] = await db.insert(users).values({ username: "admin", passwordHash: adminPassword }).returning(); user = newUser; }
+      await db.insert(sessions).values({ userId: user.id, token: sessionToken, expiresAt });
+      return { token: sessionToken, expiresAt };
+    }),
+    logout: protectedProcedure.mutation(async ({ ctx }) => {
+      await db.delete(sessions).where(eq(sessions.userId, parseInt(ctx.userId)));
+      return { success: true };
+    }),
+    verify: publicProcedure.input(z.object({ token: z.string() })).query(async ({ input }) => {
+      const session = await db.query.sessions.findFirst({ where: and(eq(sessions.token, input.token), gte(sessions.expiresAt, new Date())) });
+      return { valid: !!session, userId: session?.userId?.toString() };
     }),
   }),
 
-  // File upload
-  upload: router({
-    uploadChunk: publicProcedure
-      .input(z.object({
-        fileName: z.string(),
-        fileContent: z.string(), // base64 chunk
-        chunkIndex: z.number(),
-        totalChunks: z.number(),
-        uploadId: z.string().optional(),
-        contentType: z.string(),
-      }))
-      .mutation(async ({ input }) => {
-        const { storagePut } = await import('./storage');
-        
-        // Generate upload ID for first chunk
-        const uploadId = input.uploadId || nanoid();
-        
-        // Store chunks in memory (in production, use Redis or disk storage)
-        if (!global.uploadChunks) {
-          global.uploadChunks = new Map();
-        }
-        
-        const uploadKey = uploadId;
-        
-        // Initialize upload session if not exists
-        if (!global.uploadChunks.has(uploadKey)) {
-          // null로 채워진 배열 생성 (빈 슬롯 대신)
-          const chunks: (Buffer | null)[] = [];
-          for (let i = 0; i < input.totalChunks; i++) {
-            chunks.push(null);
-          }
-          
-          global.uploadChunks.set(uploadKey, {
-            chunks,
-            receivedCount: 0,
-            totalChunks: input.totalChunks,
-            fileName: input.fileName,
-            contentType: input.contentType,
-          });
-        }
-        
-        const uploadData = global.uploadChunks.get(uploadKey);
-        if (!uploadData) {
-          throw new Error('Upload session not found');
-        }
-        
-        // 유효한 청크 인덱스인지 확인
-        if (input.chunkIndex < 0 || input.chunkIndex >= uploadData.totalChunks) {
-          throw new Error(`Invalid chunk index: ${input.chunkIndex}`);
-        }
-        
-        // 이미 받은 청크가 아닌 경우에만 카운트 증가
-        if (uploadData.chunks[input.chunkIndex] === null) {
-          uploadData.receivedCount++;
-        }
-        
-        // 청크 데이터 저장
-        const buffer = Buffer.from(input.fileContent, 'base64');
-        uploadData.chunks[input.chunkIndex] = buffer;
-        
-        console.log(`Chunk ${input.chunkIndex + 1}/${uploadData.totalChunks} received for ${uploadData.fileName} (${uploadData.receivedCount}/${uploadData.totalChunks})`);
-        
-        // Check if all chunks have been received
-        const allChunksReceived = uploadData.receivedCount >= uploadData.totalChunks;
-        
-        if (allChunksReceived) {
-          // 모든 청크가 null이 아닌지 확인
-          const hasAllChunks = uploadData.chunks.every((chunk): chunk is Buffer => chunk !== null);
-          
-          if (!hasAllChunks) {
-            throw new Error('Some chunks are missing');
-          }
-          
-          // Combine all chunks
-          const combinedBuffer = Buffer.concat(uploadData.chunks as Buffer[]);
-          
-          console.log(`All chunks received. Combined size: ${combinedBuffer.length} bytes`);
-          
-          // Upload the combined file
-          const fileExtension = uploadData.fileName.includes('.') 
-            ? uploadData.fileName.split('.').pop() 
-            : 'bin';
-          const finalFileKey = `uploads/${uploadId}-${Date.now()}.${fileExtension}`;
-          
-          const result = await storagePut(finalFileKey, combinedBuffer, uploadData.contentType);
-          
-          console.log(`File uploaded successfully: ${result.url}`);
-          
-          // Clean up
-          global.uploadChunks.delete(uploadKey);
-          
-          return {
-            uploadId,
-            fileKey: finalFileKey,
-            publicUrl: result.url,
-            complete: true,
-          };
-        }
-        
-        return {
-          uploadId,
-          fileKey: '',
-          publicUrl: '',
-          complete: false,
-        };
-      }),
-    file: publicProcedure
-      .input(z.object({
-        fileName: z.string(),
-        fileContent: z.string(), // base64
-        contentType: z.string(),
-      }))
-      .mutation(async ({ input }) => {
-        const buffer = Buffer.from(input.fileContent, 'base64');
-        const fileKey = `uploads/${nanoid()}-${input.fileName}`;
-        const result = await storagePut(fileKey, buffer, input.contentType);
-        return result;
-      }),
+  upload: t.router({
+    file: protectedProcedure.input(z.object({ fileName: z.string(), fileContent: z.string(), contentType: z.string() })).mutation(async ({ input }) => {
+      const buffer = Buffer.from(input.fileContent, "base64");
+      return uploadToR2(input.fileName, buffer, input.contentType);
+    }),
   }),
 
-  // Projects
-  projects: router({
-    list: publicProcedure.query(async () => {
-      return await db.getAllProjects();
+  projects: t.router({
+    list: publicProcedure.query(async () => db.select().from(projects).orderBy(desc(projects.createdAt))),
+    get: publicProcedure.input(z.object({ id: z.number() })).query(async ({ input }) => {
+      const project = await db.query.projects.findFirst({ where: eq(projects.id, input.id) });
+      if (!project) throw new TRPCError({ code: "NOT_FOUND" });
+      return project;
     }),
-    get: publicProcedure
-      .input(z.object({ id: z.number() }))
-      .query(async ({ input }) => {
-        return await db.getProjectById(input.id);
-      }),
-    create: protectedProcedure
-      .input(z.object({
-        title: z.string(),
-        description: z.string(),
-        technologies: z.string(),
-        imageUrl: z.string().optional(),
-        imageKey: z.string().optional(),
-        projectUrl: z.string().optional(),
-        githubUrl: z.string().optional(),
-        category: z.enum(["embedded", "iot", "firmware", "hardware", "software"]),
-        featured: z.number().default(0),
-        displayOrder: z.number().default(0),
-      }))
-      .mutation(async ({ input }) => {
-        return await db.createProject(input);
-      }),
-    update: protectedProcedure
-      .input(z.object({
-        id: z.number(),
-        data: z.object({
-          title: z.string().optional(),
-          description: z.string().optional(),
-          technologies: z.string().optional(),
-          imageUrl: z.string().optional(),
-          imageKey: z.string().optional(),
-          projectUrl: z.string().optional(),
-          githubUrl: z.string().optional(),
-          category: z.enum(["embedded", "iot", "firmware", "hardware", "software"]).optional(),
-          featured: z.number().optional(),
-          displayOrder: z.number().optional(),
-        }),
-      }))
-      .mutation(async ({ input }) => {
-        await db.updateProject(input.id, input.data);
-        return { success: true };
-      }),
-    delete: protectedProcedure
-      .input(z.object({ id: z.number() }))
-      .mutation(async ({ input }) => {
-        await db.deleteProject(input.id);
-        return { success: true };
-      }),
+    create: protectedProcedure.input(z.object({
+      title: z.string().min(1), description: z.string().optional().default(""), technologies: z.string().optional().default(""),
+      category: z.string(), imageUrl: z.string().optional().default(""), imageKey: z.string().optional().default(""),
+      videoUrl: z.string().optional().default(""), videoKey: z.string().optional().default(""),
+      thumbnailUrl: z.string().optional().default(""), thumbnailKey: z.string().optional().default(""),
+      projectUrl: z.string().optional().default(""), githubUrl: z.string().optional().default(""),
+    })).mutation(async ({ input }) => { const [project] = await db.insert(projects).values(input).returning(); return project; }),
+    update: protectedProcedure.input(z.object({
+      id: z.number(), title: z.string().min(1).optional(), description: z.string().optional(), technologies: z.string().optional(),
+      category: z.string().optional(), imageUrl: z.string().optional(), imageKey: z.string().optional(),
+      videoUrl: z.string().optional(), videoKey: z.string().optional(), thumbnailUrl: z.string().optional(), thumbnailKey: z.string().optional(),
+      projectUrl: z.string().optional(), githubUrl: z.string().optional(),
+    })).mutation(async ({ input }) => { const { id, ...data } = input; const [updated] = await db.update(projects).set(data).where(eq(projects.id, id)).returning(); return updated; }),
+    delete: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
+      const project = await db.query.projects.findFirst({ where: eq(projects.id, input.id) });
+      if (project) { if (project.imageKey) await deleteFromR2(project.imageKey); if (project.videoKey) await deleteFromR2(project.videoKey); if (project.thumbnailKey) await deleteFromR2(project.thumbnailKey); }
+      await db.delete(projects).where(eq(projects.id, input.id));
+      return { success: true };
+    }),
+    incrementView: publicProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
+      await db.update(projects).set({ viewCount: sql`${projects.viewCount} + 1` }).where(eq(projects.id, input.id));
+      return { success: true };
+    }),
   }),
 
-  // Certifications
-  certifications: router({
-    list: publicProcedure.query(async () => {
-      return await db.getAllCertifications();
+  certifications: t.router({
+    list: publicProcedure.query(async () => db.select().from(certifications).orderBy(desc(certifications.createdAt))),
+    create: protectedProcedure.input(z.object({
+      title: z.string().min(1), issuer: z.string().min(1), issueDate: z.string(),
+      expiryDate: z.string().optional().default(""), credentialId: z.string().optional().default(""),
+      credentialUrl: z.string().optional().default(""), imageUrl: z.string().optional().default(""),
+      imageKey: z.string().optional().default(""), description: z.string().optional().default(""),
+    })).mutation(async ({ input }) => { const [cert] = await db.insert(certifications).values(input).returning(); return cert; }),
+    delete: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
+      const cert = await db.query.certifications.findFirst({ where: eq(certifications.id, input.id) });
+      if (cert?.imageKey) await deleteFromR2(cert.imageKey);
+      await db.delete(certifications).where(eq(certifications.id, input.id));
+      return { success: true };
     }),
-    get: publicProcedure
-      .input(z.object({ id: z.number() }))
-      .query(async ({ input }) => {
-        return await db.getCertificationById(input.id);
-      }),
-    create: protectedProcedure
-      .input(z.object({
-        title: z.string(),
-        issuer: z.string(),
-        issueDate: z.string(),
-        expiryDate: z.string().optional(),
-        credentialId: z.string().optional(),
-        credentialUrl: z.string().optional(),
-        imageUrl: z.string().optional(),
-        imageKey: z.string().optional(),
-        description: z.string().optional(),
-        displayOrder: z.number().default(0),
-      }))
-      .mutation(async ({ input }) => {
-        return await db.createCertification(input);
-      }),
-    update: protectedProcedure
-      .input(z.object({
-        id: z.number(),
-        data: z.object({
-          title: z.string().optional(),
-          issuer: z.string().optional(),
-          issueDate: z.string().optional(),
-          expiryDate: z.string().optional(),
-          credentialId: z.string().optional(),
-          credentialUrl: z.string().optional(),
-          imageUrl: z.string().optional(),
-          imageKey: z.string().optional(),
-          description: z.string().optional(),
-          displayOrder: z.number().optional(),
-        }),
-      }))
-      .mutation(async ({ input }) => {
-        await db.updateCertification(input.id, input.data);
-        return { success: true };
-      }),
-    delete: protectedProcedure
-      .input(z.object({ id: z.number() }))
-      .mutation(async ({ input }) => {
-        await db.deleteCertification(input.id);
-        return { success: true };
-      }),
   }),
 
-  // Resources
-  resources: router({
-    list: publicProcedure.query(async () => {
-      return await db.getAllResources();
+  resources: t.router({
+    list: publicProcedure.query(async () => db.select().from(resources).orderBy(desc(resources.createdAt))),
+    create: protectedProcedure.input(z.object({
+      title: z.string().min(1), description: z.string().optional().default(""), category: z.string(),
+      subcategory: z.string().optional().default(""), fileUrl: z.string(), fileKey: z.string().optional().default(""),
+      fileName: z.string().optional().default(""), fileSize: z.number().optional().default(0),
+      mimeType: z.string().optional().default(""), thumbnailUrl: z.string().optional().default(""), thumbnailKey: z.string().optional().default(""),
+    })).mutation(async ({ input }) => { const [resource] = await db.insert(resources).values(input).returning(); return resource; }),
+    delete: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
+      const resource = await db.query.resources.findFirst({ where: eq(resources.id, input.id) });
+      if (resource) { if (resource.fileKey) await deleteFromR2(resource.fileKey); if (resource.thumbnailKey) await deleteFromR2(resource.thumbnailKey); }
+      await db.delete(resources).where(eq(resources.id, input.id));
+      return { success: true };
     }),
-    get: publicProcedure
-      .input(z.object({ id: z.number() }))
-      .query(async ({ input }) => {
-        return await db.getResourceById(input.id);
-      }),
-    create: protectedProcedure
-      .input(z.object({
-        title: z.string(),
-        description: z.string().optional(),
-        fileUrl: z.string(),
-        fileKey: z.string(),
-        fileName: z.string(),
-        fileSize: z.number(),
-        mimeType: z.string(),
-        category: z.enum(["daily_life", "lecture_materials", "arduino_projects", "c_projects", "python_projects"]),
-        subcategory: z.enum(["code", "documentation", "images"]).optional(),
-        thumbnailUrl: z.string().optional(),
-        thumbnailKey: z.string().optional(),
-        displayOrder: z.number().default(0),
-      }))
-      .mutation(async ({ input }) => {
-        return await db.createResource(input);
-      }),
-    update: protectedProcedure
-      .input(z.object({
-        id: z.number(),
-        data: z.object({
-          title: z.string().optional(),
-          description: z.string().optional(),
-          fileUrl: z.string().optional(),
-          fileKey: z.string().optional(),
-          fileName: z.string().optional(),
-          fileSize: z.number().optional(),
-          mimeType: z.string().optional(),
-          category: z.enum(["daily_life", "lecture_materials", "arduino_projects", "c_projects", "python_projects"]).optional(),
-          thumbnailUrl: z.string().optional(),
-          thumbnailKey: z.string().optional(),
-          displayOrder: z.number().optional(),
-        }),
-      }))
-      .mutation(async ({ input }) => {
-        await db.updateResource(input.id, input.data);
-        return { success: true };
-      }),
-    delete: protectedProcedure
-      .input(z.object({ id: z.number() }))
-      .mutation(async ({ input }) => {
-        await db.deleteResource(input.id);
-        return { success: true };
-      }),
-    incrementDownload: publicProcedure
-      .input(z.object({ id: z.number() }))
-      .mutation(async ({ input }) => {
-        await db.incrementResourceDownload(input.id);
-        return { success: true };
-      }),
+    incrementDownload: publicProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
+      await db.update(resources).set({ downloadCount: sql`${resources.downloadCount} + 1` }).where(eq(resources.id, input.id));
+      return { success: true };
+    }),
+  }),
+
+  analytics: t.router({
+    track: publicProcedure.input(z.object({ page: z.string(), sessionId: z.string().optional(), referrer: z.string().optional(), userAgent: z.string().optional() })).mutation(async ({ input }) => {
+      await db.insert(analytics).values({ page: input.page, sessionId: input.sessionId || crypto.randomUUID(), referrer: input.referrer || "", userAgent: input.userAgent || "" });
+      return { success: true };
+    }),
+    adminStats: protectedProcedure.query(async () => {
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const [totalResult] = await db.select({ count: sql<number>`count(*)` }).from(analytics);
+      const [todayResult] = await db.select({ count: sql<number>`count(*)` }).from(analytics).where(gte(analytics.timestamp, today));
+      const [uniqueResult] = await db.select({ count: sql<number>`count(distinct ${analytics.sessionId})` }).from(analytics);
+      const topProjects = await db.select().from(projects).orderBy(desc(projects.viewCount)).limit(5);
+      const topResources = await db.select().from(resources).orderBy(desc(resources.downloadCount)).limit(5);
+      return { totalViews: totalResult?.count || 0, todayViews: todayResult?.count || 0, uniqueVisitors: uniqueResult?.count || 0, topProjects, topResources };
+    }),
   }),
 });
 
