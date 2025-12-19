@@ -3,12 +3,32 @@ import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import { pgTable, pgEnum, serial, text, timestamp, varchar, integer, boolean } from "drizzle-orm/pg-core";
 import { eq, desc, sql, and } from "drizzle-orm";
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, DeleteObjectCommand, PutBucketCorsCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 // ============ SCHEMA ============
 const roleEnum = pgEnum("role", ["user", "admin"]);
-const projectCategoryEnum = pgEnum("project_category", ["c_lang", "arduino", "python"]);
-const resourceCategoryEnum = pgEnum("resource_category", ["daily_life", "lecture_c", "lecture_arduino", "lecture_python"]);
+const projectCategoryEnum = pgEnum("project_category", [
+  "c_lang",
+  "arduino",
+  "python",
+  "embedded",
+  "iot",
+  "firmware",
+  "hardware",
+  "software",
+]);
+const resourceCategoryEnum = pgEnum("resource_category", [
+  "daily_life",
+  "lecture_c",
+  "lecture_arduino",
+  "lecture_python",
+  "presentation",
+  "lecture_materials",
+  "arduino_projects",
+  "c_projects",
+  "python_projects",
+]);
 const subcategoryEnum = pgEnum("subcategory", ["code", "documentation", "images", "ppt", "video"]);
 
 const users = pgTable("users", {
@@ -117,32 +137,201 @@ function getDb() {
 }
 
 // ============ STORAGE (R2) ============
+type R2Config = {
+  bucket: string;
+  publicUrl: string;
+  endpoint: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+};
+
+function normalizeOrigin(origin?: string | null): string | null {
+  if (!origin) return null;
+  const trimmed = origin.trim();
+  if (!/^https?:\/\//i.test(trimmed)) return null;
+
+  try {
+    const parsed = new URL(trimmed);
+    const protocol = parsed.protocol === "https:" ? "https:" : parsed.protocol === "http:" ? "http:" : null;
+    if (!protocol || !parsed.hostname) return null;
+
+    const hostname = parsed.hostname.toLowerCase();
+    const port = parsed.port ? `:${parsed.port}` : "";
+    return `${protocol}//${hostname}${port}`;
+  } catch {
+    return null;
+  }
+}
+
+function addOriginWithVariants(origins: Set<string>, origin?: string | null) {
+  const normalized = normalizeOrigin(origin);
+  if (!normalized) return;
+
+  origins.add(normalized);
+
+  try {
+    const parsed = new URL(normalized);
+    const protocol = parsed.protocol;
+    const port = parsed.port ? `:${parsed.port}` : "";
+    const hostname = parsed.hostname.toLowerCase();
+
+    if (hostname.startsWith("www.")) {
+      origins.add(`${protocol}//${hostname.slice(4)}${port}`);
+    } else {
+      origins.add(`${protocol}//www.${hostname}${port}`);
+    }
+  } catch {
+    // If variant generation fails, continue with the normalized origin only
+  }
+}
+
+function getRequestOrigin(req: VercelRequest): string | null {
+  const headerOrigin = normalizeOrigin(req.headers.origin as string | undefined);
+  if (headerOrigin) return headerOrigin;
+
+  const referer = normalizeOrigin(req.headers.referer as string | undefined);
+  if (referer) return referer;
+
+  const host = req.headers.host;
+  if (!host) return null;
+
+  const protocol = (req.headers["x-forwarded-proto"] as string | undefined) || "https";
+  return normalizeOrigin(`${protocol}://${host}`);
+}
+
+function getAllowedOrigins(requestOrigin?: string | null): string[] {
+  const origins = new Set<string>();
+
+  const configured = (process.env.UPLOAD_ALLOWED_ORIGINS || "")
+    .split(",")
+    .map(origin => origin.trim())
+    .filter(Boolean);
+
+  for (const origin of configured) {
+    addOriginWithVariants(origins, origin);
+  }
+
+  const vercelUrls = [
+    process.env.VERCEL_URL,
+    process.env.VERCEL_BRANCH_URL,
+    process.env.VERCEL_PROJECT_PRODUCTION_URL,
+  ].filter(Boolean);
+
+  for (const url of vercelUrls) {
+    const normalized = `https://${url!.replace(/^https?:\/\//, "")}`;
+    addOriginWithVariants(origins, normalized);
+  }
+
+  addOriginWithVariants(origins, requestOrigin);
+
+  if (origins.size === 0) {
+    origins.add("*");
+  }
+
+  return Array.from(origins);
+}
+
+function getR2Config(): R2Config | null {
+  const bucket = process.env.R2_BUCKET_NAME || process.env.R2_BUCKET;
+  const publicUrl = (process.env.R2_PUBLIC_URL || "").replace(/\/+$/, "");
+  const accountEndpoint = process.env.R2_ACCOUNT_ID
+    ? `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`
+    : undefined;
+  const endpoint = process.env.R2_ENDPOINT || accountEndpoint;
+  const accessKeyId = process.env.R2_ACCESS_KEY_ID || "";
+  const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY || "";
+
+  if (!bucket || !publicUrl || !endpoint || !accessKeyId || !secretAccessKey) {
+    return null;
+  }
+
+  return { bucket, publicUrl, endpoint, accessKeyId, secretAccessKey };
+}
+
+function requireR2Config() {
+  const config = getR2Config();
+  if (!config) {
+    throw new Error("Storage is not configured.");
+  }
+  return config;
+}
+
 function getS3Client() {
+  const { endpoint, accessKeyId, secretAccessKey } = requireR2Config();
   return new S3Client({
     region: "auto",
-    endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    endpoint,
     credentials: {
-      accessKeyId: process.env.R2_ACCESS_KEY_ID || "",
-      secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || "",
+      accessKeyId,
+      secretAccessKey,
     },
   });
 }
 
+let ensureCorsPromise: Promise<void> | null = null;
+let cachedCorsOrigins: string[] | null = null;
+
+function originsEqual(a: string[] | null, b: string[] | null) {
+  if (!a || !b) return false;
+  if (a.length !== b.length) return false;
+  const sortedA = [...a].sort();
+  const sortedB = [...b].sort();
+  return sortedA.every((value, index) => value === sortedB[index]);
+}
+
+async function ensureBucketCors(requestOrigin?: string | null) {
+  const allowedOrigins = getAllowedOrigins(requestOrigin);
+
+  if (originsEqual(cachedCorsOrigins, allowedOrigins) && ensureCorsPromise) {
+    return ensureCorsPromise;
+  }
+
+  const { bucket } = requireR2Config();
+  const client = getS3Client();
+
+  ensureCorsPromise = client
+    .send(new PutBucketCorsCommand({
+      Bucket: bucket,
+      CORSConfiguration: {
+        CORSRules: [
+          {
+            AllowedHeaders: ["*"],
+            AllowedMethods: ["GET", "PUT", "POST", "DELETE", "HEAD", "OPTIONS"],
+            AllowedOrigins: allowedOrigins,
+            ExposeHeaders: ["ETag", "Location"],
+            MaxAgeSeconds: 3000,
+          },
+        ],
+      },
+    }))
+    .then(() => {
+      cachedCorsOrigins = allowedOrigins;
+    })
+    .catch(err => {
+      ensureCorsPromise = null;
+      throw err;
+    });
+
+  return ensureCorsPromise;
+}
+
 async function uploadToR2(key: string, body: Buffer, contentType: string) {
+  const { bucket, publicUrl } = requireR2Config();
   const client = getS3Client();
   await client.send(new PutObjectCommand({
-    Bucket: process.env.R2_BUCKET_NAME,
+    Bucket: bucket,
     Key: key,
     Body: body,
     ContentType: contentType,
   }));
-  return { url: `${process.env.R2_PUBLIC_URL}/${key}`, key };
+  return { url: `${publicUrl}/${key}`, key };
 }
 
 async function deleteFromR2(key: string) {
+  const { bucket } = requireR2Config();
   const client = getS3Client();
   await client.send(new DeleteObjectCommand({
-    Bucket: process.env.R2_BUCKET_NAME,
+    Bucket: bucket,
     Key: key,
   }));
 }
@@ -177,10 +366,22 @@ const uploadChunks = new Map<string, {
 
 // ============ MAIN HANDLER ============
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  const normalizedRequestOrigin = getRequestOrigin(req);
+  const allowedOrigins = getAllowedOrigins(normalizedRequestOrigin);
+  const allowOriginHeader = allowedOrigins.includes("*")
+    ? "*"
+    : normalizedRequestOrigin && allowedOrigins.includes(normalizedRequestOrigin)
+      ? normalizedRequestOrigin
+      : allowedOrigins[0] ?? "*";
+
+  res.setHeader("Vary", "Origin");
+  res.setHeader("Access-Control-Allow-Origin", allowOriginHeader);
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
+
+  if (allowOriginHeader !== "*") {
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+  }
   
   if (req.method === "OPTIONS") {
     return res.status(200).end();
@@ -243,7 +444,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         input = {};
       }
       
-      const protectedPrefixes = ["create", "update", "delete", "admin"];
+      const protectedPrefixes = ["create", "update", "delete", "admin", "upload"];
       const isProtected = protectedPrefixes.some(r => trpcPath?.includes(r));
       
       if (isProtected && !isAuthenticated(req)) {
@@ -524,10 +725,56 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const result = await uploadToR2(key, buffer, contentType);
           return res.json({ result: { data: { url: result.url, key: result.key } } });
         }
-        
+
+        case "upload.getPresignedUrl": {
+          try {
+            const { fileName, contentType, fileSize } = input;
+            const MAX_SIZE = 500 * 1024 * 1024; // 500MB
+
+            if (fileSize > MAX_SIZE) {
+              return res.status(400).json({ error: { message: "File too large. Max 500MB allowed." } });
+            }
+
+            const config = getR2Config();
+            if (!config) {
+              return res.status(500).json({ error: { message: "Storage is not configured." } });
+            }
+
+            const sanitizedName = fileName.replace(/[^a-zA-Z0-9.-]/g, "_");
+            const key = `uploads/${Date.now()}-${sanitizedName}`;
+
+            try {
+              await ensureBucketCors(normalizedRequestOrigin);
+            } catch (error) {
+              console.error("Failed to sync bucket CORS:", error);
+            }
+
+            const command = new PutObjectCommand({
+              Bucket: config.bucket,
+              Key: key,
+              ContentType: contentType,
+            });
+
+            const presignedUrl = await getSignedUrl(getS3Client(), command, { expiresIn: 3600 });
+
+            return res.json({
+              result: {
+                data: {
+                  presignedUrl,
+                  key,
+                  publicUrl: `${config.publicUrl}/${key}`,
+                },
+              },
+            });
+          } catch (error) {
+            console.error("Failed to generate presigned URL:", error);
+            return res.status(500).json({ error: { message: "Failed to generate upload URL." } });
+          }
+        }
+
         case "upload.uploadChunk": {
           const { fileName, fileContent, chunkIndex, totalChunks, uploadId: existingUploadId, contentType } = input;
-          
+
           const uploadId = existingUploadId || `upload_${Date.now()}_${Math.random().toString(36).substring(7)}`;
           
           if (!uploadChunks.has(uploadId)) {
