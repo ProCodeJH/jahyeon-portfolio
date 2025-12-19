@@ -137,32 +137,68 @@ function getDb() {
 }
 
 // ============ STORAGE (R2) ============
+type R2Config = {
+  bucket: string;
+  publicUrl: string;
+  endpoint: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+};
+
+function getR2Config(): R2Config | null {
+  const bucket = process.env.R2_BUCKET_NAME || process.env.R2_BUCKET;
+  const publicUrl = (process.env.R2_PUBLIC_URL || "").replace(/\/+$/, "");
+  const accountEndpoint = process.env.R2_ACCOUNT_ID
+    ? `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`
+    : undefined;
+  const endpoint = process.env.R2_ENDPOINT || accountEndpoint;
+  const accessKeyId = process.env.R2_ACCESS_KEY_ID || "";
+  const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY || "";
+
+  if (!bucket || !publicUrl || !endpoint || !accessKeyId || !secretAccessKey) {
+    return null;
+  }
+
+  return { bucket, publicUrl, endpoint, accessKeyId, secretAccessKey };
+}
+
+function requireR2Config() {
+  const config = getR2Config();
+  if (!config) {
+    throw new Error("Storage is not configured.");
+  }
+  return config;
+}
+
 function getS3Client() {
+  const { endpoint, accessKeyId, secretAccessKey } = requireR2Config();
   return new S3Client({
     region: "auto",
-    endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    endpoint,
     credentials: {
-      accessKeyId: process.env.R2_ACCESS_KEY_ID || "",
-      secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || "",
+      accessKeyId,
+      secretAccessKey,
     },
   });
 }
 
 async function uploadToR2(key: string, body: Buffer, contentType: string) {
+  const { bucket, publicUrl } = requireR2Config();
   const client = getS3Client();
   await client.send(new PutObjectCommand({
-    Bucket: process.env.R2_BUCKET_NAME,
+    Bucket: bucket,
     Key: key,
     Body: body,
     ContentType: contentType,
   }));
-  return { url: `${process.env.R2_PUBLIC_URL}/${key}`, key };
+  return { url: `${publicUrl}/${key}`, key };
 }
 
 async function deleteFromR2(key: string) {
+  const { bucket } = requireR2Config();
   const client = getS3Client();
   await client.send(new DeleteObjectCommand({
-    Bucket: process.env.R2_BUCKET_NAME,
+    Bucket: bucket,
     Key: key,
   }));
 }
@@ -263,7 +299,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         input = {};
       }
       
-      const protectedPrefixes = ["create", "update", "delete", "admin"];
+      const protectedPrefixes = ["create", "update", "delete", "admin", "upload"];
       const isProtected = protectedPrefixes.some(r => trpcPath?.includes(r));
       
       if (isProtected && !isAuthenticated(req)) {
@@ -553,10 +589,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(400).json({ error: { message: "File too large. Max 500MB allowed." } });
           }
 
-          const bucketName = process.env.R2_BUCKET_NAME;
-          const publicUrl = process.env.R2_PUBLIC_URL;
-
-          if (!bucketName || !publicUrl) {
+          const config = getR2Config();
+          if (!config) {
             return res.status(500).json({ error: { message: "Storage is not configured." } });
           }
 
@@ -564,7 +598,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const key = `uploads/${Date.now()}-${sanitizedName}`;
 
           const command = new PutObjectCommand({
-            Bucket: bucketName,
+            Bucket: config.bucket,
             Key: key,
             ContentType: contentType,
           });
@@ -576,7 +610,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               data: {
                 presignedUrl,
                 key,
-                publicUrl: `${publicUrl}/${key}`,
+                publicUrl: `${config.publicUrl}/${key}`,
               },
             },
           });
