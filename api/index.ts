@@ -151,6 +151,20 @@ function normalizeOrigin(origin?: string | null): string | null {
   return origin.replace(/\/+$/, "");
 }
 
+function getRequestOrigin(req: VercelRequest): string | null {
+  const headerOrigin = normalizeOrigin(req.headers.origin as string | undefined);
+  if (headerOrigin) return headerOrigin;
+
+  const referer = normalizeOrigin(req.headers.referer as string | undefined);
+  if (referer) return referer;
+
+  const host = req.headers.host;
+  if (!host) return null;
+
+  const protocol = (req.headers["x-forwarded-proto"] as string | undefined) || "https";
+  return normalizeOrigin(`${protocol}://${host}`);
+}
+
 function getAllowedOrigins(requestOrigin?: string | null): string[] {
   const configured = (process.env.UPLOAD_ALLOWED_ORIGINS || "")
     .split(",")
@@ -320,8 +334,7 @@ const uploadChunks = new Map<string, {
 
 // ============ MAIN HANDLER ============
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const requestOrigin = req.headers.origin as string | undefined;
-  const normalizedRequestOrigin = normalizeOrigin(requestOrigin);
+  const normalizedRequestOrigin = getRequestOrigin(req);
   const allowedOrigins = getAllowedOrigins(normalizedRequestOrigin);
   const allowOriginHeader = allowedOrigins.includes("*")
     ? "*"
