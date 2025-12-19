@@ -145,11 +145,17 @@ type R2Config = {
   secretAccessKey: string;
 };
 
-function getAllowedOrigins(): string[] {
+function normalizeOrigin(origin?: string | null): string | null {
+  if (!origin) return null;
+  if (!/^https?:\/\//.test(origin)) return null;
+  return origin.replace(/\/+$/, "");
+}
+
+function getAllowedOrigins(requestOrigin?: string | null): string[] {
   const configured = (process.env.UPLOAD_ALLOWED_ORIGINS || "")
     .split(",")
-    .map(origin => origin.trim().replace(/\/+$/, ""))
-    .filter(Boolean);
+    .map(origin => normalizeOrigin(origin))
+    .filter((origin): origin is string => Boolean(origin));
 
   const origins = new Set<string>(configured);
 
@@ -159,10 +165,17 @@ function getAllowedOrigins(): string[] {
     process.env.VERCEL_PROJECT_PRODUCTION_URL,
   ]
     .filter(Boolean)
-    .map(url => `https://${url!.replace(/^https?:\/\//, "")}`);
+    .map(url => `https://${url!.replace(/^https?:\/\//, "")}`)
+    .map(url => normalizeOrigin(url))
+    .filter((origin): origin is string => Boolean(origin));
 
   for (const origin of vercelUrls) {
-    origins.add(origin.replace(/\/+$/, ""));
+    origins.add(origin);
+  }
+
+  const normalizedRequestOrigin = normalizeOrigin(requestOrigin);
+  if (normalizedRequestOrigin) {
+    origins.add(normalizedRequestOrigin);
   }
 
   if (origins.size === 0) {
@@ -210,28 +223,44 @@ function getS3Client() {
 }
 
 let ensureCorsPromise: Promise<void> | null = null;
+let cachedCorsOrigins: string[] | null = null;
 
-async function ensureBucketCors() {
-  if (ensureCorsPromise) return ensureCorsPromise;
+function originsEqual(a: string[] | null, b: string[] | null) {
+  if (!a || !b) return false;
+  if (a.length !== b.length) return false;
+  const sortedA = [...a].sort();
+  const sortedB = [...b].sort();
+  return sortedA.every((value, index) => value === sortedB[index]);
+}
+
+async function ensureBucketCors(requestOrigin?: string | null) {
+  const allowedOrigins = getAllowedOrigins(requestOrigin);
+
+  if (originsEqual(cachedCorsOrigins, allowedOrigins) && ensureCorsPromise) {
+    return ensureCorsPromise;
+  }
 
   const { bucket } = requireR2Config();
   const client = getS3Client();
-  const allowedOrigins = getAllowedOrigins();
 
-  ensureCorsPromise = client.send(new PutBucketCorsCommand({
-    Bucket: bucket,
-    CORSConfiguration: {
-      CORSRules: [
-        {
-          AllowedHeaders: ["*"],
-          AllowedMethods: ["GET", "PUT", "POST", "DELETE", "HEAD"],
-          AllowedOrigins: allowedOrigins,
-          ExposeHeaders: ["ETag", "Location"],
-          MaxAgeSeconds: 3000,
-        },
-      ],
-    },
-  })).then(() => undefined)
+  ensureCorsPromise = client
+    .send(new PutBucketCorsCommand({
+      Bucket: bucket,
+      CORSConfiguration: {
+        CORSRules: [
+          {
+            AllowedHeaders: ["*"],
+            AllowedMethods: ["GET", "PUT", "POST", "DELETE", "HEAD", "OPTIONS"],
+            AllowedOrigins: allowedOrigins,
+            ExposeHeaders: ["ETag", "Location"],
+            MaxAgeSeconds: 3000,
+          },
+        ],
+      },
+    }))
+    .then(() => {
+      cachedCorsOrigins = allowedOrigins;
+    })
     .catch(err => {
       ensureCorsPromise = null;
       throw err;
@@ -655,7 +684,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const sanitizedName = fileName.replace(/[^a-zA-Z0-9.-]/g, "_");
           const key = `uploads/${Date.now()}-${sanitizedName}`;
 
-          await ensureBucketCors();
+          await ensureBucketCors(req.headers.origin as string | undefined);
 
           const command = new PutObjectCommand({
             Bucket: config.bucket,
