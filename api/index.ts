@@ -682,44 +682,49 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         case "upload.getPresignedUrl": {
-          const { fileName, contentType, fileSize } = input;
-          const MAX_SIZE = 500 * 1024 * 1024; // 500MB
-
-          if (fileSize > MAX_SIZE) {
-            return res.status(400).json({ error: { message: "File too large. Max 500MB allowed." } });
-          }
-
-          const config = getR2Config();
-          if (!config) {
-            return res.status(500).json({ error: { message: "Storage is not configured." } });
-          }
-
-          const sanitizedName = fileName.replace(/[^a-zA-Z0-9.-]/g, "_");
-          const key = `uploads/${Date.now()}-${sanitizedName}`;
-
           try {
-            await ensureBucketCors(normalizedRequestOrigin);
-          } catch (error) {
-            console.error("Failed to sync bucket CORS:", error);
-          }
+            const { fileName, contentType, fileSize } = input;
+            const MAX_SIZE = 500 * 1024 * 1024; // 500MB
 
-          const command = new PutObjectCommand({
-            Bucket: config.bucket,
-            Key: key,
-            ContentType: contentType,
-          });
+            if (fileSize > MAX_SIZE) {
+              return res.status(400).json({ error: { message: "File too large. Max 500MB allowed." } });
+            }
 
-          const presignedUrl = await getSignedUrl(getS3Client(), command, { expiresIn: 3600 });
+            const config = getR2Config();
+            if (!config) {
+              return res.status(500).json({ error: { message: "Storage is not configured." } });
+            }
 
-          return res.json({
-            result: {
-              data: {
-                presignedUrl,
-                key,
-                publicUrl: `${config.publicUrl}/${key}`,
+            const sanitizedName = fileName.replace(/[^a-zA-Z0-9.-]/g, "_");
+            const key = `uploads/${Date.now()}-${sanitizedName}`;
+
+            try {
+              await ensureBucketCors(normalizedRequestOrigin);
+            } catch (error) {
+              console.error("Failed to sync bucket CORS:", error);
+            }
+
+            const command = new PutObjectCommand({
+              Bucket: config.bucket,
+              Key: key,
+              ContentType: contentType,
+            });
+
+            const presignedUrl = await getSignedUrl(getS3Client(), command, { expiresIn: 3600 });
+
+            return res.json({
+              result: {
+                data: {
+                  presignedUrl,
+                  key,
+                  publicUrl: `${config.publicUrl}/${key}`,
+                },
               },
-            },
-          });
+            });
+          } catch (error) {
+            console.error("Failed to generate presigned URL:", error);
+            return res.status(500).json({ error: { message: "Failed to generate upload URL." } });
+          }
         }
 
         case "upload.uploadChunk": {
