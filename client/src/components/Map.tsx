@@ -92,6 +92,8 @@ const FORGE_BASE_URL =
   "https://forge.butterfly-effect.dev";
 const MAPS_PROXY_URL = `${FORGE_BASE_URL}/v1/maps/proxy`;
 
+import { logger } from '@/lib/logger';
+
 function loadMapScript() {
   return new Promise(resolve => {
     const script = document.createElement("script");
@@ -103,7 +105,7 @@ function loadMapScript() {
       script.remove(); // Clean up immediately
     };
     script.onerror = () => {
-      console.error("Failed to load Google Maps script");
+      logger.error("Failed to load Google Maps script");
     };
     document.head.appendChild(script);
   });
@@ -128,7 +130,7 @@ export function MapView({
   const init = usePersistFn(async () => {
     await loadMapScript();
     if (!mapContainer.current) {
-      console.error("Map container not found");
+      logger.warn("Map container not found");
       return;
     }
     map.current = new window.google.maps.Map(mapContainer.current, {

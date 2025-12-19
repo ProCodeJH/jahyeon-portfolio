@@ -4,7 +4,10 @@ import { httpLink } from "@trpc/client";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import { getLoginUrl } from "./const";
+import { initSentry } from "./lib/sentry";
 import "./index.css";
+
+initSentry();
 
 const queryClient = new QueryClient({
   defaultOptions: {

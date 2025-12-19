@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Upload, Loader2, X, FileVideo, FileImage, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
+import { DEFAULT_MAX_UPLOAD_MB } from "@shared/const";
 
 interface FileUploadFormProps {
   onUploadComplete: (fileUrl: string, fileKey: string, fileName: string, fileSize: number, mimeType: string) => void;
@@ -21,7 +22,7 @@ const CHUNK_SIZE = 10 * 1024 * 1024;
 export function FileUploadForm({ 
   onUploadComplete, 
   acceptedFileTypes = "*",
-  maxSizeMB = 500,
+  maxSizeMB = DEFAULT_MAX_UPLOAD_MB,
   label = "Upload File",
   category = "other"
 }: FileUploadFormProps) {
@@ -45,6 +46,9 @@ export function FileUploadForm({
       toast.error(`File size must be less than ${maxSizeMB}MB`);
       return;
     }
+
+    // early: show allowed size to user via aria-live or screen text (already in UI), and capture analytics if needed
+    
 
     setFile(selectedFile);
   };
@@ -83,7 +87,7 @@ export function FileUploadForm({
       let uploadId: string | undefined;
       let result: { fileKey: string; publicUrl: string } | null = null;
 
-      console.log(`Upload started: ${file.name}, ${totalChunks} chunks total`);
+      logger.debug(`Upload started: ${file.name}, ${totalChunks} chunks total`);
 
       for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
         if (abortControllerRef.current?.signal.aborted) {
@@ -119,7 +123,7 @@ export function FileUploadForm({
           setEstimatedTimeRemaining(`${minutes}m ${seconds}s`);
         }
 
-        console.log(`Chunk ${chunkIndex + 1}/${totalChunks} completed (${progress}%)`);
+        logger.debug(`Chunk ${chunkIndex + 1}/${totalChunks} completed (${progress}%)`);
 
         if (chunkResult.complete) {
           result = {
@@ -147,9 +151,12 @@ export function FileUploadForm({
         throw new Error("Upload failed: no result from server");
       }
     } catch (error) {
-      console.error("Upload error:", error);
+      logger.error("Upload error:", error);
+      try { const { captureException } = await import('@/lib/sentry'); captureException(error, { fileName: file?.name }); } catch (err) {}
       if (error instanceof Error && error.message === "Upload cancelled") {
         toast.info("Upload cancelled");
+      } else if (error instanceof Error && /too large/i.test(error.message)) {
+        toast.error(error.message);
       } else {
         const errorMessage = error instanceof Error ? error.message : String(error);
         toast.error(`Upload failed: ${errorMessage}`);

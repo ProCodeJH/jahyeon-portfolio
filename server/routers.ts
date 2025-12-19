@@ -9,6 +9,8 @@ import {
 import { projects, certifications, resources, users, sessions } from "../drizzle/schema";
 import { eq, sql, and, gte } from "drizzle-orm";
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { logger } from "./_core/logger";
 
 const t = initTRPC.context<{ userId?: string }>().create();
 
@@ -40,7 +42,7 @@ async function uploadToR2(fileName: string, fileContent: Buffer, contentType: st
 
 async function deleteFromR2(key: string): Promise<void> {
   if (!key) return;
-  try { await s3Client.send(new DeleteObjectCommand({ Bucket: R2_BUCKET, Key: key })); } catch (e) { console.error("R2 delete error:", e); }
+  try { await s3Client.send(new DeleteObjectCommand({ Bucket: R2_BUCKET, Key: key })); } catch (e) { logger.error("R2 delete error:", e); }
 }
 
 export const appRouter = t.router({
@@ -73,8 +75,35 @@ export const appRouter = t.router({
 
   upload: t.router({
     file: protectedProcedure.input(z.object({ fileName: z.string(), fileContent: z.string(), contentType: z.string() })).mutation(async ({ input }) => {
+      const MAX_UPLOAD_MB = parseInt(process.env.MAX_UPLOAD_MB || "500", 10);
+      // approximate bytes from base64
+      const base64Length = input.fileContent.length;
+      const fileBytes = Math.floor((base64Length * 3) / 4);
+      if (fileBytes > MAX_UPLOAD_MB * 1024 * 1024) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: `File too large. Maximum allowed is ${MAX_UPLOAD_MB}MB.` });
+      }
       const buffer = Buffer.from(input.fileContent, "base64");
-      return uploadToR2(input.fileName, buffer, input.contentType);
+      try {
+        return await uploadToR2(input.fileName, buffer, input.contentType);
+      } catch (e) {
+        try { (await import('./_core/sentry')).captureException(e, { fileName: input.fileName }); } catch (_) {}
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Upload failed' });
+      }
+    }),
+    getPresignedUrl: protectedProcedure.input(z.object({ fileName: z.string(), contentType: z.string(), fileSizeBytes: z.number().optional() })).mutation(async ({ input }) => {
+      const MAX_UPLOAD_MB = parseInt(process.env.MAX_UPLOAD_MB || "500", 10);
+      if (input.fileSizeBytes && input.fileSizeBytes > MAX_UPLOAD_MB * 1024 * 1024) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: `File too large. Maximum allowed is ${MAX_UPLOAD_MB}MB.` });
+      }
+      try {
+        const key = `uploads/${Date.now()}-${input.fileName.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+        const cmd = new PutObjectCommand({ Bucket: R2_BUCKET, Key: key, ContentType: input.contentType });
+        const url = await getSignedUrl(s3Client, cmd, { expiresIn: 60 * 15 });
+        return { url, key, publicUrl: `${R2_PUBLIC_URL}/${key}` };
+      } catch (e) {
+        try { (await import('./_core/sentry')).captureException(e, { fileName: input.fileName }); } catch (_) {}
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Failed to create presigned URL' });
+      }
     }),
   }),
 
@@ -87,14 +116,14 @@ export const appRouter = t.router({
     }),
     create: protectedProcedure.input(z.object({
       title: z.string().min(1), description: z.string().optional().default(""), technologies: z.string().optional().default(""),
-      category: z.string(), imageUrl: z.string().optional().default(""), imageKey: z.string().optional().default(""),
+      category: z.enum(["c_lang","arduino","python","embedded","iot","firmware","hardware","software"]), imageUrl: z.string().optional().default(""), imageKey: z.string().optional().default(""),
       videoUrl: z.string().optional().default(""), videoKey: z.string().optional().default(""),
       thumbnailUrl: z.string().optional().default(""), thumbnailKey: z.string().optional().default(""),
       projectUrl: z.string().optional().default(""), githubUrl: z.string().optional().default(""),
     })).mutation(async ({ input }) => createProject(input)),
     update: protectedProcedure.input(z.object({
       id: z.number(), title: z.string().min(1).optional(), description: z.string().optional(), technologies: z.string().optional(),
-      category: z.string().optional(), imageUrl: z.string().optional(), imageKey: z.string().optional(),
+      category: z.enum(["c_lang","arduino","python","embedded","iot","firmware","hardware","software"]).optional(), imageUrl: z.string().optional(), imageKey: z.string().optional(),
       videoUrl: z.string().optional(), videoKey: z.string().optional(), thumbnailUrl: z.string().optional(), thumbnailKey: z.string().optional(),
       projectUrl: z.string().optional(), githubUrl: z.string().optional(),
     })).mutation(async ({ input }) => { const { id, ...data } = input; await updateProject(id, data); return { success: true }; }),
@@ -146,14 +175,14 @@ export const appRouter = t.router({
       return resource;
     }),
     create: protectedProcedure.input(z.object({
-      title: z.string().min(1), description: z.string().optional().default(""), category: z.string(),
-      subcategory: z.string().optional().default(""), fileUrl: z.string(), fileKey: z.string().optional().default(""),
+      title: z.string().min(1), description: z.string().optional().default(""), category: z.enum(["daily_life","lecture_c","lecture_arduino","lecture_python","presentation","lecture_materials","arduino_projects","c_projects","python_projects"]),
+      subcategory: z.enum(["code","documentation","images"]).optional().nullable().default(null), fileUrl: z.string(), fileKey: z.string().optional().default(""),
       fileName: z.string().optional().default(""), fileSize: z.number().optional().default(0),
       mimeType: z.string().optional().default(""), thumbnailUrl: z.string().optional().default(""), thumbnailKey: z.string().optional().default(""),
     })).mutation(async ({ input }) => createResource(input)),
     update: protectedProcedure.input(z.object({
-      id: z.number(), title: z.string().min(1).optional(), description: z.string().optional(), category: z.string().optional(),
-      subcategory: z.string().optional(), fileUrl: z.string().optional(), fileKey: z.string().optional(),
+      id: z.number(), title: z.string().min(1).optional(), description: z.string().optional(), category: z.enum(["daily_life","lecture_c","lecture_arduino","lecture_python","presentation","lecture_materials","arduino_projects","c_projects","python_projects"]).optional(),
+      subcategory: z.enum(["code","documentation","images"]).optional().nullable(), fileUrl: z.string().optional(), fileKey: z.string().optional(),
       fileName: z.string().optional(), fileSize: z.number().optional(), mimeType: z.string().optional(),
       thumbnailUrl: z.string().optional(), thumbnailKey: z.string().optional(),
     })).mutation(async ({ input }) => { const { id, ...data } = input; await updateResource(id, data); return { success: true }; }),
@@ -171,7 +200,7 @@ export const appRouter = t.router({
 
   analytics: t.router({
     track: publicProcedure.input(z.object({ page: z.string(), sessionId: z.string().optional(), referrer: z.string().optional(), userAgent: z.string().optional() })).mutation(async ({ input }) => {
-      console.log("[Analytics]", input.page);
+      logger.info(`[Analytics] ${input.page}`);
       return { success: true };
     }),
     adminStats: protectedProcedure.query(async () => {

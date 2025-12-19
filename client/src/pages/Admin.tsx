@@ -1,13 +1,15 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
+import { logger } from "@/lib/logger";
+import { DEFAULT_MAX_UPLOAD_MB } from "@shared/const";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "wouter";
 import { Loader2, Plus, Trash2, Eye, Heart, BarChart3, FileText, LogOut, ImageIcon, Video, X, FolderOpen, Award, Upload, TrendingUp, Presentation, Code, Cpu, Terminal } from "lucide-react";
@@ -73,6 +75,7 @@ export default function Admin() {
   });
 
   const uploadFile = trpc.upload.file.useMutation();
+  const getPresignedUrl = trpc.upload.getPresignedUrl.useMutation();
 
   const [showProjectDialog, setShowProjectDialog] = useState(false);
   const [showCertDialog, setShowCertDialog] = useState(false);
@@ -89,37 +92,88 @@ export default function Admin() {
     title: "", issuer: "", issueDate: "", expiryDate: "", credentialId: "", credentialUrl: "",
     imageUrl: "", imageKey: "", description: "",
   });
-  const [resourceForm, setResourceForm] = useState({
-    title: "", description: "", category: "daily_life" as ResourceCategory, subcategory: "" as string,
+  const [resourceForm, setResourceForm] = useState<{ title: string; description: string; category: ResourceCategory; subcategory: "code" | "documentation" | "images" | null; fileUrl: string; fileKey: string; fileName: string; fileSize: number; mimeType: string; thumbnailUrl: string; thumbnailKey: string }>({
+    title: "", description: "", category: "daily_life" as ResourceCategory, subcategory: null,
     fileUrl: "", fileKey: "", fileName: "", fileSize: 0, mimeType: "", thumbnailUrl: "", thumbnailKey: "",
   });
 
   const resetProjectForm = () => setProjectForm({ title: "", description: "", technologies: "", category: "c_lang", imageUrl: "", imageKey: "", videoUrl: "", videoKey: "", thumbnailUrl: "", thumbnailKey: "", projectUrl: "", githubUrl: "" });
   const resetCertForm = () => setCertForm({ title: "", issuer: "", issueDate: "", expiryDate: "", credentialId: "", credentialUrl: "", imageUrl: "", imageKey: "", description: "" });
-  const resetResourceForm = () => setResourceForm({ title: "", description: "", category: "daily_life", subcategory: "", fileUrl: "", fileKey: "", fileName: "", fileSize: 0, mimeType: "", thumbnailUrl: "", thumbnailKey: "" });
+  const resetResourceForm = () => setResourceForm({ title: "", description: "", category: "daily_life", subcategory: null, fileUrl: "", fileKey: "", fileName: "", fileSize: 0, mimeType: "", thumbnailUrl: "", thumbnailKey: "" });
 
-  const handleFileUpload = useCallback(async (file: File, onComplete: (url: string, key: string, thumbUrl?: string, thumbKey?: string) => void) => {
-    if (file.size > 10 * 1024 * 1024) { 
-      toast.error("Max 10MB allowed (server limit)"); 
-      return; 
+  const handleFileUpload = async (file: File, onComplete: (url: string, key: string, thumbUrl?: string, thumbKey?: string) => void) => {
+    const MAX_UPLOAD_MB = import.meta.env.VITE_MAX_UPLOAD_MB ? parseInt(import.meta.env.VITE_MAX_UPLOAD_MB) : DEFAULT_MAX_UPLOAD_MB;
+    if (file.size > MAX_UPLOAD_MB * 1024 * 1024) {
+      toast.error(`Max ${MAX_UPLOAD_MB}MB allowed`);
+      return;
     }
-    setUploading(true); setUploadProgress(0);
+    setUploading(true);
+    setUploadProgress(0);
+
+    // If file is large, prefer presigned PUT to avoid base64 memory explosion
+    const USE_PRESIGNED_THRESHOLD = 5 * 1024 * 1024; // 5MB
+
     try {
+      if (file.size > USE_PRESIGNED_THRESHOLD) {
+        try {
+          const presign = await getPresignedUrl.mutateAsync({ fileName: file.name, contentType: file.type || "application/octet-stream", fileSizeBytes: file.size });
+
+          // Upload via XHR to get progress events
+          await new Promise<void>((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open("PUT", presign.url);
+            xhr.setRequestHeader("Content-Type", file.type || "application/octet-stream");
+            xhr.upload.onprogress = (e) => {
+              if (e.lengthComputable) setUploadProgress(Math.round((e.loaded / e.total) * 100));
+            };
+            xhr.onload = () => {
+              if (xhr.status >= 200 && xhr.status < 300) resolve();
+              else reject(new Error(`Upload failed: ${xhr.status}`));
+            };
+            xhr.onerror = () => reject(new Error("Upload failed"));
+            xhr.send(file);
+          });
+
+          let thumbUrl = "", thumbKey = "";
+          if (file.type.startsWith("video/")) {
+            const thumb = await genVideoThumb(file);
+            if (thumb) {
+              const tr = await uploadFile.mutateAsync({ fileName: `thumb_${Date.now()}.jpg`, fileContent: thumb, contentType: "image/jpeg" });
+              thumbUrl = tr.url; thumbKey = tr.key;
+            }
+          } else if (file.type.startsWith("image/")) {
+            // image uploaded directly - public URL constructed server-side
+            // presign returned publicUrl
+            thumbUrl = presign.publicUrl; thumbKey = presign.key;
+          }
+
+          onComplete(presign.publicUrl, presign.key, thumbUrl, thumbKey);
+          toast.success("Upload complete");
+          return;
+        } catch (e) {
+          logger.warn("Presigned upload failed, falling back to base64", e);
+          try { const { captureException } = await import('@/lib/sentry'); captureException(e, { fileName: file.name, flow: 'presign-put' }); } catch (err) { /* ignore */ }
+          toast.error("Server presign or upload failed — falling back to base64. If the problem persists, contact the site owner.");
+          // fall through to base64 fallback
+        }
+      }
+
+      // Fallback: base64 upload (existing behavior)
       const base64 = await new Promise<string>((res, rej) => {
         const r = new FileReader();
         r.onload = () => res((r.result as string).split(",")[1]);
         r.onerror = () => rej();
         r.readAsDataURL(file);
       });
-      
+
       setUploadProgress(50);
-      
-      const result = await uploadFile.mutateAsync({ 
-        fileName: file.name, 
-        fileContent: base64, 
-        contentType: file.type || "application/octet-stream" 
+
+      const result = await uploadFile.mutateAsync({
+        fileName: file.name,
+        fileContent: base64,
+        contentType: file.type || "application/octet-stream",
       });
-      
+
       setUploadProgress(100);
 
       let thumbUrl = "", thumbKey = "";
@@ -129,34 +183,52 @@ export default function Admin() {
           const tr = await uploadFile.mutateAsync({ fileName: `thumb_${Date.now()}.jpg`, fileContent: thumb, contentType: "image/jpeg" });
           thumbUrl = tr.url; thumbKey = tr.key;
         }
+      } else if (file.type.startsWith("image/")) {
+        thumbUrl = result.url;
+        thumbKey = result.key;
       }
+
       onComplete(result.url, result.key, thumbUrl, thumbKey);
       toast.success("Upload complete");
-    } catch (err) { 
-      console.error(err);
-      toast.error("Upload failed"); 
+    } catch (err) {
+      logger.error(err);
+      toast.error("Upload failed");
+    } finally {
+      setUploading(false);
+      setUploadProgress(0);
     }
-    finally { setUploading(false); setUploadProgress(0); }
-  }, [uploadFile]);
+  };
 
   const genVideoThumb = async (file: File): Promise<string | null> => {
     return new Promise((resolve) => {
-      const v = document.createElement("video"), c = document.createElement("canvas");
+      const v = document.createElement("video");
+      const c = document.createElement("canvas");
       v.preload = "metadata"; v.muted = true; v.playsInline = true;
-      v.onloadeddata = () => { v.currentTime = Math.min(1, v.duration * 0.1); };
-      v.onseeked = () => {
-        c.width = v.videoWidth; c.height = v.videoHeight;
-        c.getContext("2d")?.drawImage(v, 0, 0);
-        c.toBlob((b) => {
-          if (!b) return resolve(null);
-          const r = new FileReader();
-          r.onload = () => resolve((r.result as string).split(",")[1]);
-          r.onerror = () => resolve(null);
-          r.readAsDataURL(b);
-        }, "image/jpeg", 0.8);
+      const objectUrl = URL.createObjectURL(file);
+      let cleaned = false;
+      const cleanup = () => {
+        if (cleaned) return;
+        try { URL.revokeObjectURL(objectUrl); } catch (e) {}
+        try { v.src = ""; v.removeAttribute("src"); v.load?.(); } catch (e) {}
+        cleaned = true;
       };
-      v.onerror = () => resolve(null);
-      v.src = URL.createObjectURL(file);
+
+      v.onloadeddata = () => { try { v.currentTime = Math.min(1, Math.max(0.05, (v.duration || 1) * 0.1)); } catch (e) { /* ignore */ } };
+      v.onseeked = () => {
+        try {
+          c.width = v.videoWidth; c.height = v.videoHeight;
+          c.getContext("2d")?.drawImage(v, 0, 0);
+          c.toBlob((b) => {
+            if (!b) { cleanup(); return resolve(null); }
+            const r = new FileReader();
+            r.onload = () => { cleanup(); resolve((r.result as string).split(",")[1]); };
+            r.onerror = () => { cleanup(); resolve(null); };
+            r.readAsDataURL(b);
+          }, "image/jpeg", 0.8);
+        } catch (e) { cleanup(); resolve(null); }
+      };
+      v.onerror = () => { cleanup(); resolve(null); };
+      v.src = objectUrl;
     });
   };
 
@@ -316,21 +388,23 @@ export default function Admin() {
                   <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-[#111] border-white/10 text-white">
                     <DialogHeader>
                       <DialogTitle className="text-xl font-light">New Project</DialogTitle>
+                      <DialogDescription className="text-white/50">Fill in the project details and optionally upload an image or video.</DialogDescription>
                     </DialogHeader>
+                    <div className="sr-only" id="project-dialog-description">Fill in the project details and optionally upload an image or video.</div>
                     <div className="space-y-5 py-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <Label className="text-white/70">Title *</Label>
                           <Input 
                             value={projectForm.title} 
-                            onChange={e => setProjectForm({...projectForm, title: e.target.value})} 
+                            onChange={e => setProjectForm(prev => ({...prev, title: e.target.value}))} 
                             className="mt-1.5 bg-white/5 border-white/10 text-white" 
                             placeholder="Project title"
                           />
                         </div>
                         <div>
                           <Label className="text-white/70">Category *</Label>
-                          <Select value={projectForm.category} onValueChange={(v: ProjectCategory) => setProjectForm({...projectForm, category: v})}>
+                          <Select value={projectForm.category} onValueChange={(v: ProjectCategory) => setProjectForm(prev => ({...prev, category: v}))}>
                             <SelectTrigger className="mt-1.5 bg-white/5 border-white/10 text-white">
                               <SelectValue />
                             </SelectTrigger>
@@ -351,7 +425,7 @@ export default function Admin() {
                         <Label className="text-white/70">Description *</Label>
                         <Textarea 
                           value={projectForm.description} 
-                          onChange={e => setProjectForm({...projectForm, description: e.target.value})} 
+                          onChange={e => setProjectForm(prev => ({...prev, description: e.target.value}))} 
                           rows={3} 
                           className="mt-1.5 bg-white/5 border-white/10 text-white" 
                           placeholder="Project description"
@@ -361,7 +435,7 @@ export default function Admin() {
                         <Label className="text-white/70">Technologies * (comma separated)</Label>
                         <Input 
                           value={projectForm.technologies} 
-                          onChange={e => setProjectForm({...projectForm, technologies: e.target.value})} 
+                          onChange={e => setProjectForm(prev => ({...prev, technologies: e.target.value}))} 
                           placeholder="C, Python, Arduino, etc." 
                           className="mt-1.5 bg-white/5 border-white/10 text-white" 
                         />
@@ -371,7 +445,7 @@ export default function Admin() {
                           <Label className="text-white/70">Project URL</Label>
                           <Input 
                             value={projectForm.projectUrl} 
-                            onChange={e => setProjectForm({...projectForm, projectUrl: e.target.value})} 
+                            onChange={e => setProjectForm(prev => ({...prev, projectUrl: e.target.value}))} 
                             className="mt-1.5 bg-white/5 border-white/10 text-white" 
                             placeholder="https://..."
                           />
@@ -380,7 +454,7 @@ export default function Admin() {
                           <Label className="text-white/70">GitHub URL</Label>
                           <Input 
                             value={projectForm.githubUrl} 
-                            onChange={e => setProjectForm({...projectForm, githubUrl: e.target.value})} 
+                            onChange={e => setProjectForm(prev => ({...prev, githubUrl: e.target.value}))} 
                             className="mt-1.5 bg-white/5 border-white/10 text-white" 
                             placeholder="https://github.com/..."
                           />
@@ -394,7 +468,7 @@ export default function Admin() {
                             <div className="relative">
                               <img src={projectForm.imageUrl} className="max-h-40 mx-auto rounded-lg" />
                               <button 
-                                onClick={() => setProjectForm({...projectForm, imageUrl: "", imageKey: ""})}
+                                onClick={() => setProjectForm(prev => ({...prev, imageUrl: "", imageKey: ""}))}
                                 className="absolute top-2 right-2 p-1 bg-black/50 rounded-full hover:bg-black/70"
                               >
                                 <X className="w-4 h-4 text-white" />
@@ -410,7 +484,7 @@ export default function Admin() {
                                 className="hidden"
                                 onChange={e => {
                                   const f = e.target.files?.[0];
-                                  if (f) handleFileUpload(f, (url, key) => setProjectForm({...projectForm, imageUrl: url, imageKey: key}));
+                                  if (f) handleFileUpload(f, (url, key) => setProjectForm(p => ({...p, imageUrl: url, imageKey: key})));
                                 }}
                               />
                             </label>
@@ -422,7 +496,7 @@ export default function Admin() {
                         <Label className="text-white/70">Video (YouTube URL or Upload)</Label>
                         <Input 
                           value={projectForm.videoUrl} 
-                          onChange={e => setProjectForm({...projectForm, videoUrl: e.target.value})} 
+                          onChange={e => setProjectForm(prev => ({...prev, videoUrl: e.target.value}))} 
                           className="mt-1.5 bg-white/5 border-white/10 text-white" 
                           placeholder="https://youtube.com/watch?v=..."
                         />
@@ -500,41 +574,42 @@ export default function Admin() {
                   <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-[#111] border-white/10 text-white">
                     <DialogHeader>
                       <DialogTitle className="text-xl font-light">New Certification</DialogTitle>
+                      <DialogDescription className="text-white/50">Provide certification details and an optional image.</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-5 py-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <Label className="text-white/70">Title *</Label>
-                          <Input value={certForm.title} onChange={e => setCertForm({...certForm, title: e.target.value})} className="mt-1.5 bg-white/5 border-white/10 text-white" placeholder="Certification name" />
+                          <Input value={certForm.title} onChange={e => setCertForm(prev => ({...prev, title: e.target.value}))} className="mt-1.5 bg-white/5 border-white/10 text-white" placeholder="Certification name" />
                         </div>
                         <div>
                           <Label className="text-white/70">Issuer *</Label>
-                          <Input value={certForm.issuer} onChange={e => setCertForm({...certForm, issuer: e.target.value})} className="mt-1.5 bg-white/5 border-white/10 text-white" placeholder="Issuing organization" />
+                          <Input value={certForm.issuer} onChange={e => setCertForm(prev => ({...prev, issuer: e.target.value}))} className="mt-1.5 bg-white/5 border-white/10 text-white" placeholder="Issuing organization" />
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <Label className="text-white/70">Issue Date *</Label>
-                          <Input type="date" value={certForm.issueDate} onChange={e => setCertForm({...certForm, issueDate: e.target.value})} className="mt-1.5 bg-white/5 border-white/10 text-white" />
+                          <Input type="date" value={certForm.issueDate} onChange={e => setCertForm(prev => ({...prev, issueDate: e.target.value}))} className="mt-1.5 bg-white/5 border-white/10 text-white" />
                         </div>
                         <div>
                           <Label className="text-white/70">Expiry Date</Label>
-                          <Input type="date" value={certForm.expiryDate} onChange={e => setCertForm({...certForm, expiryDate: e.target.value})} className="mt-1.5 bg-white/5 border-white/10 text-white" />
+                          <Input type="date" value={certForm.expiryDate} onChange={e => setCertForm(prev => ({...prev, expiryDate: e.target.value}))} className="mt-1.5 bg-white/5 border-white/10 text-white" />
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <Label className="text-white/70">Credential ID</Label>
-                          <Input value={certForm.credentialId} onChange={e => setCertForm({...certForm, credentialId: e.target.value})} className="mt-1.5 bg-white/5 border-white/10 text-white" placeholder="Credential ID" />
+                          <Input value={certForm.credentialId} onChange={e => setCertForm(prev => ({...prev, credentialId: e.target.value}))} className="mt-1.5 bg-white/5 border-white/10 text-white" placeholder="Credential ID" />
                         </div>
                         <div>
                           <Label className="text-white/70">Credential URL</Label>
-                          <Input value={certForm.credentialUrl} onChange={e => setCertForm({...certForm, credentialUrl: e.target.value})} className="mt-1.5 bg-white/5 border-white/10 text-white" placeholder="https://..." />
+                          <Input value={certForm.credentialUrl} onChange={e => setCertForm(prev => ({...prev, credentialUrl: e.target.value}))} className="mt-1.5 bg-white/5 border-white/10 text-white" placeholder="https://..." />
                         </div>
                       </div>
                       <div>
                         <Label className="text-white/70">Description</Label>
-                        <Textarea value={certForm.description} onChange={e => setCertForm({...certForm, description: e.target.value})} rows={2} className="mt-1.5 bg-white/5 border-white/10 text-white" />
+                        <Textarea value={certForm.description} onChange={e => setCertForm(prev => ({...prev, description: e.target.value}))} rows={2} className="mt-1.5 bg-white/5 border-white/10 text-white" />
                       </div>
                       <div>
                         <Label className="text-white/70">Certificate Image</Label>
@@ -542,7 +617,7 @@ export default function Admin() {
                           {certForm.imageUrl ? (
                             <div className="relative">
                               <img src={certForm.imageUrl} className="max-h-40 mx-auto rounded-lg" />
-                              <button onClick={() => setCertForm({...certForm, imageUrl: "", imageKey: ""})} className="absolute top-2 right-2 p-1 bg-black/50 rounded-full hover:bg-black/70">
+                              <button onClick={() => setCertForm(prev => ({...prev, imageUrl: "", imageKey: ""}))} className="absolute top-2 right-2 p-1 bg-black/50 rounded-full hover:bg-black/70">
                                 <X className="w-4 h-4 text-white" />
                               </button>
                             </div>
@@ -552,7 +627,7 @@ export default function Admin() {
                               <span className="text-white/50 text-sm">Click to upload</span>
                               <input type="file" accept={ACCEPTED_FILE_TYPES.image} className="hidden" onChange={e => {
                                 const f = e.target.files?.[0];
-                                if (f) handleFileUpload(f, (url, key) => setCertForm({...certForm, imageUrl: url, imageKey: key}));
+                                if (f) handleFileUpload(f, (url, key) => setCertForm(p => ({...p, imageUrl: url, imageKey: key})));
                               }} />
                             </label>
                           )}
@@ -611,16 +686,18 @@ export default function Admin() {
                   <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-[#111] border-white/10 text-white">
                     <DialogHeader>
                       <DialogTitle className="text-xl font-light">New Resource</DialogTitle>
+                      <DialogDescription className="text-white/50">Upload a file or provide a YouTube URL. Max 100MB.</DialogDescription>
                     </DialogHeader>
+                    <div className="sr-only" id="resource-dialog-description">Upload a file or provide a YouTube URL. Max 100MB.</div>
                     <div className="space-y-5 py-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <Label className="text-white/70">Title *</Label>
-                          <Input value={resourceForm.title} onChange={e => setResourceForm({...resourceForm, title: e.target.value})} className="mt-1.5 bg-white/5 border-white/10 text-white" placeholder="Resource title" />
+                          <Input value={resourceForm.title} onChange={e => setResourceForm(prev => ({...prev, title: e.target.value}))} className="mt-1.5 bg-white/5 border-white/10 text-white" placeholder="Resource title" />
                         </div>
                         <div>
                           <Label className="text-white/70">Category *</Label>
-                          <Select value={resourceForm.category} onValueChange={(v: ResourceCategory) => setResourceForm({...resourceForm, category: v})}>
+                          <Select value={resourceForm.category} onValueChange={(v: ResourceCategory) => setResourceForm(prev => ({...prev, category: v}))}>
                             <SelectTrigger className="mt-1.5 bg-white/5 border-white/10 text-white">
                               <SelectValue />
                             </SelectTrigger>
@@ -639,7 +716,7 @@ export default function Admin() {
                       </div>
                       <div>
                         <Label className="text-white/70">Description</Label>
-                        <Textarea value={resourceForm.description} onChange={e => setResourceForm({...resourceForm, description: e.target.value})} rows={2} className="mt-1.5 bg-white/5 border-white/10 text-white" />
+                        <Textarea value={resourceForm.description} onChange={e => setResourceForm(prev => ({...prev, description: e.target.value}))} rows={2} className="mt-1.5 bg-white/5 border-white/10 text-white" />
                       </div>
                       
                       {/* File Upload - Supports PPT, PDF, Videos, Images */}
@@ -648,12 +725,12 @@ export default function Admin() {
                         <div className="mt-1.5 border-2 border-dashed border-white/10 rounded-xl p-6 text-center hover:border-emerald-400/50 transition-colors">
                           {resourceForm.fileUrl ? (
                             <div className="flex items-center justify-center gap-3">
-                              {getFileTypeIcon(resourceForm.mimeType, resourceForm.fileName)}
+                              {getFileTypeIcon(resourceForm.mimeType || '', resourceForm.fileName || '')}
                               <div className="text-left">
                                 <p className="text-white text-sm truncate max-w-[200px]">{resourceForm.fileName}</p>
                                 <p className="text-white/40 text-xs">{(resourceForm.fileSize / 1024 / 1024).toFixed(2)} MB</p>
                               </div>
-                              <button onClick={() => setResourceForm({...resourceForm, fileUrl: "", fileKey: "", fileName: "", fileSize: 0, mimeType: ""})} className="p-1 bg-white/10 rounded-full hover:bg-white/20">
+                              <button onClick={() => setResourceForm(prev => ({...prev, fileUrl: "", fileKey: "", fileName: "", fileSize: 0, mimeType: ""}))} className="p-1 bg-white/10 rounded-full hover:bg-white/20">
                                 <X className="w-4 h-4 text-white" />
                               </button>
                             </div>
@@ -664,22 +741,22 @@ export default function Admin() {
                                 <Video className="w-6 h-6 text-purple-400" />
                                 <FileText className="w-6 h-6 text-red-400" />
                               </div>
-                              <span className="text-white/50 text-sm">Click to upload file (max 10MB)</span>
-                              <p className="text-white/30 text-xs mt-1">Supports: PPT, PDF, Videos, Images, Code files</p>
+                              <span className="text-white/50 text-sm">Click to upload file (max 100MB)</span>
+                              <p className="text-white/30 text-xs mt-1">Supports: PPT, PDF, Images, Code files (Videos: use YouTube URL)</p>
                               <input type="file" accept={ACCEPTED_FILE_TYPES.all} className="hidden" onChange={e => {
                                 const f = e.target.files?.[0];
                                 if (f) {
                                   handleFileUpload(f, (url, key, thumbUrl, thumbKey) => {
-                                    setResourceForm({
-                                      ...resourceForm, 
-                                      fileUrl: url, 
-                                      fileKey: key, 
-                                      fileName: f.name, 
-                                      fileSize: f.size, 
+                                    setResourceForm(prev => ({
+                                      ...prev,
+                                      fileUrl: url,
+                                      fileKey: key,
+                                      fileName: f.name,
+                                      fileSize: f.size,
                                       mimeType: f.type,
                                       thumbnailUrl: thumbUrl || "",
                                       thumbnailKey: thumbKey || ""
-                                    });
+                                    }));
                                   });
                                 }
                               }} />
@@ -692,36 +769,55 @@ export default function Admin() {
                       <div>
                         <Label className="text-white/70">Or YouTube URL</Label>
                         <Input 
-                          value={resourceForm.fileUrl.includes('youtube') ? resourceForm.fileUrl : ''} 
-                          onChange={e => setResourceForm({...resourceForm, fileUrl: e.target.value, mimeType: 'video/youtube'})} 
+                          value={resourceForm.fileUrl.includes('youtube') || resourceForm.fileUrl.includes('youtu.be') ? resourceForm.fileUrl : ''} 
+                          onChange={e => {
+                            const url = e.target.value;
+                            const youtubeId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/)?.[1];
+                            const thumbnailUrl = youtubeId ? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg` : '';
+                            setResourceForm(prev => ({
+                              ...prev, 
+                              fileUrl: url, 
+                              mimeType: youtubeId ? 'video/youtube' : '',
+                              thumbnailUrl: thumbnailUrl,
+                              thumbnailKey: ''
+                            }));
+                          }} 
                           className="mt-1.5 bg-white/5 border-white/10 text-white" 
-                          placeholder="https://youtube.com/watch?v=..."
+                          placeholder="https://youtube.com/watch?v=... or https://youtu.be/..."
                         />
+                        {resourceForm.thumbnailUrl && (resourceForm.fileUrl.includes('youtube') || resourceForm.fileUrl.includes('youtu.be')) && (
+                          <div className="mt-2">
+                            <img src={resourceForm.thumbnailUrl} alt="YouTube thumbnail preview" className="max-h-32 rounded-lg border border-white/20" />
+                            <p className="text-white/40 text-xs mt-1">YouTube thumbnail auto-detected</p>
+                          </div>
+                        )}
                       </div>
 
-                      {/* Thumbnail */}
-                      <div>
-                        <Label className="text-white/70">Thumbnail (optional)</Label>
-                        <div className="mt-1.5 border-2 border-dashed border-white/10 rounded-xl p-4 text-center hover:border-emerald-400/50 transition-colors">
-                          {resourceForm.thumbnailUrl ? (
-                            <div className="relative inline-block">
-                              <img src={resourceForm.thumbnailUrl} className="max-h-24 rounded-lg" />
-                              <button onClick={() => setResourceForm({...resourceForm, thumbnailUrl: "", thumbnailKey: ""})} className="absolute -top-2 -right-2 p-1 bg-black/50 rounded-full">
-                                <X className="w-3 h-3 text-white" />
-                              </button>
-                            </div>
-                          ) : (
-                            <label className="cursor-pointer">
-                              <ImageIcon className="w-6 h-6 mx-auto text-white/30 mb-1" />
-                              <span className="text-white/50 text-xs">Upload thumbnail</span>
-                              <input type="file" accept={ACCEPTED_FILE_TYPES.image} className="hidden" onChange={e => {
-                                const f = e.target.files?.[0];
-                                if (f) handleFileUpload(f, (url, key) => setResourceForm({...resourceForm, thumbnailUrl: url, thumbnailKey: key}));
-                              }} />
-                            </label>
-                          )}
+                      {/* Thumbnail - only show if not YouTube (YouTube auto-generates) */}
+                      {!(resourceForm.fileUrl.includes('youtube') || resourceForm.fileUrl.includes('youtu.be')) && (
+                        <div>
+                          <Label className="text-white/70">Thumbnail (optional)</Label>
+                          <div className="mt-1.5 border-2 border-dashed border-white/10 rounded-xl p-4 text-center hover:border-emerald-400/50 transition-colors">
+                            {resourceForm.thumbnailUrl ? (
+                              <div className="relative inline-block">
+                                <img src={resourceForm.thumbnailUrl} className="max-h-24 rounded-lg" />
+                                <button onClick={() => setResourceForm(prev => ({...prev, thumbnailUrl: "", thumbnailKey: ""}))} className="absolute -top-2 -right-2 p-1 bg-black/50 rounded-full">
+                                  <X className="w-3 h-3 text-white" />
+                                </button>
+                              </div>
+                            ) : (
+                              <label className="cursor-pointer">
+                                <ImageIcon className="w-6 h-6 mx-auto text-white/30 mb-1" />
+                                <span className="text-white/50 text-xs">Upload thumbnail</span>
+                                <input type="file" accept={ACCEPTED_FILE_TYPES.image} className="hidden" onChange={e => {
+                                  const f = e.target.files?.[0];
+                                  if (f) handleFileUpload(f, (url, key) => setResourceForm(prev => ({...prev, thumbnailUrl: url, thumbnailKey: key})));
+                                }} />
+                              </label>
+                            )}
+                          </div>
                         </div>
-                      </div>
+                      )}
 
                       {uploading && (
                         <div className="space-y-2">
@@ -751,7 +847,7 @@ export default function Admin() {
                         {resource.thumbnailUrl ? (
                           <img src={resource.thumbnailUrl} className="w-full h-full object-cover" />
                         ) : (
-                          getFileTypeIcon(resource.mimeType, resource.fileName)
+                          getFileTypeIcon(resource.mimeType || '', resource.fileName || '')
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -782,7 +878,7 @@ export default function Admin() {
                 <div className="p-6 bg-white/[0.02] rounded-xl border border-white/5">
                   <h3 className="text-white/70 mb-4">Top Projects by Views</h3>
                   <div className="space-y-3">
-                    {projects?.sort((a, b) => b.viewCount - a.viewCount).slice(0, 5).map((p, i) => (
+                    {[...(projects || [])].sort((a, b) => b.viewCount - a.viewCount).slice(0, 5).map((p, i) => (
                       <div key={p.id} className="flex items-center justify-between">
                         <span className="text-white text-sm truncate">{i + 1}. {p.title}</span>
                         <span className="text-emerald-400 text-sm">{p.viewCount} views</span>
@@ -793,7 +889,7 @@ export default function Admin() {
                 <div className="p-6 bg-white/[0.02] rounded-xl border border-white/5">
                   <h3 className="text-white/70 mb-4">Top Resources by Downloads</h3>
                   <div className="space-y-3">
-                    {resources?.sort((a, b) => (b.downloadCount || 0) - (a.downloadCount || 0)).slice(0, 5).map((r, i) => (
+                    {[...(resources || [])].sort((a, b) => (b.downloadCount || 0) - (a.downloadCount || 0)).slice(0, 5).map((r, i) => (
                       <div key={r.id} className="flex items-center justify-between">
                         <span className="text-white text-sm truncate">{i + 1}. {r.title}</span>
                         <span className="text-emerald-400 text-sm">{r.downloadCount || 0} downloads</span>

@@ -5,6 +5,7 @@ import type { Request } from "express";
 import { SignJWT, jwtVerify } from "jose";
 import type { User } from "../../drizzle/schema";
 import * as db from "../db";
+import { logger } from './logger';
 
 // Utility function
 const isNonEmptyString = (value: unknown): value is string =>
@@ -19,6 +20,7 @@ export type SessionPayload = {
 class SDKServer {
   private parseCookies(cookieHeader: string | undefined) {
     if (!cookieHeader) {
+      logger.warn('[Auth] Missing session cookie');
       return new Map<string, string>();
     }
 
@@ -71,7 +73,7 @@ class SDKServer {
     cookieValue: string | undefined | null
   ): Promise<{ openId: string; appId: string; name: string } | null> {
     if (!cookieValue) {
-      console.warn("[Auth] Missing session cookie");
+      logger.warn("[Auth] Missing session cookie");
       return null;
     }
 
@@ -83,7 +85,7 @@ class SDKServer {
       const { openId, appId, name } = payload as Record<string, unknown>;
 
       if (!isNonEmptyString(openId)) {
-        console.warn("[Auth] Session payload missing openId");
+        logger.warn("[Auth] Session payload missing openId");
         return null;
       }
 
@@ -93,7 +95,7 @@ class SDKServer {
         name: (name as string) || "",
       };
     } catch (error) {
-      console.warn("[Auth] Session verification failed", String(error));
+      logger.warn("[Auth] Session verification failed", String(error));
       return null;
     }
   }

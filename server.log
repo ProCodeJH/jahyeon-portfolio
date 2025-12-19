@@ -1,0 +1,8 @@
+
+> jahyeon-portfolio@1.0.0 dev
+> NODE_ENV=development tsx watch server/_core/index.ts
+
+'NODE_ENV'은(는) 내부 또는 외부 명령, 실행할 수 있는 프로그램, 또는
+배치 파일이 아닙니다.
+
+c:\Users\82108\OneDrive\Desktop\jahyeon-portfolio>

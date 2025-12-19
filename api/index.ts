@@ -4,6 +4,7 @@ import { drizzle } from "drizzle-orm/neon-http";
 import { pgTable, pgEnum, serial, text, timestamp, varchar, integer, boolean } from "drizzle-orm/pg-core";
 import { eq, desc, sql, and } from "drizzle-orm";
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { logger } from "../server/_core/logger";
 
 // ============ SCHEMA ============
 const roleEnum = pgEnum("role", ["user", "admin"]);
@@ -591,7 +592,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(404).json({ error: "Not found" });
 
   } catch (error) {
-    console.error("API Error:", error);
+    logger.error("API Error:", error);
     return res.status(500).json({ 
       error: { 
         message: error instanceof Error ? error.message : "Internal server error" 

@@ -3,6 +3,7 @@ import type { Express, Request, Response } from "express";
 import * as db from "../db";
 import { getSessionCookieOptions } from "./cookies";
 import { sdk } from "./sdk";
+import { logger } from "./logger";
 
 const ADMIN_OPEN_ID = "admin-user-vercel";
 
@@ -107,7 +108,7 @@ export function registerOAuthRoutes(app: Express) {
     const adminPassword = process.env.ADMIN_PASSWORD;
 
     if (!adminPassword) {
-      console.error("[Auth] ADMIN_PASSWORD not set");
+      logger.error("[Auth] ADMIN_PASSWORD not set");
       res.status(500).json({ error: "Server configuration error" });
       return;
     }
@@ -138,7 +139,7 @@ export function registerOAuthRoutes(app: Express) {
 
       res.redirect(302, "/");
     } catch (error) {
-      console.error("[Auth] Login failed", error);
+      logger.error("[Auth] Login failed", error);
       res.status(500).json({ error: "Login failed" });
     }
   });
