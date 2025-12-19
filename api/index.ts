@@ -7,8 +7,27 @@ import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client
 
 // ============ SCHEMA ============
 const roleEnum = pgEnum("role", ["user", "admin"]);
-const projectCategoryEnum = pgEnum("project_category", ["c_lang", "arduino", "python"]);
-const resourceCategoryEnum = pgEnum("resource_category", ["daily_life", "lecture_c", "lecture_arduino", "lecture_python"]);
+const projectCategoryEnum = pgEnum("project_category", [
+  "c_lang",
+  "arduino",
+  "python",
+  "embedded",
+  "iot",
+  "firmware",
+  "hardware",
+  "software",
+]);
+const resourceCategoryEnum = pgEnum("resource_category", [
+  "daily_life",
+  "lecture_c",
+  "lecture_arduino",
+  "lecture_python",
+  "presentation",
+  "lecture_materials",
+  "arduino_projects",
+  "c_projects",
+  "python_projects",
+]);
 const subcategoryEnum = pgEnum("subcategory", ["code", "documentation", "images", "ppt", "video"]);
 
 const users = pgTable("users", {
