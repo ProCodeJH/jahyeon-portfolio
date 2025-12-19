@@ -3,7 +3,7 @@ import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import { pgTable, pgEnum, serial, text, timestamp, varchar, integer, boolean } from "drizzle-orm/pg-core";
 import { eq, desc, sql, and } from "drizzle-orm";
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, DeleteObjectCommand, PutBucketCorsCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 // ============ SCHEMA ============
@@ -145,6 +145,16 @@ type R2Config = {
   secretAccessKey: string;
 };
 
+function getAllowedOrigins(): string[] {
+  const raw = process.env.UPLOAD_ALLOWED_ORIGINS;
+  if (!raw) return ["*"];
+
+  return raw
+    .split(",")
+    .map(origin => origin.trim())
+    .filter(Boolean);
+}
+
 function getR2Config(): R2Config | null {
   const bucket = process.env.R2_BUCKET_NAME || process.env.R2_BUCKET;
   const publicUrl = (process.env.R2_PUBLIC_URL || "").replace(/\/+$/, "");
@@ -180,6 +190,37 @@ function getS3Client() {
       secretAccessKey,
     },
   });
+}
+
+let ensureCorsPromise: Promise<void> | null = null;
+
+async function ensureBucketCors() {
+  if (ensureCorsPromise) return ensureCorsPromise;
+
+  const { bucket } = requireR2Config();
+  const client = getS3Client();
+  const allowedOrigins = getAllowedOrigins();
+
+  ensureCorsPromise = client.send(new PutBucketCorsCommand({
+    Bucket: bucket,
+    CORSConfiguration: {
+      CORSRules: [
+        {
+          AllowedHeaders: ["*"],
+          AllowedMethods: ["GET", "PUT", "POST", "DELETE", "HEAD"],
+          AllowedOrigins: allowedOrigins,
+          ExposeHeaders: ["ETag", "Location"],
+          MaxAgeSeconds: 3000,
+        },
+      ],
+    },
+  })).then(() => undefined)
+    .catch(err => {
+      ensureCorsPromise = null;
+      throw err;
+    });
+
+  return ensureCorsPromise;
 }
 
 async function uploadToR2(key: string, body: Buffer, contentType: string) {
@@ -596,6 +637,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
           const sanitizedName = fileName.replace(/[^a-zA-Z0-9.-]/g, "_");
           const key = `uploads/${Date.now()}-${sanitizedName}`;
+
+          await ensureBucketCors();
 
           const command = new PutObjectCommand({
             Bucket: config.bucket,
