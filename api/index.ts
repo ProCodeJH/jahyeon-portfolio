@@ -697,7 +697,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const sanitizedName = fileName.replace(/[^a-zA-Z0-9.-]/g, "_");
           const key = `uploads/${Date.now()}-${sanitizedName}`;
 
-          await ensureBucketCors(normalizedRequestOrigin);
+          try {
+            await ensureBucketCors(normalizedRequestOrigin);
+          } catch (error) {
+            console.error("Failed to sync bucket CORS:", error);
+          }
 
           const command = new PutObjectCommand({
             Bucket: config.bucket,
