@@ -147,8 +147,42 @@ type R2Config = {
 
 function normalizeOrigin(origin?: string | null): string | null {
   if (!origin) return null;
-  if (!/^https?:\/\//.test(origin)) return null;
-  return origin.replace(/\/+$/, "");
+  const trimmed = origin.trim();
+  if (!/^https?:\/\//i.test(trimmed)) return null;
+
+  try {
+    const parsed = new URL(trimmed);
+    const protocol = parsed.protocol === "https:" ? "https:" : parsed.protocol === "http:" ? "http:" : null;
+    if (!protocol || !parsed.hostname) return null;
+
+    const hostname = parsed.hostname.toLowerCase();
+    const port = parsed.port ? `:${parsed.port}` : "";
+    return `${protocol}//${hostname}${port}`;
+  } catch {
+    return null;
+  }
+}
+
+function addOriginWithVariants(origins: Set<string>, origin?: string | null) {
+  const normalized = normalizeOrigin(origin);
+  if (!normalized) return;
+
+  origins.add(normalized);
+
+  try {
+    const parsed = new URL(normalized);
+    const protocol = parsed.protocol;
+    const port = parsed.port ? `:${parsed.port}` : "";
+    const hostname = parsed.hostname.toLowerCase();
+
+    if (hostname.startsWith("www.")) {
+      origins.add(`${protocol}//${hostname.slice(4)}${port}`);
+    } else {
+      origins.add(`${protocol}//www.${hostname}${port}`);
+    }
+  } catch {
+    // If variant generation fails, continue with the normalized origin only
+  }
 }
 
 function getRequestOrigin(req: VercelRequest): string | null {
@@ -166,31 +200,29 @@ function getRequestOrigin(req: VercelRequest): string | null {
 }
 
 function getAllowedOrigins(requestOrigin?: string | null): string[] {
+  const origins = new Set<string>();
+
   const configured = (process.env.UPLOAD_ALLOWED_ORIGINS || "")
     .split(",")
-    .map(origin => normalizeOrigin(origin))
-    .filter((origin): origin is string => Boolean(origin));
+    .map(origin => origin.trim())
+    .filter(Boolean);
 
-  const origins = new Set<string>(configured);
+  for (const origin of configured) {
+    addOriginWithVariants(origins, origin);
+  }
 
   const vercelUrls = [
     process.env.VERCEL_URL,
     process.env.VERCEL_BRANCH_URL,
     process.env.VERCEL_PROJECT_PRODUCTION_URL,
-  ]
-    .filter(Boolean)
-    .map(url => `https://${url!.replace(/^https?:\/\//, "")}`)
-    .map(url => normalizeOrigin(url))
-    .filter((origin): origin is string => Boolean(origin));
+  ].filter(Boolean);
 
-  for (const origin of vercelUrls) {
-    origins.add(origin);
+  for (const url of vercelUrls) {
+    const normalized = `https://${url!.replace(/^https?:\/\//, "")}`;
+    addOriginWithVariants(origins, normalized);
   }
 
-  const normalizedRequestOrigin = normalizeOrigin(requestOrigin);
-  if (normalizedRequestOrigin) {
-    origins.add(normalizedRequestOrigin);
-  }
+  addOriginWithVariants(origins, requestOrigin);
 
   if (origins.size === 0) {
     origins.add("*");
