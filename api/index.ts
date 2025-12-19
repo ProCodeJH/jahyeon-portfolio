@@ -320,10 +320,23 @@ const uploadChunks = new Map<string, {
 
 // ============ MAIN HANDLER ============
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  const requestOrigin = req.headers.origin as string | undefined;
+  const normalizedRequestOrigin = normalizeOrigin(requestOrigin);
+  const allowedOrigins = getAllowedOrigins(normalizedRequestOrigin);
+  const allowOriginHeader = allowedOrigins.includes("*")
+    ? "*"
+    : normalizedRequestOrigin && allowedOrigins.includes(normalizedRequestOrigin)
+      ? normalizedRequestOrigin
+      : allowedOrigins[0] ?? "*";
+
+  res.setHeader("Vary", "Origin");
+  res.setHeader("Access-Control-Allow-Origin", allowOriginHeader);
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
+
+  if (allowOriginHeader !== "*") {
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+  }
   
   if (req.method === "OPTIONS") {
     return res.status(200).end();
@@ -684,7 +697,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const sanitizedName = fileName.replace(/[^a-zA-Z0-9.-]/g, "_");
           const key = `uploads/${Date.now()}-${sanitizedName}`;
 
-          await ensureBucketCors(req.headers.origin as string | undefined);
+          await ensureBucketCors(normalizedRequestOrigin);
 
           const command = new PutObjectCommand({
             Bucket: config.bucket,
