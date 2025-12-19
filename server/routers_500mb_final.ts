@@ -9,6 +9,7 @@ import {
 import { projects, certifications, resources, users, sessions } from "../drizzle/schema";
 import { eq, sql, and, gte } from "drizzle-orm";
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const t = initTRPC.context<{ userId?: string }>().create();
 
@@ -72,9 +73,40 @@ export const appRouter = t.router({
   }),
 
   upload: t.router({
+    // 기존 방식 (10MB 이하)
     file: protectedProcedure.input(z.object({ fileName: z.string(), fileContent: z.string(), contentType: z.string() })).mutation(async ({ input }) => {
       const buffer = Buffer.from(input.fileContent, "base64");
       return uploadToR2(input.fileName, buffer, input.contentType);
+    }),
+
+    // ============================================
+    // 🚀 Presigned URL (500MB까지 지원)
+    // ============================================
+    getPresignedUrl: protectedProcedure.input(z.object({
+      fileName: z.string(),
+      contentType: z.string(),
+      fileSize: z.number(),
+    })).mutation(async ({ input }) => {
+      const MAX_SIZE = 500 * 1024 * 1024; // 500MB
+      if (input.fileSize > MAX_SIZE) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "File too large. Max 500MB allowed." });
+      }
+
+      const key = `uploads/${Date.now()}-${input.fileName.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+      
+      const command = new PutObjectCommand({
+        Bucket: R2_BUCKET,
+        Key: key,
+        ContentType: input.contentType,
+      });
+
+      const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+
+      return {
+        presignedUrl,
+        key,
+        publicUrl: `${R2_PUBLIC_URL}/${key}`,
+      };
     }),
   }),
 
