@@ -146,13 +146,30 @@ type R2Config = {
 };
 
 function getAllowedOrigins(): string[] {
-  const raw = process.env.UPLOAD_ALLOWED_ORIGINS;
-  if (!raw) return ["*"];
-
-  return raw
+  const configured = (process.env.UPLOAD_ALLOWED_ORIGINS || "")
     .split(",")
-    .map(origin => origin.trim())
+    .map(origin => origin.trim().replace(/\/+$/, ""))
     .filter(Boolean);
+
+  const origins = new Set<string>(configured);
+
+  const vercelUrls = [
+    process.env.VERCEL_URL,
+    process.env.VERCEL_BRANCH_URL,
+    process.env.VERCEL_PROJECT_PRODUCTION_URL,
+  ]
+    .filter(Boolean)
+    .map(url => `https://${url!.replace(/^https?:\/\//, "")}`);
+
+  for (const origin of vercelUrls) {
+    origins.add(origin.replace(/\/+$/, ""));
+  }
+
+  if (origins.size === 0) {
+    origins.add("*");
+  }
+
+  return Array.from(origins);
 }
 
 function getR2Config(): R2Config | null {
