@@ -4,6 +4,7 @@ import { drizzle } from "drizzle-orm/neon-http";
 import { pgTable, pgEnum, serial, text, timestamp, varchar, integer, boolean } from "drizzle-orm/pg-core";
 import { eq, desc, sql, and } from "drizzle-orm";
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 // ============ SCHEMA ============
 const roleEnum = pgEnum("role", ["user", "admin"]);
@@ -543,10 +544,47 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const result = await uploadToR2(key, buffer, contentType);
           return res.json({ result: { data: { url: result.url, key: result.key } } });
         }
-        
+
+        case "upload.getPresignedUrl": {
+          const { fileName, contentType, fileSize } = input;
+          const MAX_SIZE = 500 * 1024 * 1024; // 500MB
+
+          if (fileSize > MAX_SIZE) {
+            return res.status(400).json({ error: { message: "File too large. Max 500MB allowed." } });
+          }
+
+          const bucketName = process.env.R2_BUCKET_NAME;
+          const publicUrl = process.env.R2_PUBLIC_URL;
+
+          if (!bucketName || !publicUrl) {
+            return res.status(500).json({ error: { message: "Storage is not configured." } });
+          }
+
+          const sanitizedName = fileName.replace(/[^a-zA-Z0-9.-]/g, "_");
+          const key = `uploads/${Date.now()}-${sanitizedName}`;
+
+          const command = new PutObjectCommand({
+            Bucket: bucketName,
+            Key: key,
+            ContentType: contentType,
+          });
+
+          const presignedUrl = await getSignedUrl(getS3Client(), command, { expiresIn: 3600 });
+
+          return res.json({
+            result: {
+              data: {
+                presignedUrl,
+                key,
+                publicUrl: `${publicUrl}/${key}`,
+              },
+            },
+          });
+        }
+
         case "upload.uploadChunk": {
           const { fileName, fileContent, chunkIndex, totalChunks, uploadId: existingUploadId, contentType } = input;
-          
+
           const uploadId = existingUploadId || `upload_${Date.now()}_${Math.random().toString(36).substring(7)}`;
           
           if (!uploadChunks.has(uploadId)) {
