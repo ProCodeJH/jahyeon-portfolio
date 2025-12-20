@@ -261,6 +261,7 @@ export default function Resources() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedVideo, setSelectedVideo] = useState<any>(null);
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
+  const [selectedImage, setSelectedImage] = useState<any>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
@@ -290,8 +291,11 @@ export default function Resources() {
   const handleResourceClick = (resource: any) => {
     const isVideo = isYouTubeUrl(resource.fileUrl) || resource.mimeType?.startsWith('video/');
     const isDocument = isPPT(resource.mimeType, resource.fileName) || isPDF(resource.mimeType, resource.fileName);
+    const isImage = resource.mimeType?.startsWith('image/');
+
     if (isVideo) setSelectedVideo(resource);
     else if (isDocument) setSelectedDocument(resource);
+    else if (isImage) setSelectedImage(resource);
     else handleDownload(resource);
   };
 
@@ -378,11 +382,24 @@ export default function Resources() {
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredResources.map((resource, index) => {
-                const thumbnail = resource.thumbnailUrl || (isYouTubeUrl(resource.fileUrl) ? getYouTubeThumbnail(resource.fileUrl) : null);
+                // 썸네일 결정 로직
+                let thumbnail = resource.thumbnailUrl;
+
+                // YouTube는 자동 썸네일
+                if (isYouTubeUrl(resource.fileUrl)) {
+                  thumbnail = thumbnail || getYouTubeThumbnail(resource.fileUrl);
+                }
+
+                // 이미지 파일은 파일 자체를 썸네일로 사용
+                const isImageFile = resource.mimeType?.startsWith('image/');
+                if (isImageFile && !thumbnail) {
+                  thumbnail = resource.fileUrl;
+                }
+
                 const isVideo = isYouTubeUrl(resource.fileUrl) || resource.mimeType?.startsWith('video/');
                 const isPPTFile = isPPT(resource.mimeType, resource.fileName);
                 const isPDFFile = isPDF(resource.mimeType, resource.fileName);
-                const canPreview = isVideo || isPPTFile || isPDFFile;
+                const canPreview = isVideo || isPPTFile || isPDFFile || isImageFile;
                 const categoryInfo = getCategoryInfo(resource.category);
 
                 return (
@@ -392,7 +409,14 @@ export default function Resources() {
                         {isVideo ? <VideoThumbnail resource={resource} thumbnail={thumbnail} />
                         : isPPTFile ? <PPTThumbnail resource={resource} />
                         : isPDFFile ? <PDFThumbnail resource={resource} />
-                        : thumbnail ? <img src={thumbnail} alt={resource.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                        : thumbnail ? (
+                          <div className="relative w-full h-full">
+                            <img src={thumbnail} alt={resource.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                            {isImageFile && (
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                            )}
+                          </div>
+                        )
                         : <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center"><FileText className="w-12 h-12 text-white/20" /></div>}
 
                         <div className="absolute top-4 left-4">
@@ -435,6 +459,24 @@ export default function Resources() {
 
       {selectedVideo && <VideoModal resource={selectedVideo} onClose={() => setSelectedVideo(null)} />}
       {selectedDocument && <DocumentPreviewModal resource={selectedDocument} onClose={() => setSelectedDocument(null)} />}
+      {selectedImage && (
+        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex items-center justify-center p-4" onClick={() => setSelectedImage(null)}>
+          <div className="relative max-w-7xl max-h-[90vh] w-full" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-light text-white">{selectedImage.title}</h2>
+              <button onClick={() => setSelectedImage(null)} className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">
+                <X className="w-6 h-6 text-white" />
+              </button>
+            </div>
+            <div className="rounded-2xl overflow-hidden bg-white/5 flex items-center justify-center">
+              <img src={selectedImage.fileUrl} alt={selectedImage.title} className="max-w-full max-h-[80vh] object-contain" />
+            </div>
+            {selectedImage.description && (
+              <p className="text-white/60 mt-4 text-center">{selectedImage.description}</p>
+            )}
+          </div>
+        </div>
+      )}
 
       <footer className="py-12 border-t border-white/5">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center text-white/20 text-sm">© 2024 Gu Jahyeon. Crafted with passion.</div>
