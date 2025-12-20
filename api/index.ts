@@ -611,20 +611,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         case "upload.getPPTThumbnail": {
           const { pptUrl } = input;
           try {
+            console.log("🎯 PPT 썸네일 요청:", pptUrl);
             const thumbnailUrl = `https://view.officeapps.live.com/op/thumbnail.aspx?src=${encodeURIComponent(pptUrl)}`;
+            console.log("📡 Office API URL:", thumbnailUrl);
 
             // 서버에서 썸네일 가져오기 (CORS 우회)
             const response = await fetch(thumbnailUrl);
+            console.log("📊 Office API 응답:", response.status, response.statusText);
+
             if (!response.ok) {
+              console.warn("⚠️ Office API 실패:", response.status, response.statusText);
               return res.json({ result: { data: { success: false, thumbnail: null } } });
             }
 
             const buffer = await response.arrayBuffer();
             const base64 = Buffer.from(buffer).toString('base64');
+            console.log("✅ PPT 썸네일 생성 성공 (크기:", buffer.byteLength, "bytes)");
 
             return res.json({ result: { data: { success: true, thumbnail: base64 } } });
           } catch (error) {
-            console.error("PPT thumbnail fetch error:", error);
+            console.error("❌ PPT thumbnail fetch error:", error);
             return res.json({ result: { data: { success: false, thumbnail: null } } });
           }
         }

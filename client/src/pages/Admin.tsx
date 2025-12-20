@@ -247,15 +247,22 @@ export default function Admin() {
   // PPT 썸네일 생성 (서버 사이드 Office Online Viewer API 사용 - CORS 우회)
   const genPPTThumb = async (pptUrl: string): Promise<string | null> => {
     try {
+      console.log("🎯 PPT 썸네일 생성 시작:", pptUrl);
+
       // 서버 사이드에서 썸네일을 가져와서 CORS 문제 해결
       const result = await getPPTThumbnail.mutateAsync({ pptUrl });
 
+      console.log("📊 PPT 썸네일 응답:", result);
+
       if (result.success && result.thumbnail) {
+        console.log("✅ PPT 썸네일 생성 성공");
         return result.thumbnail;
       }
+
+      console.warn("⚠️ PPT 썸네일 생성 실패 - Office API에서 썸네일을 가져올 수 없습니다");
       return null;
     } catch (error) {
-      console.error("PPT thumbnail generation failed:", error);
+      console.error("❌ PPT thumbnail generation failed:", error);
       return null;
     }
   };
