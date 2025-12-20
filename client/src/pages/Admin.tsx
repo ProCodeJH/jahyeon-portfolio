@@ -160,12 +160,25 @@ export default function Admin() {
           thumbUrl = tr.url; thumbKey = tr.key;
         }
       }
-      
+
+      // PPT 썸네일 생성 (Office Online Viewer 사용)
+      if (file.type.includes('presentation') || file.type.includes('powerpoint') || file.name.endsWith('.ppt') || file.name.endsWith('.pptx')) {
+        try {
+          const thumb = await genPPTThumb(result.url);
+          if (thumb) {
+            const tr = await uploadFile.mutateAsync({ fileName: `ppt_thumb_${Date.now()}.jpg`, fileContent: thumb, contentType: "image/jpeg" });
+            thumbUrl = tr.url; thumbKey = tr.key;
+          }
+        } catch (error) {
+          console.log("PPT thumbnail generation skipped:", error);
+        }
+      }
+
       onComplete(result.url, result.key, thumbUrl, thumbKey);
       toast.success("Upload complete!");
-    } catch (err) { 
+    } catch (err) {
       console.error(err);
-      toast.error("Upload failed"); 
+      toast.error("Upload failed");
     }
     finally { setUploading(false); setUploadProgress(0); }
   }, [uploadFile, getPresignedUrl]);
@@ -228,6 +241,32 @@ export default function Admin() {
       v.onerror = () => resolve(null);
       v.src = URL.createObjectURL(file);
     });
+  };
+
+  // PPT 썸네일 생성 (Office Online Viewer API 사용)
+  const genPPTThumb = async (pptUrl: string): Promise<string | null> => {
+    try {
+      // Office Online Viewer의 썸네일 API 사용
+      const thumbnailUrl = `https://view.officeapps.live.com/op/thumbnail.aspx?src=${encodeURIComponent(pptUrl)}`;
+
+      // 썸네일 이미지를 가져와서 Base64로 변환
+      const response = await fetch(thumbnailUrl);
+      if (!response.ok) return null;
+
+      const blob = await response.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const base64 = (reader.result as string).split(",")[1];
+          resolve(base64);
+        };
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error("PPT thumbnail generation failed:", error);
+      return null;
+    }
   };
 
   const getFileTypeIcon = (mimeType: string, fileName: string) => {
