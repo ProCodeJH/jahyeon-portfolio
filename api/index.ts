@@ -621,7 +621,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
             if (!response.ok) {
               console.warn("⚠️ Office API 실패:", response.status, response.statusText);
-              return res.json({ result: { data: { success: false, thumbnail: null } } });
+              return res.json({ result: { data: { success: false, thumbnail: null, error: "Office API returned error status" } } });
+            }
+
+            // Content-Type 확인 - HTML 에러 페이지가 아닌지 확인
+            const contentType = response.headers.get('content-type');
+            console.log("📄 Content-Type:", contentType);
+
+            if (contentType && contentType.includes('text/html')) {
+              console.warn("⚠️ Office API가 HTML 에러 페이지를 반환 (R2 URL 미지원)");
+              return res.json({ result: { data: { success: false, thumbnail: null, error: "Office API does not support R2 URLs" } } });
             }
 
             const buffer = await response.arrayBuffer();
@@ -631,7 +640,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.json({ result: { data: { success: true, thumbnail: base64 } } });
           } catch (error) {
             console.error("❌ PPT thumbnail fetch error:", error);
-            return res.json({ result: { data: { success: false, thumbnail: null } } });
+            return res.json({ result: { data: { success: false, thumbnail: null, error: String(error) } } });
           }
         }
 
