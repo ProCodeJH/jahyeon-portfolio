@@ -1,0 +1,38 @@
+{
+  "CORSRules": [
+    {
+      "AllowedOrigins": [
+        "https://www.jahyeon.com",
+        "https://jahyeon.com",
+        "https://jahyeon-portfolio.vercel.app",
+        "https://jahyeon-portfolio-git-*.vercel.app"
+      ],
+      "AllowedMethods": [
+        "GET",
+        "PUT",
+        "POST",
+        "DELETE",
+        "HEAD"
+      ],
+      "AllowedHeaders": [
+        "*",
+        "Content-Type",
+        "Content-MD5",
+        "Content-Disposition",
+        "x-amz-acl",
+        "x-amz-meta-*",
+        "x-amz-server-side-encryption",
+        "x-amz-storage-class",
+        "x-amz-request-id",
+        "x-amz-id-2"
+      ],
+      "ExposeHeaders": [
+        "ETag",
+        "x-amz-version-id",
+        "x-amz-request-id",
+        "x-amz-id-2"
+      ],
+      "MaxAgeSeconds": 3600
+    }
+  ]
+}

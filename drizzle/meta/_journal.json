@@ -1,33 +1,12 @@
 {
   "version": "7",
-  "dialect": "mysql",
+  "dialect": "postgresql",
   "entries": [
     {
       "idx": 0,
-      "version": "5",
-      "when": 1765385652113,
-      "tag": "0000_curved_avengers",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1765385805613,
-      "tag": "0001_tiresome_lorna_dane",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1765387029832,
-      "tag": "0002_lucky_star_brand",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1765388703504,
-      "tag": "0003_graceful_lethal_legion",
+      "version": "7",
+      "when": 1766198946222,
+      "tag": "0000_absent_skreet",
       "breakpoints": true
     }
   ]

@@ -1,1 +1,0 @@
-ALTER TABLE `resources` MODIFY COLUMN `category` enum('daily_life','lecture_materials','arduino_projects','c_projects','python_projects') NOT NULL;
