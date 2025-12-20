@@ -608,6 +608,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.json({ result: { data: { success: true } } });
         }
 
+        case "upload.getPPTThumbnail": {
+          const { pptUrl } = input;
+          try {
+            const thumbnailUrl = `https://view.officeapps.live.com/op/thumbnail.aspx?src=${encodeURIComponent(pptUrl)}`;
+
+            // 서버에서 썸네일 가져오기 (CORS 우회)
+            const response = await fetch(thumbnailUrl);
+            if (!response.ok) {
+              return res.json({ result: { data: { success: false, thumbnail: null } } });
+            }
+
+            const buffer = await response.arrayBuffer();
+            const base64 = Buffer.from(buffer).toString('base64');
+
+            return res.json({ result: { data: { success: true, thumbnail: base64 } } });
+          } catch (error) {
+            console.error("PPT thumbnail fetch error:", error);
+            return res.json({ result: { data: { success: false, thumbnail: null } } });
+          }
+        }
+
         // ============ SYSTEM ============
         case "system.health": {
           return res.json({ result: { data: { status: "ok", timestamp: new Date().toISOString() } } });
