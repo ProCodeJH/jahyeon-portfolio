@@ -89,11 +89,18 @@ export default function About() {
         <div className="mx-6 lg:mx-12 mt-6">
           <div className="bg-white/[0.03] backdrop-blur-2xl border border-white/[0.05] rounded-2xl px-8 py-4">
             <div className="flex items-center justify-between">
-              <Link href="/"><span className="text-2xl font-extralight tracking-[0.3em] hover:text-emerald-400 transition-colors cursor-pointer">JH</span></Link>
+              <Link href="/">
+                <span className="text-2xl font-extralight tracking-[0.3em] hover:text-emerald-400 transition-all duration-300 cursor-pointer hover:scale-105">
+                  JH
+                </span>
+              </Link>
               <div className="hidden md:flex items-center gap-12">
                 {["About", "Projects", "Certifications", "Resources"].map(item => (
                   <Link key={item} href={`/${item.toLowerCase()}`}>
-                    <span className={`text-sm font-light transition-all cursor-pointer tracking-wider ${item === "About" ? "text-white" : "text-white/50 hover:text-white"}`}>{item}</span>
+                    <span className={`relative text-sm font-light transition-all duration-300 cursor-pointer tracking-wider group ${item === "About" ? "text-white" : "text-white/50 hover:text-white"}`}>
+                      {item}
+                      <span className={`absolute -bottom-1 left-0 h-[2px] bg-emerald-400 transition-all duration-300 ${item === "About" ? "w-full" : "w-0 group-hover:w-full"}`} />
+                    </span>
                   </Link>
                 ))}
               </div>
@@ -130,8 +137,14 @@ export default function About() {
               </AnimatedSection>
               <AnimatedSection delay={400}>
                 <div className="flex gap-4">
-                  <Button className="rounded-full bg-white text-black hover:bg-emerald-400 px-8 h-14"><Download className="w-5 h-5 mr-2" />Resume</Button>
-                  <a href="mailto:contact@jahyeon.com"><Button variant="outline" className="rounded-full border-white/20 hover:bg-white/10 px-8 h-14"><Mail className="w-5 h-5 mr-2" />Contact</Button></a>
+                  <Button className="rounded-full bg-white text-black hover:bg-emerald-400 px-8 h-14 hover-lift hover-glow">
+                    <Download className="w-5 h-5 mr-2" />Resume
+                  </Button>
+                  <a href="mailto:contact@jahyeon.com">
+                    <Button variant="outline" className="rounded-full border-white/20 hover:bg-white/10 px-8 h-14 hover-lift">
+                      <Mail className="w-5 h-5 mr-2" />Contact
+                    </Button>
+                  </a>
                 </div>
               </AnimatedSection>
             </div>
@@ -140,7 +153,7 @@ export default function About() {
             <AnimatedSection delay={200}>
               <div className="relative">
                 <div className="absolute -top-8 -right-8 w-32 h-32 rounded-3xl bg-gradient-to-br from-emerald-500/20 to-transparent -z-10" />
-                <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-white/[0.05] to-white/[0.02] border border-white/10 p-8">
+                <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-white/[0.05] to-white/[0.02] border border-white/10 p-8 hover-lift hover:border-emerald-400/30">
                   <div className="aspect-square rounded-2xl overflow-hidden mb-8 relative">
                     <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&h=600&fit=crop" alt="Technology" className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end justify-center pb-8">
@@ -201,7 +214,7 @@ export default function About() {
               const Icon = skill.icon;
               return (
                 <AnimatedSection key={skill.category} delay={i * 100}>
-                  <div className="group p-8 rounded-3xl bg-white/[0.02] border border-white/5 hover:border-emerald-400/30 transition-all h-full">
+                  <div className="group p-8 rounded-3xl bg-white/[0.02] border border-white/5 hover:border-emerald-400/30 transition-all h-full hover-lift hover-glow">
                     <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${skill.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
                       <Icon className="w-6 h-6 text-white" />
                     </div>
@@ -266,14 +279,14 @@ export default function About() {
           </AnimatedSection>
           <div className="grid md:grid-cols-2 gap-8">
             <AnimatedSection delay={100}>
-              <div className="group p-10 rounded-3xl bg-gradient-to-br from-purple-500/10 to-transparent border border-white/5 hover:border-purple-500/30 transition-all">
+              <div className="group p-10 rounded-3xl bg-gradient-to-br from-purple-500/10 to-transparent border border-white/5 hover:border-purple-500/30 transition-all hover-lift">
                 <div className="w-16 h-16 rounded-2xl bg-purple-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><Music className="w-8 h-8 text-purple-400" /></div>
                 <h3 className="text-2xl font-light mb-4">Music</h3>
                 <p className="text-white/40">Playing guitar, piano, and drums. The process of perfecting a complex piece mirrors debugging code and optimizing during development.</p>
               </div>
             </AnimatedSection>
             <AnimatedSection delay={200}>
-              <div className="group p-10 rounded-3xl bg-gradient-to-br from-orange-500/10 to-transparent border border-white/5 hover:border-orange-500/30 transition-all">
+              <div className="group p-10 rounded-3xl bg-gradient-to-br from-orange-500/10 to-transparent border border-white/5 hover:border-orange-500/30 transition-all hover-lift">
                 <div className="w-16 h-16 rounded-2xl bg-orange-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><Dumbbell className="w-8 h-8 text-orange-400" /></div>
                 <h3 className="text-2xl font-light mb-4">Martial Arts & Fitness</h3>
                 <p className="text-white/40">Through exercise and martial arts, I've developed mental focus and analytical thinking that translates directly to problem-solving.</p>
@@ -289,7 +302,12 @@ export default function About() {
           <AnimatedSection>
             <h2 className="text-4xl md:text-5xl font-extralight mb-6">Want to see my <span className="text-emerald-400">work</span>?</h2>
             <p className="text-white/40 text-lg mb-10">Check out my projects and see what I've been building.</p>
-            <Link href="/projects"><Button size="lg" className="rounded-full bg-white text-black hover:bg-emerald-400 px-10 h-16 group">View Projects <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-2 transition-transform" /></Button></Link>
+            <Link href="/projects">
+              <Button size="lg" className="rounded-full bg-white text-black hover:bg-emerald-400 px-10 h-16 group hover-lift hover-glow">
+                View Projects
+                <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-2 transition-transform" />
+              </Button>
+            </Link>
           </AnimatedSection>
         </div>
       </section>
