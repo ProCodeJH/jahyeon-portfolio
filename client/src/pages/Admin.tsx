@@ -80,6 +80,7 @@ export default function Admin() {
   // Upload mutations
   const uploadFile = trpc.upload.file.useMutation();
   const getPresignedUrl = trpc.upload.getPresignedUrl.useMutation();
+  const getPPTThumbnail = trpc.upload.getPPTThumbnail.useMutation();
 
   const [showProjectDialog, setShowProjectDialog] = useState(false);
   const [showCertDialog, setShowCertDialog] = useState(false);
@@ -243,26 +244,16 @@ export default function Admin() {
     });
   };
 
-  // PPT 썸네일 생성 (Office Online Viewer API 사용)
+  // PPT 썸네일 생성 (서버 사이드 Office Online Viewer API 사용 - CORS 우회)
   const genPPTThumb = async (pptUrl: string): Promise<string | null> => {
     try {
-      // Office Online Viewer의 썸네일 API 사용
-      const thumbnailUrl = `https://view.officeapps.live.com/op/thumbnail.aspx?src=${encodeURIComponent(pptUrl)}`;
+      // 서버 사이드에서 썸네일을 가져와서 CORS 문제 해결
+      const result = await getPPTThumbnail.mutateAsync({ pptUrl });
 
-      // 썸네일 이미지를 가져와서 Base64로 변환
-      const response = await fetch(thumbnailUrl);
-      if (!response.ok) return null;
-
-      const blob = await response.blob();
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const base64 = (reader.result as string).split(",")[1];
-          resolve(base64);
-        };
-        reader.onerror = () => resolve(null);
-        reader.readAsDataURL(blob);
-      });
+      if (result.success && result.thumbnail) {
+        return result.thumbnail;
+      }
+      return null;
     } catch (error) {
       console.error("PPT thumbnail generation failed:", error);
       return null;
