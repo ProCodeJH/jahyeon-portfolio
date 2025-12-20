@@ -18,55 +18,65 @@ import {
 
 const HERO_IMAGES = {
   main: {
-    src: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1200&h=1600&fit=crop",
-    alt: "Industrial robot in a modern lab",
-    label: "Autonomous unit",
+    src: "https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=1200&h=1600&fit=crop",
+    alt: "Modern workstation with ambient lighting",
+    label: "System core",
+  },
+  overlay: {
+    src: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=900&h=1200&fit=crop",
+    alt: "Industrial robot arm",
+    label: "Autonomous arm",
   },
   detail: {
-    src: "https://images.unsplash.com/photo-1526378722484-bd91ca387e72?w=700&h=700&fit=crop",
-    alt: "Abstract data stream",
-    label: "Diagnostic layer",
+    src: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=800&fit=crop",
+    alt: "Circuit traces",
+    label: "Signal traces",
+  },
+  spine: {
+    src: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=900&h=1200&fit=crop",
+    alt: "Server corridor",
+    label: "Data spine",
   },
 };
 
 const FUTURE_LAB_IMAGES = {
   base: {
-    src: "https://images.unsplash.com/photo-1518779578993-ec3579fee39f?w=1200&h=900&fit=crop",
-    alt: "Closeup of a circuit board",
-    label: "Signal plane",
+    src: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=1200&h=900&fit=crop",
+    alt: "Developer workstation",
+    label: "Control surface",
   },
   overlay: {
-    src: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&h=900&fit=crop",
-    alt: "Server corridor",
-    label: "Compute corridor",
+    src: "https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=900&h=1200&fit=crop",
+    alt: "Datacenter aisle",
+    label: "Compute bay",
   },
   chip: {
-    src: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=700&h=700&fit=crop",
-    alt: "Developer workstation",
-    label: "Operator desk",
+    src: "https://images.unsplash.com/photo-1518779578993-ec3579fee39f?w=900&h=900&fit=crop",
+    alt: "Circuit detail",
+    label: "Interface layer",
   },
 };
 
 const GALLERY_IMAGES = [
   {
-    src: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1200&h=900&fit=crop",
-    alt: "Code on screen",
-    label: "Runtime studio",
+    src: "https://images.unsplash.com/photo-1526378722484-bd91ca387e72?w=1200&h=900&fit=crop",
+    alt: "Data visualization",
+    label: "Data lattice",
   },
   {
-    src: "https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=1200&h=900&fit=crop",
-    alt: "Datacenter aisle",
-    label: "Cloud corridor",
+    src: "https://images.unsplash.com/photo-1518779578993-ec3579fee39f?w=1200&h=900&fit=crop",
+    alt: "Circuit surface",
+    label: "Signal matrix",
   },
   {
-    src: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&h=900&fit=crop",
-    alt: "Circuit lines",
-    label: "Board sketch",
+    src: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1200&h=900&fit=crop",
+    alt: "Server corridor",
+    label: "Infrastructure",
   },
   {
-    src: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1200&h=900&fit=crop",
-    alt: "Team collaborating",
-    label: "Systems alignment",
+    src: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1200&h=900&fit=crop",
+    alt: "Robot in lab",
+    label: "Autonomous lab",
   },
 ];
 
@@ -169,7 +179,7 @@ const FALLBACK_PROJECTS: ProjectCardItem[] = [
     technologies: "C, RTOS, SPI, Power optimization",
     category: "embedded",
     imageUrl:
-      "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1200&h=900&fit=crop",
+      "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&h=900&fit=crop",
     projectUrl: null,
     githubUrl: null,
   },
@@ -181,7 +191,7 @@ const FALLBACK_PROJECTS: ProjectCardItem[] = [
     technologies: "Python, MQTT, Analytics",
     category: "iot",
     imageUrl:
-      "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1200&h=900&fit=crop",
+      "https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=1200&h=900&fit=crop",
     projectUrl: null,
     githubUrl: null,
   },
@@ -193,7 +203,7 @@ const FALLBACK_PROJECTS: ProjectCardItem[] = [
     technologies: "C, Python, UART",
     category: "c_lang",
     imageUrl:
-      "https://images.unsplash.com/photo-1526378722484-bd91ca387e72?w=1200&h=900&fit=crop",
+      "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&h=900&fit=crop",
     projectUrl: null,
     githubUrl: null,
   },
@@ -205,7 +215,7 @@ const FALLBACK_PROJECTS: ProjectCardItem[] = [
     technologies: "React, Data viz, APIs",
     category: "software",
     imageUrl:
-      "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=1200&h=900&fit=crop",
+      "https://images.unsplash.com/photo-1526378722484-bd91ca387e72?w=1200&h=900&fit=crop",
     projectUrl: null,
     githubUrl: null,
   },
@@ -293,11 +303,13 @@ function useTilt(maxTilt = 10) {
 function TiltCard({
   children,
   className = "",
+  maxTilt = 16,
 }: {
   children: React.ReactNode;
   className?: string;
+  maxTilt?: number;
 }) {
-  const ref = useTilt(12);
+  const ref = useTilt(maxTilt);
   return (
     <div
       ref={ref}
@@ -307,7 +319,7 @@ function TiltCard({
           "--rx": "0deg",
           "--ry": "0deg",
           transform:
-            "perspective(1200px) rotateX(var(--rx)) rotateY(var(--ry))",
+            "perspective(1400px) rotateX(var(--rx)) rotateY(var(--ry))",
           transformStyle: "preserve-3d",
         } as React.CSSProperties
       }
@@ -457,6 +469,95 @@ function ProjectCard({
   );
 }
 
+function HeroStack() {
+  return (
+    <TiltCard
+      maxTilt={18}
+      className="relative overflow-visible rounded-[36px]"
+    >
+      <div className="absolute -inset-6 rounded-[42px] border border-black/10 bg-gradient-to-br from-[#FDF9F2] via-white to-[#E7E0D6] shadow-[16px_16px_0_rgba(17,17,17,0.12)]" />
+      <div
+        className="relative rounded-[36px] border border-black/10 bg-white/80 p-6"
+        style={{ transformStyle: "preserve-3d" }}
+      >
+        <div
+          className="relative aspect-[4/5] overflow-hidden rounded-[28px] border border-black/10"
+          style={{ transform: "translateZ(70px)" }}
+        >
+          <img
+            src={HERO_IMAGES.main.src}
+            alt={HERO_IMAGES.main.alt}
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute bottom-4 left-4 rounded-full bg-white/80 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-black/70">
+            {HERO_IMAGES.main.label}
+          </div>
+        </div>
+
+        <div
+          className="absolute -left-10 top-10 w-40 overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[6px_6px_0_rgba(17,17,17,0.12)]"
+          style={{ transform: "translateZ(140px)" }}
+        >
+          <div className="aspect-[3/4]">
+            <img
+              src={HERO_IMAGES.overlay.src}
+              alt={HERO_IMAGES.overlay.alt}
+              className="h-full w-full object-cover"
+            />
+          </div>
+        </div>
+
+        <div
+          className="absolute -right-8 top-6 w-32 overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[6px_6px_0_rgba(17,17,17,0.12)]"
+          style={{ transform: "translateZ(120px)" }}
+        >
+          <div className="aspect-square">
+            <img
+              src={HERO_IMAGES.detail.src}
+              alt={HERO_IMAGES.detail.alt}
+              className="h-full w-full object-cover"
+            />
+          </div>
+        </div>
+
+        <div
+          className="absolute -right-12 bottom-8 w-36 overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[6px_6px_0_rgba(17,17,17,0.12)]"
+          style={{ transform: "translateZ(160px)" }}
+        >
+          <div className="aspect-[3/4]">
+            <img
+              src={HERO_IMAGES.spine.src}
+              alt={HERO_IMAGES.spine.alt}
+              className="h-full w-full object-cover"
+            />
+          </div>
+        </div>
+
+        <div
+          className="absolute right-4 bottom-6 rounded-full border border-black/10 bg-white/90 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-black/70 shadow-[4px_4px_0_rgba(17,17,17,0.1)]"
+          style={{ transform: "translateZ(130px)" }}
+        >
+          Spatial interface
+        </div>
+
+        <div
+          className="absolute left-6 top-6 rounded-full border border-black/10 bg-white/80 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-black/60 shadow-[4px_4px_0_rgba(17,17,17,0.1)]"
+          style={{ transform: "translateZ(110px)" }}
+        >
+          Studio mode
+        </div>
+
+        <div
+          className="absolute left-1/2 top-2 h-28 w-28 -translate-x-1/2 rounded-full border border-black/15 opacity-70 animate-orbit"
+          style={{ transform: "translateZ(40px)" }}
+        >
+          <span className="absolute -right-2 top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-[#FF5B3A]" />
+        </div>
+      </div>
+    </TiltCard>
+  );
+}
+
 export default function Home() {
   const { data: projects } = trpc.projects.list.useQuery();
   const projectCount = projects?.length ?? 0;
@@ -468,12 +569,12 @@ export default function Home() {
 
   const metrics = [
     { label: "Years", value: "3+" },
-    { label: "Projects", value: projectCount ? `${projectCount}+` : "10+" },
-    { label: "Focus", value: "Firmware, IoT" },
+    { label: "Systems", value: projectCount ? `${projectCount}+` : "12+" },
+    { label: "Focus", value: "Firmware + IoT" },
   ];
 
   return (
-    <div className="min-h-screen bg-[#F6F1E9] text-[#111111] font-body">
+    <div className="min-h-screen bg-[#F8F2EA] text-[#111111] font-body">
       <div className="fixed inset-0 pointer-events-none" aria-hidden="true">
         <div className="absolute inset-0 paper-noise opacity-40" />
         <div className="absolute inset-0 paper-grid opacity-15" />
@@ -511,16 +612,16 @@ export default function Home() {
               <AnimatedSection>
                 <div className="inline-flex items-center gap-3 rounded-full border border-black/10 bg-white/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-black/60">
                   <span className="h-2 w-2 rounded-full bg-[#FF5B3A]" />
-                  Embedded Developer
+                  Embedded + Experience
                 </div>
               </AnimatedSection>
               <AnimatedSection delay={100}>
                 <h1 className="mt-8 font-display text-[clamp(2.8rem,7vw,6rem)] leading-[0.95]">
-                  Embedded systems
+                  Hardware intelligence
                   <span className="mt-3 block">
                     with{" "}
                     <span className="relative inline-block">
-                      studio-level craft
+                      studio-grade clarity
                       <span className="absolute left-0 right-0 top-[70%] h-3 -translate-y-1/2 bg-[#FFE08A] opacity-70" />
                     </span>
                   </span>
@@ -528,16 +629,15 @@ export default function Home() {
               </AnimatedSection>
               <AnimatedSection delay={200}>
                 <p className="mt-6 max-w-xl text-lg text-black/60">
-                  I build firmware, IoT prototypes, and interfaces that feel
-                  as deliberate as print. Clear systems, precise execution, and
-                  a human touch.
+                  Firmware, IoT prototypes, and spatial diagnostics delivered
+                  with the restraint of print and the ambition of future tech.
                 </p>
               </AnimatedSection>
               <AnimatedSection delay={300}>
                 <div className="mt-8 flex flex-wrap gap-4">
                   <Link href="/projects">
                     <Button className="h-12 rounded-full bg-[#111111] px-6 text-[#F6F1E9] hover:bg-[#2C5EFF]">
-                      View Projects
+                      Explore Work
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>
@@ -546,7 +646,7 @@ export default function Home() {
                       variant="outline"
                       className="h-12 rounded-full border-black/20 bg-white/80 px-6"
                     >
-                      About Me
+                      About Studio
                     </Button>
                   </Link>
                 </div>
@@ -573,40 +673,11 @@ export default function Home() {
             <div className="lg:col-span-5">
               <AnimatedSection delay={200}>
                 <div className="relative mt-10 lg:mt-0">
-                  <div className="absolute -top-6 right-6 hidden items-center gap-2 rounded-full bg-[#FFE08A] px-4 py-2 text-xs uppercase tracking-[0.25em] text-black/70 shadow-[6px_6px_0_rgba(17,17,17,0.12)] md:inline-flex">
+                  <div className="absolute -top-8 right-2 hidden items-center gap-2 rounded-full bg-[#FFE08A] px-4 py-2 text-xs uppercase tracking-[0.25em] text-black/70 shadow-[6px_6px_0_rgba(17,17,17,0.12)] md:inline-flex">
                     <Sparkles className="h-3 w-3" />
-                    Prototype
+                    3D Studio
                   </div>
-                  <div className="relative aspect-[4/5] overflow-hidden rounded-[32px] border-2 border-black/10 bg-white shadow-[14px_14px_0_rgba(17,17,17,0.12)]">
-                    <img
-                      src={HERO_IMAGES.main.src}
-                      alt={HERO_IMAGES.main.alt}
-                      className="h-full w-full object-cover"
-                    />
-                    <div className="absolute bottom-4 left-4 rounded-full bg-white/80 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-black/70">
-                      {HERO_IMAGES.main.label}
-                    </div>
-                  </div>
-
-                  <div className="absolute -left-6 top-10 hidden w-36 overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[8px_8px_0_rgba(17,17,17,0.12)] md:block">
-                    <div className="aspect-square animate-float-slow">
-                      <img
-                        src={HERO_IMAGES.detail.src}
-                        alt={HERO_IMAGES.detail.alt}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="absolute -right-6 bottom-10 hidden w-44 rounded-2xl border border-black/10 bg-white/80 p-4 text-sm shadow-[8px_8px_0_rgba(17,17,17,0.12)] sm:block">
-                    <div className="text-xs uppercase tracking-[0.25em] text-black/50">
-                      Studio Note
-                    </div>
-                    <p className="mt-2 text-black/70">
-                      Firmware analysis and sensor automation for real-world
-                      systems.
-                    </p>
-                  </div>
+                  <HeroStack />
                 </div>
               </AnimatedSection>
             </div>
@@ -621,18 +692,17 @@ export default function Home() {
                 Future Lab
               </div>
               <h2 className="mt-5 font-display text-4xl">
-                3D-ready systems, crafted for reality
+                Spatial systems, crafted with intent
               </h2>
               <p className="mt-4 text-base text-black/60">
-                Inspired by immersive portfolio sites, this lab section layers
-                depth, motion, and materiality. Hover to explore a spatial view
-                of the embedded stack.
+                A gallery of depth-first layouts and 3D details inspired by
+                immersive portfolios. Hover to tilt and explore each layer.
               </p>
               <div className="mt-6 space-y-3 text-sm text-black/60">
                 {[
-                  "Spatial storytelling for complex systems",
-                  "Futuristic visuals with grounded technical logic",
-                  "Interactive layers that mirror hardware stacks",
+                  "Studio-led storytelling for complex systems",
+                  "Futuristic material studies with real-world logic",
+                  "Layered stacks that mirror firmware pipelines",
                 ].map((item) => (
                   <div key={item} className="flex items-center gap-3">
                     <span className="h-2 w-2 rounded-full bg-[#111111]" />
@@ -643,7 +713,10 @@ export default function Home() {
             </AnimatedSection>
 
             <AnimatedSection delay={150} className="lg:col-span-7">
-              <TiltCard className="overflow-visible rounded-[36px] border border-black/10 bg-white/80 p-8 shadow-[12px_12px_0_rgba(17,17,17,0.12)]">
+              <TiltCard
+                maxTilt={20}
+                className="overflow-visible rounded-[36px] border border-black/10 bg-white/80 p-8 shadow-[12px_12px_0_rgba(17,17,17,0.12)]"
+              >
                 <div className="absolute inset-0 rounded-[36px] bg-gradient-to-br from-[#FDF9F2] via-white to-[#E7E0D6]" />
                 <div
                   className="relative z-10"
@@ -665,7 +738,7 @@ export default function Home() {
 
                   <div
                     className="absolute -right-4 top-6 w-40 overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[6px_6px_0_rgba(17,17,17,0.12)]"
-                    style={{ transform: "translateZ(120px)" }}
+                    style={{ transform: "translateZ(160px)" }}
                   >
                     <div className="aspect-[3/4]">
                       <img
@@ -678,7 +751,7 @@ export default function Home() {
 
                   <div
                     className="absolute -left-6 bottom-8 w-32 overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[6px_6px_0_rgba(17,17,17,0.12)]"
-                    style={{ transform: "translateZ(140px)" }}
+                    style={{ transform: "translateZ(180px)" }}
                   >
                     <div className="aspect-square">
                       <img
@@ -690,6 +763,20 @@ export default function Home() {
                   </div>
 
                   <div
+                    className="absolute -left-2 top-10 rounded-full border border-black/10 bg-white/90 px-3 py-2 text-[10px] uppercase tracking-[0.3em] text-black/60 shadow-[4px_4px_0_rgba(17,17,17,0.1)]"
+                    style={{ transform: "translateZ(150px)" }}
+                  >
+                    Layered UI
+                  </div>
+
+                  <div
+                    className="absolute bottom-6 left-1/2 -translate-x-1/2 rounded-full border border-black/10 bg-white/80 px-3 py-2 text-[10px] uppercase tracking-[0.3em] text-black/60 shadow-[4px_4px_0_rgba(17,17,17,0.1)] animate-drift"
+                    style={{ transform: "translateZ(170px)" }}
+                  >
+                    Signal flow
+                  </div>
+
+                  <div
                     className="absolute right-6 bottom-6 flex items-center gap-3 rounded-full border border-black/10 bg-white/90 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-black/70 shadow-[4px_4px_0_rgba(17,17,17,0.1)]"
                     style={{ transform: "translateZ(110px)" }}
                   >
@@ -698,8 +785,8 @@ export default function Home() {
                   </div>
 
                   <div
-                    className="absolute left-1/2 top-4 h-28 w-28 -translate-x-1/2 rounded-full border border-black/15 opacity-70 animate-orbit"
-                    style={{ transform: "translateZ(30px)" }}
+                    className="absolute left-1/2 top-4 h-32 w-32 -translate-x-1/2 rounded-full border border-black/15 opacity-70 animate-orbit"
+                    style={{ transform: "translateZ(60px)" }}
                   >
                     <span className="absolute -right-2 top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-[#FF5B3A]" />
                   </div>
