@@ -46,6 +46,24 @@ const ACCEPTED_FILE_TYPES = {
 const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB
 const SMALL_FILE_THRESHOLD = 10 * 1024 * 1024; // 10MB 이하는 기존 방식
 
+// ============================================
+// 🎬 YouTube 썸네일 자동 추출
+// ============================================
+const getYouTubeId = (url: string) => {
+  if (!url) return null;
+  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+  return match ? match[1] : null;
+};
+
+const getYouTubeThumbnail = (url: string) => {
+  const id = getYouTubeId(url);
+  return id ? `https://img.youtube.com/vi/${id}/maxresdefault.jpg` : null;
+};
+
+const isYouTubeUrl = (url: string) => {
+  return url?.includes('youtube.com') || url?.includes('youtu.be');
+};
+
 export default function Admin() {
   const { isAuthenticated, loading, logout } = useAuth();
   const utils = trpc.useUtils();
@@ -359,7 +377,27 @@ export default function Admin() {
                           )}
                         </div>
                       </div>
-                      <div><Label className="text-white/70">Video (YouTube URL)</Label><Input value={projectForm.videoUrl} onChange={e => setProjectForm({...projectForm, videoUrl: e.target.value})} className="mt-1.5 bg-white/5 border-white/10 text-white" placeholder="https://youtube.com/watch?v=..." /></div>
+                      <div>
+                        <Label className="text-white/70">Video (YouTube URL)</Label>
+                        <Input
+                          value={projectForm.videoUrl}
+                          onChange={e => {
+                            const url = e.target.value;
+                            const thumbnail = isYouTubeUrl(url) ? getYouTubeThumbnail(url) : "";
+                            setProjectForm({
+                              ...projectForm,
+                              videoUrl: url,
+                              thumbnailUrl: thumbnail || projectForm.thumbnailUrl,
+                              thumbnailKey: thumbnail ? "" : projectForm.thumbnailKey
+                            });
+                          }}
+                          className="mt-1.5 bg-white/5 border-white/10 text-white"
+                          placeholder="https://youtube.com/watch?v=..."
+                        />
+                        {isYouTubeUrl(projectForm.videoUrl) && projectForm.thumbnailUrl && (
+                          <p className="text-emerald-400 text-xs mt-1">✅ YouTube thumbnail auto-detected!</p>
+                        )}
+                      </div>
                       {uploading && (<div className="space-y-2"><Progress value={uploadProgress} className="h-2" /><p className="text-sm text-white/50 text-center">Uploading... {uploadProgress}%</p></div>)}
                       <Button onClick={() => createProject.mutate(projectForm)} disabled={!projectForm.title || !projectForm.description || !projectForm.technologies || uploading} className="w-full bg-emerald-500 hover:bg-emerald-600 text-black rounded-xl">{createProject.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Create Project</Button>
                     </div>
@@ -477,7 +515,25 @@ export default function Admin() {
                               <input type="file" accept={ACCEPTED_FILE_TYPES.all} className="hidden" onChange={e => {
                                 const f = e.target.files?.[0];
                                 if (f) handleFileUpload(f, (url, key, thumbUrl, thumbKey) => {
-                                  setResourceForm({...resourceForm, fileUrl: url, fileKey: key, fileName: f.name, fileSize: f.size, mimeType: f.type, thumbnailUrl: thumbUrl || "", thumbnailKey: thumbKey || ""});
+                                  // 🎨 이미지 파일이면 자동으로 썸네일로 설정
+                                  const isImage = f.type.startsWith('image/');
+                                  const autoThumbnail = isImage ? url : (thumbUrl || "");
+                                  const autoThumbnailKey = isImage ? key : (thumbKey || "");
+
+                                  setResourceForm({
+                                    ...resourceForm,
+                                    fileUrl: url,
+                                    fileKey: key,
+                                    fileName: f.name,
+                                    fileSize: f.size,
+                                    mimeType: f.type,
+                                    thumbnailUrl: autoThumbnail,
+                                    thumbnailKey: autoThumbnailKey
+                                  });
+
+                                  if (isImage) {
+                                    toast.success("✅ Image uploaded and set as thumbnail!");
+                                  }
                                 });
                               }} />
                             </label>
@@ -486,7 +542,28 @@ export default function Admin() {
                       </div>
 
                       {/* YouTube URL */}
-                      <div><Label className="text-white/70">Or YouTube URL</Label><Input value={resourceForm.fileUrl.includes('youtube') || resourceForm.fileUrl.includes('youtu.be') ? resourceForm.fileUrl : ''} onChange={e => setResourceForm({...resourceForm, fileUrl: e.target.value, mimeType: 'video/youtube'})} className="mt-1.5 bg-white/5 border-white/10 text-white" placeholder="https://youtube.com/watch?v=..." /></div>
+                      <div>
+                        <Label className="text-white/70">Or YouTube URL</Label>
+                        <Input
+                          value={resourceForm.fileUrl.includes('youtube') || resourceForm.fileUrl.includes('youtu.be') ? resourceForm.fileUrl : ''}
+                          onChange={e => {
+                            const url = e.target.value;
+                            const thumbnail = isYouTubeUrl(url) ? getYouTubeThumbnail(url) : "";
+                            setResourceForm({
+                              ...resourceForm,
+                              fileUrl: url,
+                              mimeType: 'video/youtube',
+                              thumbnailUrl: thumbnail || resourceForm.thumbnailUrl,
+                              thumbnailKey: thumbnail ? "" : resourceForm.thumbnailKey
+                            });
+                          }}
+                          className="mt-1.5 bg-white/5 border-white/10 text-white"
+                          placeholder="https://youtube.com/watch?v=..."
+                        />
+                        {isYouTubeUrl(resourceForm.fileUrl) && resourceForm.thumbnailUrl && (
+                          <p className="text-emerald-400 text-xs mt-1">✅ YouTube thumbnail auto-detected!</p>
+                        )}
+                      </div>
 
                       {/* Thumbnail */}
                       <div><Label className="text-white/70">Thumbnail (optional)</Label>
