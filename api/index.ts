@@ -4,6 +4,7 @@ import { drizzle } from "drizzle-orm/neon-http";
 import { pgTable, pgEnum, serial, text, timestamp, varchar, integer, boolean } from "drizzle-orm/pg-core";
 import { eq, desc, sql, and } from "drizzle-orm";
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 // ============ SCHEMA ============
 const roleEnum = pgEnum("role", ["user", "admin"]);
@@ -524,7 +525,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const result = await uploadToR2(key, buffer, contentType);
           return res.json({ result: { data: { url: result.url, key: result.key } } });
         }
-        
+
+        case "upload.getPresignedUrl": {
+          const { fileName, contentType, fileSize } = input;
+          const MAX_SIZE = 500 * 1024 * 1024; // 500MB
+
+          if (fileSize > MAX_SIZE) {
+            return res.status(400).json({
+              error: { message: "File too large. Max 500MB allowed." }
+            });
+          }
+
+          const key = `uploads/${Date.now()}-${fileName.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+          const client = getS3Client();
+
+          const command = new PutObjectCommand({
+            Bucket: process.env.R2_BUCKET_NAME,
+            Key: key,
+            ContentType: contentType,
+          });
+
+          const presignedUrl = await getSignedUrl(client, command, { expiresIn: 3600 });
+          const publicUrl = `${process.env.R2_PUBLIC_URL}/${key}`;
+
+          return res.json({ result: { data: {
+            presignedUrl,
+            key,
+            publicUrl
+          } } });
+        }
+
         case "upload.uploadChunk": {
           const { fileName, fileContent, chunkIndex, totalChunks, uploadId: existingUploadId, contentType } = input;
           
