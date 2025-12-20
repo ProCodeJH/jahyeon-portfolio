@@ -165,13 +165,20 @@ export default function Admin() {
       // PPT 썸네일 생성 (Office Online Viewer 사용)
       if (file.type.includes('presentation') || file.type.includes('powerpoint') || file.name.endsWith('.ppt') || file.name.endsWith('.pptx')) {
         try {
+          console.log("📄 PPT 파일 감지, 썸네일 생성 시작...");
           const thumb = await genPPTThumb(result.url);
+          console.log("🔍 genPPTThumb 결과:", thumb ? `Base64 데이터 (길이: ${thumb.length})` : "null");
+
           if (thumb) {
+            console.log("💾 썸네일 업로드 시작...");
             const tr = await uploadFile.mutateAsync({ fileName: `ppt_thumb_${Date.now()}.jpg`, fileContent: thumb, contentType: "image/jpeg" });
             thumbUrl = tr.url; thumbKey = tr.key;
+            console.log("✅ 썸네일 업로드 완료:", thumbUrl);
+          } else {
+            console.warn("⚠️ 썸네일 데이터가 없어서 업로드를 건너뜁니다");
           }
         } catch (error) {
-          console.log("PPT thumbnail generation skipped:", error);
+          console.error("❌ PPT thumbnail generation error:", error);
         }
       }
 
@@ -252,14 +259,14 @@ export default function Admin() {
       // 서버 사이드에서 썸네일을 가져와서 CORS 문제 해결
       const result = await getPPTThumbnail.mutateAsync({ pptUrl });
 
-      console.log("📊 PPT 썸네일 응답:", result);
+      console.log("📊 PPT 썸네일 응답:", JSON.stringify(result, null, 2));
 
       if (result.success && result.thumbnail) {
-        console.log("✅ PPT 썸네일 생성 성공");
+        console.log("✅ PPT 썸네일 생성 성공 (길이:", result.thumbnail.length, "chars)");
         return result.thumbnail;
       }
 
-      console.warn("⚠️ PPT 썸네일 생성 실패 - Office API에서 썸네일을 가져올 수 없습니다");
+      console.warn("⚠️ PPT 썸네일 생성 실패 - Office API에서 썸네일을 가져올 수 없습니다", result);
       return null;
     } catch (error) {
       console.error("❌ PPT thumbnail generation failed:", error);
