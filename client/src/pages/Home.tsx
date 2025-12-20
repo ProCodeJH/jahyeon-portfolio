@@ -3,6 +3,7 @@ import type { Project } from "@shared/types";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
+import { useTheme } from "next-themes";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -12,9 +13,28 @@ import {
   Github,
   Linkedin,
   Mail,
+  Moon,
   Server,
   Sparkles,
+  Sun,
 } from "lucide-react";
+
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+      className="rounded-full"
+    >
+      <Sun className="h-5 w-5 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+      <Moon className="absolute h-5 w-5 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+      <span className="sr-only">Toggle theme</span>
+    </Button>
+  );
+}
 
 const HERO_IMAGES = {
   main: {
@@ -251,84 +271,6 @@ function useInView(threshold = 0.1) {
   return { ref, isInView };
 }
 
-function useTilt(maxTilt = 10) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const node = ref.current;
-    if (!node) return;
-
-    if (
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
-      return;
-    }
-
-    let frame = 0;
-    const reset = () => {
-      node.style.setProperty("--rx", "0deg");
-      node.style.setProperty("--ry", "0deg");
-    };
-
-    const handleMove = (event: MouseEvent) => {
-      const rect = node.getBoundingClientRect();
-      const x = (event.clientX - rect.left) / rect.width;
-      const y = (event.clientY - rect.top) / rect.height;
-      const rx = (0.5 - y) * maxTilt;
-      const ry = (x - 0.5) * maxTilt;
-
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        node.style.setProperty("--rx", `${rx}deg`);
-        node.style.setProperty("--ry", `${ry}deg`);
-      });
-    };
-
-    node.addEventListener("mousemove", handleMove);
-    node.addEventListener("mouseleave", reset);
-    node.addEventListener("touchend", reset);
-
-    return () => {
-      node.removeEventListener("mousemove", handleMove);
-      node.removeEventListener("mouseleave", reset);
-      node.removeEventListener("touchend", reset);
-      cancelAnimationFrame(frame);
-    };
-  }, [maxTilt]);
-
-  return ref;
-}
-
-function TiltCard({
-  children,
-  className = "",
-  maxTilt = 16,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  maxTilt?: number;
-}) {
-  const ref = useTilt(maxTilt);
-  return (
-    <div
-      ref={ref}
-      className={`relative transition-transform duration-300 ${className}`}
-      style={
-        {
-          "--rx": "0deg",
-          "--ry": "0deg",
-          transform:
-            "perspective(1400px) rotateX(var(--rx)) rotateY(var(--ry))",
-          transformStyle: "preserve-3d",
-        } as React.CSSProperties
-      }
-    >
-      {children}
-    </div>
-  );
-}
-
 function AnimatedSection({
   children,
   className = "",
@@ -384,7 +326,7 @@ function ProjectCard({
 
   return (
     <div
-      className={`group relative overflow-hidden rounded-[28px] border border-black/10 bg-white/70 backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 ${
+      className={`group relative overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-200/80 dark:hover:shadow-blue-950/50 ${
         isLarge ? "md:col-span-7" : "md:col-span-5"
       }`}
     >
@@ -400,11 +342,11 @@ function ProjectCard({
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-[#F0ECE6] text-sm text-black/40">
+          <div className="flex h-full w-full items-center justify-center bg-slate-100 dark:bg-slate-800 text-sm text-slate-400 dark:text-slate-500">
             Image pending
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
         <div className="absolute left-4 top-4">
           <span
             className="rounded-full border px-4 py-1 text-[10px] uppercase tracking-[0.3em]"
@@ -423,9 +365,9 @@ function ProjectCard({
           <h3 className="text-xl font-display leading-tight">
             {project.title}
           </h3>
-          <ArrowUpRight className="h-5 w-5 text-black/40 transition-colors group-hover:text-black" />
+          <ArrowUpRight className="h-5 w-5 text-slate-400 dark:text-slate-500 transition-colors group-hover:text-slate-800 dark:group-hover:text-white" />
         </div>
-        <p className="mt-3 text-sm text-black/60 line-clamp-2">
+        <p className="mt-3 text-sm text-slate-500 dark:text-slate-400 line-clamp-2">
           {project.description}
         </p>
         {technologies.length > 0 && (
@@ -433,7 +375,7 @@ function ProjectCard({
             {technologies.slice(0, 4).map((tech) => (
               <span
                 key={tech}
-                className="rounded-full border border-black/10 bg-white/70 px-3 py-1 text-xs text-black/70"
+                className="rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50 px-3 py-1 text-xs text-slate-600 dark:text-slate-300"
               >
                 {tech}
               </span>
@@ -446,7 +388,7 @@ function ProjectCard({
               href={project.projectUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 text-black/80 hover:text-black"
+              className="inline-flex items-center gap-1 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
             >
               Live
               <ArrowUpRight className="h-4 w-4" />
@@ -457,7 +399,7 @@ function ProjectCard({
               href={project.githubUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 text-black/60 hover:text-black"
+              className="inline-flex items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             >
               Code
               <ArrowUpRight className="h-4 w-4" />
@@ -471,90 +413,20 @@ function ProjectCard({
 
 function HeroStack() {
   return (
-    <TiltCard
-      maxTilt={18}
-      className="relative overflow-visible rounded-[36px]"
-    >
-      <div className="absolute -inset-6 rounded-[42px] border border-black/10 bg-gradient-to-br from-[#FDF9F2] via-white to-[#E7E0D6] shadow-[16px_16px_0_rgba(17,17,17,0.12)]" />
+    <div className="relative rounded-[36px] border border-slate-200/80 dark:border-slate-800 bg-white/50 dark:bg-slate-800/30 p-6 shadow-2xl shadow-blue-200/50 dark:shadow-blue-950/50">
       <div
-        className="relative rounded-[36px] border border-black/10 bg-white/80 p-6"
-        style={{ transformStyle: "preserve-3d" }}
+        className="relative aspect-[4/5] overflow-hidden rounded-[28px] border border-black/10 dark:border-white/10"
       >
-        <div
-          className="relative aspect-[4/5] overflow-hidden rounded-[28px] border border-black/10"
-          style={{ transform: "translateZ(70px)" }}
-        >
-          <img
-            src={HERO_IMAGES.main.src}
-            alt={HERO_IMAGES.main.alt}
-            className="h-full w-full object-cover"
-          />
-          <div className="absolute bottom-4 left-4 rounded-full bg-white/80 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-black/70">
-            {HERO_IMAGES.main.label}
-          </div>
-        </div>
-
-        <div
-          className="absolute -left-10 top-10 w-40 overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[6px_6px_0_rgba(17,17,17,0.12)]"
-          style={{ transform: "translateZ(140px)" }}
-        >
-          <div className="aspect-[3/4]">
-            <img
-              src={HERO_IMAGES.overlay.src}
-              alt={HERO_IMAGES.overlay.alt}
-              className="h-full w-full object-cover"
-            />
-          </div>
-        </div>
-
-        <div
-          className="absolute -right-8 top-6 w-32 overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[6px_6px_0_rgba(17,17,17,0.12)]"
-          style={{ transform: "translateZ(120px)" }}
-        >
-          <div className="aspect-square">
-            <img
-              src={HERO_IMAGES.detail.src}
-              alt={HERO_IMAGES.detail.alt}
-              className="h-full w-full object-cover"
-            />
-          </div>
-        </div>
-
-        <div
-          className="absolute -right-12 bottom-8 w-36 overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[6px_6px_0_rgba(17,17,17,0.12)]"
-          style={{ transform: "translateZ(160px)" }}
-        >
-          <div className="aspect-[3/4]">
-            <img
-              src={HERO_IMAGES.spine.src}
-              alt={HERO_IMAGES.spine.alt}
-              className="h-full w-full object-cover"
-            />
-          </div>
-        </div>
-
-        <div
-          className="absolute right-4 bottom-6 rounded-full border border-black/10 bg-white/90 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-black/70 shadow-[4px_4px_0_rgba(17,17,17,0.1)]"
-          style={{ transform: "translateZ(130px)" }}
-        >
-          Spatial interface
-        </div>
-
-        <div
-          className="absolute left-6 top-6 rounded-full border border-black/10 bg-white/80 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-black/60 shadow-[4px_4px_0_rgba(17,17,17,0.1)]"
-          style={{ transform: "translateZ(110px)" }}
-        >
-          Studio mode
-        </div>
-
-        <div
-          className="absolute left-1/2 top-2 h-28 w-28 -translate-x-1/2 rounded-full border border-black/15 opacity-70 animate-orbit"
-          style={{ transform: "translateZ(40px)" }}
-        >
-          <span className="absolute -right-2 top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-[#FF5B3A]" />
+        <img
+          src={HERO_IMAGES.main.src}
+          alt={HERO_IMAGES.main.alt}
+          className="h-full w-full object-cover"
+        />
+        <div className="absolute bottom-4 left-4 rounded-full bg-white/80 dark:bg-slate-900/80 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-black/70 dark:text-white/70">
+          {HERO_IMAGES.main.label}
         </div>
       </div>
-    </TiltCard>
+    </div>
   );
 }
 
@@ -574,33 +446,32 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F8F2EA] text-[#111111] font-body">
-      <div className="fixed inset-0 pointer-events-none" aria-hidden="true">
-        <div className="absolute inset-0 paper-noise opacity-40" />
-        <div className="absolute inset-0 paper-grid opacity-15" />
-      </div>
-
+    <div className="min-h-screen bg-white text-slate-800 dark:bg-slate-900 dark:text-slate-50 font-body">
       <nav className="fixed left-0 right-0 top-6 z-40">
         <div className="mx-auto max-w-6xl px-6">
-          <div className="flex items-center justify-between rounded-full border border-black/10 bg-[#FDF9F2]/90 px-6 py-3 backdrop-blur">
+          <div className="flex items-center justify-between rounded-full border border-black/10 dark:border-white/10 bg-white/80 dark:bg-slate-900/80 px-6 py-3 backdrop-blur">
             <Link href="/">
               <span className="font-display text-lg tracking-[0.35em]">JH</span>
             </Link>
-            <div className="hidden items-center gap-10 text-xs uppercase tracking-[0.3em] text-black/60 md:flex">
+            <div className="hidden items-center gap-1 text-xs uppercase tracking-[0.3em] text-black/60 dark:text-white/60 md:flex">
               {["About", "Projects", "Certifications", "Resources", "Admin"].map(
                 (item) => (
                   <Link key={item} href={`/${item.toLowerCase()}`}>
-                    <span className="hover:text-black">{item}</span>
+                    <span className="rounded-full px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-800">{item}</span>
                   </Link>
                 )
               )}
             </div>
-            <a
-              href="mailto:contact@jahyeon.com"
-              className="rounded-full border border-black/20 bg-white/80 px-4 py-2 text-xs uppercase tracking-[0.3em] text-black/70 hover:text-black"
-            >
-              Contact
-            </a>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <a
+                href="mailto:contact@jahyeon.com"
+                className="hidden sm:inline-flex items-center gap-2 rounded-full border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-transparent px-4 py-2 text-xs uppercase tracking-[0.3em] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white"
+              >
+                <Mail className="h-4 w-4" />
+                <span className="hidden lg:inline">Contact</span>
+              </a>
+            </div>
           </div>
         </div>
       </nav>
@@ -610,8 +481,8 @@ export default function Home() {
           <div className="mx-auto grid max-w-6xl gap-12 px-6 lg:grid-cols-12 lg:items-end">
             <div className="lg:col-span-7">
               <AnimatedSection>
-                <div className="inline-flex items-center gap-3 rounded-full border border-black/10 bg-white/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-black/60">
-                  <span className="h-2 w-2 rounded-full bg-[#FF5B3A]" />
+                <div className="inline-flex items-center gap-3 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-2 text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+                  <span className="h-2 w-2 rounded-full bg-blue-500" />
                   Embedded + Experience
                 </div>
               </AnimatedSection>
@@ -622,13 +493,13 @@ export default function Home() {
                     with{" "}
                     <span className="relative inline-block">
                       studio-grade clarity
-                      <span className="absolute left-0 right-0 top-[70%] h-3 -translate-y-1/2 bg-[#FFE08A] opacity-70" />
+                      <span className="absolute left-0 right-0 top-[70%] h-3 -translate-y-1/2 bg-blue-300/50 dark:bg-blue-500/30" />
                     </span>
                   </span>
                 </h1>
               </AnimatedSection>
               <AnimatedSection delay={200}>
-                <p className="mt-6 max-w-xl text-lg text-black/60">
+                <p className="mt-6 max-w-xl text-lg text-slate-500 dark:text-slate-400">
                   Firmware, IoT prototypes, and spatial diagnostics delivered
                   with the restraint of print and the ambition of future tech.
                 </p>
@@ -636,7 +507,7 @@ export default function Home() {
               <AnimatedSection delay={300}>
                 <div className="mt-8 flex flex-wrap gap-4">
                   <Link href="/projects">
-                    <Button className="h-12 rounded-full bg-[#111111] px-6 text-[#F6F1E9] hover:bg-[#2C5EFF]">
+                    <Button className="h-12 rounded-full bg-slate-900 px-6 text-white hover:bg-blue-600 dark:bg-white dark:text-slate-900 dark:hover:bg-blue-300">
                       Explore Work
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
@@ -644,7 +515,7 @@ export default function Home() {
                   <Link href="/about">
                     <Button
                       variant="outline"
-                      className="h-12 rounded-full border-black/20 bg-white/80 px-6"
+                      className="h-12 rounded-full border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-transparent px-6"
                     >
                       About Studio
                     </Button>
@@ -656,12 +527,12 @@ export default function Home() {
                   {metrics.map((metric) => (
                     <div
                       key={metric.label}
-                      className="rounded-2xl border border-black/10 bg-white/70 p-4"
+                      className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4"
                     >
                       <div className="font-display text-2xl">
                         {metric.value}
                       </div>
-                      <div className="mt-2 text-xs uppercase tracking-[0.3em] text-black/50">
+                      <div className="mt-2 text-xs uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500">
                         {metric.label}
                       </div>
                     </div>
@@ -673,7 +544,7 @@ export default function Home() {
             <div className="lg:col-span-5">
               <AnimatedSection delay={200}>
                 <div className="relative mt-10 lg:mt-0">
-                  <div className="absolute -top-8 right-2 hidden items-center gap-2 rounded-full bg-[#FFE08A] px-4 py-2 text-xs uppercase tracking-[0.25em] text-black/70 shadow-[6px_6px_0_rgba(17,17,17,0.12)] md:inline-flex">
+                  <div className="absolute -top-8 right-2 hidden items-center gap-2 rounded-full bg-blue-100 dark:bg-blue-500/20 px-4 py-2 text-xs uppercase tracking-[0.25em] text-blue-800 dark:text-blue-300 shadow-lg md:inline-flex">
                     <Sparkles className="h-3 w-3" />
                     3D Studio
                   </div>
@@ -687,25 +558,25 @@ export default function Home() {
         <section className="py-24">
           <div className="mx-auto grid max-w-6xl gap-12 px-6 lg:grid-cols-12 lg:items-center">
             <AnimatedSection className="lg:col-span-5">
-              <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-black/50">
-                <span className="h-2 w-2 rounded-full bg-[#0E7D5C]" />
+              <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+                <span className="h-2 w-2 rounded-full bg-teal-500" />
                 Future Lab
               </div>
               <h2 className="mt-5 font-display text-4xl">
                 Spatial systems, crafted with intent
               </h2>
-              <p className="mt-4 text-base text-black/60">
+              <p className="mt-4 text-base text-slate-500 dark:text-slate-400">
                 A gallery of depth-first layouts and 3D details inspired by
                 immersive portfolios. Hover to tilt and explore each layer.
               </p>
-              <div className="mt-6 space-y-3 text-sm text-black/60">
+              <div className="mt-6 space-y-3 text-sm text-slate-500 dark:text-slate-400">
                 {[
                   "Studio-led storytelling for complex systems",
                   "Futuristic material studies with real-world logic",
                   "Layered stacks that mirror firmware pipelines",
                 ].map((item) => (
                   <div key={item} className="flex items-center gap-3">
-                    <span className="h-2 w-2 rounded-full bg-[#111111]" />
+                    <span className="h-2 w-2 rounded-full bg-slate-800 dark:bg-slate-300" />
                     {item}
                   </div>
                 ))}
@@ -713,95 +584,30 @@ export default function Home() {
             </AnimatedSection>
 
             <AnimatedSection delay={150} className="lg:col-span-7">
-              <TiltCard
-                maxTilt={20}
-                className="overflow-visible rounded-[36px] border border-black/10 bg-white/80 p-8 shadow-[12px_12px_0_rgba(17,17,17,0.12)]"
-              >
-                <div className="absolute inset-0 rounded-[36px] bg-gradient-to-br from-[#FDF9F2] via-white to-[#E7E0D6]" />
+              <div className="relative rounded-[36px] border border-slate-200/80 dark:border-slate-800 bg-white/50 dark:bg-slate-800/30 p-6 shadow-2xl shadow-blue-200/50 dark:shadow-blue-950/50">
                 <div
-                  className="relative z-10"
-                  style={{ transformStyle: "preserve-3d" }}
+                  className="relative aspect-[16/9] overflow-hidden rounded-[28px] border border-black/10 dark:border-white/10"
                 >
-                  <div
-                    className="relative aspect-[4/3] overflow-hidden rounded-[28px] border border-black/10 shadow-[6px_6px_0_rgba(17,17,17,0.12)]"
-                    style={{ transform: "translateZ(60px)" }}
-                  >
-                    <img
-                      src={FUTURE_LAB_IMAGES.base.src}
-                      alt={FUTURE_LAB_IMAGES.base.alt}
-                      className="h-full w-full object-cover"
-                    />
-                    <div className="absolute bottom-4 left-4 rounded-full bg-white/80 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-black/70">
-                      {FUTURE_LAB_IMAGES.base.label}
-                    </div>
-                  </div>
-
-                  <div
-                    className="absolute -right-4 top-6 w-40 overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[6px_6px_0_rgba(17,17,17,0.12)]"
-                    style={{ transform: "translateZ(160px)" }}
-                  >
-                    <div className="aspect-[3/4]">
-                      <img
-                        src={FUTURE_LAB_IMAGES.overlay.src}
-                        alt={FUTURE_LAB_IMAGES.overlay.alt}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                  </div>
-
-                  <div
-                    className="absolute -left-6 bottom-8 w-32 overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[6px_6px_0_rgba(17,17,17,0.12)]"
-                    style={{ transform: "translateZ(180px)" }}
-                  >
-                    <div className="aspect-square">
-                      <img
-                        src={FUTURE_LAB_IMAGES.chip.src}
-                        alt={FUTURE_LAB_IMAGES.chip.alt}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                  </div>
-
-                  <div
-                    className="absolute -left-2 top-10 rounded-full border border-black/10 bg-white/90 px-3 py-2 text-[10px] uppercase tracking-[0.3em] text-black/60 shadow-[4px_4px_0_rgba(17,17,17,0.1)]"
-                    style={{ transform: "translateZ(150px)" }}
-                  >
-                    Layered UI
-                  </div>
-
-                  <div
-                    className="absolute bottom-6 left-1/2 -translate-x-1/2 rounded-full border border-black/10 bg-white/80 px-3 py-2 text-[10px] uppercase tracking-[0.3em] text-black/60 shadow-[4px_4px_0_rgba(17,17,17,0.1)] animate-drift"
-                    style={{ transform: "translateZ(170px)" }}
-                  >
-                    Signal flow
-                  </div>
-
-                  <div
-                    className="absolute right-6 bottom-6 flex items-center gap-3 rounded-full border border-black/10 bg-white/90 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-black/70 shadow-[4px_4px_0_rgba(17,17,17,0.1)]"
-                    style={{ transform: "translateZ(110px)" }}
-                  >
-                    <span className="h-2 w-2 rounded-full bg-[#2C5EFF] animate-pulse-soft" />
-                    Live diagnostics
-                  </div>
-
-                  <div
-                    className="absolute left-1/2 top-4 h-32 w-32 -translate-x-1/2 rounded-full border border-black/15 opacity-70 animate-orbit"
-                    style={{ transform: "translateZ(60px)" }}
-                  >
-                    <span className="absolute -right-2 top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-[#FF5B3A]" />
+                  <img
+                    src={FUTURE_LAB_IMAGES.base.src}
+                    alt={FUTURE_LAB_IMAGES.base.alt}
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute bottom-4 left-4 rounded-full bg-white/80 dark:bg-slate-900/80 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-black/70 dark:text-white/70">
+                    {FUTURE_LAB_IMAGES.base.label}
                   </div>
                 </div>
-              </TiltCard>
+              </div>
             </AnimatedSection>
           </div>
         </section>
 
-        <section className="border-y border-black/10 bg-[#FDF9F2] py-10">
+        <section className="border-y border-slate-200/80 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 py-10">
           <div className="overflow-hidden">
-            <div className="flex gap-10 whitespace-nowrap animate-marquee px-6 text-sm uppercase tracking-[0.3em] text-black/60">
+            <div className="flex gap-10 whitespace-nowrap animate-marquee px-6 text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
               {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, index) => (
                 <div key={`${item}-${index}`} className="flex items-center gap-4">
-                  <span className="h-1.5 w-1.5 rounded-full bg-black/30" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-slate-400/50 dark:bg-slate-600" />
                   {item}
                 </div>
               ))}
@@ -813,14 +619,14 @@ export default function Home() {
           <div className="mx-auto max-w-6xl px-6">
             <div className="flex flex-wrap items-end justify-between gap-6">
               <AnimatedSection>
-                <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-black/50">
-                  <span className="h-2 w-2 rounded-full bg-[#2C5EFF]" />
+                <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+                  <span className="h-2 w-2 rounded-full bg-blue-500" />
                   Selected Work
                 </div>
                 <h2 className="mt-4 font-display text-4xl sm:text-5xl">
                   Projects with precision and personality
                 </h2>
-                <p className="mt-4 max-w-2xl text-base text-black/60">
+                <p className="mt-4 max-w-2xl text-base text-slate-500 dark:text-slate-400">
                   A curated mix of embedded systems, diagnostics, and IoT
                   experiments shaped by real constraints.
                 </p>
@@ -829,7 +635,7 @@ export default function Home() {
                 <Link href="/projects">
                   <Button
                     variant="outline"
-                    className="h-12 rounded-full border-black/20 bg-white/80 px-6"
+                    className="h-12 rounded-full border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-transparent px-6"
                   >
                     View all projects
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -853,17 +659,17 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="border-y border-black/10 bg-[#FDF9F2] py-24">
+        <section className="border-y border-slate-200/80 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 py-24">
           <div className="mx-auto grid max-w-6xl gap-12 px-6 lg:grid-cols-12">
             <AnimatedSection className="lg:col-span-4">
-              <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-black/50">
-                <span className="h-2 w-2 rounded-full bg-[#FF5B3A]" />
+              <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+                <span className="h-2 w-2 rounded-full bg-orange-500" />
                 Capabilities
               </div>
               <h2 className="mt-5 font-display text-4xl">
                 Technical depth with design rigor
               </h2>
-              <p className="mt-4 text-base text-black/60">
+              <p className="mt-4 text-base text-slate-500 dark:text-slate-400">
                 Each project blends engineering focus with a visual and product
                 lens. I care about clarity as much as correctness.
               </p>
@@ -875,7 +681,7 @@ export default function Home() {
                 const accentBg = `${item.accent}22`;
                 return (
                   <AnimatedSection key={item.title} delay={100}>
-                    <div className="rounded-3xl border border-black/10 bg-white/80 p-6 shadow-[8px_8px_0_rgba(17,17,17,0.08)]">
+                    <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-lg shadow-slate-200/50 dark:shadow-blue-950/30">
                       <div className="flex items-center gap-4">
                         <div
                           className="flex h-12 w-12 items-center justify-center rounded-2xl"
@@ -883,14 +689,14 @@ export default function Home() {
                         >
                           <Icon className="h-6 w-6" />
                         </div>
-                        <div className="text-xs uppercase tracking-[0.25em] text-black/50">
+                        <div className="text-xs uppercase tracking-[0.25em] text-slate-400 dark:text-slate-500">
                           {item.tag}
                         </div>
                       </div>
                       <h3 className="mt-4 font-display text-xl">
                         {item.title}
                       </h3>
-                      <p className="mt-3 text-sm text-black/60">
+                      <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
                         {item.description}
                       </p>
                     </div>
@@ -904,14 +710,14 @@ export default function Home() {
         <section className="py-24">
           <div className="mx-auto max-w-6xl px-6">
             <AnimatedSection>
-              <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-black/50">
-                <span className="h-2 w-2 rounded-full bg-[#2C5EFF]" />
+              <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+                <span className="h-2 w-2 rounded-full bg-blue-500" />
                 Visual Library
               </div>
               <h2 className="mt-4 font-display text-4xl">
                 Modern to futuristic references
               </h2>
-              <p className="mt-4 max-w-2xl text-base text-black/60">
+              <p className="mt-4 max-w-2xl text-base text-slate-500 dark:text-slate-400">
                 A visual set that blends contemporary hardware labs with
                 forward-looking interfaces. These references guide the tone of
                 the portfolio.
@@ -920,7 +726,7 @@ export default function Home() {
 
             <div className="mt-10 grid gap-6 lg:grid-cols-12">
               <AnimatedSection className="lg:col-span-7">
-                <div className="group relative overflow-hidden rounded-[32px] border border-black/10 bg-white/70">
+                <div className="group relative overflow-hidden rounded-[32px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/50">
                   <div className="aspect-[4/3]">
                     <img
                       src={GALLERY_IMAGES[0].src}
@@ -928,7 +734,7 @@ export default function Home() {
                       className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                   </div>
-                  <div className="absolute bottom-4 left-4 rounded-full bg-white/80 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-black/70">
+                  <div className="absolute bottom-4 left-4 rounded-full bg-white/80 dark:bg-slate-900/80 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-black/70 dark:text-white/70">
                     {GALLERY_IMAGES[0].label}
                   </div>
                 </div>
@@ -936,7 +742,7 @@ export default function Home() {
               <div className="grid gap-6 sm:grid-cols-2 lg:col-span-5">
                 {GALLERY_IMAGES.slice(1).map((item) => (
                   <AnimatedSection key={item.label} delay={100}>
-                    <div className="group relative overflow-hidden rounded-[24px] border border-black/10 bg-white/70">
+                    <div className="group relative overflow-hidden rounded-[24px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/50">
                       <div className="aspect-[4/3]">
                         <img
                           src={item.src}
@@ -944,7 +750,7 @@ export default function Home() {
                           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                         />
                       </div>
-                      <div className="absolute bottom-3 left-3 rounded-full bg-white/80 px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-black/70">
+                      <div className="absolute bottom-3 left-3 rounded-full bg-white/80 dark:bg-slate-900/80 px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-black/70 dark:text-white/70">
                         {item.label}
                       </div>
                     </div>
@@ -958,14 +764,14 @@ export default function Home() {
         <section className="py-24">
           <div className="mx-auto grid max-w-6xl gap-12 px-6 lg:grid-cols-12">
             <AnimatedSection className="lg:col-span-4">
-              <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-black/50">
-                <span className="h-2 w-2 rounded-full bg-[#6B46C1]" />
+              <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+                <span className="h-2 w-2 rounded-full bg-purple-500" />
                 Experience
               </div>
               <h2 className="mt-5 font-display text-4xl">
                 A focused technical journey
               </h2>
-              <p className="mt-4 text-base text-black/60">
+              <p className="mt-4 text-base text-slate-500 dark:text-slate-400">
                 Embedded systems, data diagnostics, and product support across
                 multiple industries.
               </p>
@@ -974,19 +780,19 @@ export default function Home() {
             <div className="space-y-4 lg:col-span-8">
               {EXPERIENCE.map((exp) => (
                 <AnimatedSection key={exp.company} delay={100}>
-                  <div className="rounded-2xl border border-black/10 bg-white/70 p-5">
+                  <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/50 p-5">
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <div className="text-xs uppercase tracking-[0.25em] text-black/50">
+                        <div className="text-xs uppercase tracking-[0.25em] text-slate-400 dark:text-slate-500">
                           {exp.period}
                         </div>
                         <h3 className="mt-2 font-display text-lg">
                           {exp.company}
                         </h3>
-                        <p className="mt-1 text-sm text-black/60">{exp.role}</p>
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{exp.role}</p>
                       </div>
                       {exp.current && (
-                        <span className="rounded-full bg-[#2C5EFF] px-3 py-1 text-xs uppercase tracking-[0.25em] text-white">
+                        <span className="rounded-full bg-blue-500 px-3 py-1 text-xs uppercase tracking-[0.25em] text-white">
                           Current
                         </span>
                       )}
@@ -1001,25 +807,25 @@ export default function Home() {
         <section className="py-24">
           <div className="mx-auto max-w-6xl px-6">
             <AnimatedSection>
-              <div className="relative overflow-hidden rounded-[32px] bg-[#111111] p-10 text-[#F6F1E9] md:p-14">
-                <div className="absolute inset-0 paper-grid opacity-20" />
+              <div className="relative overflow-hidden rounded-[32px] bg-slate-900 p-10 text-white md:p-14">
+                <div className="absolute inset-0 bg-grid-slate-800 [mask-image:linear-gradient(0deg,#fff,rgba(255,255,255,0.6))] " />
                 <div className="relative z-10 grid gap-10 md:grid-cols-2 md:items-center">
                   <div>
-                    <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-[#F6F1E9]/70">
-                      <span className="h-2 w-2 rounded-full bg-[#FF5B3A]" />
+                    <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-slate-300">
+                      <span className="h-2 w-2 rounded-full bg-orange-500" />
                       Collaborate
                     </div>
                     <h2 className="mt-5 font-display text-4xl">
                       Ready to build the next system?
                     </h2>
-                    <p className="mt-4 text-base text-[#F6F1E9]/70">
+                    <p className="mt-4 text-base text-slate-400">
                       I am open to embedded projects, IoT experiments, and
                       product collaborations.
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-4">
                     <a href="mailto:contact@jahyeon.com">
-                      <Button className="h-12 rounded-full bg-[#F6F1E9] px-6 text-[#111111] hover:bg-[#FFE08A]">
+                      <Button className="h-12 rounded-full bg-white px-6 text-slate-900 hover:bg-blue-200">
                         <Mail className="mr-2 h-4 w-4" />
                         Email Me
                       </Button>
@@ -1031,7 +837,7 @@ export default function Home() {
                     >
                       <Button
                         variant="outline"
-                        className="h-12 rounded-full border-[#F6F1E9]/30 px-6 text-[#F6F1E9]"
+                        className="h-12 rounded-full border-slate-700 px-6 text-white"
                       >
                         <Github className="mr-2 h-4 w-4" />
                         GitHub
@@ -1044,7 +850,7 @@ export default function Home() {
                     >
                       <Button
                         variant="outline"
-                        className="h-12 rounded-full border-[#F6F1E9]/30 px-6 text-[#F6F1E9]"
+                        className="h-12 rounded-full border-slate-700 px-6 text-white"
                       >
                         <Linkedin className="mr-2 h-4 w-4" />
                         LinkedIn
@@ -1058,17 +864,17 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="border-t border-black/10 py-10">
-        <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-6 text-sm text-black/50 md:flex-row md:items-center">
+      <footer className="border-t border-slate-200 dark:border-slate-800 py-10">
+        <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-6 text-sm text-slate-500 md:flex-row md:items-center">
           <p>Copyright 2024 Gu Jahyeon. All rights reserved.</p>
           <div className="flex flex-wrap gap-6 text-xs uppercase tracking-[0.3em]">
-            <a href="https://github.com" className="hover:text-black">
+            <a href="https://github.com" className="hover:text-black dark:hover:text-white">
               Github
             </a>
-            <a href="https://linkedin.com" className="hover:text-black">
+            <a href="https://linkedin.com" className="hover:text-black dark:hover:text-white">
               LinkedIn
             </a>
-            <a href="mailto:contact@jahyeon.com" className="hover:text-black">
+            <a href="mailto:contact@jahyeon.com" className="hover:text-black dark:hover:text-white">
               Email
             </a>
           </div>
