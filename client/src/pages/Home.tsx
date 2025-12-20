@@ -18,16 +18,57 @@ import {
 
 const HERO_IMAGES = {
   main: {
-    src: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&h=1600&fit=crop",
-    alt: "Macro view of a circuit board",
-    label: "Circuit board",
+    src: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1200&h=1600&fit=crop",
+    alt: "Industrial robot in a modern lab",
+    label: "Autonomous unit",
   },
   detail: {
-    src: "https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=700&h=700&fit=crop",
-    alt: "Closeup of a microcontroller",
-    label: "Microcontroller",
+    src: "https://images.unsplash.com/photo-1526378722484-bd91ca387e72?w=700&h=700&fit=crop",
+    alt: "Abstract data stream",
+    label: "Diagnostic layer",
   },
 };
+
+const FUTURE_LAB_IMAGES = {
+  base: {
+    src: "https://images.unsplash.com/photo-1518779578993-ec3579fee39f?w=1200&h=900&fit=crop",
+    alt: "Closeup of a circuit board",
+    label: "Signal plane",
+  },
+  overlay: {
+    src: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&h=900&fit=crop",
+    alt: "Server corridor",
+    label: "Compute corridor",
+  },
+  chip: {
+    src: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=700&h=700&fit=crop",
+    alt: "Developer workstation",
+    label: "Operator desk",
+  },
+};
+
+const GALLERY_IMAGES = [
+  {
+    src: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1200&h=900&fit=crop",
+    alt: "Code on screen",
+    label: "Runtime studio",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=1200&h=900&fit=crop",
+    alt: "Datacenter aisle",
+    label: "Cloud corridor",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&h=900&fit=crop",
+    alt: "Circuit lines",
+    label: "Board sketch",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1200&h=900&fit=crop",
+    alt: "Team collaborating",
+    label: "Systems alignment",
+  },
+];
 
 const MARQUEE_ITEMS = [
   "Embedded Systems",
@@ -40,6 +81,9 @@ const MARQUEE_ITEMS = [
   "Edge Analytics",
   "Automation",
   "Hardware Debug",
+  "Spatial UI",
+  "Digital Twins",
+  "3D Prototyping",
 ];
 
 const CAPABILITIES = [
@@ -137,7 +181,7 @@ const FALLBACK_PROJECTS: ProjectCardItem[] = [
     technologies: "Python, MQTT, Analytics",
     category: "iot",
     imageUrl:
-      "https://images.unsplash.com/photo-1518779578993-ec3579fee39f?w=1200&h=900&fit=crop",
+      "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1200&h=900&fit=crop",
     projectUrl: null,
     githubUrl: null,
   },
@@ -149,7 +193,7 @@ const FALLBACK_PROJECTS: ProjectCardItem[] = [
     technologies: "C, Python, UART",
     category: "c_lang",
     imageUrl:
-      "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1200&h=900&fit=crop",
+      "https://images.unsplash.com/photo-1526378722484-bd91ca387e72?w=1200&h=900&fit=crop",
     projectUrl: null,
     githubUrl: null,
   },
@@ -161,7 +205,7 @@ const FALLBACK_PROJECTS: ProjectCardItem[] = [
     technologies: "React, Data viz, APIs",
     category: "software",
     imageUrl:
-      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=900&fit=crop",
+      "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=1200&h=900&fit=crop",
     projectUrl: null,
     githubUrl: null,
   },
@@ -195,6 +239,82 @@ function useInView(threshold = 0.1) {
     return () => observer.disconnect();
   }, [threshold]);
   return { ref, isInView };
+}
+
+function useTilt(maxTilt = 10) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return;
+    }
+
+    let frame = 0;
+    const reset = () => {
+      node.style.setProperty("--rx", "0deg");
+      node.style.setProperty("--ry", "0deg");
+    };
+
+    const handleMove = (event: MouseEvent) => {
+      const rect = node.getBoundingClientRect();
+      const x = (event.clientX - rect.left) / rect.width;
+      const y = (event.clientY - rect.top) / rect.height;
+      const rx = (0.5 - y) * maxTilt;
+      const ry = (x - 0.5) * maxTilt;
+
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        node.style.setProperty("--rx", `${rx}deg`);
+        node.style.setProperty("--ry", `${ry}deg`);
+      });
+    };
+
+    node.addEventListener("mousemove", handleMove);
+    node.addEventListener("mouseleave", reset);
+    node.addEventListener("touchend", reset);
+
+    return () => {
+      node.removeEventListener("mousemove", handleMove);
+      node.removeEventListener("mouseleave", reset);
+      node.removeEventListener("touchend", reset);
+      cancelAnimationFrame(frame);
+    };
+  }, [maxTilt]);
+
+  return ref;
+}
+
+function TiltCard({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const ref = useTilt(12);
+  return (
+    <div
+      ref={ref}
+      className={`relative transition-transform duration-300 ${className}`}
+      style={
+        {
+          "--rx": "0deg",
+          "--ry": "0deg",
+          transform:
+            "perspective(1200px) rotateX(var(--rx)) rotateY(var(--ry))",
+          transformStyle: "preserve-3d",
+        } as React.CSSProperties
+      }
+    >
+      {children}
+    </div>
+  );
 }
 
 function AnimatedSection({
@@ -493,6 +613,102 @@ export default function Home() {
           </div>
         </section>
 
+        <section className="py-24">
+          <div className="mx-auto grid max-w-6xl gap-12 px-6 lg:grid-cols-12 lg:items-center">
+            <AnimatedSection className="lg:col-span-5">
+              <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-black/50">
+                <span className="h-2 w-2 rounded-full bg-[#0E7D5C]" />
+                Future Lab
+              </div>
+              <h2 className="mt-5 font-display text-4xl">
+                3D-ready systems, crafted for reality
+              </h2>
+              <p className="mt-4 text-base text-black/60">
+                Inspired by immersive portfolio sites, this lab section layers
+                depth, motion, and materiality. Hover to explore a spatial view
+                of the embedded stack.
+              </p>
+              <div className="mt-6 space-y-3 text-sm text-black/60">
+                {[
+                  "Spatial storytelling for complex systems",
+                  "Futuristic visuals with grounded technical logic",
+                  "Interactive layers that mirror hardware stacks",
+                ].map((item) => (
+                  <div key={item} className="flex items-center gap-3">
+                    <span className="h-2 w-2 rounded-full bg-[#111111]" />
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </AnimatedSection>
+
+            <AnimatedSection delay={150} className="lg:col-span-7">
+              <TiltCard className="overflow-visible rounded-[36px] border border-black/10 bg-white/80 p-8 shadow-[12px_12px_0_rgba(17,17,17,0.12)]">
+                <div className="absolute inset-0 rounded-[36px] bg-gradient-to-br from-[#FDF9F2] via-white to-[#E7E0D6]" />
+                <div
+                  className="relative z-10"
+                  style={{ transformStyle: "preserve-3d" }}
+                >
+                  <div
+                    className="relative aspect-[4/3] overflow-hidden rounded-[28px] border border-black/10 shadow-[6px_6px_0_rgba(17,17,17,0.12)]"
+                    style={{ transform: "translateZ(60px)" }}
+                  >
+                    <img
+                      src={FUTURE_LAB_IMAGES.base.src}
+                      alt={FUTURE_LAB_IMAGES.base.alt}
+                      className="h-full w-full object-cover"
+                    />
+                    <div className="absolute bottom-4 left-4 rounded-full bg-white/80 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-black/70">
+                      {FUTURE_LAB_IMAGES.base.label}
+                    </div>
+                  </div>
+
+                  <div
+                    className="absolute -right-4 top-6 w-40 overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[6px_6px_0_rgba(17,17,17,0.12)]"
+                    style={{ transform: "translateZ(120px)" }}
+                  >
+                    <div className="aspect-[3/4]">
+                      <img
+                        src={FUTURE_LAB_IMAGES.overlay.src}
+                        alt={FUTURE_LAB_IMAGES.overlay.alt}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  </div>
+
+                  <div
+                    className="absolute -left-6 bottom-8 w-32 overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[6px_6px_0_rgba(17,17,17,0.12)]"
+                    style={{ transform: "translateZ(140px)" }}
+                  >
+                    <div className="aspect-square">
+                      <img
+                        src={FUTURE_LAB_IMAGES.chip.src}
+                        alt={FUTURE_LAB_IMAGES.chip.alt}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  </div>
+
+                  <div
+                    className="absolute right-6 bottom-6 flex items-center gap-3 rounded-full border border-black/10 bg-white/90 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-black/70 shadow-[4px_4px_0_rgba(17,17,17,0.1)]"
+                    style={{ transform: "translateZ(110px)" }}
+                  >
+                    <span className="h-2 w-2 rounded-full bg-[#2C5EFF] animate-pulse-soft" />
+                    Live diagnostics
+                  </div>
+
+                  <div
+                    className="absolute left-1/2 top-4 h-28 w-28 -translate-x-1/2 rounded-full border border-black/15 opacity-70 animate-orbit"
+                    style={{ transform: "translateZ(30px)" }}
+                  >
+                    <span className="absolute -right-2 top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-[#FF5B3A]" />
+                  </div>
+                </div>
+              </TiltCard>
+            </AnimatedSection>
+          </div>
+        </section>
+
         <section className="border-y border-black/10 bg-[#FDF9F2] py-10">
           <div className="overflow-hidden">
             <div className="flex gap-10 whitespace-nowrap animate-marquee px-6 text-sm uppercase tracking-[0.3em] text-black/60">
@@ -594,6 +810,60 @@ export default function Home() {
                   </AnimatedSection>
                 );
               })}
+            </div>
+          </div>
+        </section>
+
+        <section className="py-24">
+          <div className="mx-auto max-w-6xl px-6">
+            <AnimatedSection>
+              <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-black/50">
+                <span className="h-2 w-2 rounded-full bg-[#2C5EFF]" />
+                Visual Library
+              </div>
+              <h2 className="mt-4 font-display text-4xl">
+                Modern to futuristic references
+              </h2>
+              <p className="mt-4 max-w-2xl text-base text-black/60">
+                A visual set that blends contemporary hardware labs with
+                forward-looking interfaces. These references guide the tone of
+                the portfolio.
+              </p>
+            </AnimatedSection>
+
+            <div className="mt-10 grid gap-6 lg:grid-cols-12">
+              <AnimatedSection className="lg:col-span-7">
+                <div className="group relative overflow-hidden rounded-[32px] border border-black/10 bg-white/70">
+                  <div className="aspect-[4/3]">
+                    <img
+                      src={GALLERY_IMAGES[0].src}
+                      alt={GALLERY_IMAGES[0].alt}
+                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="absolute bottom-4 left-4 rounded-full bg-white/80 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-black/70">
+                    {GALLERY_IMAGES[0].label}
+                  </div>
+                </div>
+              </AnimatedSection>
+              <div className="grid gap-6 sm:grid-cols-2 lg:col-span-5">
+                {GALLERY_IMAGES.slice(1).map((item) => (
+                  <AnimatedSection key={item.label} delay={100}>
+                    <div className="group relative overflow-hidden rounded-[24px] border border-black/10 bg-white/70">
+                      <div className="aspect-[4/3]">
+                        <img
+                          src={item.src}
+                          alt={item.alt}
+                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                      </div>
+                      <div className="absolute bottom-3 left-3 rounded-full bg-white/80 px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-black/70">
+                        {item.label}
+                      </div>
+                    </div>
+                  </AnimatedSection>
+                ))}
+              </div>
             </div>
           </div>
         </section>
