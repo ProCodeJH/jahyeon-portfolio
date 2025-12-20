@@ -1,306 +1,638 @@
 import { useEffect, useRef, useState } from "react";
+import type { Project } from "@shared/types";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { ArrowRight, Github, Linkedin, Mail, Cpu, Code, Database, Zap, ExternalLink, Play, Sparkles, Server } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Code,
+  Cpu,
+  Database,
+  Github,
+  Linkedin,
+  Mail,
+  Server,
+  Sparkles,
+} from "lucide-react";
 
-const TECH_IMAGES = {
-  hero: [
-    { src: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=600&fit=crop", label: "Circuit Board" },
-    { src: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&h=600&fit=crop", label: "Code" },
-    { src: "https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?w=800&h=600&fit=crop", label: "IoT Sensors" },
-    { src: "https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=800&h=600&fit=crop", label: "Arduino" },
-  ],
-  scroll: [
-    "https://images.unsplash.com/photo-1518770660439-4636190af475?w=300&h=200&fit=crop",
-    "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=300&h=200&fit=crop",
-    "https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?w=300&h=200&fit=crop",
-    "https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=300&h=200&fit=crop",
-    "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=300&h=200&fit=crop",
-    "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&h=200&fit=crop",
-    "https://images.unsplash.com/photo-1573164713988-8665fc963095?w=300&h=200&fit=crop",
-    "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=300&h=200&fit=crop",
-  ]
+const HERO_IMAGES = {
+  main: {
+    src: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&h=1600&fit=crop",
+    alt: "Macro view of a circuit board",
+    label: "Circuit board",
+  },
+  detail: {
+    src: "https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=700&h=700&fit=crop",
+    alt: "Closeup of a microcontroller",
+    label: "Microcontroller",
+  },
 };
 
-function CircuitBackground() {
-  return (
-    <svg className="absolute inset-0 w-full h-full opacity-[0.03]" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <pattern id="circuit-home" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
-          <circle cx="10" cy="10" r="2" fill="currentColor"/>
-          <circle cx="90" cy="90" r="2" fill="currentColor"/>
-          <circle cx="50" cy="50" r="3" fill="none" stroke="currentColor" strokeWidth="0.5"/>
-          <path d="M10 50h35M55 50h35M50 10v35M50 55v35" stroke="currentColor" strokeWidth="0.5"/>
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#circuit-home)" className="text-emerald-400"/>
-    </svg>
-  );
-}
+const MARQUEE_ITEMS = [
+  "Embedded Systems",
+  "Firmware",
+  "IoT",
+  "C/C++",
+  "Python",
+  "RTOS",
+  "Sensor Networks",
+  "Edge Analytics",
+  "Automation",
+  "Hardware Debug",
+];
 
-function CodeRain() {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.03]">
-      {Array.from({ length: 12 }).map((_, i) => (
-        <div key={i} className="absolute text-emerald-400 font-mono text-xs animate-rain" style={{ left: `${i * 8}%`, animationDelay: `${Math.random() * 5}s`, animationDuration: `${10 + Math.random() * 8}s` }}>
-          {Array.from({ length: 20 }).map((_, j) => (<div key={j} style={{ opacity: 1 - j * 0.05 }}>{"01</>{}[]"[Math.floor(Math.random() * 8)]}</div>))}
-        </div>
-      ))}
-      <style>{`@keyframes rain { 0% { transform: translateY(-100%); } 100% { transform: translateY(100vh); } } .animate-rain { animation: rain 15s linear infinite; }`}</style>
-    </div>
-  );
-}
+const CAPABILITIES = [
+  {
+    icon: Cpu,
+    title: "Firmware Architecture",
+    description:
+      "Designing stable firmware stacks with tight resource budgets and clear diagnostics.",
+    tag: "RTOS, C/C++",
+    accent: "#2C5EFF",
+  },
+  {
+    icon: Code,
+    title: "Hardware to UI",
+    description:
+      "Bridging serial data, dashboards, and user flows so products feel polished.",
+    tag: "Interfaces, Tools",
+    accent: "#FF5B3A",
+  },
+  {
+    icon: Server,
+    title: "IoT Prototyping",
+    description:
+      "Rapidly validating sensor networks, power profiles, and connectivity plans.",
+    tag: "Sensors, MQTT",
+    accent: "#0E7D5C",
+  },
+  {
+    icon: Database,
+    title: "Data Diagnostics",
+    description:
+      "Turning logs and telemetry into actionable insights for product teams.",
+    tag: "Analytics",
+    accent: "#6B46C1",
+  },
+];
 
-function FloatingIcons() {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {[{ icon: "⚡", x: 10, y: 20 }, { icon: "🔧", x: 85, y: 15 }, { icon: "💻", x: 75, y: 70 }, { icon: "🔌", x: 15, y: 75 }, { icon: "📡", x: 90, y: 45 }, { icon: "🖥️", x: 5, y: 50 }].map((item, i) => (
-        <div key={i} className="absolute text-2xl animate-float opacity-20" style={{ left: `${item.x}%`, top: `${item.y}%`, animationDelay: `${i * 0.5}s` }}>{item.icon}</div>
-      ))}
-      <style>{`@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-25px); } } .animate-float { animation: float 4s ease-in-out infinite; }`}</style>
-    </div>
-  );
-}
+const EXPERIENCE = [
+  {
+    period: "2025 - Present",
+    company: "SHL Co., Ltd.",
+    role: "Logistics Management",
+    current: true,
+  },
+  {
+    period: "2023 - 2024",
+    company: "LG Electronics",
+    role: "Senior Research Institute",
+    current: false,
+  },
+  {
+    period: "2022",
+    company: "Nordground",
+    role: "Data Analyst",
+    current: false,
+  },
+  {
+    period: "2021 - 2022",
+    company: "UHS Co., Ltd.",
+    role: "Embedded Developer",
+    current: false,
+  },
+];
 
-function RotatingChip() {
-  return (
-    <div className="relative w-24 h-24">
-      <div className="absolute inset-0 animate-spin-slow">
-        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-emerald-500/50 to-blue-500/50 border border-emerald-400/50 flex items-center justify-center backdrop-blur-sm shadow-xl shadow-emerald-500/20">
-          <Cpu className="w-10 h-10 text-emerald-400" />
-        </div>
-      </div>
-      <style>{`@keyframes spin-slow { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } } .animate-spin-slow { animation: spin-slow 20s linear infinite; }`}</style>
-    </div>
-  );
-}
+type ProjectCardItem = Pick<
+  Project,
+  | "id"
+  | "title"
+  | "description"
+  | "technologies"
+  | "category"
+  | "imageUrl"
+  | "projectUrl"
+  | "githubUrl"
+>;
+
+const FALLBACK_PROJECTS: ProjectCardItem[] = [
+  {
+    id: 1,
+    title: "Autonomous Sensor Hub",
+    description:
+      "Low power firmware and sensor fusion pipeline for multi-node monitoring.",
+    technologies: "C, RTOS, SPI, Power optimization",
+    category: "embedded",
+    imageUrl:
+      "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1200&h=900&fit=crop",
+    projectUrl: null,
+    githubUrl: null,
+  },
+  {
+    id: 2,
+    title: "Smart Equipment Monitor",
+    description:
+      "Edge device for predictive maintenance with streaming telemetry.",
+    technologies: "Python, MQTT, Analytics",
+    category: "iot",
+    imageUrl:
+      "https://images.unsplash.com/photo-1518779578993-ec3579fee39f?w=1200&h=900&fit=crop",
+    projectUrl: null,
+    githubUrl: null,
+  },
+  {
+    id: 3,
+    title: "Firmware Test Rig",
+    description:
+      "Automation suite for serial QA, data capture, and regression checks.",
+    technologies: "C, Python, UART",
+    category: "c_lang",
+    imageUrl:
+      "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1200&h=900&fit=crop",
+    projectUrl: null,
+    githubUrl: null,
+  },
+  {
+    id: 4,
+    title: "IoT Dashboard Layer",
+    description:
+      "Operator interface for real-time status, alarms, and fleet health.",
+    technologies: "React, Data viz, APIs",
+    category: "software",
+    imageUrl:
+      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=900&fit=crop",
+    projectUrl: null,
+    githubUrl: null,
+  },
+];
+
+const CATEGORY_META: Record<
+  string,
+  { label: string; accent: string; bg: string }
+> = {
+  c_lang: { label: "C/C++", accent: "#2C5EFF", bg: "#E9EDFF" },
+  arduino: { label: "Arduino", accent: "#0E7D5C", bg: "#E2F7EE" },
+  python: { label: "Python", accent: "#F59E0B", bg: "#FFF2D9" },
+  embedded: { label: "Embedded", accent: "#111111", bg: "#EFEAE2" },
+  iot: { label: "IoT", accent: "#FF5B3A", bg: "#FFE3DD" },
+  firmware: { label: "Firmware", accent: "#6B46C1", bg: "#EFE9FF" },
+  hardware: { label: "Hardware", accent: "#0F766E", bg: "#E4F3F1" },
+  software: { label: "Software", accent: "#2563EB", bg: "#E5EEFF" },
+};
 
 function useInView(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null);
   const [isInView, setIsInView] = useState(false);
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setIsInView(true); }, { threshold });
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setIsInView(true);
+      },
+      { threshold }
+    );
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
   }, [threshold]);
   return { ref, isInView };
 }
 
-function AnimatedSection({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+function AnimatedSection({
+  children,
+  className = "",
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+}) {
   const { ref, isInView } = useInView(0.1);
   return (
-    <div ref={ref} className={`transition-all duration-1000 ease-out ${className}`} style={{ transform: isInView ? "translateY(0)" : "translateY(60px)", opacity: isInView ? 1 : 0, transitionDelay: `${delay}ms` }}>
+    <div
+      ref={ref}
+      className={`transition-all duration-700 ease-out ${className}`}
+      style={{
+        transform: isInView ? "translateY(0)" : "translateY(40px)",
+        opacity: isInView ? 1 : 0,
+        transitionDelay: `${delay}ms`,
+      }}
+    >
       {children}
     </div>
   );
 }
 
-const EXPERTISE = [
-  { icon: Cpu, title: "Embedded Systems", desc: "MCU programming, firmware, real-time systems", color: "from-blue-500 to-cyan-500", img: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=300&fit=crop" },
-  { icon: Code, title: "Software Development", desc: "Full-stack with Python, Java, frameworks", color: "from-emerald-500 to-teal-500", img: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=300&fit=crop" },
-  { icon: Database, title: "Data Analysis", desc: "System optimization, data-driven insights", color: "from-purple-500 to-pink-500", img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop" },
-  { icon: Zap, title: "IoT & Automation", desc: "Connected devices, industrial solutions", color: "from-orange-500 to-yellow-500", img: "https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?w=400&h=300&fit=crop" },
-];
+function parseTechnologies(technologies: string): string[] {
+  return technologies
+    .split(",")
+    .map((tech) => tech.trim())
+    .filter((tech) => tech.length > 0);
+}
 
-const EXPERIENCE = [
-  { period: "2025 - Present", company: "SHL Co., Ltd.", role: "Logistics Management", current: true },
-  { period: "2023 - 2024", company: "LG Electronics", role: "Senior Research Institute", current: false },
-  { period: "2022", company: "Nordground", role: "Data Analyst", current: false },
-  { period: "2021 - 2022", company: "UHS Co., Ltd.", role: "Embedded Developer", current: false },
-];
+function getCategoryMeta(category: string) {
+  return (
+    CATEGORY_META[category] || {
+      label: category.replace("_", " "),
+      accent: "#111111",
+      bg: "#EFEAE2",
+    }
+  );
+}
+
+function ProjectCard({
+  project,
+  size,
+}: {
+  project: ProjectCardItem;
+  size: "large" | "small";
+}) {
+  const meta = getCategoryMeta(project.category);
+  const technologies = parseTechnologies(project.technologies);
+  const isLarge = size === "large";
+
+  return (
+    <div
+      className={`group relative overflow-hidden rounded-[28px] border border-black/10 bg-white/70 backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 ${
+        isLarge ? "md:col-span-7" : "md:col-span-5"
+      }`}
+    >
+      <div
+        className={`relative overflow-hidden ${
+          isLarge ? "aspect-[16/9]" : "aspect-[4/3]"
+        }`}
+      >
+        {project.imageUrl ? (
+          <img
+            src={project.imageUrl}
+            alt={project.title}
+            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-[#F0ECE6] text-sm text-black/40">
+            Image pending
+          </div>
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+        <div className="absolute left-4 top-4">
+          <span
+            className="rounded-full border px-4 py-1 text-[10px] uppercase tracking-[0.3em]"
+            style={{
+              backgroundColor: meta.bg,
+              color: meta.accent,
+              borderColor: meta.accent,
+            }}
+          >
+            {meta.label}
+          </span>
+        </div>
+      </div>
+      <div className="p-6">
+        <div className="flex items-start justify-between gap-4">
+          <h3 className="text-xl font-display leading-tight">
+            {project.title}
+          </h3>
+          <ArrowUpRight className="h-5 w-5 text-black/40 transition-colors group-hover:text-black" />
+        </div>
+        <p className="mt-3 text-sm text-black/60 line-clamp-2">
+          {project.description}
+        </p>
+        {technologies.length > 0 && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {technologies.slice(0, 4).map((tech) => (
+              <span
+                key={tech}
+                className="rounded-full border border-black/10 bg-white/70 px-3 py-1 text-xs text-black/70"
+              >
+                {tech}
+              </span>
+            ))}
+          </div>
+        )}
+        <div className="mt-4 flex flex-wrap gap-4 text-sm">
+          {project.projectUrl && (
+            <a
+              href={project.projectUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 text-black/80 hover:text-black"
+            >
+              Live
+              <ArrowUpRight className="h-4 w-4" />
+            </a>
+          )}
+          {project.githubUrl && (
+            <a
+              href={project.githubUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 text-black/60 hover:text-black"
+            >
+              Code
+              <ArrowUpRight className="h-4 w-4" />
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Home() {
   const { data: projects } = trpc.projects.list.useQuery();
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [activeImg, setActiveImg] = useState(0);
+  const projectCount = projects?.length ?? 0;
+  const featuredProjects = (projects?.length ? projects : FALLBACK_PROJECTS).slice(
+    0,
+    4
+  );
+  const [firstProject, ...restProjects] = featuredProjects;
 
-  useEffect(() => {
-    const handleMove = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY });
-    window.addEventListener("mousemove", handleMove);
-    return () => window.removeEventListener("mousemove", handleMove);
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => setActiveImg(p => (p + 1) % TECH_IMAGES.hero.length), 4000);
-    return () => clearInterval(interval);
-  }, []);
+  const metrics = [
+    { label: "Years", value: "3+" },
+    { label: "Projects", value: projectCount ? `${projectCount}+` : "10+" },
+    { label: "Focus", value: "Firmware, IoT" },
+  ];
 
   return (
-    <div className="min-h-screen bg-[#030303] text-white overflow-x-hidden">
-      <div className="fixed w-4 h-4 bg-emerald-400 rounded-full pointer-events-none z-[100] mix-blend-difference" style={{ left: mousePos.x - 8, top: mousePos.y - 8 }} />
+    <div className="min-h-screen bg-[#F6F1E9] text-[#111111] font-body">
+      <div className="fixed inset-0 pointer-events-none" aria-hidden="true">
+        <div className="absolute inset-0 paper-noise opacity-40" />
+        <div className="absolute inset-0 paper-grid opacity-15" />
+      </div>
 
-      <nav className="fixed top-0 left-0 right-0 z-50">
-        <div className="mx-6 lg:mx-12 mt-6">
-          <div className="bg-white/[0.02] backdrop-blur-2xl border border-white/[0.05] rounded-2xl px-8 py-4">
-            <div className="flex items-center justify-between">
-              <Link href="/"><span className="text-2xl font-extralight tracking-[0.3em] hover:text-emerald-400 transition-colors cursor-pointer">JH</span></Link>
-              <div className="hidden md:flex items-center gap-12">
-                {["About", "Projects", "Certifications", "Resources"].map(item => (
-                  <Link key={item} href={`/${item.toLowerCase()}`}><span className="text-sm font-light text-white/50 hover:text-white transition-all cursor-pointer tracking-wider">{item}</span></Link>
-                ))}
-              </div>
-              <Link href="/admin"><Button variant="outline" size="sm" className="rounded-full border-white/10 bg-white/5 text-white/70 hover:bg-white hover:text-black text-xs">Admin</Button></Link>
+      <nav className="fixed left-0 right-0 top-6 z-40">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="flex items-center justify-between rounded-full border border-black/10 bg-[#FDF9F2]/90 px-6 py-3 backdrop-blur">
+            <Link href="/">
+              <span className="font-display text-lg tracking-[0.35em]">JH</span>
+            </Link>
+            <div className="hidden items-center gap-10 text-xs uppercase tracking-[0.3em] text-black/60 md:flex">
+              {["About", "Projects", "Certifications", "Resources", "Admin"].map(
+                (item) => (
+                  <Link key={item} href={`/${item.toLowerCase()}`}>
+                    <span className="hover:text-black">{item}</span>
+                  </Link>
+                )
+              )}
             </div>
+            <a
+              href="mailto:contact@jahyeon.com"
+              className="rounded-full border border-black/20 bg-white/80 px-4 py-2 text-xs uppercase tracking-[0.3em] text-black/70 hover:text-black"
+            >
+              Contact
+            </a>
           </div>
         </div>
       </nav>
 
-      {/* Hero */}
-      <section className="min-h-screen flex items-center relative overflow-hidden">
-        <CircuitBackground />
-        <CodeRain />
-        <FloatingIcons />
-        <div className="absolute top-1/4 left-1/4 w-[700px] h-[700px] bg-emerald-500/15 rounded-full blur-[200px]" style={{ transform: `translate(${mousePos.x * 0.02}px, ${mousePos.y * 0.02}px)` }} />
-        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[180px]" />
+      <main className="relative z-10">
+        <section className="pt-36 pb-20">
+          <div className="mx-auto grid max-w-6xl gap-12 px-6 lg:grid-cols-12 lg:items-end">
+            <div className="lg:col-span-7">
+              <AnimatedSection>
+                <div className="inline-flex items-center gap-3 rounded-full border border-black/10 bg-white/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-black/60">
+                  <span className="h-2 w-2 rounded-full bg-[#FF5B3A]" />
+                  Embedded Developer
+                </div>
+              </AnimatedSection>
+              <AnimatedSection delay={100}>
+                <h1 className="mt-8 font-display text-[clamp(2.8rem,7vw,6rem)] leading-[0.95]">
+                  Embedded systems
+                  <span className="mt-3 block">
+                    with{" "}
+                    <span className="relative inline-block">
+                      studio-level craft
+                      <span className="absolute left-0 right-0 top-[70%] h-3 -translate-y-1/2 bg-[#FFE08A] opacity-70" />
+                    </span>
+                  </span>
+                </h1>
+              </AnimatedSection>
+              <AnimatedSection delay={200}>
+                <p className="mt-6 max-w-xl text-lg text-black/60">
+                  I build firmware, IoT prototypes, and interfaces that feel
+                  as deliberate as print. Clear systems, precise execution, and
+                  a human touch.
+                </p>
+              </AnimatedSection>
+              <AnimatedSection delay={300}>
+                <div className="mt-8 flex flex-wrap gap-4">
+                  <Link href="/projects">
+                    <Button className="h-12 rounded-full bg-[#111111] px-6 text-[#F6F1E9] hover:bg-[#2C5EFF]">
+                      View Projects
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                  <Link href="/about">
+                    <Button
+                      variant="outline"
+                      className="h-12 rounded-full border-black/20 bg-white/80 px-6"
+                    >
+                      About Me
+                    </Button>
+                  </Link>
+                </div>
+              </AnimatedSection>
+              <AnimatedSection delay={400}>
+                <div className="mt-10 grid gap-4 sm:grid-cols-3">
+                  {metrics.map((metric) => (
+                    <div
+                      key={metric.label}
+                      className="rounded-2xl border border-black/10 bg-white/70 p-4"
+                    >
+                      <div className="font-display text-2xl">
+                        {metric.value}
+                      </div>
+                      <div className="mt-2 text-xs uppercase tracking-[0.3em] text-black/50">
+                        {metric.label}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </AnimatedSection>
+            </div>
 
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 grid lg:grid-cols-2 gap-16 items-center relative z-10 pt-32">
-          <div>
-            <AnimatedSection>
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center animate-pulse shadow-lg shadow-emerald-500/30"><Cpu className="w-7 h-7 text-white" /></div>
-                <div><p className="text-emerald-400 font-mono text-sm tracking-[0.3em] uppercase">Embedded Engineer</p><p className="text-white/40 text-xs">Hardware meets Software</p></div>
-              </div>
-            </AnimatedSection>
-            
-            <AnimatedSection delay={200}>
-              <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-extralight leading-[1] mb-8">Building the<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400">future</span><br />of hardware</h1>
-            </AnimatedSection>
-            
-            <AnimatedSection delay={400}>
-              <p className="text-xl text-white/40 font-light max-w-lg mb-12">Transforming complex systems into elegant solutions through <span className="text-emerald-400">firmware development</span> and <span className="text-blue-400">IoT innovation</span>.</p>
-            </AnimatedSection>
-
-            <AnimatedSection delay={600}>
-              <div className="flex gap-4">
-                <Link href="/projects"><Button size="lg" className="rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-8 h-14 shadow-lg shadow-emerald-500/30 group">Explore Work <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" /></Button></Link>
-                <Link href="/about"><Button size="lg" variant="outline" className="rounded-full border-white/20 hover:bg-white/10 px-8 h-14">About Me</Button></Link>
-              </div>
-            </AnimatedSection>
-
-            <AnimatedSection delay={800}>
-              <div className="flex gap-12 mt-16 pt-8 border-t border-white/10">
-                {[{ n: "3+", l: "Years", icon: Sparkles }, { n: `${projects?.length || 0}+`, l: "Projects", icon: Code }, { n: "4", l: "Companies", icon: Server }].map((s, i) => (
-                  <div key={i} className="group"><div className="flex items-center gap-2 mb-1"><s.icon className="w-4 h-4 text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity" /><span className="text-4xl font-light text-white group-hover:text-emerald-400 transition-colors">{s.n}</span></div><span className="text-white/30 text-sm">{s.l}</span></div>
-                ))}
-              </div>
-            </AnimatedSection>
-          </div>
-
-          <AnimatedSection delay={400}>
-            <div className="relative">
-              <div className="aspect-square rounded-3xl overflow-hidden bg-gradient-to-br from-white/[0.05] to-white/[0.02] border border-white/10 shadow-2xl">
-                {TECH_IMAGES.hero.map((img, i) => (
-                  <div key={i} className={`absolute inset-0 transition-all duration-1000 ${activeImg === i ? 'opacity-100 scale-100' : 'opacity-0 scale-110'}`}>
-                    <img src={img.src} alt={img.label} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                    <div className="absolute bottom-8 left-8"><span className="px-5 py-2.5 rounded-full bg-emerald-500/30 text-emerald-300 text-sm font-medium backdrop-blur-xl">{img.label}</span></div>
+            <div className="lg:col-span-5">
+              <AnimatedSection delay={200}>
+                <div className="relative mt-10 lg:mt-0">
+                  <div className="absolute -top-6 right-6 hidden items-center gap-2 rounded-full bg-[#FFE08A] px-4 py-2 text-xs uppercase tracking-[0.25em] text-black/70 shadow-[6px_6px_0_rgba(17,17,17,0.12)] md:inline-flex">
+                    <Sparkles className="h-3 w-3" />
+                    Prototype
                   </div>
-                ))}
-                <div className="absolute top-6 right-6"><RotatingChip /></div>
-              </div>
-              <div className="flex justify-center gap-2 mt-6">
-                {TECH_IMAGES.hero.map((_, i) => (<button key={i} onClick={() => setActiveImg(i)} className={`h-2 rounded-full transition-all ${activeImg === i ? 'w-8 bg-emerald-400' : 'w-2 bg-white/20'}`} />))}
-              </div>
-              <div className="absolute -top-4 -left-4 w-20 h-20 border border-emerald-400/30 rounded-2xl" />
-              <div className="absolute -bottom-4 -right-4 w-28 h-28 border border-blue-400/20 rounded-2xl" />
-            </div>
-          </AnimatedSection>
-        </div>
-      </section>
-
-      {/* Tech Scroll */}
-      <section className="py-16 overflow-hidden">
-        <div className="flex gap-6 animate-scroll">
-          {[...TECH_IMAGES.scroll, ...TECH_IMAGES.scroll].map((src, i) => (
-            <div key={i} className="flex-shrink-0 w-72 h-44 rounded-2xl overflow-hidden border border-white/10 group">
-              <img src={src} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-            </div>
-          ))}
-        </div>
-        <style>{`@keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } } .animate-scroll { animation: scroll 30s linear infinite; }`}</style>
-      </section>
-
-      {/* Expertise */}
-      <section className="py-32 relative">
-        <CircuitBackground />
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
-          <AnimatedSection>
-            <p className="text-emerald-400 font-mono text-sm tracking-[0.3em] mb-4 uppercase">Expertise</p>
-            <h2 className="text-4xl md:text-6xl font-extralight mb-16">What I <span className="text-emerald-400">do</span></h2>
-          </AnimatedSection>
-          <div className="grid md:grid-cols-2 gap-6">
-            {EXPERTISE.map((item, i) => {
-              const Icon = item.icon;
-              return (
-                <AnimatedSection key={i} delay={i * 100}>
-                  <div className="group relative rounded-3xl overflow-hidden bg-white/[0.02] border border-white/5 hover:border-emerald-400/30 transition-all duration-500">
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-30 transition-opacity duration-500"><img src={item.img} alt="" className="w-full h-full object-cover" /></div>
-                    <div className="relative z-10 p-10">
-                      <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg`}><Icon className="w-8 h-8 text-white" /></div>
-                      <h3 className="text-2xl font-light mb-3 group-hover:text-emerald-400 transition-colors">{item.title}</h3>
-                      <p className="text-white/40">{item.desc}</p>
+                  <div className="relative aspect-[4/5] overflow-hidden rounded-[32px] border-2 border-black/10 bg-white shadow-[14px_14px_0_rgba(17,17,17,0.12)]">
+                    <img
+                      src={HERO_IMAGES.main.src}
+                      alt={HERO_IMAGES.main.alt}
+                      className="h-full w-full object-cover"
+                    />
+                    <div className="absolute bottom-4 left-4 rounded-full bg-white/80 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-black/70">
+                      {HERO_IMAGES.main.label}
                     </div>
                   </div>
-                </AnimatedSection>
-              );
-            })}
-          </div>
-        </div>
-      </section>
 
-      {/* Experience */}
-      <section className="py-32 relative">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="grid lg:grid-cols-2 gap-20">
-            <AnimatedSection>
-              <p className="text-emerald-400 font-mono text-sm tracking-[0.3em] mb-4 uppercase">Experience</p>
-              <h2 className="text-4xl md:text-5xl font-extralight mb-8">Professional<br /><span className="text-emerald-400">journey</span></h2>
-              <p className="text-white/40 text-lg mb-8">From embedded systems at UHS to firmware analysis at LG Electronics.</p>
-              <Link href="/about"><Button variant="link" className="text-emerald-400 p-0 group">Read full story <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" /></Button></Link>
-            </AnimatedSection>
-            <div className="space-y-4">
-              {EXPERIENCE.map((exp, i) => (
-                <AnimatedSection key={i} delay={i * 100}>
-                  <div className={`p-6 rounded-2xl border transition-all ${exp.current ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-white/[0.02] border-white/5 hover:border-white/10'}`}>
-                    {exp.current && <span className="float-right px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-mono flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />Current</span>}
-                    <p className="text-white/30 text-sm font-mono">{exp.period}</p>
-                    <h3 className="text-xl font-light mt-1">{exp.company}</h3>
-                    <p className="text-emerald-400/80 text-sm">{exp.role}</p>
+                  <div className="absolute -left-6 top-10 hidden w-36 overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[8px_8px_0_rgba(17,17,17,0.12)] md:block">
+                    <div className="aspect-square animate-float-slow">
+                      <img
+                        src={HERO_IMAGES.detail.src}
+                        alt={HERO_IMAGES.detail.alt}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
                   </div>
-                </AnimatedSection>
+
+                  <div className="absolute -right-6 bottom-10 hidden w-44 rounded-2xl border border-black/10 bg-white/80 p-4 text-sm shadow-[8px_8px_0_rgba(17,17,17,0.12)] sm:block">
+                    <div className="text-xs uppercase tracking-[0.25em] text-black/50">
+                      Studio Note
+                    </div>
+                    <p className="mt-2 text-black/70">
+                      Firmware analysis and sensor automation for real-world
+                      systems.
+                    </p>
+                  </div>
+                </div>
+              </AnimatedSection>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-y border-black/10 bg-[#FDF9F2] py-10">
+          <div className="overflow-hidden">
+            <div className="flex gap-10 whitespace-nowrap animate-marquee px-6 text-sm uppercase tracking-[0.3em] text-black/60">
+              {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, index) => (
+                <div key={`${item}-${index}`} className="flex items-center gap-4">
+                  <span className="h-1.5 w-1.5 rounded-full bg-black/30" />
+                  {item}
+                </div>
               ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Projects */}
-      {projects && projects.length > 0 && (
-        <section className="py-32">
-          <div className="max-w-7xl mx-auto px-6 lg:px-12">
-            <AnimatedSection>
-              <div className="flex items-end justify-between mb-16">
-                <div><p className="text-emerald-400 font-mono text-sm tracking-[0.3em] mb-4 uppercase">Portfolio</p><h2 className="text-4xl md:text-5xl font-extralight">Selected <span className="text-emerald-400">works</span></h2></div>
-                <Link href="/projects"><Button variant="link" className="text-white/50 hover:text-white hidden md:flex group">View all <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" /></Button></Link>
+        <section className="py-24">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="flex flex-wrap items-end justify-between gap-6">
+              <AnimatedSection>
+                <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-black/50">
+                  <span className="h-2 w-2 rounded-full bg-[#2C5EFF]" />
+                  Selected Work
+                </div>
+                <h2 className="mt-4 font-display text-4xl sm:text-5xl">
+                  Projects with precision and personality
+                </h2>
+                <p className="mt-4 max-w-2xl text-base text-black/60">
+                  A curated mix of embedded systems, diagnostics, and IoT
+                  experiments shaped by real constraints.
+                </p>
+              </AnimatedSection>
+              <AnimatedSection delay={100}>
+                <Link href="/projects">
+                  <Button
+                    variant="outline"
+                    className="h-12 rounded-full border-black/20 bg-white/80 px-6"
+                  >
+                    View all projects
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              </AnimatedSection>
+            </div>
+
+            <div className="mt-12 grid gap-6 md:grid-cols-12">
+              {firstProject && (
+                <ProjectCard project={firstProject} size="large" />
+              )}
+              {restProjects.map((project) => (
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  size="small"
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-y border-black/10 bg-[#FDF9F2] py-24">
+          <div className="mx-auto grid max-w-6xl gap-12 px-6 lg:grid-cols-12">
+            <AnimatedSection className="lg:col-span-4">
+              <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-black/50">
+                <span className="h-2 w-2 rounded-full bg-[#FF5B3A]" />
+                Capabilities
               </div>
+              <h2 className="mt-5 font-display text-4xl">
+                Technical depth with design rigor
+              </h2>
+              <p className="mt-4 text-base text-black/60">
+                Each project blends engineering focus with a visual and product
+                lens. I care about clarity as much as correctness.
+              </p>
             </AnimatedSection>
-            <div className="grid md:grid-cols-3 gap-6">
-              {projects.slice(0, 3).map((p, i) => (
-                <AnimatedSection key={p.id} delay={i * 100}>
-                  <div className="group rounded-3xl overflow-hidden bg-white/[0.02] border border-white/5 hover:border-emerald-400/30 transition-all">
-                    <div className="aspect-[4/3] overflow-hidden relative">
-                      {p.imageUrl ? <img src={p.imageUrl} alt={p.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                      : <div className="w-full h-full bg-gradient-to-br from-emerald-500/20 to-blue-500/20 flex items-center justify-center"><Code className="w-12 h-12 text-white/10" /></div>}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <div className="absolute bottom-4 left-4 right-4 flex gap-2 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
-                        {p.projectUrl && <a href={p.projectUrl} target="_blank" rel="noopener noreferrer" className="flex-1"><Button size="sm" className="w-full rounded-xl bg-white text-black hover:bg-emerald-400"><ExternalLink className="w-4 h-4 mr-1" />Demo</Button></a>}
-                        {p.videoUrl && <a href={p.videoUrl} target="_blank" rel="noopener noreferrer"><Button size="sm" variant="outline" className="rounded-xl border-white/20 bg-black/50 hover:bg-white hover:text-black"><Play className="w-4 h-4" /></Button></a>}
+
+            <div className="grid gap-6 sm:grid-cols-2 lg:col-span-8">
+              {CAPABILITIES.map((item) => {
+                const Icon = item.icon;
+                const accentBg = `${item.accent}22`;
+                return (
+                  <AnimatedSection key={item.title} delay={100}>
+                    <div className="rounded-3xl border border-black/10 bg-white/80 p-6 shadow-[8px_8px_0_rgba(17,17,17,0.08)]">
+                      <div className="flex items-center gap-4">
+                        <div
+                          className="flex h-12 w-12 items-center justify-center rounded-2xl"
+                          style={{ backgroundColor: accentBg, color: item.accent }}
+                        >
+                          <Icon className="h-6 w-6" />
+                        </div>
+                        <div className="text-xs uppercase tracking-[0.25em] text-black/50">
+                          {item.tag}
+                        </div>
                       </div>
+                      <h3 className="mt-4 font-display text-xl">
+                        {item.title}
+                      </h3>
+                      <p className="mt-3 text-sm text-black/60">
+                        {item.description}
+                      </p>
                     </div>
-                    <div className="p-5">
-                      <p className="text-emerald-400 text-xs font-mono uppercase mb-1">{p.category}</p>
-                      <h3 className="text-lg font-light group-hover:text-emerald-400 transition-colors">{p.title}</h3>
+                  </AnimatedSection>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        <section className="py-24">
+          <div className="mx-auto grid max-w-6xl gap-12 px-6 lg:grid-cols-12">
+            <AnimatedSection className="lg:col-span-4">
+              <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-black/50">
+                <span className="h-2 w-2 rounded-full bg-[#6B46C1]" />
+                Experience
+              </div>
+              <h2 className="mt-5 font-display text-4xl">
+                A focused technical journey
+              </h2>
+              <p className="mt-4 text-base text-black/60">
+                Embedded systems, data diagnostics, and product support across
+                multiple industries.
+              </p>
+            </AnimatedSection>
+
+            <div className="space-y-4 lg:col-span-8">
+              {EXPERIENCE.map((exp) => (
+                <AnimatedSection key={exp.company} delay={100}>
+                  <div className="rounded-2xl border border-black/10 bg-white/70 p-5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <div className="text-xs uppercase tracking-[0.25em] text-black/50">
+                          {exp.period}
+                        </div>
+                        <h3 className="mt-2 font-display text-lg">
+                          {exp.company}
+                        </h3>
+                        <p className="mt-1 text-sm text-black/60">{exp.role}</p>
+                      </div>
+                      {exp.current && (
+                        <span className="rounded-full bg-[#2C5EFF] px-3 py-1 text-xs uppercase tracking-[0.25em] text-white">
+                          Current
+                        </span>
+                      )}
                     </div>
                   </div>
                 </AnimatedSection>
@@ -308,30 +640,81 @@ export default function Home() {
             </div>
           </div>
         </section>
-      )}
 
-      {/* CTA */}
-      <section className="py-32 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/5 via-emerald-500/10 to-emerald-500/5" />
-        <CircuitBackground />
-        <FloatingIcons />
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10 text-center">
-          <AnimatedSection>
-            <h2 className="text-4xl md:text-6xl font-extralight mb-8">Let's build something<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">extraordinary</span></h2>
-            <p className="text-white/40 text-xl mb-12 max-w-xl mx-auto">Open to discussing new projects, creative ideas, or opportunities.</p>
-            <div className="flex justify-center gap-4 flex-wrap">
-              <a href="mailto:contact@jahyeon.com"><Button size="lg" className="rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-8 h-14 shadow-lg group"><Mail className="w-5 h-5 mr-2" />Get in Touch <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" /></Button></a>
-              <a href="https://github.com" target="_blank" rel="noopener noreferrer"><Button size="lg" variant="outline" className="rounded-full border-white/20 hover:bg-white hover:text-black w-14 h-14 p-0"><Github className="w-5 h-5" /></Button></a>
-              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer"><Button size="lg" variant="outline" className="rounded-full border-white/20 hover:bg-white hover:text-black w-14 h-14 p-0"><Linkedin className="w-5 h-5" /></Button></a>
-            </div>
-          </AnimatedSection>
-        </div>
-      </section>
+        <section className="py-24">
+          <div className="mx-auto max-w-6xl px-6">
+            <AnimatedSection>
+              <div className="relative overflow-hidden rounded-[32px] bg-[#111111] p-10 text-[#F6F1E9] md:p-14">
+                <div className="absolute inset-0 paper-grid opacity-20" />
+                <div className="relative z-10 grid gap-10 md:grid-cols-2 md:items-center">
+                  <div>
+                    <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-[#F6F1E9]/70">
+                      <span className="h-2 w-2 rounded-full bg-[#FF5B3A]" />
+                      Collaborate
+                    </div>
+                    <h2 className="mt-5 font-display text-4xl">
+                      Ready to build the next system?
+                    </h2>
+                    <p className="mt-4 text-base text-[#F6F1E9]/70">
+                      I am open to embedded projects, IoT experiments, and
+                      product collaborations.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-4">
+                    <a href="mailto:contact@jahyeon.com">
+                      <Button className="h-12 rounded-full bg-[#F6F1E9] px-6 text-[#111111] hover:bg-[#FFE08A]">
+                        <Mail className="mr-2 h-4 w-4" />
+                        Email Me
+                      </Button>
+                    </a>
+                    <a
+                      href="https://github.com"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <Button
+                        variant="outline"
+                        className="h-12 rounded-full border-[#F6F1E9]/30 px-6 text-[#F6F1E9]"
+                      >
+                        <Github className="mr-2 h-4 w-4" />
+                        GitHub
+                      </Button>
+                    </a>
+                    <a
+                      href="https://linkedin.com"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <Button
+                        variant="outline"
+                        className="h-12 rounded-full border-[#F6F1E9]/30 px-6 text-[#F6F1E9]"
+                      >
+                        <Linkedin className="mr-2 h-4 w-4" />
+                        LinkedIn
+                      </Button>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </AnimatedSection>
+          </div>
+        </section>
+      </main>
 
-      <footer className="py-12 border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col md:flex-row items-center justify-between gap-6">
-          <p className="text-white/20 text-sm">© 2024 Gu Jahyeon. Crafted with passion.</p>
-          <div className="flex gap-8">{["Github", "LinkedIn", "Email"].map(s => <a key={s} href="#" className="text-white/20 hover:text-white text-sm transition-colors">{s}</a>)}</div>
+      <footer className="border-t border-black/10 py-10">
+        <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-6 text-sm text-black/50 md:flex-row md:items-center">
+          <p>Copyright 2024 Gu Jahyeon. All rights reserved.</p>
+          <div className="flex flex-wrap gap-6 text-xs uppercase tracking-[0.3em]">
+            <a href="https://github.com" className="hover:text-black">
+              Github
+            </a>
+            <a href="https://linkedin.com" className="hover:text-black">
+              LinkedIn
+            </a>
+            <a href="mailto:contact@jahyeon.com" className="hover:text-black">
+              Email
+            </a>
+          </div>
         </div>
       </footer>
     </div>
