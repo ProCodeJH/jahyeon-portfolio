@@ -4,7 +4,7 @@ import { pgTable, pgEnum, serial, text, timestamp, varchar, integer } from "driz
 export const roleEnum = pgEnum("role", ["user", "admin"]);
 export const categoryEnum = pgEnum("category", ["c_lang", "arduino", "python", "embedded", "iot", "firmware", "hardware", "software"]);
 export const resourceCategoryEnum = pgEnum("resource_category", ["daily_life", "lecture_c", "lecture_arduino", "lecture_python", "presentation", "lecture_materials", "arduino_projects", "c_projects", "python_projects"]);
-export const subcategoryEnum = pgEnum("subcategory", ["code", "documentation", "images"]);
+export const subcategoryEnum = pgEnum("subcategory", ["code", "documentation", "images", "ppt", "video"]);
 
 /**
  * Core user table backing auth flow.
