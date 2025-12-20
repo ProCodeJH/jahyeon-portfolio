@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "wouter";
 import { Loader2, Plus, Trash2, Eye, Heart, BarChart3, FileText, LogOut, ImageIcon, Video, X, FolderOpen, Award, Upload, TrendingUp, Presentation, Code, Cpu, Terminal, CheckCircle } from "lucide-react";
@@ -335,7 +335,10 @@ export default function Admin() {
                 <Dialog open={showProjectDialog} onOpenChange={setShowProjectDialog}>
                   <DialogTrigger asChild><Button className="bg-emerald-500 hover:bg-emerald-600 text-black rounded-xl"><Plus className="h-4 w-4 mr-2" />Add Project</Button></DialogTrigger>
                   <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-[#111] border-white/10 text-white">
-                    <DialogHeader><DialogTitle className="text-xl font-light">New Project</DialogTitle></DialogHeader>
+                    <DialogHeader>
+                      <DialogTitle className="text-xl font-light">New Project</DialogTitle>
+                      <DialogDescription className="text-white/50">Add a new project to your portfolio</DialogDescription>
+                    </DialogHeader>
                     <div className="space-y-5 py-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div><Label className="text-white/70">Title *</Label><Input value={projectForm.title} onChange={e => setProjectForm({...projectForm, title: e.target.value})} className="mt-1.5 bg-white/5 border-white/10 text-white" placeholder="Project title" /></div>
@@ -388,7 +391,10 @@ export default function Admin() {
                 <Dialog open={showCertDialog} onOpenChange={setShowCertDialog}>
                   <DialogTrigger asChild><Button className="bg-emerald-500 hover:bg-emerald-600 text-black rounded-xl"><Plus className="h-4 w-4 mr-2" />Add</Button></DialogTrigger>
                   <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-[#111] border-white/10 text-white">
-                    <DialogHeader><DialogTitle>New Certification</DialogTitle></DialogHeader>
+                    <DialogHeader>
+                      <DialogTitle>New Certification</DialogTitle>
+                      <DialogDescription className="text-white/50">Add a new certification to your profile</DialogDescription>
+                    </DialogHeader>
                     <div className="space-y-5 py-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div><Label className="text-white/70">Title *</Label><Input value={certForm.title} onChange={e => setCertForm({...certForm, title: e.target.value})} className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
@@ -439,7 +445,10 @@ export default function Admin() {
                 <Dialog open={showResourceDialog} onOpenChange={setShowResourceDialog}>
                   <DialogTrigger asChild><Button className="bg-emerald-500 hover:bg-emerald-600 text-black rounded-xl"><Plus className="h-4 w-4 mr-2" />Add Resource</Button></DialogTrigger>
                   <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-[#111] border-white/10 text-white">
-                    <DialogHeader><DialogTitle className="text-xl font-light">New Resource</DialogTitle></DialogHeader>
+                    <DialogHeader>
+                      <DialogTitle className="text-xl font-light">New Resource</DialogTitle>
+                      <DialogDescription className="text-white/50">Add a new resource (video, PDF, or PPT file)</DialogDescription>
+                    </DialogHeader>
                     <div className="space-y-5 py-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div><Label className="text-white/70">Title *</Label><Input value={resourceForm.title} onChange={e => setResourceForm({...resourceForm, title: e.target.value})} className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
