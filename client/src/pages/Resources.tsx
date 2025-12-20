@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
-import { Download, Loader2, FileText, Video, ExternalLink, Play, Presentation, Terminal, Cpu, Code, X, Eye, Sparkles, BookOpen, Zap } from "lucide-react";
+import { Download, Loader2, FileText, Video, ExternalLink, Play, Presentation, Terminal, Cpu, Code, X, Eye, Sparkles, BookOpen, Zap, Heart, MessageCircle, Send } from "lucide-react";
 import { toast } from "sonner";
 
 // Circuit Pattern Background
@@ -225,6 +226,117 @@ function DocumentPreviewModal({ resource, onClose }: { resource: any; onClose: (
   );
 }
 
+// Like Button Component
+function LikeButton({ resourceId }: { resourceId: number }) {
+  const utils = trpc.useUtils();
+  const { data: likeStatus } = trpc.likes.check.useQuery({ resourceId });
+  const toggleLike = trpc.likes.toggle.useMutation({
+    onSuccess: () => {
+      utils.likes.check.invalidate({ resourceId });
+      utils.resources.list.invalidate();
+    },
+  });
+
+  const handleLike = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleLike.mutate({ resourceId });
+  };
+
+  return (
+    <button
+      onClick={handleLike}
+      disabled={toggleLike.isPending}
+      className={`flex items-center gap-1.5 px-3 py-2 rounded-full transition-all ${
+        likeStatus?.liked
+          ? "bg-pink-500/20 text-pink-400 hover:bg-pink-500/30"
+          : "bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/60"
+      }`}
+    >
+      <Heart className={`w-4 h-4 ${likeStatus?.liked ? "fill-current" : ""}`} />
+    </button>
+  );
+}
+
+// Comments Modal
+function CommentsModal({ resource, onClose }: { resource: any; onClose: () => void }) {
+  const [newComment, setNewComment] = useState("");
+  const { data: comments, refetch } = trpc.comments.list.useQuery({ resourceId: resource.id });
+  const createComment = trpc.comments.create.useMutation({
+    onSuccess: () => { refetch(); setNewComment(""); toast.success("Comment added!"); },
+    onError: () => toast.error("Failed to add comment"),
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+    createComment.mutate({
+      resourceId: resource.id,
+      authorName: "Anonymous",
+      content: newComment.trim(),
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex items-center justify-center p-6" onClick={onClose}>
+      <div className="w-full max-w-2xl rounded-3xl overflow-hidden bg-[#0a0a0a] border border-white/10" onClick={e => e.stopPropagation()}>
+        <div className="p-6 border-b border-white/5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+              <MessageCircle className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-light text-white">Comments</h3>
+              <p className="text-white/40 text-sm">{resource.title}</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10">
+            <X className="w-5 h-5 text-white" />
+          </button>
+        </div>
+
+        <div className="p-6 max-h-[60vh] overflow-y-auto">
+          {!comments?.length ? (
+            <div className="text-center py-12">
+              <MessageCircle className="w-12 h-12 text-white/10 mx-auto mb-3" />
+              <p className="text-white/40">No comments yet. Be the first!</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {comments.map((comment: any) => (
+                <div key={comment.id} className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <span className="text-emerald-400 text-sm font-medium">{comment.authorName}</span>
+                    <span className="text-white/30 text-xs">{new Date(comment.createdAt).toLocaleDateString()}</span>
+                  </div>
+                  <p className="text-white/70 text-sm">{comment.content}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="p-6 border-t border-white/5">
+          <form onSubmit={handleSubmit} className="flex gap-3">
+            <Input
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Write a comment..."
+              className="flex-1 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl h-12"
+            />
+            <Button
+              type="submit"
+              disabled={!newComment.trim() || createComment.isPending}
+              className="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white h-12 px-6"
+            >
+              {createComment.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            </Button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Video Modal
 function VideoModal({ resource, onClose }: { resource: any; onClose: () => void }) {
   const getYouTubeId = (url: string) => url?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/)?.[1];
@@ -261,6 +373,7 @@ export default function Resources() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedVideo, setSelectedVideo] = useState<any>(null);
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
+  const [selectedCommentResource, setSelectedCommentResource] = useState<any>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
@@ -410,9 +523,24 @@ export default function Resources() {
                         <h3 className="text-lg font-light mb-2 group-hover:text-emerald-400 transition-colors line-clamp-1">{resource.title}</h3>
                         {resource.description && <p className="text-white/40 text-sm mb-4 line-clamp-2">{resource.description}</p>}
                         
-                        <div className="flex items-center justify-between text-xs text-white/30 mb-5">
+                        <div className="flex items-center justify-between text-xs text-white/30 mb-4">
                           <span className="flex items-center gap-1"><Zap className="w-3 h-3 text-emerald-400" />{formatFileSize(resource.fileSize)}</span>
                           <span className="flex items-center gap-1"><Download className="w-3 h-3" />{resource.downloadCount || 0}</span>
+                        </div>
+
+                        <div className="flex items-center gap-2 mb-4">
+                          <LikeButton resourceId={resource.id} />
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setSelectedCommentResource(resource); }}
+                            className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/60 transition-all"
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                          </button>
+                          <div className="flex-1" />
+                          <span className="flex items-center gap-1.5 text-pink-400 text-xs">
+                            <Heart className="w-3 h-3 fill-current" />
+                            {resource.likeCount || 0}
+                          </span>
                         </div>
 
                         <div className="flex gap-3">
@@ -435,6 +563,7 @@ export default function Resources() {
 
       {selectedVideo && <VideoModal resource={selectedVideo} onClose={() => setSelectedVideo(null)} />}
       {selectedDocument && <DocumentPreviewModal resource={selectedDocument} onClose={() => setSelectedDocument(null)} />}
+      {selectedCommentResource && <CommentsModal resource={selectedCommentResource} onClose={() => setSelectedCommentResource(null)} />}
 
       <footer className="py-12 border-t border-white/5">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center text-white/20 text-sm">© 2024 Gu Jahyeon. Crafted with passion.</div>
