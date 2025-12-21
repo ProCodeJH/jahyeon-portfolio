@@ -1,7 +1,8 @@
+import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { ArrowRight, Code, Zap, Sparkles, CircuitBoard, Layers, GraduationCap, Play } from "lucide-react";
+import { ArrowRight, Code, Zap, Sparkles, CircuitBoard, Layers, GraduationCap, Play, ChevronLeft, ChevronRight } from "lucide-react";
 import { GradientMeshBackground } from "@/components/backgrounds/GradientMeshBackground";
 import { SubtleDots } from "@/components/backgrounds/SubtleDots";
 import { TiltCard } from "@/components/effects/TiltCard";
@@ -9,6 +10,7 @@ import { AnimatedSection } from "@/components/animations/AnimatedSection";
 
 export default function Home() {
   const { data: projects } = trpc.projects.list.useQuery();
+  const [activeIndex, setActiveIndex] = useState(0);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 text-gray-900 overflow-hidden">
@@ -410,81 +412,178 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ULTRA-PREMIUM Featured Work */}
-      <section className="py-40 px-8 relative">
+      {/* GOD-TIER 3D STACKED CARDS - Featured Work */}
+      <section className="py-40 px-8 relative overflow-hidden">
+        {/* Animated Background Orbs */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+
         <div className="max-w-7xl mx-auto">
           <AnimatedSection>
-            <div className="flex items-center justify-between mb-20">
-              <div>
-                <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-200/50 backdrop-blur-xl mb-6">
-                  <Code className="w-5 h-5 text-purple-600" />
-                  <span className="text-sm font-bold text-purple-600 tracking-wider uppercase">Portfolio</span>
-                </div>
-                <h2 className="text-6xl md:text-7xl font-black tracking-tight">
-                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 animate-gradient-x">
-                    Featured Work
-                  </span>
-                </h2>
-              </div>
-              <Link href="/projects">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="hidden md:flex group rounded-2xl border-2 border-purple-500 text-purple-600 hover:bg-purple-500 hover:text-white text-base px-8 h-14 font-bold shadow-lg hover:shadow-xl transition-all duration-300"
-                >
-                  View All
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-2 transition-transform" />
-                </Button>
-              </Link>
+            {/* Premium Header - NO "Portfolio" */}
+            <div className="text-center mb-20">
+              <h2 className="text-6xl md:text-8xl font-black tracking-tight mb-6">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 animate-gradient-x">
+                  Featured Work
+                </span>
+              </h2>
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto font-medium">
+                Swipe through my latest projects
+              </p>
             </div>
           </AnimatedSection>
 
-          <div className="grid md:grid-cols-3 gap-10">
-            {projects?.slice(0, 3).map((project, idx) => (
-              <AnimatedSection key={project.id} delay={idx * 150}>
-                <Link href={`/projects`}>
-                  <TiltCard>
-                    <div className="group relative overflow-hidden rounded-3xl bg-white border-2 border-gray-100 hover:border-purple-200 transition-all shadow-xl hover:shadow-2xl aspect-[4/5]">
-                      {project.imageUrl && (
-                        <>
+          {/* 3D Stacked Cards Container */}
+          <div className="relative max-w-4xl mx-auto h-[600px] perspective-[2000px]">
+            {/* Cards Stack */}
+            <div className="relative w-full h-full">
+              {projects?.slice(0, 5).map((project, idx) => {
+                const position = idx - activeIndex;
+                const isActive = idx === activeIndex;
+                const isPast = idx < activeIndex;
+                const isFuture = idx > activeIndex;
+
+                return (
+                  <div
+                    key={project.id}
+                    className={`absolute inset-0 transition-all duration-700 cursor-pointer ${
+                      isPast ? 'pointer-events-none' : 'pointer-events-auto'
+                    }`}
+                    style={{
+                      transform: `
+                        translateX(${position * 30}px)
+                        translateY(${Math.abs(position) * 20}px)
+                        translateZ(${-Math.abs(position) * 100}px)
+                        rotateY(${position * -15}deg)
+                        scale(${1 - Math.abs(position) * 0.1})
+                      `,
+                      zIndex: 50 - Math.abs(position),
+                      opacity: Math.max(0, 1 - Math.abs(position) * 0.3),
+                      transformStyle: 'preserve-3d'
+                    }}
+                    onClick={() => {
+                      if (isFuture) setActiveIndex(idx);
+                    }}
+                  >
+                    {/* Card */}
+                    <div className={`relative w-full h-full rounded-[3rem] overflow-hidden shadow-2xl transition-all duration-700 ${
+                      isActive ? 'shadow-purple-500/30 scale-100' : 'shadow-black/20'
+                    }`}>
+
+                      {/* Premium Gradient Border */}
+                      <div className={`absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-[3rem] blur-xl transition-opacity duration-500 ${
+                        isActive ? 'opacity-60' : 'opacity-0'
+                      }`} />
+
+                      {/* Card Content */}
+                      <div className="relative w-full h-full rounded-[3rem] bg-white border-4 border-white overflow-hidden">
+
+                        {/* Image Background */}
+                        {project.imageUrl && (
                           <div className="absolute inset-0">
                             <img
                               src={project.imageUrl}
                               alt={project.title}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                              className={`w-full h-full object-cover transition-transform duration-1000 ${
+                                isActive ? 'scale-110' : 'scale-100'
+                              }`}
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent group-hover:from-black/95 transition-all duration-500" />
+                            {/* Enhanced Gradient Overlay */}
+                            <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent transition-opacity duration-700 ${
+                              isActive ? 'opacity-90' : 'opacity-70'
+                            }`} />
                           </div>
-                        </>
-                      )}
+                        )}
 
-                      {/* Content Overlay */}
-                      <div className="absolute inset-0 p-8 flex flex-col justify-end">
-                        <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                          <h3 className="text-3xl font-black text-white mb-3 drop-shadow-lg">
-                            {project.title}
-                          </h3>
-                          <p className="text-white/90 text-base line-clamp-3 drop-shadow leading-relaxed mb-4">
-                            {project.description}
-                          </p>
+                        {/* Text Content - HIGHLY VISIBLE */}
+                        <div className="absolute inset-0 p-12 flex flex-col justify-end">
+                          <div className={`transform transition-all duration-700 ${
+                            isActive ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-60'
+                          }`}>
 
-                          {/* Premium CTA */}
-                          <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                            <span className="px-4 py-2 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 text-white text-sm font-bold">
-                              View Project
-                            </span>
-                            <ArrowRight className="w-5 h-5 text-white" />
+                            {/* Project Number Badge */}
+                            <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-black tracking-wider mb-6 shadow-2xl">
+                              <Code className="w-4 h-4" />
+                              PROJECT #{idx + 1}
+                            </div>
+
+                            {/* Title - SUPER VISIBLE */}
+                            <h3 className="text-5xl md:text-6xl font-black text-white mb-6 drop-shadow-2xl leading-tight">
+                              {project.title}
+                            </h3>
+
+                            {/* Description - ENHANCED VISIBILITY */}
+                            <p className="text-xl md:text-2xl text-white font-semibold leading-relaxed drop-shadow-2xl mb-8 line-clamp-3">
+                              {project.description}
+                            </p>
+
+                            {/* CTA Button - Only on Active Card */}
+                            {isActive && (
+                              <Link href="/projects">
+                                <div className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-white text-purple-600 font-black text-lg shadow-2xl hover:scale-110 hover:shadow-purple-500/50 transition-all duration-300 group">
+                                  View Project
+                                  <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                                </div>
+                              </Link>
+                            )}
                           </div>
                         </div>
-                      </div>
 
-                      {/* Premium Border Glow */}
-                      <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-3xl opacity-0 group-hover:opacity-30 blur-xl transition-opacity duration-500 -z-10" />
+                        {/* Shimmer Effect on Active Card */}
+                        {isActive && (
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-shimmer" />
+                        )}
+                      </div>
                     </div>
-                  </TiltCard>
-                </Link>
-              </AnimatedSection>
-            ))}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Navigation Buttons */}
+            <button
+              onClick={() => setActiveIndex(Math.max(0, activeIndex - 1))}
+              disabled={activeIndex === 0}
+              className="absolute left-4 top-1/2 -translate-y-1/2 z-[100] w-16 h-16 rounded-full bg-white/90 backdrop-blur-xl border-2 border-purple-500 text-purple-600 shadow-2xl hover:scale-110 hover:bg-purple-500 hover:text-white transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
+            >
+              <ChevronLeft className="w-8 h-8 mx-auto" />
+            </button>
+
+            <button
+              onClick={() => setActiveIndex(Math.min((projects?.length || 1) - 1, activeIndex + 1))}
+              disabled={activeIndex === (projects?.length || 1) - 1}
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-[100] w-16 h-16 rounded-full bg-white/90 backdrop-blur-xl border-2 border-purple-500 text-purple-600 shadow-2xl hover:scale-110 hover:bg-purple-500 hover:text-white transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
+            >
+              <ChevronRight className="w-8 h-8 mx-auto" />
+            </button>
+
+            {/* Dot Indicators */}
+            <div className="absolute -bottom-20 left-1/2 -translate-x-1/2 flex items-center gap-3 z-[100]">
+              {projects?.slice(0, 5).map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveIndex(idx)}
+                  className={`rounded-full transition-all duration-300 ${
+                    idx === activeIndex
+                      ? 'w-12 h-3 bg-gradient-to-r from-purple-600 to-pink-600 shadow-lg shadow-purple-500/50'
+                      : 'w-3 h-3 bg-gray-300 hover:bg-gray-400'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* View All Projects Button */}
+          <div className="text-center mt-32">
+            <Link href="/projects">
+              <Button
+                size="lg"
+                className="group rounded-full bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white text-xl px-12 py-8 h-auto font-black shadow-2xl hover:shadow-purple-500/50 hover:scale-110 transition-all duration-300"
+              >
+                View All Projects
+                <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-2 transition-transform" />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -543,6 +642,10 @@ export default function Home() {
           0%, 100% { transform: translateY(0) translateX(0); }
           50% { transform: translateY(-20px) translateX(10px); }
         }
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
         .animate-gradient-x {
           background-size: 200% 200%;
           animation: gradient-x 3s ease infinite;
@@ -554,6 +657,12 @@ export default function Home() {
         }
         .animate-float {
           animation: float 3s ease-in-out infinite;
+        }
+        .animate-shimmer {
+          animation: shimmer 3s ease-in-out infinite;
+        }
+        .perspective-2000 {
+          perspective: 2000px;
         }
         .delay-500 {
           animation-delay: 0.5s;
