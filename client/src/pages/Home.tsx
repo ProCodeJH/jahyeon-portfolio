@@ -476,7 +476,7 @@ export default function Home() {
                       }`} />
 
                       {/* Card Content */}
-                      <div className="relative w-full h-full rounded-[3rem] bg-white border-4 border-white overflow-hidden">
+                      <div className="relative w-full h-full rounded-[3rem] bg-gray-900 overflow-hidden">
 
                         {/* Image Background */}
                         {project.imageUrl && (
@@ -496,33 +496,33 @@ export default function Home() {
                         )}
 
                         {/* Text Content - HIGHLY VISIBLE */}
-                        <div className="absolute inset-0 p-12 flex flex-col justify-end">
+                        <div className="absolute inset-0 p-6 md:p-12 flex flex-col justify-end">
                           <div className={`transform transition-all duration-700 ${
                             isActive ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-60'
                           }`}>
 
                             {/* Project Number Badge */}
-                            <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-black tracking-wider mb-6 shadow-2xl">
-                              <Code className="w-4 h-4" />
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 md:px-5 md:py-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs md:text-sm font-black tracking-wider mb-4 md:mb-6 shadow-2xl">
+                              <Code className="w-3 h-3 md:w-4 md:h-4" />
                               PROJECT #{idx + 1}
                             </div>
 
                             {/* Title - SUPER VISIBLE */}
-                            <h3 className="text-5xl md:text-6xl font-black text-white mb-6 drop-shadow-2xl leading-tight">
+                            <h3 className="text-3xl md:text-5xl lg:text-6xl font-black text-white mb-3 md:mb-6 drop-shadow-2xl leading-tight">
                               {project.title}
                             </h3>
 
                             {/* Description - ENHANCED VISIBILITY */}
-                            <p className="text-xl md:text-2xl text-white font-semibold leading-relaxed drop-shadow-2xl mb-8 line-clamp-3">
+                            <p className="text-base md:text-xl lg:text-2xl text-white font-semibold leading-relaxed drop-shadow-2xl mb-4 md:mb-8 line-clamp-2 md:line-clamp-3">
                               {project.description}
                             </p>
 
                             {/* CTA Button - Only on Active Card */}
                             {isActive && (
                               <Link href="/projects">
-                                <div className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-white text-purple-600 font-black text-lg shadow-2xl hover:scale-110 hover:shadow-purple-500/50 transition-all duration-300 group">
+                                <div className="inline-flex items-center gap-2 md:gap-3 px-6 py-3 md:px-8 md:py-4 rounded-full bg-white text-purple-600 font-black text-base md:text-lg shadow-2xl hover:scale-110 hover:shadow-purple-500/50 transition-all duration-300 group">
                                   View Project
-                                  <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                                  <ArrowRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-2 transition-transform" />
                                 </div>
                               </Link>
                             )}
@@ -544,17 +544,17 @@ export default function Home() {
             <button
               onClick={() => setActiveIndex(Math.max(0, activeIndex - 1))}
               disabled={activeIndex === 0}
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-[100] w-16 h-16 rounded-full bg-white/90 backdrop-blur-xl border-2 border-purple-500 text-purple-600 shadow-2xl hover:scale-110 hover:bg-purple-500 hover:text-white transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-[100] w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/90 backdrop-blur-xl border-2 border-purple-500 text-purple-600 shadow-2xl hover:scale-110 hover:bg-purple-500 hover:text-white transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
-              <ChevronLeft className="w-8 h-8 mx-auto" />
+              <ChevronLeft className="w-6 h-6 md:w-8 md:h-8 mx-auto" />
             </button>
 
             <button
               onClick={() => setActiveIndex(Math.min((projects?.length || 1) - 1, activeIndex + 1))}
               disabled={activeIndex === (projects?.length || 1) - 1}
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-[100] w-16 h-16 rounded-full bg-white/90 backdrop-blur-xl border-2 border-purple-500 text-purple-600 shadow-2xl hover:scale-110 hover:bg-purple-500 hover:text-white transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-[100] w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/90 backdrop-blur-xl border-2 border-purple-500 text-purple-600 shadow-2xl hover:scale-110 hover:bg-purple-500 hover:text-white transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
-              <ChevronRight className="w-8 h-8 mx-auto" />
+              <ChevronRight className="w-6 h-6 md:w-8 md:h-8 mx-auto" />
             </button>
 
             {/* Dot Indicators */}
