@@ -6,8 +6,8 @@ import { Link } from "wouter";
 import { Download, Loader2, FileText, Video, ExternalLink, Play, Presentation, Terminal, Cpu, Code, X, Eye, Sparkles, BookOpen, Zap, Heart, MessageCircle, Send } from "lucide-react";
 import { toast } from "sonner";
 
-// 🌌 COSMIC GALAXY BACKGROUND - 400 stars flying through space
-function CosmicBackground() {
+// 🌊 CLEAN GRADIENT MESH BACKGROUND
+function GradientMeshBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -19,129 +19,53 @@ function CosmicBackground() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    class Star {
+    class Blob {
       x: number;
       y: number;
-      z: number;
-      size: number;
-
-      constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.z = Math.random() * 1000;
-        this.size = Math.random() * 2;
-      }
-
-      update() {
-        this.z -= 2;
-        if (this.z <= 0) {
-          this.z = 1000;
-          this.x = Math.random() * canvas.width;
-          this.y = Math.random() * canvas.height;
-        }
-      }
-
-      draw() {
-        const x = (this.x - canvas.width / 2) * (1000 / this.z) + canvas.width / 2;
-        const y = (this.y - canvas.height / 2) * (1000 / this.z) + canvas.height / 2;
-        const size = this.size * (1000 / this.z);
-        const opacity = 1 - this.z / 1000;
-
-        ctx.fillStyle = `rgba(${100 + Math.random() * 155}, ${200 + Math.random() * 55}, 255, ${opacity})`;
-        ctx.fillRect(x, y, size, size);
-      }
-    }
-
-    const stars = Array.from({ length: 400 }, () => new Star());
-
-    function animate() {
-      ctx.fillStyle = 'rgba(3, 3, 3, 0.3)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      stars.forEach(star => {
-        star.update();
-        star.draw();
-      });
-
-      requestAnimationFrame(animate);
-    }
-
-    animate();
-
-    const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
-  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none" />;
-}
-
-// 🔮 HOLOGRAPHIC FLOATING PARTICLES - 30 particles with glow effect
-function FloatingParticles() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    class Particle {
-      x: number;
-      y: number;
+      radius: number;
       vx: number;
       vy: number;
-      size: number;
       hue: number;
 
       constructor() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
+        this.radius = Math.random() * 200 + 150;
         this.vx = (Math.random() - 0.5) * 0.5;
         this.vy = (Math.random() - 0.5) * 0.5;
-        this.size = Math.random() * 4 + 2;
-        this.hue = Math.random() * 60 + 140; // Emerald to teal range
+        this.hue = Math.random() * 60 + 200; // Blue to purple range
       }
 
       update() {
         this.x += this.vx;
         this.y += this.vy;
 
-        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+        if (this.x < -this.radius || this.x > canvas.width + this.radius) this.vx *= -1;
+        if (this.y < -this.radius || this.y > canvas.height + this.radius) this.vy *= -1;
 
-        this.hue += 0.5;
-        if (this.hue > 200) this.hue = 140;
+        this.hue += 0.1;
+        if (this.hue > 260) this.hue = 200;
       }
 
       draw() {
-        ctx.shadowBlur = 20;
-        ctx.shadowColor = `hsl(${this.hue}, 100%, 60%)`;
-        ctx.fillStyle = `hsl(${this.hue}, 100%, 60%)`;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.shadowBlur = 0;
+        const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+        gradient.addColorStop(0, `hsla(${this.hue}, 70%, 60%, 0.15)`);
+        gradient.addColorStop(1, `hsla(${this.hue}, 70%, 60%, 0)`);
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
     }
 
-    const particles = Array.from({ length: 30 }, () => new Particle());
+    const blobs = Array.from({ length: 5 }, () => new Blob());
 
     function animate() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      particles.forEach(particle => {
-        particle.update();
-        particle.draw();
+      blobs.forEach(blob => {
+        blob.update();
+        blob.draw();
       });
 
       requestAnimationFrame(animate);
@@ -153,14 +77,95 @@ function FloatingParticles() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
-    window.addEventListener('resize', handleResize);
 
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none opacity-40" />;
+  return <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" />;
+}
+
+// ✨ SUBTLE FLOATING DOTS
+function SubtleDots() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {Array.from({ length: 30 }).map((_, i) => (
+        <div
+          key={i}
+          className="absolute w-1 h-1 bg-purple-300/20 rounded-full animate-float"
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            animationDelay: `${Math.random() * 5}s`,
+            animationDuration: `${8 + Math.random() * 8}s`,
+          }}
+        />
+      ))}
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0) translateX(0); opacity: 0.2; }
+          50% { transform: translateY(-40px) translateX(20px); opacity: 0.4; }
+        }
+        .animate-float { animation: float ease-in-out infinite; }
+      `}</style>
+    </div>
+  );
+}
+
+// 🎯 3D TILT EFFECT HOOK
+function useTilt(sensitivity = 10) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [transform, setTransform] = useState('');
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = element.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+
+      const rotateX = ((y - centerY) / centerY) * sensitivity;
+      const rotateY = ((x - centerX) / centerX) * -sensitivity;
+
+      setTransform(`perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`);
+    };
+
+    const handleMouseLeave = () => {
+      setTransform('perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)');
+    };
+
+    element.addEventListener('mousemove', handleMouseMove);
+    element.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      element.removeEventListener('mousemove', handleMouseMove);
+      element.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, [sensitivity]);
+
+  return { ref, transform };
+}
+
+// 3D Tilt Card Component
+function TiltCard({ children, sensitivity = 10 }: { children: React.ReactNode; sensitivity?: number }) {
+  const { ref, transform } = useTilt(sensitivity);
+
+  return (
+    <div
+      ref={ref}
+      style={{
+        transform,
+        transition: 'transform 0.1s ease-out',
+      }}
+    >
+      {children}
+    </div>
+  );
 }
 
 function useInView(threshold = 0.1) {
@@ -184,7 +189,7 @@ function AnimatedSection({ children, className = "", delay = 0 }: { children: Re
 }
 
 const CATEGORIES = [
-  { value: "all", label: "All", icon: Sparkles, color: "#10B981", gradient: "from-emerald-500 to-teal-500" },
+  { value: "all", label: "All", icon: Sparkles, color: "#8B5CF6", gradient: "from-purple-500 to-pink-500" },
   { value: "daily_life", label: "Daily Videos", icon: Video, color: "#EC4899", gradient: "from-pink-500 to-rose-500" },
   { value: "lecture_c", label: "C Lectures", icon: Terminal, color: "#3B82F6", gradient: "from-blue-500 to-indigo-500" },
   { value: "lecture_arduino", label: "Arduino", icon: Cpu, color: "#10B981", gradient: "from-emerald-500 to-green-500" },
@@ -192,41 +197,30 @@ const CATEGORIES = [
   { value: "presentation", label: "Presentations", icon: Presentation, color: "#8B5CF6", gradient: "from-purple-500 to-violet-500" },
 ];
 
-// PPT Thumbnail - 실제 PPT처럼 보이게
+// PPT Thumbnail
 function PPTThumbnail({ resource }: { resource: any }) {
   if (resource.thumbnailUrl) {
     return <img src={resource.thumbnailUrl} alt={resource.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />;
   }
 
   return (
-    <div className="w-full h-full bg-gradient-to-br from-orange-600/40 via-red-500/30 to-purple-600/40 flex flex-col items-center justify-center relative overflow-hidden group-hover:from-orange-600/50 group-hover:to-purple-600/50 transition-all duration-500">
-      {/* 배경 패턴 */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-6 left-6 w-20 h-14 border-2 border-orange-300/30 rounded-lg" />
-        <div className="absolute top-8 left-8 w-20 h-14 border-2 border-orange-300/20 rounded-lg" />
-        <div className="absolute bottom-6 right-6 w-16 h-16 border-2 border-purple-300/30 rounded-full" />
+    <div className="w-full h-full bg-gradient-to-br from-orange-200 via-red-100 to-purple-200 flex flex-col items-center justify-center relative overflow-hidden group-hover:from-orange-300 group-hover:to-purple-300 transition-all duration-500">
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-6 left-6 w-20 h-14 border-2 border-orange-400/30 rounded-lg" />
+        <div className="absolute bottom-6 right-6 w-16 h-16 border-2 border-purple-400/30 rounded-full" />
       </div>
-
-      {/* 슬라이드 미니어처 */}
       <div className="relative z-10 flex flex-col items-center">
-        <div className="w-28 h-20 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 shadow-xl mb-4 flex items-center justify-center overflow-hidden">
+        <div className="w-28 h-20 bg-white rounded-lg border-2 border-gray-200 shadow-xl mb-4 flex items-center justify-center overflow-hidden">
           <div className="text-center p-2">
-            <div className="w-16 h-1 bg-orange-400/60 rounded mb-2" />
-            <div className="w-12 h-1 bg-white/30 rounded mb-1" />
-            <div className="w-14 h-1 bg-white/20 rounded" />
+            <div className="w-16 h-1 bg-orange-400 rounded mb-2" />
+            <div className="w-12 h-1 bg-gray-300 rounded mb-1" />
+            <div className="w-14 h-1 bg-gray-200 rounded" />
           </div>
         </div>
-        <p className="text-white/90 font-medium text-sm text-center px-4 line-clamp-1">{resource.title}</p>
+        <p className="text-gray-700 font-medium text-sm text-center px-4 line-clamp-1">{resource.title}</p>
         <div className="flex items-center gap-1 mt-2">
-          <Presentation className="w-3 h-3 text-orange-400" />
-          <span className="text-orange-400/80 text-xs font-mono">.PPTX</span>
-        </div>
-      </div>
-
-      {/* 호버 오버레이 */}
-      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-        <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-xl flex items-center justify-center">
-          <Eye className="w-8 h-8 text-white" />
+          <Presentation className="w-3 h-3 text-orange-600" />
+          <span className="text-orange-600 text-xs font-mono">.PPTX</span>
         </div>
       </div>
     </div>
@@ -240,28 +234,20 @@ function PDFThumbnail({ resource }: { resource: any }) {
   }
 
   return (
-    <div className="w-full h-full bg-gradient-to-br from-red-600/40 via-pink-500/30 to-rose-600/40 flex flex-col items-center justify-center relative overflow-hidden group-hover:from-red-600/50 group-hover:to-rose-600/50 transition-all duration-500">
-      <div className="absolute top-6 right-6 w-16 h-20 border-2 border-red-300/30 rounded" />
-
+    <div className="w-full h-full bg-gradient-to-br from-red-200 via-pink-100 to-rose-200 flex flex-col items-center justify-center relative overflow-hidden group-hover:from-red-300 group-hover:to-rose-300 transition-all duration-500">
       <div className="relative z-10 flex flex-col items-center">
-        <div className="w-24 h-28 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 shadow-xl mb-4 flex flex-col items-center justify-center p-3">
+        <div className="w-24 h-28 bg-white rounded-lg border-2 border-gray-200 shadow-xl mb-4 flex flex-col items-center justify-center p-3">
           <div className="w-full space-y-1.5">
-            <div className="w-full h-1 bg-red-400/50 rounded" />
-            <div className="w-4/5 h-1 bg-white/30 rounded" />
-            <div className="w-full h-1 bg-white/20 rounded" />
-            <div className="w-3/4 h-1 bg-white/20 rounded" />
+            <div className="w-full h-1 bg-red-400 rounded" />
+            <div className="w-4/5 h-1 bg-gray-300 rounded" />
+            <div className="w-full h-1 bg-gray-200 rounded" />
+            <div className="w-3/4 h-1 bg-gray-200 rounded" />
           </div>
         </div>
-        <p className="text-white/90 font-medium text-sm text-center px-4 line-clamp-1">{resource.title}</p>
+        <p className="text-gray-700 font-medium text-sm text-center px-4 line-clamp-1">{resource.title}</p>
         <div className="flex items-center gap-1 mt-2">
-          <FileText className="w-3 h-3 text-red-400" />
-          <span className="text-red-400/80 text-xs font-mono">.PDF</span>
-        </div>
-      </div>
-
-      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-        <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-xl flex items-center justify-center">
-          <Eye className="w-8 h-8 text-white" />
+          <FileText className="w-3 h-3 text-red-600" />
+          <span className="text-red-600 text-xs font-mono">.PDF</span>
         </div>
       </div>
     </div>
@@ -274,10 +260,10 @@ function VideoThumbnail({ resource, thumbnail }: { resource: any; thumbnail: str
     return (
       <>
         <img src={thumbnail} alt={resource.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
           <div className="w-20 h-20 rounded-full bg-white/90 backdrop-blur-xl flex items-center justify-center shadow-2xl hover:scale-110 transition-transform">
-            <Play className="w-8 h-8 text-black ml-1" />
+            <Play className="w-8 h-8 text-purple-600 ml-1" />
           </div>
         </div>
       </>
@@ -285,11 +271,11 @@ function VideoThumbnail({ resource, thumbnail }: { resource: any; thumbnail: str
   }
 
   return (
-    <div className="w-full h-full bg-gradient-to-br from-purple-600/40 via-indigo-500/30 to-blue-600/40 flex flex-col items-center justify-center relative">
+    <div className="w-full h-full bg-gradient-to-br from-purple-200 via-indigo-100 to-blue-200 flex flex-col items-center justify-center relative">
       <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
         <Play className="w-10 h-10 text-white ml-1" />
       </div>
-      <p className="text-white/80 mt-4 text-sm">Video</p>
+      <p className="text-gray-700 mt-4 text-sm">Video</p>
     </div>
   );
 }
@@ -306,48 +292,42 @@ function DocumentPreviewModal({ resource, onClose }: { resource: any; onClose: (
   const isPDF = resource.mimeType?.includes('pdf') || resource.fileName?.endsWith('.pdf');
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col" onClick={onClose}>
-      {/* Cosmic Background in Modal */}
-      <div className="absolute inset-0 pointer-events-none opacity-30">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-500/20 rounded-full blur-[150px]" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/20 rounded-full blur-[150px]" />
-      </div>
-
-      <div className="relative flex items-center justify-between p-4 border-b border-white/10" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex flex-col" onClick={onClose}>
+      <div className="relative flex items-center justify-between p-4 border-b border-gray-200 bg-white" onClick={e => e.stopPropagation()}>
         <div className="flex items-center gap-4">
           <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isPPT ? 'bg-gradient-to-br from-orange-500 to-red-500' : 'bg-gradient-to-br from-red-500 to-pink-500'}`}>
             {isPPT ? <Presentation className="w-6 h-6 text-white" /> : <FileText className="w-6 h-6 text-white" />}
           </div>
           <div>
-            <h3 className="text-lg font-light text-white">{resource.title}</h3>
-            <p className="text-white/40 text-sm">{resource.fileName}</p>
+            <h3 className="text-lg font-semibold text-gray-900">{resource.title}</h3>
+            <p className="text-gray-500 text-sm">{resource.fileName}</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
           <a href={resource.fileUrl} target="_blank" rel="noopener noreferrer">
-            <Button variant="outline" className="rounded-xl border-white/20 text-white hover:bg-white hover:text-black h-10 px-4"><ExternalLink className="w-4 h-4 mr-2" />New Tab</Button>
+            <Button variant="outline" className="rounded-xl border-gray-300 text-gray-900 hover:bg-gray-100 h-10 px-4"><ExternalLink className="w-4 h-4 mr-2" />New Tab</Button>
           </a>
           <a href={resource.fileUrl} download>
-            <Button className="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white h-10 px-4"><Download className="w-4 h-4 mr-2" />Download</Button>
+            <Button className="rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 text-white h-10 px-4"><Download className="w-4 h-4 mr-2" />Download</Button>
           </a>
-          <button onClick={onClose} className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20"><X className="w-5 h-5 text-white" /></button>
+          <button onClick={onClose} className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center hover:bg-gray-200"><X className="w-5 h-5 text-gray-900" /></button>
         </div>
       </div>
-      <div className="relative flex-1" onClick={e => e.stopPropagation()}>
+      <div className="relative flex-1 bg-gray-100" onClick={e => e.stopPropagation()}>
         {loading && !error && (
-          <div className="absolute inset-0 flex items-center justify-center bg-[#0a0a0a] z-10">
+          <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
             <div className="text-center">
-              <Loader2 className="w-12 h-12 animate-spin text-emerald-400 mx-auto mb-4" />
-              <p className="text-white/60">Loading preview...</p>
+              <Loader2 className="w-12 h-12 animate-spin text-purple-500 mx-auto mb-4" />
+              <p className="text-gray-600">Loading preview...</p>
             </div>
           </div>
         )}
         {error ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <FileText className="w-16 h-16 text-white/20 mx-auto mb-4" />
-              <p className="text-white/60 mb-4">Preview not available</p>
-              <a href={resource.fileUrl} download><Button className="rounded-xl bg-emerald-500"><Download className="w-4 h-4 mr-2" />Download</Button></a>
+              <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-600 mb-4">Preview not available</p>
+              <a href={resource.fileUrl} download><Button className="rounded-xl bg-purple-500"><Download className="w-4 h-4 mr-2" />Download</Button></a>
             </div>
           </div>
         ) : isPPT ? (
@@ -382,8 +362,8 @@ function LikeButton({ resourceId }: { resourceId: number }) {
       disabled={toggleLike.isPending}
       className={`flex items-center gap-1.5 px-3 py-2 rounded-full transition-all ${
         likeStatus?.liked
-          ? "bg-pink-500/20 text-pink-400 hover:bg-pink-500/30"
-          : "bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/60"
+          ? "bg-pink-100 text-pink-600 hover:bg-pink-200"
+          : "bg-gray-100 text-gray-500 hover:bg-gray-200"
       }`}
     >
       <Heart className={`w-4 h-4 ${likeStatus?.liked ? "fill-current" : ""}`} />
@@ -411,62 +391,56 @@ function CommentsModal({ resource, onClose }: { resource: any; onClose: () => vo
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex items-center justify-center p-6" onClick={onClose}>
-      {/* Cosmic Background in Modal */}
-      <div className="absolute inset-0 pointer-events-none opacity-30">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/20 rounded-full blur-[150px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-[150px]" />
-      </div>
-
-      <div className="relative w-full max-w-2xl rounded-3xl overflow-hidden bg-[#0a0a0a]/80 backdrop-blur-2xl border border-white/10" onClick={e => e.stopPropagation()}>
-        <div className="p-6 border-b border-white/5 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-6" onClick={onClose}>
+      <div className="relative w-full max-w-2xl rounded-3xl overflow-hidden bg-white border border-gray-200" onClick={e => e.stopPropagation()}>
+        <div className="p-6 border-b border-gray-200 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
               <MessageCircle className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-light text-white">Comments</h3>
-              <p className="text-white/40 text-sm">{resource.title}</p>
+              <h3 className="text-lg font-semibold text-gray-900">Comments</h3>
+              <p className="text-gray-500 text-sm">{resource.title}</p>
             </div>
           </div>
-          <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10">
-            <X className="w-5 h-5 text-white" />
+          <button onClick={onClose} className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200">
+            <X className="w-5 h-5 text-gray-900" />
           </button>
         </div>
 
         <div className="p-6 max-h-[60vh] overflow-y-auto">
           {!comments?.length ? (
             <div className="text-center py-12">
-              <MessageCircle className="w-12 h-12 text-white/10 mx-auto mb-3" />
-              <p className="text-white/40">No comments yet. Be the first!</p>
+              <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-gray-500">No comments yet. Be the first!</p>
             </div>
           ) : (
             <div className="space-y-4">
               {comments.map((comment: any) => (
-                <div key={comment.id} className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
+                <div key={comment.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4">
                   <div className="flex items-start justify-between mb-2">
-                    <span className="text-emerald-400 text-sm font-medium">{comment.authorName}</span>
-                    <span className="text-white/30 text-xs">{new Date(comment.createdAt).toLocaleDateString()}</span>
+                    <span className="text-purple-600 text-sm font-medium">{comment.authorName}</span>
+                    <span className="text-gray-400 text-xs">{new Date(comment.createdAt).toLocaleDateString()}</span>
                   </div>
-                  <p className="text-white/70 text-sm">{comment.content}</p>
+                  <p className="text-gray-700 text-sm">{comment.content}</p>
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        <div className="p-6 border-t border-white/5">
+        <div className="p-6 border-t border-gray-200">
           <form onSubmit={handleSubmit} className="flex gap-3">
             <Input
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               placeholder="Write a comment..."
-              className="flex-1 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl h-12"
+              className="flex-1 bg-gray-100 border-gray-200 text-gray-900 placeholder:text-gray-500 rounded-xl h-12"
             />
             <Button
               type="submit"
               disabled={!newComment.trim() || createComment.isPending}
-              className="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white h-12 px-6"
+              className="rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 text-white h-12 px-6"
             >
               {createComment.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             </Button>
@@ -483,23 +457,17 @@ function VideoModal({ resource, onClose }: { resource: any; onClose: () => void 
   const isYouTubeUrl = (url: string) => url?.includes('youtube.com') || url?.includes('youtu.be');
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-6" onClick={onClose}>
-      {/* Cosmic Background in Modal */}
-      <div className="absolute inset-0 pointer-events-none opacity-30">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/20 rounded-full blur-[150px]" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-500/20 rounded-full blur-[150px]" />
-      </div>
-
-      <div className="relative w-full max-w-6xl rounded-3xl overflow-hidden bg-[#0a0a0a]/80 backdrop-blur-2xl border border-white/10" onClick={e => e.stopPropagation()}>
-        <div className="p-4 border-b border-white/5 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-6" onClick={onClose}>
+      <div className="relative w-full max-w-6xl rounded-3xl overflow-hidden bg-white border border-gray-200" onClick={e => e.stopPropagation()}>
+        <div className="p-4 border-b border-gray-200 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center"><Video className="w-6 h-6 text-white" /></div>
             <div>
-              <h3 className="text-lg font-light text-white">{resource.title}</h3>
-              {resource.description && <p className="text-white/40 text-sm">{resource.description}</p>}
+              <h3 className="text-lg font-semibold text-gray-900">{resource.title}</h3>
+              {resource.description && <p className="text-gray-500 text-sm">{resource.description}</p>}
             </div>
           </div>
-          <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10"><X className="w-5 h-5 text-white" /></button>
+          <button onClick={onClose} className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200"><X className="w-5 h-5 text-gray-900" /></button>
         </div>
         <div className="aspect-video bg-black">
           {isYouTubeUrl(resource.fileUrl) ? (
@@ -520,13 +488,6 @@ export default function Resources() {
   const [selectedVideo, setSelectedVideo] = useState<any>(null);
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
   const [selectedCommentResource, setSelectedCommentResource] = useState<any>(null);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const handleMove = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY });
-    window.addEventListener("mousemove", handleMove);
-    return () => window.removeEventListener("mousemove", handleMove);
-  }, []);
 
   const filteredResources = resources?.filter(r => activeCategory === "all" || r.category === activeCategory);
 
@@ -555,65 +516,62 @@ export default function Resources() {
   };
 
   return (
-    <div className="min-h-screen bg-[#030303] text-white overflow-x-hidden">
-      {/* 🌌 COSMIC BACKGROUND */}
-      <CosmicBackground />
-      <FloatingParticles />
-
-      {/* Gradient Orbs */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[200px]" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[180px]" />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 text-gray-900 overflow-hidden">
+      {/* Clean Background */}
+      <div className="fixed inset-0">
+        <GradientMeshBackground />
+        <SubtleDots />
       </div>
 
-      {/* Custom Cursor */}
-      <div className="fixed w-4 h-4 bg-emerald-400 rounded-full pointer-events-none z-[100] mix-blend-difference" style={{ left: mousePos.x - 8, top: mousePos.y - 8 }} />
-
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50">
-        <div className="mx-6 lg:mx-12 mt-6">
-          <div className="bg-white/[0.02] backdrop-blur-2xl border border-white/[0.05] rounded-2xl px-8 py-4">
-            <div className="flex items-center justify-between">
-              <Link href="/"><span className="text-2xl font-extralight tracking-[0.3em] hover:text-emerald-400 transition-colors cursor-pointer">JH</span></Link>
-              <div className="hidden md:flex items-center gap-12">
-                {["About", "Projects", "Certifications", "Resources"].map(item => (
-                  <Link key={item} href={`/${item.toLowerCase()}`}>
-                    <span className={`text-sm font-light transition-all cursor-pointer tracking-wider ${item === "Resources" ? "text-white" : "text-white/50 hover:text-white"}`}>{item}</span>
-                  </Link>
-                ))}
-              </div>
-              <div className="w-16" />
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200/50">
+        <div className="max-w-7xl mx-auto px-8 py-4">
+          <div className="flex items-center justify-between">
+            <Link href="/">
+              <span className="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 hover:scale-110 transition-transform cursor-pointer">
+                JH
+              </span>
+            </Link>
+            <div className="hidden md:flex items-center gap-8">
+              {["Work", "About"].map(item => (
+                <Link key={item} href={item === "Work" ? "/projects" : `/${item.toLowerCase()}`}>
+                  <span className="text-sm font-medium text-gray-600 hover:text-purple-600 transition-all cursor-pointer relative group">
+                    {item}
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-blue-600 group-hover:w-full transition-all" />
+                  </span>
+                </Link>
+              ))}
             </div>
           </div>
         </div>
       </nav>
 
       {/* Header */}
-      <section className="pt-40 pb-12 relative">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+      <section className="pt-40 pb-12 px-8 relative z-10">
+        <div className="max-w-7xl mx-auto">
           <AnimatedSection>
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/50">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
                 <BookOpen className="w-6 h-6 text-white" />
               </div>
-              <p className="text-emerald-400 font-mono text-sm tracking-[0.3em] uppercase">Learning Materials</p>
+              <p className="text-purple-600 font-medium text-sm tracking-wider uppercase">Learning Materials</p>
             </div>
-            <h1 className="text-5xl md:text-7xl font-extralight mb-6">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 animate-gradient">Resources</span> & Downloads
+            <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-purple-900 to-blue-900">
+              Resources
             </h1>
-            <p className="text-white/40 text-xl max-w-2xl">
+            <p className="text-gray-600 text-xl max-w-2xl">
               Access lecture materials, code samples, presentations, and video tutorials.
-              <span className="flex items-center gap-2 text-emerald-400 mt-3 text-base"><Eye className="w-4 h-4" />Click to preview PPT/PDF files!</span>
+              <span className="flex items-center gap-2 text-purple-600 mt-3 text-base font-medium"><Eye className="w-4 h-4" />Click to preview PPT/PDF files!</span>
             </p>
           </AnimatedSection>
         </div>
       </section>
 
       {/* Filter */}
-      <section className="py-8 sticky top-24 z-40">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+      <section className="py-8 sticky top-24 z-40 bg-white/60 backdrop-blur-xl border-y border-gray-200/50">
+        <div className="max-w-7xl mx-auto px-8">
           <AnimatedSection delay={100}>
-            <div className="flex flex-wrap gap-3 p-2 bg-white/[0.02] backdrop-blur-2xl border border-white/5 rounded-2xl inline-flex">
+            <div className="flex flex-wrap gap-3">
               {CATEGORIES.map(category => {
                 const Icon = category.icon;
                 const isActive = activeCategory === category.value;
@@ -621,20 +579,13 @@ export default function Resources() {
                   <button
                     key={category.value}
                     onClick={() => setActiveCategory(category.value)}
-                    className={`relative flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-light transition-all ${
+                    className={`flex items-center gap-2 px-5 py-3 rounded-full text-sm font-medium transition-all border-2 ${
                       isActive
-                        ? `bg-gradient-to-r ${category.gradient} text-white shadow-lg`
-                        : "text-white/50 hover:text-white hover:bg-white/5"
+                        ? `bg-gradient-to-r ${category.gradient} text-white shadow-lg shadow-${category.color}/30 border-transparent`
+                        : "bg-white text-gray-600 border-gray-200 hover:border-purple-400 hover:text-purple-600 hover:shadow-md"
                     }`}
-                    style={isActive ? {
-                      boxShadow: `0 0 30px ${category.color}50`,
-                      animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-                    } : {}}
                   >
                     <Icon className="w-4 h-4" />{category.label}
-                    {isActive && (
-                      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/20 to-transparent opacity-50 animate-shimmer" />
-                    )}
                   </button>
                 );
               })}
@@ -644,17 +595,17 @@ export default function Resources() {
       </section>
 
       {/* Grid */}
-      <section className="py-12 pb-32 relative">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+      <section className="py-12 pb-32 px-8 relative z-10">
+        <div className="max-w-7xl mx-auto">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-32">
-              <Loader2 className="w-12 h-12 animate-spin text-emerald-400 mb-4" />
-              <p className="text-white/40">Loading resources...</p>
+              <Loader2 className="w-12 h-12 animate-spin text-purple-500 mb-4" />
+              <p className="text-gray-500">Loading resources...</p>
             </div>
           ) : !filteredResources?.length ? (
             <div className="text-center py-32">
-              <FileText className="w-16 h-16 text-white/10 mx-auto mb-4" />
-              <h3 className="text-2xl font-light mb-2">No resources found</h3>
+              <FileText className="w-16 h-16 text-gray-200 mx-auto mb-4" />
+              <h3 className="text-2xl font-semibold mb-2 text-gray-900">No resources found</h3>
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -668,27 +619,21 @@ export default function Resources() {
 
                 return (
                   <AnimatedSection key={resource.id} delay={index * 50}>
-                    <div
-                      className={`group rounded-3xl overflow-hidden bg-white/[0.02] border border-white/5 hover:border-emerald-400/30 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/20 ${canPreview ? 'cursor-pointer' : ''}`}
-                      style={{ perspective: '1000px' }}
-                      onClick={() => canPreview && handleResourceClick(resource)}
-                    >
-                      {/* 3D Hover Effect */}
-                      <div className="group-hover:transform group-hover:scale-[1.02] transition-transform duration-500">
-                        {/* Holographic Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 via-emerald-500/0 to-cyan-500/0 group-hover:from-purple-500/10 group-hover:via-emerald-500/5 group-hover:to-cyan-500/10 transition-all duration-500 pointer-events-none rounded-3xl" />
-
+                    <TiltCard>
+                      <div
+                        className={`group rounded-3xl overflow-hidden bg-white border border-gray-200 hover:border-purple-300 transition-all duration-500 hover:shadow-2xl ${canPreview ? 'cursor-pointer' : ''}`}
+                        onClick={() => canPreview && handleResourceClick(resource)}
+                      >
                         <div className="aspect-video overflow-hidden relative">
                           {isVideo ? <VideoThumbnail resource={resource} thumbnail={thumbnail} />
                           : isPPTFile ? <PPTThumbnail resource={resource} />
                           : isPDFFile ? <PDFThumbnail resource={resource} />
                           : thumbnail ? <img src={thumbnail} alt={resource.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                          : <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center"><FileText className="w-12 h-12 text-white/20" /></div>}
+                          : <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center"><FileText className="w-12 h-12 text-gray-300" /></div>}
 
                           <div className="absolute top-4 left-4">
                             <span
-                              className={`px-4 py-2 rounded-full text-xs font-medium uppercase tracking-wider backdrop-blur-xl bg-gradient-to-r ${categoryInfo.gradient} text-white shadow-lg`}
-                              style={{ boxShadow: `0 0 20px ${categoryInfo.color}50` }}
+                              className={`px-4 py-2 rounded-full text-xs font-medium uppercase tracking-wider backdrop-blur-xl bg-gradient-to-r ${categoryInfo.gradient} text-white shadow-lg border-2 border-white/20`}
                             >
                               {categoryInfo.label}
                             </span>
@@ -696,7 +641,7 @@ export default function Resources() {
 
                           {canPreview && (
                             <div className="absolute top-4 right-4">
-                              <span className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-black/50 backdrop-blur-xl text-emerald-400 text-xs font-medium">
+                              <span className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-white backdrop-blur-xl text-purple-600 text-xs font-medium border border-gray-200">
                                 <Eye className="w-3 h-3" />Preview
                               </span>
                             </div>
@@ -704,11 +649,11 @@ export default function Resources() {
                         </div>
 
                         <div className="p-6">
-                          <h3 className="text-lg font-light mb-2 group-hover:text-emerald-400 transition-colors line-clamp-1">{resource.title}</h3>
-                          {resource.description && <p className="text-white/40 text-sm mb-4 line-clamp-2">{resource.description}</p>}
+                          <h3 className="text-lg font-semibold mb-2 group-hover:text-purple-600 transition-colors line-clamp-1 text-gray-900">{resource.title}</h3>
+                          {resource.description && <p className="text-gray-600 text-sm mb-4 line-clamp-2">{resource.description}</p>}
 
-                          <div className="flex items-center justify-between text-xs text-white/30 mb-4">
-                            <span className="flex items-center gap-1"><Zap className="w-3 h-3 text-emerald-400" />{formatFileSize(resource.fileSize)}</span>
+                          <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
+                            <span className="flex items-center gap-1"><Zap className="w-3 h-3 text-purple-600" />{formatFileSize(resource.fileSize)}</span>
                             <span className="flex items-center gap-1"><Download className="w-3 h-3" />{resource.downloadCount || 0}</span>
                           </div>
 
@@ -716,12 +661,12 @@ export default function Resources() {
                             <LikeButton resourceId={resource.id} />
                             <button
                               onClick={(e) => { e.stopPropagation(); setSelectedCommentResource(resource); }}
-                              className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/60 transition-all"
+                              className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition-all"
                             >
                               <MessageCircle className="w-4 h-4" />
                             </button>
                             <div className="flex-1" />
-                            <span className="flex items-center gap-1.5 text-pink-400 text-xs">
+                            <span className="flex items-center gap-1.5 text-pink-600 text-xs font-medium">
                               <Heart className="w-3 h-3 fill-current" />
                               {resource.likeCount || 0}
                             </span>
@@ -729,14 +674,14 @@ export default function Resources() {
 
                           <div className="flex gap-3">
                             <Button
-                              className="flex-1 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white h-12 shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all"
+                              className="flex-1 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 text-white h-12 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all"
                               onClick={e => { e.stopPropagation(); canPreview ? handleResourceClick(resource) : handleDownload(resource); }}
                             >
                               {canPreview ? <><Eye className="w-4 h-4 mr-2" />Preview</> : <><Download className="w-4 h-4 mr-2" />Download</>}
                             </Button>
                             <Button
                               variant="outline"
-                              className="rounded-xl border-white/10 bg-white/5 hover:bg-white/10 h-12 w-12 p-0"
+                              className="rounded-xl border-gray-300 bg-white hover:bg-gray-100 h-12 w-12 p-0"
                               onClick={e => { e.stopPropagation(); handleDownload(resource); }}
                             >
                               <Download className="w-4 h-4" />
@@ -744,12 +689,7 @@ export default function Resources() {
                           </div>
                         </div>
                       </div>
-
-                      {/* Holographic Border Effect */}
-                      <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                        <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 opacity-20 blur-xl" />
-                      </div>
-                    </div>
+                    </TiltCard>
                   </AnimatedSection>
                 );
               })}
@@ -761,32 +701,6 @@ export default function Resources() {
       {selectedVideo && <VideoModal resource={selectedVideo} onClose={() => setSelectedVideo(null)} />}
       {selectedDocument && <DocumentPreviewModal resource={selectedDocument} onClose={() => setSelectedDocument(null)} />}
       {selectedCommentResource && <CommentsModal resource={selectedCommentResource} onClose={() => setSelectedCommentResource(null)} />}
-
-      <footer className="py-12 border-t border-white/5 relative">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center text-white/20 text-sm">© 2024 Gu Jahyeon. Crafted with passion.</div>
-      </footer>
-
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.8; }
-        }
-        @keyframes shimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-        @keyframes gradient {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-        .animate-shimmer {
-          animation: shimmer 2s infinite;
-        }
-        .animate-gradient {
-          background-size: 200% 200%;
-          animation: gradient 3s ease infinite;
-        }
-      `}</style>
     </div>
   );
 }
