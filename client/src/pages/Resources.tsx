@@ -9,6 +9,7 @@ import { GradientMeshBackground } from "@/components/backgrounds/GradientMeshBac
 import { SubtleDots } from "@/components/backgrounds/SubtleDots";
 import { TiltCard } from "@/components/effects/TiltCard";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
+import { Navigation } from "@/components/layout/Navigation";
 
 const CATEGORIES = [
   { value: "all", label: "All", icon: Sparkles, color: "#8B5CF6", gradient: "from-purple-500 to-pink-500" },
@@ -346,27 +347,7 @@ export default function Resources() {
       </div>
 
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200/50">
-        <div className="max-w-7xl mx-auto px-8 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/">
-              <span className="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 hover:scale-110 transition-transform cursor-pointer">
-                JH
-              </span>
-            </Link>
-            <div className="hidden md:flex items-center gap-8">
-              {["Work", "About"].map(item => (
-                <Link key={item} href={item === "Work" ? "/projects" : `/${item.toLowerCase()}`}>
-                  <span className="text-sm font-medium text-gray-600 hover:text-purple-600 transition-all cursor-pointer relative group">
-                    {item}
-                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-blue-600 group-hover:w-full transition-all" />
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navigation />
 
       {/* Header */}
       <section className="pt-40 pb-12 px-8 relative z-10">
