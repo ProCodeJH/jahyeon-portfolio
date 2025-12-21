@@ -103,20 +103,10 @@ export default function Home() {
 
                   {/* Video Container */}
                   <div className="relative w-full h-full rounded-[2.4rem] overflow-hidden bg-gradient-to-br from-purple-900/10 to-blue-900/10 backdrop-blur-xl">
-                    {/* Placeholder for 5-second video */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="relative">
-                        <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full blur-3xl opacity-50 animate-pulse" />
-                        <div className="relative w-24 h-24 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-500">
-                          <Play className="w-12 h-12 text-white ml-1" />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* TODO: Replace with video when ready */}
-                    {/* <video autoPlay loop muted playsInline className="w-full h-full object-cover">
+                    {/* Hero Video */}
+                    <video autoPlay loop muted playsInline className="w-full h-full object-cover">
                       <source src="/hero-video.mp4" type="video/mp4" />
-                    </video> */}
+                    </video>
 
                     {/* Premium Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-purple-900/20 via-transparent to-blue-900/20 opacity-60 group-hover:opacity-30 transition-opacity duration-500" />
