@@ -189,7 +189,7 @@ export default function Home() {
                 color: "from-blue-500 to-cyan-500",
                 iconBg: "from-blue-500/30 to-cyan-500/30",
                 glowColor: "shadow-blue-500/50",
-                img: "https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=600&h=400&fit=crop&q=80",
+                img: "/images/expertise/embedded-systems.jpg",
                 delay: '0s'
               },
               {
@@ -199,7 +199,7 @@ export default function Home() {
                 color: "from-purple-500 to-pink-500",
                 iconBg: "from-purple-500/30 to-pink-500/30",
                 glowColor: "shadow-purple-500/50",
-                img: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=400&fit=crop&q=80",
+                img: "/images/expertise/software-development.jpg",
                 delay: '0.5s'
               },
               {
@@ -209,7 +209,7 @@ export default function Home() {
                 color: "from-orange-500 to-yellow-500",
                 iconBg: "from-orange-500/30 to-yellow-500/30",
                 glowColor: "shadow-orange-500/50",
-                img: "https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?w=600&h=400&fit=crop&q=80",
+                img: "/images/expertise/iot-solutions.jpg",
                 delay: '1s'
               },
               {
@@ -219,7 +219,7 @@ export default function Home() {
                 color: "from-emerald-500 to-teal-500",
                 iconBg: "from-emerald-500/30 to-teal-500/30",
                 glowColor: "shadow-emerald-500/50",
-                img: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=600&h=400&fit=crop&q=80",
+                img: "/images/expertise/coding-education.jpg",
                 delay: '1.5s'
               }
             ].map((item, idx) => (
