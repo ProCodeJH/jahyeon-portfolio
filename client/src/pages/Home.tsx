@@ -157,13 +157,18 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ULTRA-PREMIUM Expertise Section */}
-      <section className="py-40 px-8 relative">
-        <div className="max-w-7xl mx-auto">
+      {/* GOD-TIER TRENDY Expertise Section */}
+      <section className="py-40 px-8 relative overflow-hidden">
+        {/* Animated Background Orbs */}
+        <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '0s' }} />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-r from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-gradient-to-r from-pink-400/10 to-orange-400/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '4s' }} />
+
+        <div className="max-w-7xl mx-auto relative z-10">
           <AnimatedSection>
             <div className="text-center mb-20">
-              <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-200/50 backdrop-blur-xl mb-6">
-                <Sparkles className="w-5 h-5 text-purple-600" />
+              <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-200/50 backdrop-blur-xl mb-6 shadow-lg">
+                <Sparkles className="w-5 h-5 text-purple-600 animate-spin" style={{ animationDuration: '3s' }} />
                 <span className="text-sm font-bold text-purple-600 tracking-wider uppercase">Core Expertise</span>
               </div>
               <h2 className="text-6xl md:text-7xl font-black mb-6 tracking-tight">
@@ -171,7 +176,7 @@ export default function Home() {
                   Expertise
                 </span>
               </h2>
-              <div className="w-32 h-2 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full mx-auto" />
+              <div className="w-32 h-2 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full mx-auto shadow-lg shadow-purple-500/50" />
             </div>
           </AnimatedSection>
 
@@ -182,72 +187,110 @@ export default function Home() {
                 title: "Embedded Systems",
                 desc: "MCU programming, RTOS, firmware optimization",
                 color: "from-blue-500 to-cyan-500",
-                iconBg: "from-blue-500/20 to-cyan-500/20",
-                img: "https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=600&h=400&fit=crop&q=80"
+                iconBg: "from-blue-500/30 to-cyan-500/30",
+                glowColor: "shadow-blue-500/50",
+                img: "https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=600&h=400&fit=crop&q=80",
+                delay: '0s'
               },
               {
                 icon: Code,
                 title: "Software Development",
                 desc: "Python, Java, C/C++, Full-stack",
                 color: "from-purple-500 to-pink-500",
-                iconBg: "from-purple-500/20 to-pink-500/20",
-                img: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=400&fit=crop&q=80"
+                iconBg: "from-purple-500/30 to-pink-500/30",
+                glowColor: "shadow-purple-500/50",
+                img: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=400&fit=crop&q=80",
+                delay: '0.5s'
               },
               {
                 icon: Zap,
                 title: "IoT Solutions",
                 desc: "Connected devices, sensors, automation",
                 color: "from-orange-500 to-yellow-500",
-                iconBg: "from-orange-500/20 to-yellow-500/20",
-                img: "https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?w=600&h=400&fit=crop&q=80"
+                iconBg: "from-orange-500/30 to-yellow-500/30",
+                glowColor: "shadow-orange-500/50",
+                img: "https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?w=600&h=400&fit=crop&q=80",
+                delay: '1s'
               },
               {
                 icon: GraduationCap,
                 title: "Coding Education",
                 desc: "Teaching programming, mentoring developers",
                 color: "from-emerald-500 to-teal-500",
-                iconBg: "from-emerald-500/20 to-teal-500/20",
-                img: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=600&h=400&fit=crop&q=80"
+                iconBg: "from-emerald-500/30 to-teal-500/30",
+                glowColor: "shadow-emerald-500/50",
+                img: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=600&h=400&fit=crop&q=80",
+                delay: '1.5s'
               }
             ].map((item, idx) => (
               <AnimatedSection key={idx} delay={idx * 100}>
-                <TiltCard sensitivity={12}>
-                  <div className="group relative overflow-hidden rounded-3xl bg-white border-2 border-gray-100 hover:border-purple-200 transition-all shadow-xl hover:shadow-2xl h-[450px]">
-                    {/* Premium Image Background */}
+                <div
+                  className="group relative animate-float cursor-pointer"
+                  style={{ animationDelay: item.delay, animationDuration: '6s' }}
+                >
+                  {/* Rotating Border Animation */}
+                  <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-[2rem] opacity-0 group-hover:opacity-100 blur-lg transition-all duration-500 animate-gradient-x" style={{ backgroundSize: '200% 200%' }} />
+
+                  {/* Main Card */}
+                  <div className="relative overflow-hidden rounded-[2rem] bg-white/80 backdrop-blur-2xl border-2 border-white/50 shadow-2xl hover:shadow-purple-500/30 transition-all duration-700 h-[500px] group-hover:scale-[1.05] group-hover:-translate-y-3">
+
+                    {/* Glassmorphism Background with Image */}
                     <div className="absolute inset-0 overflow-hidden">
                       <img
                         src={item.img}
                         alt={item.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        className="w-full h-full object-cover opacity-40 group-hover:opacity-60 group-hover:scale-110 transition-all duration-1000"
                       />
-                      <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-85 group-hover:opacity-90 transition-opacity duration-500`} />
+                      <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-60 group-hover:opacity-70 transition-opacity duration-700`} />
 
-                      {/* Animated Gradient Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      {/* Shimmer Effect */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1500 ease-in-out" />
+
+                      {/* Gradient Mesh Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-white/20" />
                     </div>
 
-                    {/* Content */}
+                    {/* Floating Particles */}
+                    <div className="absolute top-10 right-10 w-2 h-2 rounded-full bg-white/60 animate-float" style={{ animationDelay: '0s', animationDuration: '3s' }} />
+                    <div className="absolute top-20 right-20 w-3 h-3 rounded-full bg-white/40 animate-float" style={{ animationDelay: '1s', animationDuration: '4s' }} />
+                    <div className="absolute bottom-20 left-10 w-2 h-2 rounded-full bg-white/50 animate-float" style={{ animationDelay: '2s', animationDuration: '5s' }} />
+
+                    {/* Content Container */}
                     <div className="relative h-full p-8 flex flex-col justify-between">
-                      {/* Icon with Premium Background */}
-                      <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${item.iconBg} backdrop-blur-xl border border-white/20 flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
-                        <item.icon className="w-8 h-8 text-white drop-shadow-lg" />
+
+                      {/* Icon with 3D Effect */}
+                      <div className="relative">
+                        <div className={`w-20 h-20 rounded-3xl bg-gradient-to-br ${item.iconBg} backdrop-blur-xl border-2 border-white/40 flex items-center justify-center shadow-2xl ${item.glowColor} group-hover:scale-125 group-hover:rotate-12 transition-all duration-700`}>
+                          <item.icon className="w-10 h-10 text-white drop-shadow-2xl group-hover:scale-110 transition-transform duration-500" />
+                          {/* Icon Glow */}
+                          <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-50 blur-xl rounded-3xl transition-opacity duration-500`} />
+                        </div>
+
+                        {/* Pulsing Ring */}
+                        <div className={`absolute inset-0 w-20 h-20 rounded-3xl border-2 border-white/30 group-hover:scale-150 group-hover:opacity-0 transition-all duration-700`} />
                       </div>
 
-                      {/* Text */}
-                      <div>
-                        <h3 className="text-2xl font-black text-white mb-3 drop-shadow-lg group-hover:translate-x-2 transition-transform duration-300">
+                      {/* Text Content with Enhanced Typography */}
+                      <div className="space-y-3">
+                        <h3 className="text-3xl font-black text-white mb-3 drop-shadow-2xl group-hover:translate-x-3 group-hover:scale-105 transition-all duration-500 leading-tight">
                           {item.title}
                         </h3>
-                        <p className="text-white/95 text-sm leading-relaxed drop-shadow">
+                        <p className="text-white/95 text-base leading-relaxed drop-shadow-lg font-medium group-hover:translate-x-2 transition-transform duration-500">
                           {item.desc}
                         </p>
+
+                        {/* Premium Indicator Bar */}
+                        <div className="flex items-center gap-2 pt-3 opacity-0 group-hover:opacity-100 transition-all duration-700 delay-100">
+                          <div className={`h-1 w-0 group-hover:w-16 bg-gradient-to-r ${item.color} rounded-full transition-all duration-700 shadow-lg`} />
+                          <Sparkles className="w-4 h-4 text-white/80 opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-200" />
+                        </div>
                       </div>
                     </div>
 
-                    {/* Premium Border Glow */}
-                    <div className={`absolute -inset-1 bg-gradient-to-r ${item.color} rounded-3xl opacity-0 group-hover:opacity-30 blur-xl transition-opacity duration-500 -z-10`} />
+                    {/* Premium Glow Effect */}
+                    <div className={`absolute -inset-1 bg-gradient-to-r ${item.color} rounded-[2rem] opacity-0 group-hover:opacity-40 blur-2xl transition-all duration-700 -z-10`} />
                   </div>
-                </TiltCard>
+                </div>
               </AnimatedSection>
             ))}
           </div>
