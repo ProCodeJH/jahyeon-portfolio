@@ -6,33 +6,161 @@ import { Link } from "wouter";
 import { Download, Loader2, FileText, Video, ExternalLink, Play, Presentation, Terminal, Cpu, Code, X, Eye, Sparkles, BookOpen, Zap, Heart, MessageCircle, Send } from "lucide-react";
 import { toast } from "sonner";
 
-// Circuit Pattern Background
-function CircuitPattern() {
-  return (
-    <svg className="absolute inset-0 w-full h-full opacity-[0.03]" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <pattern id="circuit-res" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
-          <circle cx="10" cy="10" r="2" fill="currentColor"/>
-          <circle cx="90" cy="90" r="2" fill="currentColor"/>
-          <circle cx="50" cy="50" r="3" fill="none" stroke="currentColor" strokeWidth="0.5"/>
-          <path d="M10 50h35M55 50h35M50 10v35M50 55v35" stroke="currentColor" strokeWidth="0.5"/>
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#circuit-res)" className="text-emerald-400"/>
-    </svg>
-  );
+// 🌌 COSMIC GALAXY BACKGROUND - 400 stars flying through space
+function CosmicBackground() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    class Star {
+      x: number;
+      y: number;
+      z: number;
+      size: number;
+
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.z = Math.random() * 1000;
+        this.size = Math.random() * 2;
+      }
+
+      update() {
+        this.z -= 2;
+        if (this.z <= 0) {
+          this.z = 1000;
+          this.x = Math.random() * canvas.width;
+          this.y = Math.random() * canvas.height;
+        }
+      }
+
+      draw() {
+        const x = (this.x - canvas.width / 2) * (1000 / this.z) + canvas.width / 2;
+        const y = (this.y - canvas.height / 2) * (1000 / this.z) + canvas.height / 2;
+        const size = this.size * (1000 / this.z);
+        const opacity = 1 - this.z / 1000;
+
+        ctx.fillStyle = `rgba(${100 + Math.random() * 155}, ${200 + Math.random() * 55}, 255, ${opacity})`;
+        ctx.fillRect(x, y, size, size);
+      }
+    }
+
+    const stars = Array.from({ length: 400 }, () => new Star());
+
+    function animate() {
+      ctx.fillStyle = 'rgba(3, 3, 3, 0.3)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      stars.forEach(star => {
+        star.update();
+        star.draw();
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none" />;
 }
 
-// Floating particles
+// 🔮 HOLOGRAPHIC FLOATING PARTICLES - 30 particles with glow effect
 function FloatingParticles() {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {Array.from({ length: 20 }).map((_, i) => (
-        <div key={i} className="absolute w-1 h-1 bg-emerald-400/30 rounded-full animate-float" style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`, animationDelay: `${Math.random() * 5}s`, animationDuration: `${3 + Math.random() * 4}s` }} />
-      ))}
-      <style>{`@keyframes float { 0%, 100% { transform: translateY(0) scale(1); opacity: 0.3; } 50% { transform: translateY(-30px) scale(1.5); opacity: 0.6; } } .animate-float { animation: float 4s ease-in-out infinite; }`}</style>
-    </div>
-  );
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    class Particle {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      size: number;
+      hue: number;
+
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = (Math.random() - 0.5) * 0.5;
+        this.size = Math.random() * 4 + 2;
+        this.hue = Math.random() * 60 + 140; // Emerald to teal range
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+
+        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+
+        this.hue += 0.5;
+        if (this.hue > 200) this.hue = 140;
+      }
+
+      draw() {
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = `hsl(${this.hue}, 100%, 60%)`;
+        ctx.fillStyle = `hsl(${this.hue}, 100%, 60%)`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+    }
+
+    const particles = Array.from({ length: 30 }, () => new Particle());
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach(particle => {
+        particle.update();
+        particle.draw();
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none opacity-40" />;
 }
 
 function useInView(threshold = 0.1) {
@@ -78,7 +206,7 @@ function PPTThumbnail({ resource }: { resource: any }) {
         <div className="absolute top-8 left-8 w-20 h-14 border-2 border-orange-300/20 rounded-lg" />
         <div className="absolute bottom-6 right-6 w-16 h-16 border-2 border-purple-300/30 rounded-full" />
       </div>
-      
+
       {/* 슬라이드 미니어처 */}
       <div className="relative z-10 flex flex-col items-center">
         <div className="w-28 h-20 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 shadow-xl mb-4 flex items-center justify-center overflow-hidden">
@@ -114,7 +242,7 @@ function PDFThumbnail({ resource }: { resource: any }) {
   return (
     <div className="w-full h-full bg-gradient-to-br from-red-600/40 via-pink-500/30 to-rose-600/40 flex flex-col items-center justify-center relative overflow-hidden group-hover:from-red-600/50 group-hover:to-rose-600/50 transition-all duration-500">
       <div className="absolute top-6 right-6 w-16 h-20 border-2 border-red-300/30 rounded" />
-      
+
       <div className="relative z-10 flex flex-col items-center">
         <div className="w-24 h-28 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 shadow-xl mb-4 flex flex-col items-center justify-center p-3">
           <div className="w-full space-y-1.5">
@@ -170,7 +298,7 @@ function VideoThumbnail({ resource, thumbnail }: { resource: any; thumbnail: str
 function DocumentPreviewModal({ resource, onClose }: { resource: any; onClose: () => void }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  
+
   const getOfficePreviewUrl = (fileUrl: string) => `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`;
   const getGooglePreviewUrl = (fileUrl: string) => `https://docs.google.com/gview?url=${encodeURIComponent(fileUrl)}&embedded=true`;
 
@@ -179,7 +307,13 @@ function DocumentPreviewModal({ resource, onClose }: { resource: any; onClose: (
 
   return (
     <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col" onClick={onClose}>
-      <div className="flex items-center justify-between p-4 border-b border-white/10" onClick={e => e.stopPropagation()}>
+      {/* Cosmic Background in Modal */}
+      <div className="absolute inset-0 pointer-events-none opacity-30">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-500/20 rounded-full blur-[150px]" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/20 rounded-full blur-[150px]" />
+      </div>
+
+      <div className="relative flex items-center justify-between p-4 border-b border-white/10" onClick={e => e.stopPropagation()}>
         <div className="flex items-center gap-4">
           <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isPPT ? 'bg-gradient-to-br from-orange-500 to-red-500' : 'bg-gradient-to-br from-red-500 to-pink-500'}`}>
             {isPPT ? <Presentation className="w-6 h-6 text-white" /> : <FileText className="w-6 h-6 text-white" />}
@@ -199,7 +333,7 @@ function DocumentPreviewModal({ resource, onClose }: { resource: any; onClose: (
           <button onClick={onClose} className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20"><X className="w-5 h-5 text-white" /></button>
         </div>
       </div>
-      <div className="flex-1 relative" onClick={e => e.stopPropagation()}>
+      <div className="relative flex-1" onClick={e => e.stopPropagation()}>
         {loading && !error && (
           <div className="absolute inset-0 flex items-center justify-center bg-[#0a0a0a] z-10">
             <div className="text-center">
@@ -278,7 +412,13 @@ function CommentsModal({ resource, onClose }: { resource: any; onClose: () => vo
 
   return (
     <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex items-center justify-center p-6" onClick={onClose}>
-      <div className="w-full max-w-2xl rounded-3xl overflow-hidden bg-[#0a0a0a] border border-white/10" onClick={e => e.stopPropagation()}>
+      {/* Cosmic Background in Modal */}
+      <div className="absolute inset-0 pointer-events-none opacity-30">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/20 rounded-full blur-[150px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-[150px]" />
+      </div>
+
+      <div className="relative w-full max-w-2xl rounded-3xl overflow-hidden bg-[#0a0a0a]/80 backdrop-blur-2xl border border-white/10" onClick={e => e.stopPropagation()}>
         <div className="p-6 border-b border-white/5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
@@ -344,7 +484,13 @@ function VideoModal({ resource, onClose }: { resource: any; onClose: () => void 
 
   return (
     <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-6" onClick={onClose}>
-      <div className="w-full max-w-6xl rounded-3xl overflow-hidden bg-[#0a0a0a] border border-white/10" onClick={e => e.stopPropagation()}>
+      {/* Cosmic Background in Modal */}
+      <div className="absolute inset-0 pointer-events-none opacity-30">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/20 rounded-full blur-[150px]" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-500/20 rounded-full blur-[150px]" />
+      </div>
+
+      <div className="relative w-full max-w-6xl rounded-3xl overflow-hidden bg-[#0a0a0a]/80 backdrop-blur-2xl border border-white/10" onClick={e => e.stopPropagation()}>
         <div className="p-4 border-b border-white/5 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center"><Video className="w-6 h-6 text-white" /></div>
@@ -410,13 +556,17 @@ export default function Resources() {
 
   return (
     <div className="min-h-screen bg-[#030303] text-white overflow-x-hidden">
+      {/* 🌌 COSMIC BACKGROUND */}
+      <CosmicBackground />
+      <FloatingParticles />
+
+      {/* Gradient Orbs */}
       <div className="fixed inset-0 pointer-events-none">
-        <CircuitPattern />
-        <FloatingParticles />
         <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[200px]" />
         <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[180px]" />
       </div>
 
+      {/* Custom Cursor */}
       <div className="fixed w-4 h-4 bg-emerald-400 rounded-full pointer-events-none z-[100] mix-blend-difference" style={{ left: mousePos.x - 8, top: mousePos.y - 8 }} />
 
       {/* Navigation */}
@@ -443,11 +593,13 @@ export default function Resources() {
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <AnimatedSection>
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center"><BookOpen className="w-6 h-6 text-white" /></div>
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/50">
+                <BookOpen className="w-6 h-6 text-white" />
+              </div>
               <p className="text-emerald-400 font-mono text-sm tracking-[0.3em] uppercase">Learning Materials</p>
             </div>
             <h1 className="text-5xl md:text-7xl font-extralight mb-6">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400">Resources</span> & Downloads
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 animate-gradient">Resources</span> & Downloads
             </h1>
             <p className="text-white/40 text-xl max-w-2xl">
               Access lecture materials, code samples, presentations, and video tutorials.
@@ -464,9 +616,25 @@ export default function Resources() {
             <div className="flex flex-wrap gap-3 p-2 bg-white/[0.02] backdrop-blur-2xl border border-white/5 rounded-2xl inline-flex">
               {CATEGORIES.map(category => {
                 const Icon = category.icon;
+                const isActive = activeCategory === category.value;
                 return (
-                  <button key={category.value} onClick={() => setActiveCategory(category.value)} className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-light transition-all ${activeCategory === category.value ? `bg-gradient-to-r ${category.gradient} text-white shadow-lg` : "text-white/50 hover:text-white hover:bg-white/5"}`}>
+                  <button
+                    key={category.value}
+                    onClick={() => setActiveCategory(category.value)}
+                    className={`relative flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-light transition-all ${
+                      isActive
+                        ? `bg-gradient-to-r ${category.gradient} text-white shadow-lg`
+                        : "text-white/50 hover:text-white hover:bg-white/5"
+                    }`}
+                    style={isActive ? {
+                      boxShadow: `0 0 30px ${category.color}50`,
+                      animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                    } : {}}
+                  >
                     <Icon className="w-4 h-4" />{category.label}
+                    {isActive && (
+                      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/20 to-transparent opacity-50 animate-shimmer" />
+                    )}
                   </button>
                 );
               })}
@@ -500,57 +668,86 @@ export default function Resources() {
 
                 return (
                   <AnimatedSection key={resource.id} delay={index * 50}>
-                    <div className={`group rounded-3xl overflow-hidden bg-white/[0.02] border border-white/5 hover:border-emerald-400/30 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/10 ${canPreview ? 'cursor-pointer' : ''}`} onClick={() => canPreview && handleResourceClick(resource)}>
-                      <div className="aspect-video overflow-hidden relative">
-                        {isVideo ? <VideoThumbnail resource={resource} thumbnail={thumbnail} />
-                        : isPPTFile ? <PPTThumbnail resource={resource} />
-                        : isPDFFile ? <PDFThumbnail resource={resource} />
-                        : thumbnail ? <img src={thumbnail} alt={resource.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                        : <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center"><FileText className="w-12 h-12 text-white/20" /></div>}
+                    <div
+                      className={`group rounded-3xl overflow-hidden bg-white/[0.02] border border-white/5 hover:border-emerald-400/30 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/20 ${canPreview ? 'cursor-pointer' : ''}`}
+                      style={{ perspective: '1000px' }}
+                      onClick={() => canPreview && handleResourceClick(resource)}
+                    >
+                      {/* 3D Hover Effect */}
+                      <div className="group-hover:transform group-hover:scale-[1.02] transition-transform duration-500">
+                        {/* Holographic Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 via-emerald-500/0 to-cyan-500/0 group-hover:from-purple-500/10 group-hover:via-emerald-500/5 group-hover:to-cyan-500/10 transition-all duration-500 pointer-events-none rounded-3xl" />
 
-                        <div className="absolute top-4 left-4">
-                          <span className={`px-4 py-2 rounded-full text-xs font-medium uppercase tracking-wider backdrop-blur-xl bg-gradient-to-r ${categoryInfo.gradient} text-white shadow-lg`}>{categoryInfo.label}</span>
+                        <div className="aspect-video overflow-hidden relative">
+                          {isVideo ? <VideoThumbnail resource={resource} thumbnail={thumbnail} />
+                          : isPPTFile ? <PPTThumbnail resource={resource} />
+                          : isPDFFile ? <PDFThumbnail resource={resource} />
+                          : thumbnail ? <img src={thumbnail} alt={resource.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                          : <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center"><FileText className="w-12 h-12 text-white/20" /></div>}
+
+                          <div className="absolute top-4 left-4">
+                            <span
+                              className={`px-4 py-2 rounded-full text-xs font-medium uppercase tracking-wider backdrop-blur-xl bg-gradient-to-r ${categoryInfo.gradient} text-white shadow-lg`}
+                              style={{ boxShadow: `0 0 20px ${categoryInfo.color}50` }}
+                            >
+                              {categoryInfo.label}
+                            </span>
+                          </div>
+
+                          {canPreview && (
+                            <div className="absolute top-4 right-4">
+                              <span className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-black/50 backdrop-blur-xl text-emerald-400 text-xs font-medium">
+                                <Eye className="w-3 h-3" />Preview
+                              </span>
+                            </div>
+                          )}
                         </div>
 
-                        {canPreview && (
-                          <div className="absolute top-4 right-4">
-                            <span className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-black/50 backdrop-blur-xl text-emerald-400 text-xs font-medium"><Eye className="w-3 h-3" />Preview</span>
+                        <div className="p-6">
+                          <h3 className="text-lg font-light mb-2 group-hover:text-emerald-400 transition-colors line-clamp-1">{resource.title}</h3>
+                          {resource.description && <p className="text-white/40 text-sm mb-4 line-clamp-2">{resource.description}</p>}
+
+                          <div className="flex items-center justify-between text-xs text-white/30 mb-4">
+                            <span className="flex items-center gap-1"><Zap className="w-3 h-3 text-emerald-400" />{formatFileSize(resource.fileSize)}</span>
+                            <span className="flex items-center gap-1"><Download className="w-3 h-3" />{resource.downloadCount || 0}</span>
                           </div>
-                        )}
+
+                          <div className="flex items-center gap-2 mb-4">
+                            <LikeButton resourceId={resource.id} />
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setSelectedCommentResource(resource); }}
+                              className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/60 transition-all"
+                            >
+                              <MessageCircle className="w-4 h-4" />
+                            </button>
+                            <div className="flex-1" />
+                            <span className="flex items-center gap-1.5 text-pink-400 text-xs">
+                              <Heart className="w-3 h-3 fill-current" />
+                              {resource.likeCount || 0}
+                            </span>
+                          </div>
+
+                          <div className="flex gap-3">
+                            <Button
+                              className="flex-1 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white h-12 shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all"
+                              onClick={e => { e.stopPropagation(); canPreview ? handleResourceClick(resource) : handleDownload(resource); }}
+                            >
+                              {canPreview ? <><Eye className="w-4 h-4 mr-2" />Preview</> : <><Download className="w-4 h-4 mr-2" />Download</>}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              className="rounded-xl border-white/10 bg-white/5 hover:bg-white/10 h-12 w-12 p-0"
+                              onClick={e => { e.stopPropagation(); handleDownload(resource); }}
+                            >
+                              <Download className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="p-6">
-                        <h3 className="text-lg font-light mb-2 group-hover:text-emerald-400 transition-colors line-clamp-1">{resource.title}</h3>
-                        {resource.description && <p className="text-white/40 text-sm mb-4 line-clamp-2">{resource.description}</p>}
-                        
-                        <div className="flex items-center justify-between text-xs text-white/30 mb-4">
-                          <span className="flex items-center gap-1"><Zap className="w-3 h-3 text-emerald-400" />{formatFileSize(resource.fileSize)}</span>
-                          <span className="flex items-center gap-1"><Download className="w-3 h-3" />{resource.downloadCount || 0}</span>
-                        </div>
-
-                        <div className="flex items-center gap-2 mb-4">
-                          <LikeButton resourceId={resource.id} />
-                          <button
-                            onClick={(e) => { e.stopPropagation(); setSelectedCommentResource(resource); }}
-                            className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/60 transition-all"
-                          >
-                            <MessageCircle className="w-4 h-4" />
-                          </button>
-                          <div className="flex-1" />
-                          <span className="flex items-center gap-1.5 text-pink-400 text-xs">
-                            <Heart className="w-3 h-3 fill-current" />
-                            {resource.likeCount || 0}
-                          </span>
-                        </div>
-
-                        <div className="flex gap-3">
-                          <Button className="flex-1 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white h-12 shadow-lg shadow-emerald-500/20" onClick={e => { e.stopPropagation(); canPreview ? handleResourceClick(resource) : handleDownload(resource); }}>
-                            {canPreview ? <><Eye className="w-4 h-4 mr-2" />Preview</> : <><Download className="w-4 h-4 mr-2" />Download</>}
-                          </Button>
-                          <Button variant="outline" className="rounded-xl border-white/10 bg-white/5 hover:bg-white/10 h-12 w-12 p-0" onClick={e => { e.stopPropagation(); handleDownload(resource); }}>
-                            <Download className="w-4 h-4" />
-                          </Button>
-                        </div>
+                      {/* Holographic Border Effect */}
+                      <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                        <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 opacity-20 blur-xl" />
                       </div>
                     </div>
                   </AnimatedSection>
@@ -565,9 +762,31 @@ export default function Resources() {
       {selectedDocument && <DocumentPreviewModal resource={selectedDocument} onClose={() => setSelectedDocument(null)} />}
       {selectedCommentResource && <CommentsModal resource={selectedCommentResource} onClose={() => setSelectedCommentResource(null)} />}
 
-      <footer className="py-12 border-t border-white/5">
+      <footer className="py-12 border-t border-white/5 relative">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center text-white/20 text-sm">© 2024 Gu Jahyeon. Crafted with passion.</div>
       </footer>
+
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.8; }
+        }
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+        @keyframes gradient {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        .animate-shimmer {
+          animation: shimmer 2s infinite;
+        }
+        .animate-gradient {
+          background-size: 200% 200%;
+          animation: gradient 3s ease infinite;
+        }
+      `}</style>
     </div>
   );
 }
