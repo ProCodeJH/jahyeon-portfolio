@@ -66,42 +66,42 @@ export default function About() {
       <Navigation />
 
       {/* Hero */}
-      <section className="min-h-screen pt-32 pb-20 px-8 relative z-10">
+      <section className="min-h-screen pt-24 md:pt-32 pb-12 md:pb-20 px-4 md:px-8 relative z-10">
         <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-20 items-center min-h-[80vh]">
+          <div className="grid lg:grid-cols-2 gap-12 md:gap-16 lg:gap-20 items-center min-h-[80vh]">
             <div>
               <AnimatedSection>
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
-                    <Users className="w-6 h-6 text-white" />
+                <div className="flex items-center gap-3 mb-4 md:mb-6">
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
+                    <Users className="w-5 h-5 md:w-6 md:h-6 text-white" />
                   </div>
-                  <p className="text-purple-600 font-medium text-sm tracking-wider uppercase">About Me</p>
+                  <p className="text-purple-600 font-medium text-xs md:text-sm tracking-wider uppercase">About Me</p>
                 </div>
               </AnimatedSection>
               <AnimatedSection delay={100}>
-                <h1 className="text-5xl md:text-7xl font-bold leading-[1.1] mb-8 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-purple-900 to-blue-900">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-[1.1] mb-6 md:mb-8 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-purple-900 to-blue-900">
                   Bringing life to<br />products through<br />technology
                 </h1>
               </AnimatedSection>
               <AnimatedSection delay={200}>
-                <p className="text-gray-600 text-lg leading-relaxed mb-8 max-w-lg">
+                <p className="text-gray-600 text-base md:text-lg leading-relaxed mb-6 md:mb-8 max-w-lg">
                   I believe embedded development is about "bringing life to products." If hardware is the body, software is the brain that makes it move.
                 </p>
               </AnimatedSection>
               <AnimatedSection delay={300}>
-                <div className="flex items-center gap-8 text-gray-500 text-sm mb-10">
+                <div className="flex flex-wrap items-center gap-4 md:gap-8 text-gray-500 text-xs md:text-sm mb-6 md:mb-10">
                   <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-purple-600" />South Korea</div>
                   <div className="flex items-center gap-2"><Briefcase className="w-4 h-4 text-purple-600" />3+ Years</div>
                 </div>
               </AnimatedSection>
               <AnimatedSection delay={400}>
-                <div className="flex gap-4">
-                  <Button className="rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:scale-105 transition-all px-8 h-14 shadow-lg shadow-purple-500/30">
-                    <Download className="w-5 h-5 mr-2" />Resume
+                <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
+                  <Button className="rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:scale-105 transition-all px-6 md:px-8 h-12 md:h-14 shadow-lg shadow-purple-500/30">
+                    <Download className="w-4 h-4 md:w-5 md:h-5 mr-2" />Resume
                   </Button>
-                  <a href="mailto:contact@jahyeon.com">
-                    <Button variant="outline" className="rounded-full border-2 border-gray-300 hover:bg-gray-100 hover:border-purple-400 px-8 h-14">
-                      <Mail className="w-5 h-5 mr-2" />Contact
+                  <a href="mailto:contact@jahyeon.com" className="w-full sm:w-auto">
+                    <Button variant="outline" className="w-full sm:w-auto rounded-full border-2 border-gray-300 hover:bg-gray-100 hover:border-purple-400 px-6 md:px-8 h-12 md:h-14">
+                      <Mail className="w-4 h-4 md:w-5 md:h-5 mr-2" />Contact
                     </Button>
                   </a>
                 </div>
@@ -111,28 +111,28 @@ export default function About() {
             {/* Profile Card with TiltCard */}
             <AnimatedSection delay={200}>
               <TiltCard>
-                <div className="rounded-3xl overflow-hidden bg-white border border-gray-200 hover:border-purple-300 p-8 transition-all duration-500 shadow-lg hover:shadow-2xl">
-                  <div className="aspect-square rounded-2xl overflow-hidden mb-8">
+                <div className="rounded-2xl md:rounded-3xl overflow-hidden bg-white border border-gray-200 hover:border-purple-300 p-5 md:p-8 transition-all duration-500 shadow-lg hover:shadow-2xl">
+                  <div className="aspect-square rounded-xl md:rounded-2xl overflow-hidden mb-5 md:mb-8">
                     <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&h=600&fit=crop" alt="Technology" className="w-full h-full object-cover hover:scale-110 transition-transform duration-700" />
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4 text-center">
+                  <div className="grid grid-cols-3 gap-3 md:gap-4 text-center">
                     <TiltCard sensitivity={5}>
-                      <div className="p-4 rounded-xl bg-purple-50 border border-purple-200 hover:border-purple-400 transition-all hover:shadow-lg">
-                        <div className="text-2xl font-bold text-purple-600"><AnimatedCounter target={3} />+</div>
-                        <div className="text-xs text-gray-600 mt-1">Years</div>
+                      <div className="p-3 md:p-4 rounded-lg md:rounded-xl bg-purple-50 border border-purple-200 hover:border-purple-400 transition-all hover:shadow-lg">
+                        <div className="text-xl md:text-2xl font-bold text-purple-600"><AnimatedCounter target={3} />+</div>
+                        <div className="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">Years</div>
                       </div>
                     </TiltCard>
                     <TiltCard sensitivity={5}>
-                      <div className="p-4 rounded-xl bg-purple-50 border border-purple-200 hover:border-purple-400 transition-all hover:shadow-lg">
-                        <div className="text-2xl font-bold text-purple-600"><AnimatedCounter target={5} /></div>
-                        <div className="text-xs text-gray-600 mt-1">Companies</div>
+                      <div className="p-3 md:p-4 rounded-lg md:rounded-xl bg-purple-50 border border-purple-200 hover:border-purple-400 transition-all hover:shadow-lg">
+                        <div className="text-xl md:text-2xl font-bold text-purple-600"><AnimatedCounter target={5} /></div>
+                        <div className="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">Companies</div>
                       </div>
                     </TiltCard>
                     <TiltCard sensitivity={5}>
-                      <div className="p-4 rounded-xl bg-purple-50 border border-purple-200 hover:border-purple-400 transition-all hover:shadow-lg">
-                        <div className="text-2xl font-bold text-purple-600"><AnimatedCounter target={10} />+</div>
-                        <div className="text-xs text-gray-600 mt-1">Projects</div>
+                      <div className="p-3 md:p-4 rounded-lg md:rounded-xl bg-purple-50 border border-purple-200 hover:border-purple-400 transition-all hover:shadow-lg">
+                        <div className="text-xl md:text-2xl font-bold text-purple-600"><AnimatedCounter target={10} />+</div>
+                        <div className="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">Projects</div>
                       </div>
                     </TiltCard>
                   </div>
@@ -144,31 +144,31 @@ export default function About() {
       </section>
 
       {/* Story */}
-      <section className="py-32 px-8 bg-gradient-to-br from-purple-50/50 to-blue-50/50 relative z-10">
+      <section className="py-20 md:py-24 lg:py-32 px-4 md:px-8 bg-gradient-to-br from-purple-50/50 to-blue-50/50 relative z-10">
         <div className="max-w-7xl mx-auto">
           <AnimatedSection>
-            <p className="text-purple-600 font-medium text-sm tracking-wider mb-4 uppercase">My Story</p>
-            <h2 className="text-4xl md:text-5xl font-bold mb-16 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-purple-900">The Journey</h2>
+            <p className="text-purple-600 font-medium text-xs md:text-sm tracking-wider mb-3 md:mb-4 uppercase">My Story</p>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-10 md:mb-12 lg:mb-16 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-purple-900">The Journey</h2>
           </AnimatedSection>
-          <div className="grid lg:grid-cols-2 gap-16">
+          <div className="grid lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16">
             <AnimatedSection delay={100}>
               <TiltCard sensitivity={5}>
-                <div className="p-8 rounded-3xl bg-white border border-gray-200 hover:border-purple-300 transition-all shadow-lg hover:shadow-2xl space-y-6 text-gray-600 leading-relaxed text-lg">
+                <div className="p-5 md:p-6 lg:p-8 rounded-2xl md:rounded-3xl bg-white border border-gray-200 hover:border-purple-300 transition-all shadow-lg hover:shadow-2xl space-y-4 md:space-y-6 text-gray-600 leading-relaxed text-sm md:text-base lg:text-lg">
                   <p>When I first entered the Department of Electronic Engineering, I knew nothing at all. Like an <span className="text-gray-900 font-medium">"empty memory space,"</span> everything felt unfamiliar. But as I learned bit by bit, filling that empty space with code, I realized how fascinating development could be.</p>
                   <p>After serving in the Air Force as an aircraft maintenance technician, my goals became concrete. Working with actual aircraft, interpreting blueprints, and physically experiencing how components connect gave me the most valuable lesson.</p>
                 </div>
               </TiltCard>
             </AnimatedSection>
             <AnimatedSection delay={200}>
-              <div className="space-y-6 text-gray-600 leading-relaxed text-lg">
+              <div className="space-y-4 md:space-y-6 text-gray-600 leading-relaxed text-sm md:text-base lg:text-lg">
                 <TiltCard sensitivity={5}>
-                  <div className="p-8 rounded-3xl bg-white border border-gray-200 hover:border-purple-300 transition-all shadow-lg hover:shadow-2xl">
+                  <div className="p-5 md:p-6 lg:p-8 rounded-2xl md:rounded-3xl bg-white border border-gray-200 hover:border-purple-300 transition-all shadow-lg hover:shadow-2xl">
                     <p>Working at LG Electronics' partner research institute, I monitored washing machine firmware, analyzing data, verifying sensor control logic, and performing serial communication-based automation.</p>
                   </div>
                 </TiltCard>
                 <TiltCard sensitivity={5}>
-                  <div className="p-6 rounded-2xl bg-gradient-to-r from-purple-100 to-blue-100 border-l-4 border-purple-600 hover:from-purple-200 hover:to-blue-200 transition-all shadow-lg">
-                    <p className="text-gray-900 text-xl font-medium italic">"I'm no longer a blank page. Now I'm ready to design systems myself, solve problems, and implement new features."</p>
+                  <div className="p-4 md:p-5 lg:p-6 rounded-xl md:rounded-2xl bg-gradient-to-r from-purple-100 to-blue-100 border-l-4 border-purple-600 hover:from-purple-200 hover:to-blue-200 transition-all shadow-lg">
+                    <p className="text-gray-900 text-base md:text-lg lg:text-xl font-medium italic">"I'm no longer a blank page. Now I'm ready to design systems myself, solve problems, and implement new features."</p>
                   </div>
                 </TiltCard>
               </div>
@@ -178,28 +178,28 @@ export default function About() {
       </section>
 
       {/* Skills */}
-      <section className="py-32 px-8 relative z-10">
+      <section className="py-20 md:py-24 lg:py-32 px-4 md:px-8 relative z-10">
         <div className="max-w-7xl mx-auto">
           <AnimatedSection>
-            <p className="text-purple-600 font-medium text-sm tracking-wider mb-4 uppercase">Skills</p>
-            <h2 className="text-4xl md:text-5xl font-bold mb-16 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-purple-900">Technical Expertise</h2>
+            <p className="text-purple-600 font-medium text-xs md:text-sm tracking-wider mb-3 md:mb-4 uppercase">Skills</p>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-10 md:mb-12 lg:mb-16 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-purple-900">Technical Expertise</h2>
           </AnimatedSection>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {SKILLS.map((skill, i) => {
               const Icon = skill.icon;
               return (
                 <AnimatedSection key={skill.category} delay={i * 100}>
                   <TiltCard>
-                    <div className="p-8 rounded-3xl bg-white border border-gray-200 hover:border-purple-300 transition-all duration-500 h-full shadow-lg hover:shadow-2xl">
-                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${skill.color} flex items-center justify-center mb-6 shadow-lg`}>
-                        <Icon className="w-6 h-6 text-white" />
+                    <div className="p-5 md:p-6 lg:p-8 rounded-2xl md:rounded-3xl bg-white border border-gray-200 hover:border-purple-300 transition-all duration-500 h-full shadow-lg hover:shadow-2xl">
+                      <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br ${skill.color} flex items-center justify-center mb-4 md:mb-6 shadow-lg`}>
+                        <Icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
                       </div>
-                      <div className={`inline-block px-4 py-2 rounded-full bg-gradient-to-r ${skill.color} mb-4 shadow-lg`}>
-                        <span className="text-white text-sm font-medium">{skill.category}</span>
+                      <div className={`inline-block px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-gradient-to-r ${skill.color} mb-3 md:mb-4 shadow-lg`}>
+                        <span className="text-white text-xs md:text-sm font-medium">{skill.category}</span>
                       </div>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-1.5 md:gap-2">
                         {skill.items.map(item => (
-                          <span key={item} className="px-3 py-1.5 rounded-full bg-gray-100 text-gray-700 text-sm border border-gray-200 hover:bg-purple-50 hover:border-purple-300 hover:text-purple-700 transition-all">{item}</span>
+                          <span key={item} className="px-2.5 md:px-3 py-1 md:py-1.5 rounded-full bg-gray-100 text-gray-700 text-xs md:text-sm border border-gray-200 hover:bg-purple-50 hover:border-purple-300 hover:text-purple-700 transition-all">{item}</span>
                         ))}
                       </div>
                     </div>
@@ -212,11 +212,11 @@ export default function About() {
       </section>
 
       {/* Timeline */}
-      <section className="py-32 px-8 bg-gradient-to-br from-purple-50/50 to-blue-50/50 relative z-10">
+      <section className="py-20 md:py-24 lg:py-32 px-4 md:px-8 bg-gradient-to-br from-purple-50/50 to-blue-50/50 relative z-10">
         <div className="max-w-7xl mx-auto">
           <AnimatedSection>
-            <p className="text-purple-600 font-medium text-sm tracking-wider mb-4 uppercase">Timeline</p>
-            <h2 className="text-4xl md:text-5xl font-bold mb-16 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-purple-900">Career & Education</h2>
+            <p className="text-purple-600 font-medium text-xs md:text-sm tracking-wider mb-3 md:mb-4 uppercase">Timeline</p>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-10 md:mb-12 lg:mb-16 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-purple-900">Career & Education</h2>
           </AnimatedSection>
           <div className="relative">
             <div className="absolute left-0 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-purple-400 via-gray-300 to-transparent md:-translate-x-1/2" />
@@ -227,28 +227,28 @@ export default function About() {
                 return (
                   <AnimatedSection key={i} delay={i * 100}>
                     <div className={`relative flex items-center ${isLeft ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
-                      <div className={`flex-1 ${isLeft ? 'md:pr-16 md:text-right' : 'md:pl-16'} pl-12 md:pl-0`}>
+                      <div className={`flex-1 ${isLeft ? 'md:pr-12 lg:pr-16 md:text-right' : 'md:pl-12 lg:pl-16'} pl-8 md:pl-0`}>
                         <TiltCard sensitivity={5}>
-                          <div className={`inline-block p-6 rounded-2xl bg-white border-2 ${item.current ? 'border-purple-400 shadow-xl shadow-purple-500/30' : 'border-gray-200'} hover:border-purple-400 transition-all hover:shadow-xl`}>
-                            <div className="flex items-center gap-2 justify-start md:justify-end mb-3">
-                              <span className={`inline-block px-3 py-1 rounded-full text-xs font-mono ${item.type === 'work' ? 'bg-purple-100 text-purple-600 border border-purple-300' : item.type === 'military' ? 'bg-blue-100 text-blue-600 border border-blue-300' : 'bg-green-100 text-green-600 border border-green-300'}`}>
+                          <div className={`inline-block p-4 md:p-5 lg:p-6 rounded-xl md:rounded-2xl bg-white border-2 ${item.current ? 'border-purple-400 shadow-xl shadow-purple-500/30' : 'border-gray-200'} hover:border-purple-400 transition-all hover:shadow-xl`}>
+                            <div className="flex flex-wrap items-center gap-2 justify-start md:justify-end mb-2 md:mb-3">
+                              <span className={`inline-block px-2.5 md:px-3 py-1 rounded-full text-[10px] md:text-xs font-mono ${item.type === 'work' ? 'bg-purple-100 text-purple-600 border border-purple-300' : item.type === 'military' ? 'bg-blue-100 text-blue-600 border border-blue-300' : 'bg-green-100 text-green-600 border border-green-300'}`}>
                                 {item.year}
                               </span>
                               {item.current && (
-                                <span className="px-2 py-1 rounded-full bg-purple-600 text-white text-xs font-bold animate-pulse">
+                                <span className="px-2 py-0.5 md:py-1 rounded-full bg-purple-600 text-white text-[10px] md:text-xs font-bold animate-pulse">
                                   CURRENT
                                 </span>
                               )}
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-1">{item.title}</h3>
-                            <p className="text-purple-600 text-sm font-medium">{item.role}</p>
+                            <h3 className="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-1">{item.title}</h3>
+                            <p className="text-purple-600 text-xs md:text-sm font-medium">{item.role}</p>
                           </div>
                         </TiltCard>
                       </div>
                       <div
-                        className={`absolute left-0 md:left-1/2 w-10 h-10 rounded-full bg-white border-2 ${item.current ? 'border-purple-600 shadow-lg shadow-purple-500/50' : 'border-purple-400'} flex items-center justify-center -translate-x-1/2 z-10`}
+                        className={`absolute left-0 md:left-1/2 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white border-2 ${item.current ? 'border-purple-600 shadow-lg shadow-purple-500/50' : 'border-purple-400'} flex items-center justify-center -translate-x-1/2 z-10`}
                       >
-                        <Icon className="w-4 h-4 text-purple-600" />
+                        <Icon className="w-3 h-3 md:w-4 md:h-4 text-purple-600" />
                       </div>
                       <div className="flex-1 hidden md:block" />
                     </div>
@@ -261,32 +261,32 @@ export default function About() {
       </section>
 
       {/* Interests */}
-      <section className="py-32 px-8 relative z-10">
+      <section className="py-20 md:py-24 lg:py-32 px-4 md:px-8 relative z-10">
         <div className="max-w-7xl mx-auto">
           <AnimatedSection>
-            <p className="text-purple-600 font-medium text-sm tracking-wider mb-4 uppercase">Beyond Code</p>
-            <h2 className="text-4xl md:text-5xl font-bold mb-16 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-purple-900">Interests</h2>
+            <p className="text-purple-600 font-medium text-xs md:text-sm tracking-wider mb-3 md:mb-4 uppercase">Beyond Code</p>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-10 md:mb-12 lg:mb-16 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-purple-900">Interests</h2>
           </AnimatedSection>
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
             <AnimatedSection delay={100}>
               <TiltCard>
-                <div className="p-10 rounded-3xl bg-gradient-to-br from-purple-100 to-pink-100 border border-purple-200 hover:border-purple-400 transition-all shadow-lg hover:shadow-2xl">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-6 shadow-lg">
-                    <Music className="w-8 h-8 text-white" />
+                <div className="p-6 md:p-8 lg:p-10 rounded-2xl md:rounded-3xl bg-gradient-to-br from-purple-100 to-pink-100 border border-purple-200 hover:border-purple-400 transition-all shadow-lg hover:shadow-2xl">
+                  <div className="w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-xl md:rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-4 md:mb-6 shadow-lg">
+                    <Music className="w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4">Music</h3>
-                  <p className="text-gray-700">Playing guitar, piano, and drums. The process of perfecting a complex piece mirrors debugging code and optimizing during development.</p>
+                  <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-3 md:mb-4">Music</h3>
+                  <p className="text-gray-700 text-sm md:text-base">Playing guitar, piano, and drums. The process of perfecting a complex piece mirrors debugging code and optimizing during development.</p>
                 </div>
               </TiltCard>
             </AnimatedSection>
             <AnimatedSection delay={200}>
               <TiltCard>
-                <div className="p-10 rounded-3xl bg-gradient-to-br from-orange-100 to-yellow-100 border border-orange-200 hover:border-orange-400 transition-all shadow-lg hover:shadow-2xl">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-yellow-500 flex items-center justify-center mb-6 shadow-lg">
-                    <Dumbbell className="w-8 h-8 text-white" />
+                <div className="p-6 md:p-8 lg:p-10 rounded-2xl md:rounded-3xl bg-gradient-to-br from-orange-100 to-yellow-100 border border-orange-200 hover:border-orange-400 transition-all shadow-lg hover:shadow-2xl">
+                  <div className="w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-xl md:rounded-2xl bg-gradient-to-br from-orange-500 to-yellow-500 flex items-center justify-center mb-4 md:mb-6 shadow-lg">
+                    <Dumbbell className="w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4">Martial Arts & Fitness</h3>
-                  <p className="text-gray-700">Through exercise and martial arts, I've developed mental focus and analytical thinking that translates directly to problem-solving.</p>
+                  <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-3 md:mb-4">Martial Arts & Fitness</h3>
+                  <p className="text-gray-700 text-sm md:text-base">Through exercise and martial arts, I've developed mental focus and analytical thinking that translates directly to problem-solving.</p>
                 </div>
               </TiltCard>
             </AnimatedSection>
@@ -295,15 +295,15 @@ export default function About() {
       </section>
 
       {/* CTA */}
-      <section className="py-32 px-8 bg-gradient-to-br from-purple-50/50 to-blue-50/50 relative z-10">
+      <section className="py-20 md:py-24 lg:py-32 px-4 md:px-8 bg-gradient-to-br from-purple-50/50 to-blue-50/50 relative z-10">
         <div className="max-w-7xl mx-auto text-center">
           <AnimatedSection>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-purple-900 to-blue-900">Want to see my work?</h2>
-            <p className="text-gray-600 text-lg mb-10">Check out my projects and see what I've been building.</p>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-purple-900 to-blue-900 px-4">Want to see my work?</h2>
+            <p className="text-gray-600 text-base md:text-lg mb-8 md:mb-10 px-4">Check out my projects and see what I've been building.</p>
             <Link href="/projects">
-              <Button size="lg" className="rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:scale-105 transition-all px-10 h-16 group shadow-lg shadow-purple-500/30">
+              <Button size="lg" className="rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:scale-105 transition-all px-8 md:px-10 h-14 md:h-16 group shadow-lg shadow-purple-500/30">
                 View Projects
-                <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-2 transition-transform" />
+                <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2 md:ml-3 group-hover:translate-x-2 transition-transform" />
               </Button>
             </Link>
           </AnimatedSection>
@@ -311,13 +311,13 @@ export default function About() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-gray-200 relative z-10">
-        <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row items-center justify-between gap-6">
-          <p className="text-gray-500 text-sm">© 2024 Gu Jahyeon. All rights reserved.</p>
-          <div className="flex items-center gap-6">
-            <a href="https://github.com" className="text-gray-400 hover:text-purple-600 transition-colors"><Github className="w-5 h-5" /></a>
-            <a href="https://linkedin.com" className="text-gray-400 hover:text-purple-600 transition-colors"><Linkedin className="w-5 h-5" /></a>
-            <a href="mailto:contact@jahyeon.com" className="text-gray-400 hover:text-purple-600 transition-colors"><Mail className="w-5 h-5" /></a>
+      <footer className="py-8 md:py-12 border-t border-gray-200 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6">
+          <p className="text-gray-500 text-xs md:text-sm">© 2024 Gu Jahyeon. All rights reserved.</p>
+          <div className="flex items-center gap-4 md:gap-6">
+            <a href="https://github.com" className="text-gray-400 hover:text-purple-600 transition-colors"><Github className="w-4 h-4 md:w-5 md:h-5" /></a>
+            <a href="https://linkedin.com" className="text-gray-400 hover:text-purple-600 transition-colors"><Linkedin className="w-4 h-4 md:w-5 md:h-5" /></a>
+            <a href="mailto:contact@jahyeon.com" className="text-gray-400 hover:text-purple-600 transition-colors"><Mail className="w-4 h-4 md:w-5 md:h-5" /></a>
           </div>
         </div>
       </footer>
