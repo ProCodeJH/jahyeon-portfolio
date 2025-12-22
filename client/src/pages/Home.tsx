@@ -104,7 +104,7 @@ export default function Home() {
                   {/* Video Container */}
                   <div className="relative w-full h-full rounded-[2.4rem] overflow-hidden bg-gradient-to-br from-purple-900/10 to-blue-900/10 backdrop-blur-xl">
                     {/* Hero Video */}
-                    <video autoPlay loop muted playsInline className="w-full h-full object-cover">
+                    <video autoPlay loop muted playsInline preload="auto" className="w-full h-full object-cover">
                       <source src="/hero-video.mp4" type="video/mp4" />
                     </video>
 
@@ -208,15 +208,15 @@ export default function Home() {
                       <img
                         src={item.img}
                         alt={item.title}
-                        className="w-full h-full object-cover opacity-40 group-hover:opacity-60 group-hover:scale-110 transition-all duration-1000"
+                        className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-1000"
                       />
-                      <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-60 group-hover:opacity-70 transition-opacity duration-700`} />
+                      <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-15 group-hover:opacity-25 transition-opacity duration-700`} />
 
                       {/* Shimmer Effect */}
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1500 ease-in-out" />
 
                       {/* Gradient Mesh Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-white/20" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/10" />
                     </div>
 
                     {/* Floating Particles */}
