@@ -3,7 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
-import { Download, Loader2, FileText, Video, ExternalLink, Play, Presentation, Terminal, Cpu, Code, X, Eye, Sparkles, BookOpen, Zap, Heart, MessageCircle, Send } from "lucide-react";
+import { Download, Loader2, FileText, Video, ExternalLink, Play, Presentation, Terminal, Cpu, Code, X, Eye, Sparkles, BookOpen, Zap, Heart, MessageCircle, Send, FolderOpen, ChevronDown, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { GradientMeshBackground } from "@/components/backgrounds/GradientMeshBackground";
 import { SubtleDots } from "@/components/backgrounds/SubtleDots";
@@ -311,8 +311,27 @@ export default function Resources() {
   const [selectedVideo, setSelectedVideo] = useState<any>(null);
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
   const [selectedCommentResource, setSelectedCommentResource] = useState<any>(null);
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
 
   const filteredResources = resources?.filter(r => activeCategory === "all" || r.category === activeCategory);
+
+  // Group resources by folder/subcategory
+  const groupedResources = filteredResources?.reduce((acc, resource) => {
+    const folder = resource.subcategory || "📄 Uncategorized";
+    if (!acc[folder]) acc[folder] = [];
+    acc[folder].push(resource);
+    return acc;
+  }, {} as Record<string, typeof filteredResources>);
+
+  const toggleFolder = (folder: string) => {
+    const newExpanded = new Set(expandedFolders);
+    if (newExpanded.has(folder)) {
+      newExpanded.delete(folder);
+    } else {
+      newExpanded.add(folder);
+    }
+    setExpandedFolders(newExpanded);
+  };
 
   const handleDownload = async (resource: any) => {
     try {
@@ -411,8 +430,45 @@ export default function Resources() {
               <h3 className="text-2xl font-semibold mb-2 text-gray-900">No resources found</h3>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 lg:gap-8">
-              {filteredResources.map((resource, index) => {
+            <div className="space-y-8">
+              {Object.entries(groupedResources || {}).map(([folder, folderResources]) => {
+                const isExpanded = expandedFolders.has(folder) || Object.keys(groupedResources || {}).length === 1;
+                const resourceCount = folderResources?.length || 0;
+
+                return (
+                  <div key={folder} className="bg-white/60 backdrop-blur-xl border border-gray-200/50 rounded-3xl overflow-hidden shadow-lg">
+                    {/* Folder Header */}
+                    <button
+                      onClick={() => toggleFolder(folder)}
+                      className="w-full p-5 md:p-6 flex items-center justify-between hover:bg-white/80 transition-all group"
+                    >
+                      <div className="flex items-center gap-3 md:gap-4">
+                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shadow-lg">
+                          <FolderOpen className="w-6 h-6 md:w-7 md:h-7 text-white" />
+                        </div>
+                        <div className="text-left">
+                          <h3 className="text-xl md:text-2xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors">
+                            {folder.startsWith('📄') ? folder : `📁 ${folder}`}
+                          </h3>
+                          <p className="text-gray-500 text-sm md:text-base">
+                            {resourceCount} {resourceCount === 1 ? 'file' : 'files'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {isExpanded ? (
+                          <ChevronDown className="w-6 h-6 text-purple-600" />
+                        ) : (
+                          <ChevronRight className="w-6 h-6 text-gray-400" />
+                        )}
+                      </div>
+                    </button>
+
+                    {/* Folder Contents */}
+                    {isExpanded && (
+                      <div className="p-4 md:p-6 pt-0">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+                          {folderResources?.map((resource, index) => {
                 const thumbnail = resource.thumbnailUrl || (isYouTubeUrl(resource.fileUrl) ? getYouTubeThumbnail(resource.fileUrl) : null);
                 const isVideo = isYouTubeUrl(resource.fileUrl) || resource.mimeType?.startsWith('video/');
                 const isPPTFile = isPPT(resource.mimeType, resource.fileName);
@@ -494,6 +550,12 @@ export default function Resources() {
                       </div>
                     </TiltCard>
                   </AnimatedSection>
+                );
+              })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 );
               })}
             </div>

@@ -489,6 +489,36 @@ export default function Admin() {
                           </Select>
                         </div>
                       </div>
+
+                      {/* Folder/Subcategory */}
+                      <div>
+                        <Label className="text-white/70">Folder (Optional)</Label>
+                        <p className="text-white/40 text-xs mb-2">Organize files into folders (e.g., "Arduino", "Chapter 1-3")</p>
+                        <Input
+                          value={resourceForm.subcategory}
+                          onChange={e => setResourceForm({...resourceForm, subcategory: e.target.value})}
+                          placeholder="e.g., Arduino, Python Basics, Chapter 1-5"
+                          className="mt-1.5 bg-white/5 border-white/10 text-white"
+                        />
+                        {resources?.filter(r => r.category === resourceForm.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).length > 0 && (
+                          <div className="mt-2">
+                            <p className="text-white/50 text-xs mb-1">Existing folders:</p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {resources?.filter(r => r.category === resourceForm.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).map(folder => (
+                                <button
+                                  key={folder}
+                                  type="button"
+                                  onClick={() => setResourceForm({...resourceForm, subcategory: folder || ""})}
+                                  className="px-2 py-1 bg-white/10 hover:bg-white/20 rounded-md text-xs text-white/70 border border-white/10"
+                                >
+                                  📁 {folder}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
                       <div><Label className="text-white/70">Description</Label><Textarea value={resourceForm.description} onChange={e => setResourceForm({...resourceForm, description: e.target.value})} rows={2} className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
                       
                       {/* 파일 업로드 - 500MB 지원 */}
@@ -553,6 +583,7 @@ export default function Admin() {
                       <p className="text-sm text-white/40 truncate">{resource.fileName || resource.description}</p>
                       <div className="flex items-center gap-3 mt-1">
                         <span className="px-2 py-0.5 rounded text-xs" style={{ backgroundColor: RESOURCE_CATEGORIES.find(c => c.value === resource.category)?.color + '30', color: RESOURCE_CATEGORIES.find(c => c.value === resource.category)?.color }}>{resource.category}</span>
+                        {resource.subcategory && <span className="px-2 py-0.5 rounded text-xs bg-purple-500/20 text-purple-400">📁 {resource.subcategory}</span>}
                         <span className="text-xs text-white/30">{resource.downloadCount || 0} downloads</span>
                         {resource.fileSize ? <span className="text-xs text-white/30">{formatFileSize(resource.fileSize)}</span> : null}
                       </div>
