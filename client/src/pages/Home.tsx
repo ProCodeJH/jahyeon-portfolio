@@ -208,15 +208,11 @@ export default function Home() {
                       <img
                         src={item.img}
                         alt={item.title}
-                        className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-1000"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-all duration-1000"
                       />
-                      <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-15 group-hover:opacity-25 transition-opacity duration-700`} />
 
-                      {/* Shimmer Effect */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1500 ease-in-out" />
-
-                      {/* Gradient Mesh Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/10" />
+                      {/* Only gradient at bottom for text readability */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                     </div>
 
                     {/* Floating Particles */}
