@@ -7,6 +7,7 @@ import { GradientMeshBackground } from "@/components/backgrounds/GradientMeshBac
 import { SubtleDots } from "@/components/backgrounds/SubtleDots";
 import { TiltCard } from "@/components/effects/TiltCard";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
+import { Navigation } from "@/components/layout/Navigation";
 
 const CATEGORIES = [
   { value: "all", label: "All Projects", icon: Code, color: "#a855f7" },
@@ -35,45 +36,23 @@ export default function Projects() {
       </div>
 
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200/50">
-        <div className="max-w-7xl mx-auto px-8 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/">
-              <span className="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 hover:scale-110 transition-transform cursor-pointer">
-                JH
-              </span>
-            </Link>
-            <div className="hidden md:flex items-center gap-8">
-              {["Work", "About"].map(item => (
-                <Link key={item} href={item === "Work" ? "/projects" : `/${item.toLowerCase()}`}>
-                  <span className={`text-sm font-medium transition-all cursor-pointer relative group ${
-                    item === "Work" ? "text-purple-600" : "text-gray-600 hover:text-purple-600"
-                  }`}>
-                    {item}
-                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-blue-600 group-hover:w-full transition-all" />
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navigation />
 
       {/* Header */}
-      <section className="pt-40 pb-20 px-8 relative z-10">
+      <section className="pt-32 md:pt-36 lg:pt-40 pb-12 md:pb-16 lg:pb-20 px-4 md:px-8 relative z-10">
         <div className="max-w-7xl mx-auto">
           <AnimatedSection>
             <Link href="/">
-              <button className="flex items-center gap-2 text-gray-500 hover:text-purple-600 transition-colors mb-8 group">
-                <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                <span className="text-lg">Back to Home</span>
+              <button className="flex items-center gap-2 text-gray-500 hover:text-purple-600 transition-colors mb-6 md:mb-8 group">
+                <ArrowLeft className="w-4 h-4 md:w-5 md:h-5 group-hover:-translate-x-1 transition-transform" />
+                <span className="text-base md:text-lg">Back to Home</span>
               </button>
             </Link>
-            <p className="text-xl text-purple-600 mb-6 font-medium">Portfolio</p>
-            <h1 className="text-[clamp(3rem,8vw,7rem)] font-bold leading-[0.95] mb-8 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-purple-900 to-blue-900">
+            <p className="text-base md:text-xl text-purple-600 mb-4 md:mb-6 font-medium">Portfolio</p>
+            <h1 className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold leading-[0.95] mb-6 md:mb-8 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-purple-900 to-blue-900">
               Work.
             </h1>
-            <p className="text-2xl text-gray-600 max-w-3xl leading-relaxed">
+            <p className="text-lg md:text-xl lg:text-2xl text-gray-600 max-w-3xl leading-relaxed">
               A collection of embedded systems, firmware development, and IoT solutions
               that bridge the gap between hardware and software.
             </p>
@@ -82,26 +61,27 @@ export default function Projects() {
       </section>
 
       {/* Filter */}
-      <section className="py-8 sticky top-24 z-40 bg-white/60 backdrop-blur-xl border-y border-gray-200/50">
-        <div className="max-w-7xl mx-auto px-8">
+      <section className="py-4 md:py-6 lg:py-8 sticky top-16 md:top-20 lg:top-24 z-40 bg-white/60 backdrop-blur-xl border-y border-gray-200/50">
+        <div className="max-w-7xl mx-auto px-4 md:px-8">
           <AnimatedSection delay={100}>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2 md:gap-3">
               {CATEGORIES.map(category => {
                 const Icon = category.icon;
                 return (
                   <button
                     key={category.value}
                     onClick={() => setActiveCategory(category.value)}
-                    className={`group flex items-center gap-2 px-6 py-3 rounded-full text-base font-medium transition-all border-2 ${
+                    className={`group flex items-center gap-1.5 md:gap-2 px-3 md:px-5 lg:px-6 py-2 md:py-2.5 lg:py-3 rounded-full text-xs md:text-sm lg:text-base font-medium transition-all border-2 ${
                       activeCategory === category.value
                         ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white border-transparent shadow-lg shadow-purple-500/30"
                         : "bg-white text-gray-600 border-gray-200 hover:border-purple-400 hover:text-purple-600 hover:shadow-md"
                     }`}
                   >
-                    <Icon className="w-5 h-5" />
-                    {category.label}
+                    <Icon className="w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5" />
+                    <span className="hidden sm:inline">{category.label}</span>
+                    <span className="sm:hidden">{category.label.split('/')[0]}</span>
                     {activeCategory === category.value && (
-                      <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                      <span className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-white animate-pulse" />
                     )}
                   </button>
                 );
@@ -112,7 +92,7 @@ export default function Projects() {
       </section>
 
       {/* Projects Grid */}
-      <section className="py-20 pb-32 px-8 relative z-10">
+      <section className="py-12 md:py-16 lg:py-20 pb-20 md:pb-24 lg:pb-32 px-4 md:px-8 relative z-10">
         <div className="max-w-7xl mx-auto">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-32">
@@ -126,7 +106,7 @@ export default function Projects() {
               <p className="text-gray-500">Try selecting a different category</p>
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 lg:gap-8">
               {filteredProjects.map((project, index) => {
                 const technologies = parseTechnologies(project.technologies);
                 const categoryColor = getCategoryColor(project.category);
@@ -135,7 +115,7 @@ export default function Projects() {
                   <AnimatedSection key={project.id} delay={index * 80}>
                     <TiltCard>
                       <div
-                        className="group relative rounded-2xl overflow-hidden bg-white border border-gray-200 hover:border-purple-300 transition-all hover:shadow-2xl cursor-pointer"
+                        className="group relative rounded-xl md:rounded-2xl overflow-hidden bg-white border border-gray-200 hover:border-purple-300 transition-all hover:shadow-2xl cursor-pointer"
                         onClick={() => setSelectedProject(project)}
                       >
                         {/* Image Container */}
@@ -151,14 +131,14 @@ export default function Projects() {
                             </>
                           ) : (
                             <div className="w-full h-full bg-gradient-to-br from-purple-100 to-blue-100 flex items-center justify-center">
-                              <Code className="w-16 h-16 text-gray-300" />
+                              <Code className="w-12 h-12 md:w-16 md:h-16 text-gray-300" />
                             </div>
                           )}
 
                           {/* Category Badge */}
-                          <div className="absolute top-4 left-4">
+                          <div className="absolute top-3 md:top-4 left-3 md:left-4">
                             <span
-                              className="px-4 py-2 rounded-full text-xs font-bold uppercase backdrop-blur-xl border-2 shadow-lg bg-white/90"
+                              className="px-2.5 md:px-4 py-1 md:py-2 rounded-full text-[10px] md:text-xs font-bold uppercase backdrop-blur-xl border-2 shadow-lg bg-white/90"
                               style={{
                                 color: categoryColor,
                                 borderColor: categoryColor,
@@ -169,15 +149,15 @@ export default function Projects() {
                           </div>
 
                           {/* View Count */}
-                          <div className="absolute top-4 right-4">
-                            <span className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/90 backdrop-blur-xl text-gray-700 text-xs font-semibold border border-gray-200">
+                          <div className="absolute top-3 md:top-4 right-3 md:right-4">
+                            <span className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1 md:py-2 rounded-full bg-white/90 backdrop-blur-xl text-gray-700 text-[10px] md:text-xs font-semibold border border-gray-200">
                               <Eye className="w-3 h-3" />{project.viewCount}
                             </span>
                           </div>
 
                           {/* Hover Actions */}
-                          <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-10 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
-                            <div className="flex gap-3">
+                          <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 translate-y-10 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
+                            <div className="flex gap-2 md:gap-3">
                               {project.projectUrl && (
                                 <a
                                   href={project.projectUrl}
@@ -185,8 +165,8 @@ export default function Projects() {
                                   rel="noopener noreferrer"
                                   onClick={e => e.stopPropagation()}
                                 >
-                                  <Button className="rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:scale-110 transition-all h-11 px-5 font-semibold shadow-lg shadow-purple-500/30">
-                                    <ExternalLink className="w-4 h-4 mr-2" />Demo
+                                  <Button className="rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:scale-110 transition-all h-9 md:h-11 px-3 md:px-5 text-xs md:text-sm font-semibold shadow-lg shadow-purple-500/30">
+                                    <ExternalLink className="w-3 h-3 md:w-4 md:h-4 mr-1.5 md:mr-2" />Demo
                                   </Button>
                                 </a>
                               )}
@@ -199,9 +179,9 @@ export default function Projects() {
                                 >
                                   <Button
                                     variant="outline"
-                                    className="rounded-full border-2 border-white bg-white/80 backdrop-blur-xl text-gray-900 hover:bg-white hover:scale-110 transition-all h-11 px-5 font-semibold"
+                                    className="rounded-full border-2 border-white bg-white/80 backdrop-blur-xl text-gray-900 hover:bg-white hover:scale-110 transition-all h-9 md:h-11 px-3 md:px-5 text-xs md:text-sm font-semibold"
                                   >
-                                    <Github className="w-4 h-4 mr-2" />Code
+                                    <Github className="w-3 h-3 md:w-4 md:h-4 mr-1.5 md:mr-2" />Code
                                   </Button>
                                 </a>
                               )}
@@ -214,9 +194,9 @@ export default function Projects() {
                                 >
                                   <Button
                                     variant="outline"
-                                    className="rounded-full border-2 border-blue-400 bg-white/80 backdrop-blur-xl text-blue-600 hover:bg-blue-50 hover:scale-110 transition-all h-11 w-11 p-0"
+                                    className="rounded-full border-2 border-blue-400 bg-white/80 backdrop-blur-xl text-blue-600 hover:bg-blue-50 hover:scale-110 transition-all h-9 w-9 md:h-11 md:w-11 p-0"
                                   >
-                                    <Play className="w-4 h-4 ml-0.5" />
+                                    <Play className="w-3 h-3 md:w-4 md:h-4 ml-0.5" />
                                   </Button>
                                 </a>
                               )}
@@ -225,29 +205,29 @@ export default function Projects() {
                         </div>
 
                         {/* Content */}
-                        <div className="p-6 relative">
-                          <div className="flex items-start justify-between mb-3">
-                            <h3 className="text-2xl font-bold text-gray-900 group-hover:text-purple-600 transition-all pr-4">
+                        <div className="p-4 md:p-5 lg:p-6 relative">
+                          <div className="flex items-start justify-between mb-2 md:mb-3">
+                            <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 group-hover:text-purple-600 transition-all pr-3 md:pr-4">
                               {project.title}
                             </h3>
-                            <ArrowUpRight className="w-6 h-6 text-gray-300 group-hover:text-purple-600 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all flex-shrink-0" />
+                            <ArrowUpRight className="w-5 h-5 md:w-6 md:h-6 text-gray-300 group-hover:text-purple-600 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all flex-shrink-0" />
                           </div>
-                          <p className="text-gray-600 mb-5 line-clamp-2 leading-relaxed group-hover:text-gray-700 transition-colors">
+                          <p className="text-gray-600 mb-3 md:mb-4 lg:mb-5 line-clamp-2 leading-relaxed text-sm md:text-base group-hover:text-gray-700 transition-colors">
                             {project.description}
                           </p>
                           {technologies.length > 0 && (
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-wrap gap-1.5 md:gap-2">
                               {technologies.slice(0, 4).map((tech, i) => (
                                 <span
                                   key={i}
-                                  className="px-3 py-1.5 rounded-full bg-gray-100 text-gray-700 text-xs font-medium border border-gray-200 hover:bg-purple-50 hover:border-purple-300 hover:text-purple-700 transition-all"
+                                  className="px-2 md:px-3 py-1 md:py-1.5 rounded-full bg-gray-100 text-gray-700 text-[10px] md:text-xs font-medium border border-gray-200 hover:bg-purple-50 hover:border-purple-300 hover:text-purple-700 transition-all"
                                 >
                                   {tech}
                                 </span>
                               ))}
                               {technologies.length > 4 && (
-                                <span className="px-3 py-1.5 rounded-full bg-gradient-to-r from-purple-100 to-blue-100 text-purple-700 text-xs font-semibold border border-purple-300">
-                                  +{technologies.length - 4} more
+                                <span className="px-2 md:px-3 py-1 md:py-1.5 rounded-full bg-gradient-to-r from-purple-100 to-blue-100 text-purple-700 text-[10px] md:text-xs font-semibold border border-purple-300">
+                                  +{technologies.length - 4}
                                 </span>
                               )}
                             </div>
@@ -266,11 +246,11 @@ export default function Projects() {
       {/* Project Detail Modal */}
       {selectedProject && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-xl z-50 flex items-center justify-center p-8 animate-in fade-in duration-300"
+          className="fixed inset-0 bg-black/60 backdrop-blur-xl z-50 flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-300"
           onClick={() => setSelectedProject(null)}
         >
           <div
-            className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border-2 border-purple-200"
+            className="bg-white rounded-2xl md:rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border-2 border-purple-200"
             onClick={e => e.stopPropagation()}
           >
             <div className="relative">
@@ -286,16 +266,16 @@ export default function Projects() {
               )}
               <button
                 onClick={() => setSelectedProject(null)}
-                className="absolute top-6 right-6 w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:scale-110 transition-all shadow-lg shadow-purple-500/30 flex items-center justify-center border-2 border-white/20"
+                className="absolute top-4 md:top-6 right-4 md:right-6 w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:scale-110 transition-all shadow-lg shadow-purple-500/30 flex items-center justify-center border-2 border-white/20"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4 md:w-5 md:h-5" />
               </button>
             </div>
 
-            <div className="p-12">
-              <div className="mb-6">
+            <div className="p-6 md:p-10 lg:p-12">
+              <div className="mb-4 md:mb-6">
                 <span
-                  className="inline-block px-4 py-2 rounded-full text-xs font-bold uppercase border-2 bg-purple-50"
+                  className="inline-block px-3 md:px-4 py-1.5 md:py-2 rounded-full text-[10px] md:text-xs font-bold uppercase border-2 bg-purple-50"
                   style={{
                     color: getCategoryColor(selectedProject.category),
                     borderColor: getCategoryColor(selectedProject.category),
@@ -305,19 +285,19 @@ export default function Projects() {
                 </span>
               </div>
 
-              <h2 className="text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-purple-900">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-purple-900">
                 {selectedProject.title}
               </h2>
-              <p className="text-xl text-gray-600 mb-10 leading-relaxed">{selectedProject.description}</p>
+              <p className="text-base md:text-lg lg:text-xl text-gray-600 mb-6 md:mb-8 lg:mb-10 leading-relaxed">{selectedProject.description}</p>
 
               {parseTechnologies(selectedProject.technologies).length > 0 && (
-                <div className="mb-10">
-                  <h3 className="text-sm font-bold uppercase text-purple-600 mb-4 tracking-wider">Technologies</h3>
-                  <div className="flex flex-wrap gap-3">
+                <div className="mb-6 md:mb-8 lg:mb-10">
+                  <h3 className="text-xs md:text-sm font-bold uppercase text-purple-600 mb-3 md:mb-4 tracking-wider">Technologies</h3>
+                  <div className="flex flex-wrap gap-2 md:gap-3">
                     {parseTechnologies(selectedProject.technologies).map((tech, i) => (
                       <span
                         key={i}
-                        className="px-4 py-2.5 rounded-full bg-gray-100 text-gray-900 font-medium border border-gray-200 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white hover:border-transparent transition-all hover:scale-105"
+                        className="px-3 md:px-4 py-1.5 md:py-2.5 rounded-full bg-gray-100 text-gray-900 text-xs md:text-sm font-medium border border-gray-200 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white hover:border-transparent transition-all hover:scale-105"
                       >
                         {tech}
                       </span>
@@ -326,33 +306,33 @@ export default function Projects() {
                 </div>
               )}
 
-              <div className="flex gap-4 pt-6 border-t border-gray-200">
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 pt-4 md:pt-6 border-t border-gray-200">
                 {selectedProject.projectUrl && (
-                  <a href={selectedProject.projectUrl} target="_blank" rel="noopener noreferrer">
-                    <Button size="lg" className="rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:scale-110 transition-all px-8 h-14 text-lg font-semibold shadow-xl shadow-purple-500/30">
-                      <ExternalLink className="w-5 h-5 mr-2" />View Demo
+                  <a href={selectedProject.projectUrl} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
+                    <Button size="lg" className="w-full sm:w-auto rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:scale-105 transition-all px-6 md:px-8 h-12 md:h-14 text-base md:text-lg font-semibold shadow-xl shadow-purple-500/30">
+                      <ExternalLink className="w-4 h-4 md:w-5 md:h-5 mr-2" />View Demo
                     </Button>
                   </a>
                 )}
                 {selectedProject.githubUrl && (
-                  <a href={selectedProject.githubUrl} target="_blank" rel="noopener noreferrer">
+                  <a href={selectedProject.githubUrl} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
                     <Button
                       size="lg"
                       variant="outline"
-                      className="rounded-full border-2 border-gray-300 text-gray-900 hover:bg-gray-100 hover:scale-110 transition-all px-8 h-14 text-lg font-semibold"
+                      className="w-full sm:w-auto rounded-full border-2 border-gray-300 text-gray-900 hover:bg-gray-100 hover:scale-105 transition-all px-6 md:px-8 h-12 md:h-14 text-base md:text-lg font-semibold"
                     >
-                      <Github className="w-5 h-5 mr-2" />Source Code
+                      <Github className="w-4 h-4 md:w-5 md:h-5 mr-2" />Source Code
                     </Button>
                   </a>
                 )}
                 {selectedProject.videoUrl && (
-                  <a href={selectedProject.videoUrl} target="_blank" rel="noopener noreferrer">
+                  <a href={selectedProject.videoUrl} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
                     <Button
                       size="lg"
                       variant="outline"
-                      className="rounded-full border-2 border-blue-400 text-blue-600 hover:bg-blue-50 hover:scale-110 transition-all px-8 h-14 text-lg font-semibold"
+                      className="w-full sm:w-auto rounded-full border-2 border-blue-400 text-blue-600 hover:bg-blue-50 hover:scale-105 transition-all px-6 md:px-8 h-12 md:h-14 text-base md:text-lg font-semibold"
                     >
-                      <Play className="w-5 h-5 mr-2" />Watch Video
+                      <Play className="w-4 h-4 md:w-5 md:h-5 mr-2" />Watch Video
                     </Button>
                   </a>
                 )}
