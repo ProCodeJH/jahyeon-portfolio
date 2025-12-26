@@ -713,58 +713,61 @@ export default function Admin() {
                         <Label className="text-white/70">Folder (Optional)</Label>
                         <p className="text-white/40 text-xs mb-2">Select existing folder or create new</p>
 
-                        {/* Folder Dropdown */}
-                        {resources?.filter(r => r.category === resourceForm.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).length > 0 ? (
-                          <div className="space-y-2">
-                            <Select
-                              value={
-                                resources?.filter(r => r.category === resourceForm.category && r.subcategory)
-                                  .map(r => r.subcategory)
-                                  .filter((v, i, a) => a.indexOf(v) === i)
-                                  .includes(resourceForm.subcategory)
-                                  ? resourceForm.subcategory
-                                  : "custom"
-                              }
-                              onValueChange={(v) => {
-                                if (v === "custom") {
-                                  setResourceForm({...resourceForm, subcategory: ""});
-                                } else {
-                                  setResourceForm({...resourceForm, subcategory: v});
-                                }
-                              }}
-                            >
-                              <SelectTrigger className="mt-1.5 bg-white/5 border-white/10 text-white">
-                                <SelectValue placeholder="Select folder or create new" />
-                              </SelectTrigger>
-                              <SelectContent className="bg-[#111] border-white/10">
-                                <SelectItem value="custom" className="text-white/50 hover:bg-white/10">
-                                  ✏️ Create new folder...
-                                </SelectItem>
-                                {resources?.filter(r => r.category === resourceForm.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).map(folder => (
-                                  <SelectItem key={folder} value={folder} className="text-white hover:bg-white/10">
-                                    📁 {folder}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                        {/* Get all unique folders from both DB and resources */}
+                        {(() => {
+                          const dbFolders = folders?.filter(f => f.category === resourceForm.category).map(f => f.name) || [];
+                          const resourceFolders = resources?.filter(r => r.category === resourceForm.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i) || [];
+                          const allFolders = [...new Set([...dbFolders, ...resourceFolders])];
 
-                            {!resources?.filter(r => r.category === resourceForm.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).includes(resourceForm.subcategory) && (
-                              <Input
-                                value={resourceForm.subcategory}
-                                onChange={e => setResourceForm({...resourceForm, subcategory: e.target.value})}
-                                placeholder="Enter new folder name (e.g., Arduino, Chapter 1-5)"
-                                className="bg-white/5 border-white/10 text-white"
-                              />
-                            )}
-                          </div>
-                        ) : (
-                          <Input
-                            value={resourceForm.subcategory}
-                            onChange={e => setResourceForm({...resourceForm, subcategory: e.target.value})}
-                            placeholder="e.g., Arduino, Python Basics, Chapter 1-5"
-                            className="mt-1.5 bg-white/5 border-white/10 text-white"
-                          />
-                        )}
+                          return allFolders.length > 0 ? (
+                            <div className="space-y-2">
+                              <Select
+                                value={
+                                  allFolders.includes(resourceForm.subcategory)
+                                    ? resourceForm.subcategory
+                                    : "custom"
+                                }
+                                onValueChange={(v) => {
+                                  if (v === "custom") {
+                                    setResourceForm({...resourceForm, subcategory: ""});
+                                  } else {
+                                    setResourceForm({...resourceForm, subcategory: v});
+                                  }
+                                }}
+                              >
+                                <SelectTrigger className="mt-1.5 bg-white/5 border-white/10 text-white">
+                                  <SelectValue placeholder="Select folder or create new" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-[#111] border-white/10">
+                                  <SelectItem value="custom" className="text-white/50 hover:bg-white/10">
+                                    ✏️ Create new folder...
+                                  </SelectItem>
+                                  {allFolders.sort().map(folder => (
+                                    <SelectItem key={folder} value={folder} className="text-white hover:bg-white/10">
+                                      📁 {folder}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+
+                              {!allFolders.includes(resourceForm.subcategory) && (
+                                <Input
+                                  value={resourceForm.subcategory}
+                                  onChange={e => setResourceForm({...resourceForm, subcategory: e.target.value})}
+                                  placeholder="Enter new folder name (e.g., Arduino, Chapter 1-5)"
+                                  className="bg-white/5 border-white/10 text-white"
+                                />
+                              )}
+                            </div>
+                          ) : (
+                            <Input
+                              value={resourceForm.subcategory}
+                              onChange={e => setResourceForm({...resourceForm, subcategory: e.target.value})}
+                              placeholder="e.g., Arduino, Python Basics, Chapter 1-5"
+                              className="mt-1.5 bg-white/5 border-white/10 text-white"
+                            />
+                          );
+                        })()}
                       </div>
 
                       <div><Label className="text-white/70">Description</Label><Textarea value={resourceForm.description} onChange={e => setResourceForm({...resourceForm, description: e.target.value})} rows={2} className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
@@ -887,65 +890,68 @@ export default function Admin() {
                 </Label>
                 <p className="text-white/40 text-xs mb-2">Select existing folder or create new</p>
 
-                {/* Folder Dropdown */}
-                {resources?.filter(r => r.category === editingResource.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).length > 0 ? (
-                  <div className="space-y-2">
-                    <Select
-                      value={
-                        editingResource.subcategory === "" || editingResource.subcategory === null
-                          ? "none"
-                          : resources?.filter(r => r.category === editingResource.category && r.subcategory)
-                              .map(r => r.subcategory)
-                              .filter((v, i, a) => a.indexOf(v) === i)
-                              .includes(editingResource.subcategory)
-                          ? editingResource.subcategory
-                          : "custom"
-                      }
-                      onValueChange={(v) => {
-                        if (v === "custom") {
-                          setEditingResource({...editingResource, subcategory: ""});
-                        } else if (v === "none") {
-                          setEditingResource({...editingResource, subcategory: null});
-                        } else {
-                          setEditingResource({...editingResource, subcategory: v});
-                        }
-                      }}
-                    >
-                      <SelectTrigger className="mt-1.5 bg-white/5 border-white/10 text-white">
-                        <SelectValue placeholder="Select folder or create new" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-[#111] border-white/10">
-                        <SelectItem value="custom" className="text-white/50 hover:bg-white/10">
-                          ✏️ Create new folder...
-                        </SelectItem>
-                        <SelectItem value="none" className="text-white/50 hover:bg-white/10">
-                          📄 Uncategorized (no folder)
-                        </SelectItem>
-                        {resources?.filter(r => r.category === editingResource.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).map(folder => (
-                          <SelectItem key={folder} value={folder} className="text-white hover:bg-white/10">
-                            📁 {folder}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                {/* Get all unique folders from both DB and resources */}
+                {(() => {
+                  const dbFolders = folders?.filter(f => f.category === editingResource.category).map(f => f.name) || [];
+                  const resourceFolders = resources?.filter(r => r.category === editingResource.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i) || [];
+                  const allFolders = [...new Set([...dbFolders, ...resourceFolders])];
 
-                    {editingResource.subcategory !== null && !resources?.filter(r => r.category === editingResource.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).includes(editingResource.subcategory) && (
-                      <Input
-                        value={editingResource.subcategory || ""}
-                        onChange={e => setEditingResource({...editingResource, subcategory: e.target.value})}
-                        placeholder="Enter new folder name (e.g., Arduino, Chapter 1-5)"
-                        className="bg-white/5 border-white/10 text-white"
-                      />
-                    )}
-                  </div>
-                ) : (
-                  <Input
-                    value={editingResource.subcategory || ""}
-                    onChange={e => setEditingResource({...editingResource, subcategory: e.target.value})}
-                    placeholder="e.g., Arduino, Python Basics, Chapter 1-5"
-                    className="mt-1.5 bg-white/5 border-white/10 text-white"
-                  />
-                )}
+                  return allFolders.length > 0 ? (
+                    <div className="space-y-2">
+                      <Select
+                        value={
+                          editingResource.subcategory === "" || editingResource.subcategory === null
+                            ? "none"
+                            : allFolders.includes(editingResource.subcategory)
+                            ? editingResource.subcategory
+                            : "custom"
+                        }
+                        onValueChange={(v) => {
+                          if (v === "custom") {
+                            setEditingResource({...editingResource, subcategory: ""});
+                          } else if (v === "none") {
+                            setEditingResource({...editingResource, subcategory: null});
+                          } else {
+                            setEditingResource({...editingResource, subcategory: v});
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="mt-1.5 bg-white/5 border-white/10 text-white">
+                          <SelectValue placeholder="Select folder or create new" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[#111] border-white/10">
+                          <SelectItem value="custom" className="text-white/50 hover:bg-white/10">
+                            ✏️ Create new folder...
+                          </SelectItem>
+                          <SelectItem value="none" className="text-white/50 hover:bg-white/10">
+                            📄 Uncategorized (no folder)
+                          </SelectItem>
+                          {allFolders.sort().map(folder => (
+                            <SelectItem key={folder} value={folder} className="text-white hover:bg-white/10">
+                              📁 {folder}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      {editingResource.subcategory !== null && !allFolders.includes(editingResource.subcategory) && (
+                        <Input
+                          value={editingResource.subcategory || ""}
+                          onChange={e => setEditingResource({...editingResource, subcategory: e.target.value})}
+                          placeholder="Enter new folder name (e.g., Arduino, Chapter 1-5)"
+                          className="bg-white/5 border-white/10 text-white"
+                        />
+                      )}
+                    </div>
+                  ) : (
+                    <Input
+                      value={editingResource.subcategory || ""}
+                      onChange={e => setEditingResource({...editingResource, subcategory: e.target.value})}
+                      placeholder="e.g., Arduino, Python Basics, Chapter 1-5"
+                      className="mt-1.5 bg-white/5 border-white/10 text-white"
+                    />
+                  );
+                })()}
               </div>
 
               <div>
