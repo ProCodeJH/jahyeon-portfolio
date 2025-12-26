@@ -587,7 +587,64 @@ export default function Home() {
               </span>
             </p>
 
-            <div className="w-24 md:w-32 h-1.5 md:h-2 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full mx-auto" />
+            <div className="w-24 md:w-32 h-1.5 md:h-2 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full mx-auto mb-12 md:mb-16" />
+
+            {/* AI Tools Slider */}
+            <div className="mt-12 md:mt-16">
+              <p className="text-sm md:text-base text-gray-500 mb-6 md:mb-8 font-medium tracking-wider uppercase">
+                AI Tools Working Together
+              </p>
+
+              {/* Infinite Scroll Container */}
+              <div className="relative overflow-hidden">
+                {/* Gradient Overlays */}
+                <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-purple-50/50 to-transparent z-10 pointer-events-none" />
+                <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-blue-50/50 to-transparent z-10 pointer-events-none" />
+
+                {/* Scrolling Track */}
+                <div className="flex gap-8 md:gap-12 animate-scroll-left py-6">
+                  {/* First Set */}
+                  {[
+                    { name: 'ChatGPT', color: 'from-green-400 to-emerald-600' },
+                    { name: 'Gemini', color: 'from-blue-400 to-indigo-600' },
+                    { name: 'Claude', color: 'from-orange-400 to-red-600' },
+                    { name: 'Manus', color: 'from-purple-400 to-pink-600' },
+                    { name: 'nanobananaPro', color: 'from-yellow-400 to-orange-600' },
+                    { name: 'Cursor', color: 'from-cyan-400 to-blue-600' },
+                    { name: 'Copilot', color: 'from-indigo-400 to-purple-600' },
+                    { name: 'BlackBox', color: 'from-gray-700 to-black' },
+                    { name: 'CodeGPT', color: 'from-teal-400 to-cyan-600' },
+                    { name: 'GLM', color: 'from-pink-400 to-rose-600' },
+                  ].map((ai, i) => (
+                    <div key={`ai-1-${i}`} className="flex-shrink-0 group">
+                      <div className={`w-32 md:w-40 h-16 md:h-20 rounded-xl md:rounded-2xl bg-gradient-to-br ${ai.color} flex items-center justify-center shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-110`}>
+                        <span className="text-white font-bold text-sm md:text-base px-2 text-center">{ai.name}</span>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Duplicate for Seamless Loop */}
+                  {[
+                    { name: 'ChatGPT', color: 'from-green-400 to-emerald-600' },
+                    { name: 'Gemini', color: 'from-blue-400 to-indigo-600' },
+                    { name: 'Claude', color: 'from-orange-400 to-red-600' },
+                    { name: 'Manus', color: 'from-purple-400 to-pink-600' },
+                    { name: 'nanobananaPro', color: 'from-yellow-400 to-orange-600' },
+                    { name: 'Cursor', color: 'from-cyan-400 to-blue-600' },
+                    { name: 'Copilot', color: 'from-indigo-400 to-purple-600' },
+                    { name: 'BlackBox', color: 'from-gray-700 to-black' },
+                    { name: 'CodeGPT', color: 'from-teal-400 to-cyan-600' },
+                    { name: 'GLM', color: 'from-pink-400 to-rose-600' },
+                  ].map((ai, i) => (
+                    <div key={`ai-2-${i}`} className="flex-shrink-0 group">
+                      <div className={`w-32 md:w-40 h-16 md:h-20 rounded-xl md:rounded-2xl bg-gradient-to-br ${ai.color} flex items-center justify-center shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-110`}>
+                        <span className="text-white font-bold text-sm md:text-base px-2 text-center">{ai.name}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </AnimatedSection>
         </div>
       </section>
@@ -609,6 +666,10 @@ export default function Home() {
           0% { transform: translateX(-100%); }
           100% { transform: translateX(100%); }
         }
+        @keyframes scroll-left {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
         .animate-gradient-x {
           background-size: 200% 200%;
           animation: gradient-x 3s ease infinite;
@@ -623,6 +684,12 @@ export default function Home() {
         }
         .animate-shimmer {
           animation: shimmer 3s ease-in-out infinite;
+        }
+        .animate-scroll-left {
+          animation: scroll-left 30s linear infinite;
+        }
+        .animate-scroll-left:hover {
+          animation-play-state: paused;
         }
         .perspective-2000 {
           perspective: 2000px;
