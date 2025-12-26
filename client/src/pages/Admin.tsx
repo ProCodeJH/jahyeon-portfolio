@@ -683,7 +683,23 @@ export default function Admin() {
                         {/* Folder Dropdown */}
                         {resources?.filter(r => r.category === resourceForm.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).length > 0 ? (
                           <div className="space-y-2">
-                            <Select value={resourceForm.subcategory || "custom"} onValueChange={(v) => setResourceForm({...resourceForm, subcategory: v === "custom" ? "" : v})}>
+                            <Select
+                              value={
+                                resources?.filter(r => r.category === resourceForm.category && r.subcategory)
+                                  .map(r => r.subcategory)
+                                  .filter((v, i, a) => a.indexOf(v) === i)
+                                  .includes(resourceForm.subcategory)
+                                  ? resourceForm.subcategory
+                                  : "custom"
+                              }
+                              onValueChange={(v) => {
+                                if (v === "custom") {
+                                  setResourceForm({...resourceForm, subcategory: ""});
+                                } else {
+                                  setResourceForm({...resourceForm, subcategory: v});
+                                }
+                              }}
+                            >
                               <SelectTrigger className="mt-1.5 bg-white/5 border-white/10 text-white">
                                 <SelectValue placeholder="Select folder or create new" />
                               </SelectTrigger>
@@ -692,14 +708,14 @@ export default function Admin() {
                                   ✏️ Create new folder...
                                 </SelectItem>
                                 {resources?.filter(r => r.category === resourceForm.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).map(folder => (
-                                  <SelectItem key={folder} value={folder || ""} className="text-white hover:bg-white/10">
+                                  <SelectItem key={folder} value={folder} className="text-white hover:bg-white/10">
                                     📁 {folder}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
 
-                            {(resourceForm.subcategory === "" || !resources?.filter(r => r.category === resourceForm.category && r.subcategory).map(r => r.subcategory).includes(resourceForm.subcategory)) && (
+                            {!resources?.filter(r => r.category === resourceForm.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).includes(resourceForm.subcategory) && (
                               <Input
                                 value={resourceForm.subcategory}
                                 onChange={e => setResourceForm({...resourceForm, subcategory: e.target.value})}
@@ -841,7 +857,27 @@ export default function Admin() {
                 {/* Folder Dropdown */}
                 {resources?.filter(r => r.category === editingResource.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).length > 0 ? (
                   <div className="space-y-2">
-                    <Select value={editingResource.subcategory || "custom"} onValueChange={(v) => setEditingResource({...editingResource, subcategory: v === "custom" ? "" : v})}>
+                    <Select
+                      value={
+                        editingResource.subcategory === "" || editingResource.subcategory === null
+                          ? "none"
+                          : resources?.filter(r => r.category === editingResource.category && r.subcategory)
+                              .map(r => r.subcategory)
+                              .filter((v, i, a) => a.indexOf(v) === i)
+                              .includes(editingResource.subcategory)
+                          ? editingResource.subcategory
+                          : "custom"
+                      }
+                      onValueChange={(v) => {
+                        if (v === "custom") {
+                          setEditingResource({...editingResource, subcategory: ""});
+                        } else if (v === "none") {
+                          setEditingResource({...editingResource, subcategory: null});
+                        } else {
+                          setEditingResource({...editingResource, subcategory: v});
+                        }
+                      }}
+                    >
                       <SelectTrigger className="mt-1.5 bg-white/5 border-white/10 text-white">
                         <SelectValue placeholder="Select folder or create new" />
                       </SelectTrigger>
@@ -849,18 +885,18 @@ export default function Admin() {
                         <SelectItem value="custom" className="text-white/50 hover:bg-white/10">
                           ✏️ Create new folder...
                         </SelectItem>
-                        <SelectItem value="" className="text-white/50 hover:bg-white/10">
+                        <SelectItem value="none" className="text-white/50 hover:bg-white/10">
                           📄 Uncategorized (no folder)
                         </SelectItem>
                         {resources?.filter(r => r.category === editingResource.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).map(folder => (
-                          <SelectItem key={folder} value={folder || ""} className="text-white hover:bg-white/10">
+                          <SelectItem key={folder} value={folder} className="text-white hover:bg-white/10">
                             📁 {folder}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
 
-                    {(editingResource.subcategory === "" || !resources?.filter(r => r.category === editingResource.category && r.subcategory).map(r => r.subcategory).includes(editingResource.subcategory)) && editingResource.subcategory !== null && (
+                    {editingResource.subcategory !== null && !resources?.filter(r => r.category === editingResource.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).includes(editingResource.subcategory) && (
                       <Input
                         value={editingResource.subcategory || ""}
                         onChange={e => setEditingResource({...editingResource, subcategory: e.target.value})}
