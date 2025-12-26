@@ -109,22 +109,16 @@ export default function Certifications() {
                         </div>
                       </div>
 
-                      <div className="p-4 md:p-5 lg:p-6">
-                        <h3 className="text-lg md:text-xl font-semibold mb-2 md:mb-3 group-hover:text-purple-600 transition-colors line-clamp-1 text-gray-900">{cert.title}</h3>
-                        <div className="flex items-center gap-2 text-gray-600 text-xs md:text-sm mb-2 md:mb-3">
+                      <div className="p-4 md:p-5 lg:p-6 relative">
+                        <h3 className="text-lg md:text-xl font-semibold mb-2 md:mb-3 group-hover:text-purple-600 transition-colors line-clamp-2 text-gray-900">{cert.title}</h3>
+                        <div className="flex items-center gap-2 text-gray-600 text-xs md:text-sm mb-6">
                           <Building className="w-3 h-3 md:w-4 md:h-4 text-purple-600" />
-                          {cert.issuer}
+                          <span className="line-clamp-1">{cert.issuer}</span>
                         </div>
-                        <div className="flex items-center justify-between text-[10px] md:text-xs">
-                          <div className="flex items-center gap-1 md:gap-1.5 text-gray-500">
-                            <Calendar className="w-2.5 h-2.5 md:w-3 md:h-3" />
-                            {cert.issueDate}
-                          </div>
-                          {cert.expiryDate && (
-                            <span className="px-1.5 md:px-2 py-0.5 md:py-1 rounded-full bg-gray-100 text-gray-600">
-                              Exp: {cert.expiryDate}
-                            </span>
-                          )}
+                        <div className="absolute bottom-3 right-3 md:bottom-4 md:right-4">
+                          <span className="inline-block px-2 md:px-2.5 py-0.5 md:py-1 rounded-md bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[10px] md:text-xs font-medium shadow-lg">
+                            ready
+                          </span>
                         </div>
                       </div>
                     </div>

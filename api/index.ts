@@ -85,6 +85,7 @@ const folders = pgTable("folders", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   category: varchar("category", { length: 50 }).notNull(),
+  parentId: integer("parent_id"), // For nested folders
   description: text("description"),
   displayOrder: integer("display_order").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -694,6 +695,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const result = await db.insert(folders).values({
             name: input.name,
             category: input.category,
+            parentId: input.parentId || null,
             description: input.description || "",
             displayOrder: input.displayOrder || 0,
           }).returning();
@@ -704,6 +706,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const updateData: any = { updatedAt: new Date() };
           if (input.name !== undefined) updateData.name = input.name;
           if (input.description !== undefined) updateData.description = input.description;
+          if (input.parentId !== undefined) updateData.parentId = input.parentId;
           await db.update(folders).set(updateData).where(eq(folders.id, input.id));
           return res.json({ result: { data: { success: true } } });
         }
