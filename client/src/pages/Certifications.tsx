@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { ExternalLink, Loader2, Award, Calendar, Building, ShieldCheck, X, CheckCircle, Sparkles } from "lucide-react";
+import { ExternalLink, Loader2, Award, Building, ShieldCheck, X, CheckCircle, Sparkles } from "lucide-react";
 import { GradientMeshBackground } from "@/components/backgrounds/GradientMeshBackground";
 import { SubtleDots } from "@/components/backgrounds/SubtleDots";
 import { TiltCard } from "@/components/effects/TiltCard";
@@ -209,25 +209,6 @@ export default function Certifications() {
             )}
 
             <div className="p-4 md:p-6 space-y-4 md:space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
-                <div className="p-4 md:p-5 rounded-xl md:rounded-2xl bg-gray-50 border border-gray-200 hover:border-purple-300 transition-colors">
-                  <p className="text-gray-600 text-xs md:text-sm mb-1.5 md:mb-2">Issue Date</p>
-                  <p className="text-base md:text-lg font-semibold flex items-center gap-1.5 md:gap-2 text-gray-900">
-                    <Calendar className="w-3 h-3 md:w-4 md:h-4 text-purple-600" />
-                    {selectedCert.issueDate}
-                  </p>
-                </div>
-                {selectedCert.expiryDate && (
-                  <div className="p-4 md:p-5 rounded-xl md:rounded-2xl bg-gray-50 border border-gray-200 hover:border-orange-300 transition-colors">
-                    <p className="text-gray-600 text-xs md:text-sm mb-1.5 md:mb-2">Expiry Date</p>
-                    <p className="text-base md:text-lg font-semibold flex items-center gap-1.5 md:gap-2 text-gray-900">
-                      <Calendar className="w-3 h-3 md:w-4 md:h-4 text-orange-600" />
-                      {selectedCert.expiryDate}
-                    </p>
-                  </div>
-                )}
-              </div>
-
               {selectedCert.credentialId && (
                 <div className="p-4 md:p-5 rounded-xl md:rounded-2xl bg-gray-50 border border-gray-200 hover:border-purple-300 transition-colors">
                   <p className="text-gray-600 text-xs md:text-sm mb-1.5 md:mb-2">Credential ID</p>
