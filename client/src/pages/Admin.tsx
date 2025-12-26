@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "wouter";
-import { Loader2, Plus, Trash2, Eye, Heart, BarChart3, FileText, LogOut, ImageIcon, Video, X, FolderOpen, Award, Upload, TrendingUp, Presentation, Code, Cpu, Terminal, CheckCircle, Pencil, FolderInput } from "lucide-react";
+import { Loader2, Plus, Trash2, Eye, Heart, BarChart3, FileText, LogOut, ImageIcon, Video, X, FolderOpen, Award, Upload, TrendingUp, Presentation, Code, Cpu, Terminal, CheckCircle, Pencil, FolderInput, ChevronDown, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 
@@ -90,9 +90,13 @@ export default function Admin() {
   const [showCertDialog, setShowCertDialog] = useState(false);
   const [showResourceDialog, setShowResourceDialog] = useState(false);
   const [showEditResourceDialog, setShowEditResourceDialog] = useState(false);
+  const [showCreateFolderDialog, setShowCreateFolderDialog] = useState(false);
   const [editingResource, setEditingResource] = useState<any>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
+  const [newFolderName, setNewFolderName] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<ResourceCategory>("presentation");
 
   const [projectForm, setProjectForm] = useState({
     title: "", description: "", technologies: "", category: "c_lang" as ProjectCategory,
@@ -115,6 +119,37 @@ export default function Admin() {
   const handleEditResource = (resource: any) => {
     setEditingResource(resource);
     setShowEditResourceDialog(true);
+  };
+
+  const toggleFolder = (folderPath: string) => {
+    const newExpanded = new Set(expandedFolders);
+    if (newExpanded.has(folderPath)) {
+      newExpanded.delete(folderPath);
+    } else {
+      newExpanded.add(folderPath);
+    }
+    setExpandedFolders(newExpanded);
+  };
+
+  // Build folder tree structure
+  const getFolderTree = (category: ResourceCategory) => {
+    const categoryResources = resources?.filter(r => r.category === category) || [];
+    const folderMap = new Map<string, any[]>();
+
+    categoryResources.forEach(resource => {
+      const folder = resource.subcategory || "Uncategorized";
+      if (!folderMap.has(folder)) {
+        folderMap.set(folder, []);
+      }
+      folderMap.get(folder)!.push(resource);
+    });
+
+    return Array.from(folderMap.entries()).map(([folder, items]) => ({
+      name: folder,
+      path: folder,
+      items,
+      children: []
+    }));
   };
 
   // ============================================
@@ -473,18 +508,107 @@ export default function Admin() {
           {/* RESOURCES TAB - 500MB 지원! */}
           <TabsContent value="resources">
             <div className="bg-white/[0.02] border border-white/5 rounded-2xl">
-              <div className="p-6 border-b border-white/5 flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-light text-white">Resources</h2>
-                  <p className="text-white/50 mt-1 flex items-center gap-2">
-                    Videos, PPT, PDF 
-                    <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-xs rounded-full flex items-center gap-1">
-                      <CheckCircle className="w-3 h-3" /> Up to 500MB
-                    </span>
-                  </p>
+              <div className="p-6 border-b border-white/5">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h2 className="text-xl font-light text-white">Resources</h2>
+                    <p className="text-white/50 mt-1 flex items-center gap-2">
+                      Videos, PPT, PDF
+                      <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-xs rounded-full flex items-center gap-1">
+                        <CheckCircle className="w-3 h-3" /> Up to 500MB
+                      </span>
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button onClick={() => setShowCreateFolderDialog(true)} className="bg-purple-500 hover:bg-purple-600 text-white rounded-xl">
+                      <FolderOpen className="h-4 w-4 mr-2" />New Folder
+                    </Button>
+                  </div>
                 </div>
+
+                {/* Category Tabs */}
+                <div className="flex gap-2 flex-wrap">
+                  {RESOURCE_CATEGORIES.map(cat => (
+                    <button
+                      key={cat.value}
+                      onClick={() => setSelectedCategory(cat.value)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${selectedCategory === cat.value ? 'text-white' : 'bg-white/5 text-white/50 hover:bg-white/10'}`}
+                      style={selectedCategory === cat.value ? { backgroundColor: cat.color } : {}}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Folder Tree View */}
+              <div className="divide-y divide-white/5">
+                {resourcesLoading ? (
+                  <div className="p-12 text-center"><Loader2 className="h-6 w-6 animate-spin mx-auto text-emerald-400" /></div>
+                ) : getFolderTree(selectedCategory).length === 0 ? (
+                  <div className="p-12 text-center text-white/40">No resources in this category</div>
+                ) : (
+                  getFolderTree(selectedCategory).map(folder => {
+                    const isExpanded = expandedFolders.has(folder.path);
+                    return (
+                      <div key={folder.path} className="bg-white/[0.01]">
+                        {/* Folder Header */}
+                        <button
+                          onClick={() => toggleFolder(folder.path)}
+                          className="w-full p-3 flex items-center gap-3 hover:bg-white/[0.02] transition-all"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                            <FolderOpen className="w-4 h-4 text-purple-400" />
+                          </div>
+                          <div className="flex-1 text-left">
+                            <h3 className="text-white font-medium text-sm">{folder.name === "Uncategorized" ? "📄 " + folder.name : "📁 " + folder.name}</h3>
+                            <p className="text-white/30 text-xs">{folder.items.length} files</p>
+                          </div>
+                          {isExpanded ? (
+                            <ChevronDown className="w-4 h-4 text-white/50" />
+                          ) : (
+                            <ChevronRight className="w-4 h-4 text-white/30" />
+                          )}
+                        </button>
+
+                        {/* Folder Contents */}
+                        {isExpanded && (
+                          <div className="bg-white/[0.02] divide-y divide-white/5">
+                            {folder.items.map(resource => (
+                              <div key={resource.id} className="p-2 pl-14 flex items-center gap-3 hover:bg-white/[0.02]">
+                                <div className="w-10 h-10 rounded-lg bg-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                                  {resource.thumbnailUrl ? (
+                                    <img src={resource.thumbnailUrl} className="w-full h-full object-cover" />
+                                  ) : (
+                                    getFileTypeIcon(resource.mimeType || '', resource.fileName || '')
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="text-white text-xs truncate">{resource.title}</h4>
+                                  <p className="text-white/30 text-[10px] truncate">{resource.fileName}</p>
+                                </div>
+                                <div className="flex gap-1">
+                                  <Button variant="ghost" size="sm" onClick={() => handleEditResource(resource)} className="h-7 w-7 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10">
+                                    <Pencil className="h-3 w-3" />
+                                  </Button>
+                                  <Button variant="ghost" size="sm" onClick={() => deleteResource.mutate({ id: resource.id })} className="h-7 w-7 p-0 text-red-400 hover:text-red-300 hover:bg-red-500/10">
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Add Resource Button - Fixed Position */}
+              <div className="p-4 border-t border-white/5">
                 <Dialog open={showResourceDialog} onOpenChange={setShowResourceDialog}>
-                  <DialogTrigger asChild><Button className="bg-emerald-500 hover:bg-emerald-600 text-black rounded-xl"><Plus className="h-4 w-4 mr-2" />Add Resource</Button></DialogTrigger>
+                  <DialogTrigger asChild><Button className="w-full bg-emerald-500 hover:bg-emerald-600 text-black rounded-xl"><Plus className="h-4 w-4 mr-2" />Add Resource</Button></DialogTrigger>
                   <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-[#111] border-white/10 text-white">
                     <DialogHeader>
                       <DialogTitle className="text-xl font-light">New Resource</DialogTitle>
@@ -583,28 +707,6 @@ export default function Admin() {
                     </div>
                   </DialogContent>
                 </Dialog>
-              </div>
-              
-              <div className="divide-y divide-white/5">
-                {resourcesLoading ? (<div className="p-12 text-center"><Loader2 className="h-6 w-6 animate-spin mx-auto text-emerald-400" /></div>) : !resources?.length ? (<div className="p-12 text-center text-white/40">No resources yet</div>) : resources.map(resource => (
-                  <div key={resource.id} className="p-4 flex items-center gap-4 hover:bg-white/[0.02]">
-                    <div className="w-16 h-16 rounded-xl bg-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center">{resource.thumbnailUrl ? (<img src={resource.thumbnailUrl} className="w-full h-full object-cover" />) : getFileTypeIcon(resource.mimeType || '', resource.fileName || '')}</div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-white truncate">{resource.title}</h3>
-                      <p className="text-sm text-white/40 truncate">{resource.fileName || resource.description}</p>
-                      <div className="flex items-center gap-3 mt-1">
-                        <span className="px-2 py-0.5 rounded text-xs" style={{ backgroundColor: RESOURCE_CATEGORIES.find(c => c.value === resource.category)?.color + '30', color: RESOURCE_CATEGORIES.find(c => c.value === resource.category)?.color }}>{resource.category}</span>
-                        {resource.subcategory && <span className="px-2 py-0.5 rounded text-xs bg-purple-500/20 text-purple-400">📁 {resource.subcategory}</span>}
-                        <span className="text-xs text-white/30">{resource.downloadCount || 0} downloads</span>
-                        {resource.fileSize ? <span className="text-xs text-white/30">{formatFileSize(resource.fileSize)}</span> : null}
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="sm" onClick={() => handleEditResource(resource)} className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"><Pencil className="h-4 w-4" /></Button>
-                      <Button variant="ghost" size="sm" onClick={() => deleteResource.mutate({ id: resource.id })} className="text-red-400 hover:text-red-300 hover:bg-red-500/10"><Trash2 className="h-4 w-4" /></Button>
-                    </div>
-                  </div>
-                ))}
               </div>
             </div>
           </TabsContent>
@@ -749,6 +851,96 @@ export default function Admin() {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* CREATE FOLDER DIALOG */}
+      <Dialog open={showCreateFolderDialog} onOpenChange={setShowCreateFolderDialog}>
+        <DialogContent className="max-w-md bg-[#111] border-white/10 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-light">Create New Folder</DialogTitle>
+            <DialogDescription className="text-white/50">
+              Create a folder to organize your files. Use "/" for nested folders (e.g., "Arduino/Chapter1")
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label className="text-white/70">Category *</Label>
+              <Select value={selectedCategory} onValueChange={(v: ResourceCategory) => setSelectedCategory(v)}>
+                <SelectTrigger className="mt-1.5 bg-white/5 border-white/10 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-[#111] border-white/10">
+                  {RESOURCE_CATEGORIES.map(c => (
+                    <SelectItem key={c.value} value={c.value} className="text-white hover:bg-white/10">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: c.color }} />
+                        {c.label}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label className="text-white/70">Folder Name *</Label>
+              <Input
+                value={newFolderName}
+                onChange={e => setNewFolderName(e.target.value)}
+                placeholder="e.g., Arduino or Arduino/Chapter1"
+                className="mt-1.5 bg-white/5 border-white/10 text-white"
+              />
+              <p className="text-white/40 text-xs mt-1">
+                💡 Use "/" to create nested folders (e.g., "Arduino/Chapter1/Basics")
+              </p>
+            </div>
+
+            {/* Existing folders in category */}
+            {resources?.filter(r => r.category === selectedCategory && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).length > 0 && (
+              <div>
+                <p className="text-white/50 text-xs mb-2">Existing folders:</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {resources?.filter(r => r.category === selectedCategory && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).map(folder => (
+                    <span key={folder} className="px-2 py-1 bg-white/10 rounded-md text-xs text-white/50">
+                      📁 {folder}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <Button
+                onClick={() => {
+                  if (!newFolderName.trim()) {
+                    toast.error("Please enter a folder name");
+                    return;
+                  }
+                  // Folder is created when you upload a file to it
+                  toast.success(`Folder "${newFolderName}" will be created when you upload a file to it`);
+                  setResourceForm({...resourceForm, category: selectedCategory, subcategory: newFolderName});
+                  setShowCreateFolderDialog(false);
+                  setShowResourceDialog(true);
+                  setNewFolderName("");
+                }}
+                disabled={!newFolderName.trim()}
+                className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-black rounded-xl"
+              >
+                Create & Upload File
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowCreateFolderDialog(false);
+                  setNewFolderName("");
+                }}
+                className="border-white/20 bg-transparent text-white hover:bg-white/10"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
