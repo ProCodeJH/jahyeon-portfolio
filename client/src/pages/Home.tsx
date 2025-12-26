@@ -20,11 +20,11 @@ export default function Home() {
         <GradientMeshBackground />
         <SubtleDots />
 
-        {/* 3D Spline Background */}
-        <div className="absolute inset-0 opacity-30">
+        {/* 3D Spline Interactive */}
+        <div className="absolute inset-0 opacity-50 pointer-events-auto">
           <spline-viewer
             url="https://prod.spline.design/9P2BtEilezMDcvqI/scene.splinecode"
-            style={{ width: '100%', height: '100%', pointerEvents: 'none' }}
+            style={{ width: '100%', height: '100%' }}
           />
         </div>
 
