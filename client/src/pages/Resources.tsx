@@ -311,7 +311,7 @@ export default function Resources() {
   const [selectedVideo, setSelectedVideo] = useState<any>(null);
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
   const [selectedCommentResource, setSelectedCommentResource] = useState<any>(null);
-  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(["all"])); // Start with all folders expanded
 
   const filteredResources = resources?.filter(r => activeCategory === "all" || r.category === activeCategory);
 
@@ -432,7 +432,7 @@ export default function Resources() {
           ) : (
             <div className="space-y-8">
               {Object.entries(groupedResources || {}).map(([folder, folderResources]) => {
-                const isExpanded = expandedFolders.has(folder) || Object.keys(groupedResources || {}).length === 1;
+                const isExpanded = expandedFolders.has(folder) || expandedFolders.has("all");
                 const resourceCount = folderResources?.length || 0;
 
                 return (
