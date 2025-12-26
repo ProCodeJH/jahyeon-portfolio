@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { ExternalLink, Loader2, Award, Calendar, Building, ShieldCheck, X, CheckCircle, Sparkles } from "lucide-react";
+import { ExternalLink, Loader2, Award, Building, ShieldCheck, X, CheckCircle, Sparkles } from "lucide-react";
 import { GradientMeshBackground } from "@/components/backgrounds/GradientMeshBackground";
 import { SubtleDots } from "@/components/backgrounds/SubtleDots";
 import { TiltCard } from "@/components/effects/TiltCard";
@@ -109,23 +109,60 @@ export default function Certifications() {
                         </div>
                       </div>
 
-                      <div className="p-4 md:p-5 lg:p-6">
-                        <h3 className="text-lg md:text-xl font-semibold mb-2 md:mb-3 group-hover:text-purple-600 transition-colors line-clamp-1 text-gray-900">{cert.title}</h3>
-                        <div className="flex items-center gap-2 text-gray-600 text-xs md:text-sm mb-2 md:mb-3">
-                          <Building className="w-3 h-3 md:w-4 md:h-4 text-purple-600" />
-                          {cert.issuer}
-                        </div>
-                        <div className="flex items-center justify-between text-[10px] md:text-xs">
-                          <div className="flex items-center gap-1 md:gap-1.5 text-gray-500">
-                            <Calendar className="w-2.5 h-2.5 md:w-3 md:h-3" />
-                            {cert.issueDate}
+                      <div className="p-5 md:p-6 lg:p-7 relative bg-gradient-to-br from-white via-gray-50/30 to-purple-50/20">
+                        {/* Premium Top Badge */}
+                        <div className="absolute -top-3 left-5 md:left-6">
+                          <div className="relative">
+                            <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 blur-lg opacity-60"></div>
+                            <div className="relative px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-gradient-to-r from-purple-600 via-purple-500 to-blue-600 text-white text-[10px] md:text-xs font-bold tracking-wider uppercase shadow-2xl border-2 border-white">
+                              🏆 Certified
+                            </div>
                           </div>
-                          {cert.expiryDate && (
-                            <span className="px-1.5 md:px-2 py-0.5 md:py-1 rounded-full bg-gray-100 text-gray-600">
-                              Exp: {cert.expiryDate}
-                            </span>
-                          )}
                         </div>
+
+                        {/* Title */}
+                        <h3 className="text-lg md:text-xl lg:text-2xl font-bold mb-3 md:mb-4 mt-2 group-hover:text-purple-600 transition-colors line-clamp-2 text-gray-900 leading-tight">
+                          {cert.title}
+                        </h3>
+
+                        {/* Issuer with Premium Icon */}
+                        <div className="flex items-center gap-2 mb-4 md:mb-5">
+                          <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-gradient-to-br from-purple-100 to-blue-100 flex items-center justify-center flex-shrink-0 border border-purple-200">
+                            <Building className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs md:text-sm text-gray-500 font-medium">Issued by</p>
+                            <p className="text-sm md:text-base font-semibold text-gray-900 line-clamp-1">{cert.issuer}</p>
+                          </div>
+                        </div>
+
+                        {/* Achievement Stats */}
+                        <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-5">
+                          <div className="flex-1 px-2 md:px-3 py-1.5 md:py-2 rounded-lg bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200">
+                            <p className="text-[10px] md:text-xs text-emerald-700 font-bold text-center">ACTIVE</p>
+                          </div>
+                          <div className="flex-1 px-2 md:px-3 py-1.5 md:py-2 rounded-lg bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200">
+                            <p className="text-[10px] md:text-xs text-purple-700 font-bold text-center">VERIFIED</p>
+                          </div>
+                        </div>
+
+                        {/* Bottom Status Bar */}
+                        <div className="flex items-center justify-between pt-3 md:pt-4 border-t border-gray-200">
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                            <span className="text-xs md:text-sm text-emerald-600 font-semibold">Ready to Use</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <svg key={star} className="w-3 h-3 md:w-4 md:h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                                <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                              </svg>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Premium Corner Accent */}
+                        <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-purple-500/10 to-transparent rounded-bl-full"></div>
                       </div>
                     </div>
                   </TiltCard>
@@ -172,25 +209,6 @@ export default function Certifications() {
             )}
 
             <div className="p-4 md:p-6 space-y-4 md:space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
-                <div className="p-4 md:p-5 rounded-xl md:rounded-2xl bg-gray-50 border border-gray-200 hover:border-purple-300 transition-colors">
-                  <p className="text-gray-600 text-xs md:text-sm mb-1.5 md:mb-2">Issue Date</p>
-                  <p className="text-base md:text-lg font-semibold flex items-center gap-1.5 md:gap-2 text-gray-900">
-                    <Calendar className="w-3 h-3 md:w-4 md:h-4 text-purple-600" />
-                    {selectedCert.issueDate}
-                  </p>
-                </div>
-                {selectedCert.expiryDate && (
-                  <div className="p-4 md:p-5 rounded-xl md:rounded-2xl bg-gray-50 border border-gray-200 hover:border-orange-300 transition-colors">
-                    <p className="text-gray-600 text-xs md:text-sm mb-1.5 md:mb-2">Expiry Date</p>
-                    <p className="text-base md:text-lg font-semibold flex items-center gap-1.5 md:gap-2 text-gray-900">
-                      <Calendar className="w-3 h-3 md:w-4 md:h-4 text-orange-600" />
-                      {selectedCert.expiryDate}
-                    </p>
-                  </div>
-                )}
-              </div>
-
               {selectedCert.credentialId && (
                 <div className="p-4 md:p-5 rounded-xl md:rounded-2xl bg-gray-50 border border-gray-200 hover:border-purple-300 transition-colors">
                   <p className="text-gray-600 text-xs md:text-sm mb-1.5 md:mb-2">Credential ID</p>

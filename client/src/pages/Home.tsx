@@ -587,7 +587,96 @@ export default function Home() {
               </span>
             </p>
 
-            <div className="w-24 md:w-32 h-1.5 md:h-2 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full mx-auto" />
+            <div className="w-24 md:w-32 h-1.5 md:h-2 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full mx-auto mb-12 md:mb-16" />
+
+            {/* AI Tools Slider - PREMIUM */}
+            <div className="mt-12 md:mt-16">
+              <div className="flex items-center justify-center gap-3 mb-6 md:mb-8">
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-purple-300 to-transparent"></div>
+                <p className="text-sm md:text-base bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600 font-bold tracking-wider uppercase">
+                  ⚡ Powered by Advanced AI
+                </p>
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-blue-300 to-transparent"></div>
+              </div>
+
+              {/* Infinite Scroll Container */}
+              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-purple-50/30 via-white/50 to-blue-50/30 border border-purple-200/50 backdrop-blur-sm py-4 md:py-6">
+                {/* Gradient Overlays */}
+                <div className="absolute left-0 top-0 bottom-0 w-24 md:w-32 bg-gradient-to-r from-white via-white/80 to-transparent z-10 pointer-events-none" />
+                <div className="absolute right-0 top-0 bottom-0 w-24 md:w-32 bg-gradient-to-l from-white via-white/80 to-transparent z-10 pointer-events-none" />
+
+                {/* Scrolling Track */}
+                <div className="flex gap-6 md:gap-8 animate-scroll-left-fast">
+                  {/* First Set */}
+                  {[
+                    { name: 'ChatGPT', logo: '🤖', bg: 'from-emerald-500 to-green-600', shadow: 'shadow-emerald-500/50' },
+                    { name: 'Gemini', logo: '✨', bg: 'from-blue-500 to-indigo-600', shadow: 'shadow-blue-500/50' },
+                    { name: 'Claude', logo: '🎯', bg: 'from-orange-500 to-red-600', shadow: 'shadow-orange-500/50' },
+                    { name: 'Cursor', logo: '⚡', bg: 'from-cyan-500 to-blue-600', shadow: 'shadow-cyan-500/50' },
+                    { name: 'Copilot', logo: '🚀', bg: 'from-indigo-500 to-purple-600', shadow: 'shadow-indigo-500/50' },
+                    { name: 'BlackBox', logo: '⬛', bg: 'from-gray-800 to-black', shadow: 'shadow-gray-800/50' },
+                    { name: 'CodeGPT', logo: '💻', bg: 'from-teal-500 to-cyan-600', shadow: 'shadow-teal-500/50' },
+                    { name: 'GLM', logo: '🌟', bg: 'from-pink-500 to-rose-600', shadow: 'shadow-pink-500/50' },
+                    { name: 'Manus', logo: '🎨', bg: 'from-purple-500 to-pink-600', shadow: 'shadow-purple-500/50' },
+                    { name: 'nanobananaPro', logo: '🍌', bg: 'from-yellow-500 to-orange-600', shadow: 'shadow-yellow-500/50' },
+                  ].map((ai, i) => (
+                    <div key={`ai-1-${i}`} className="flex-shrink-0 group">
+                      <div className={`relative w-36 md:w-44 lg:w-48 h-20 md:h-24 lg:h-28 rounded-2xl md:rounded-3xl bg-gradient-to-br ${ai.bg} flex flex-col items-center justify-center shadow-xl ${ai.shadow} hover:shadow-2xl transition-all duration-500 hover:scale-110 hover:-translate-y-2 border-2 border-white/20 overflow-hidden`}>
+                        {/* Shimmer Effect */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+
+                        {/* Logo */}
+                        <div className="text-3xl md:text-4xl lg:text-5xl mb-1 md:mb-2 filter drop-shadow-lg relative z-10">
+                          {ai.logo}
+                        </div>
+
+                        {/* Name */}
+                        <span className="text-white font-black text-xs md:text-sm lg:text-base tracking-wide relative z-10 drop-shadow-lg">
+                          {ai.name}
+                        </span>
+
+                        {/* Glow Effect */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Duplicate for Seamless Loop */}
+                  {[
+                    { name: 'ChatGPT', logo: '🤖', bg: 'from-emerald-500 to-green-600', shadow: 'shadow-emerald-500/50' },
+                    { name: 'Gemini', logo: '✨', bg: 'from-blue-500 to-indigo-600', shadow: 'shadow-blue-500/50' },
+                    { name: 'Claude', logo: '🎯', bg: 'from-orange-500 to-red-600', shadow: 'shadow-orange-500/50' },
+                    { name: 'Cursor', logo: '⚡', bg: 'from-cyan-500 to-blue-600', shadow: 'shadow-cyan-500/50' },
+                    { name: 'Copilot', logo: '🚀', bg: 'from-indigo-500 to-purple-600', shadow: 'shadow-indigo-500/50' },
+                    { name: 'BlackBox', logo: '⬛', bg: 'from-gray-800 to-black', shadow: 'shadow-gray-800/50' },
+                    { name: 'CodeGPT', logo: '💻', bg: 'from-teal-500 to-cyan-600', shadow: 'shadow-teal-500/50' },
+                    { name: 'GLM', logo: '🌟', bg: 'from-pink-500 to-rose-600', shadow: 'shadow-pink-500/50' },
+                    { name: 'Manus', logo: '🎨', bg: 'from-purple-500 to-pink-600', shadow: 'shadow-purple-500/50' },
+                    { name: 'nanobananaPro', logo: '🍌', bg: 'from-yellow-500 to-orange-600', shadow: 'shadow-yellow-500/50' },
+                  ].map((ai, i) => (
+                    <div key={`ai-2-${i}`} className="flex-shrink-0 group">
+                      <div className={`relative w-36 md:w-44 lg:w-48 h-20 md:h-24 lg:h-28 rounded-2xl md:rounded-3xl bg-gradient-to-br ${ai.bg} flex flex-col items-center justify-center shadow-xl ${ai.shadow} hover:shadow-2xl transition-all duration-500 hover:scale-110 hover:-translate-y-2 border-2 border-white/20 overflow-hidden`}>
+                        {/* Shimmer Effect */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+
+                        {/* Logo */}
+                        <div className="text-3xl md:text-4xl lg:text-5xl mb-1 md:mb-2 filter drop-shadow-lg relative z-10">
+                          {ai.logo}
+                        </div>
+
+                        {/* Name */}
+                        <span className="text-white font-black text-xs md:text-sm lg:text-base tracking-wide relative z-10 drop-shadow-lg">
+                          {ai.name}
+                        </span>
+
+                        {/* Glow Effect */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </AnimatedSection>
         </div>
       </section>
@@ -609,6 +698,10 @@ export default function Home() {
           0% { transform: translateX(-100%); }
           100% { transform: translateX(100%); }
         }
+        @keyframes scroll-left {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
         .animate-gradient-x {
           background-size: 200% 200%;
           animation: gradient-x 3s ease infinite;
@@ -623,6 +716,18 @@ export default function Home() {
         }
         .animate-shimmer {
           animation: shimmer 3s ease-in-out infinite;
+        }
+        .animate-scroll-left {
+          animation: scroll-left 30s linear infinite;
+        }
+        .animate-scroll-left:hover {
+          animation-play-state: paused;
+        }
+        .animate-scroll-left-fast {
+          animation: scroll-left 20s linear infinite;
+        }
+        .animate-scroll-left-fast:hover {
+          animation-play-state: paused;
         }
         .perspective-2000 {
           perspective: 2000px;

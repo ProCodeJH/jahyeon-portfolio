@@ -85,6 +85,7 @@ const folders = pgTable("folders", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   category: varchar("category", { length: 50 }).notNull(),
+  parentId: integer("parent_id"), // For nested folders
   description: text("description"),
   displayOrder: integer("display_order").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -139,13 +140,33 @@ function getS3Client() {
   });
 }
 
+// Ensure text files include UTF-8 charset
+function normalizeContentType(contentType: string, fileName: string): string {
+  // Text file extensions that should have UTF-8 charset
+  const textExtensions = ['.txt', '.py', '.js', '.ts', '.jsx', '.tsx', '.css', '.html', '.xml', '.json', '.md', '.csv', '.c', '.cpp', '.h', '.java', '.php', '.rb', '.go', '.rs', '.sh', '.yml', '.yaml', '.ini', '.cfg', '.conf', '.log'];
+  const ext = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
+
+  // If it's a text file and doesn't have charset, add UTF-8
+  if (textExtensions.includes(ext) || contentType.startsWith('text/')) {
+    if (!contentType.includes('charset')) {
+      return `${contentType}; charset=utf-8`;
+    }
+  }
+
+  return contentType;
+}
+
 async function uploadToR2(key: string, body: Buffer, contentType: string) {
   const client = getS3Client();
+  const fileName = key.split('/').pop() || '';
+  const normalizedContentType = normalizeContentType(contentType, fileName);
+
   await client.send(new PutObjectCommand({
     Bucket: process.env.R2_BUCKET_NAME,
     Key: key,
     Body: body,
-    ContentType: contentType,
+    ContentType: normalizedContentType,
+    ContentDisposition: `inline; filename*=UTF-8''${encodeURIComponent(fileName)}`,
   }));
   return { url: `${process.env.R2_PUBLIC_URL}/${key}`, key };
 }
@@ -674,6 +695,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const result = await db.insert(folders).values({
             name: input.name,
             category: input.category,
+            parentId: input.parentId || null,
             description: input.description || "",
             displayOrder: input.displayOrder || 0,
           }).returning();
@@ -684,6 +706,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const updateData: any = { updatedAt: new Date() };
           if (input.name !== undefined) updateData.name = input.name;
           if (input.description !== undefined) updateData.description = input.description;
+          if (input.parentId !== undefined) updateData.parentId = input.parentId;
           await db.update(folders).set(updateData).where(eq(folders.id, input.id));
           return res.json({ result: { data: { success: true } } });
         }
