@@ -71,11 +71,21 @@ const resources = pgTable("resources", {
   fileSize: integer("file_size").notNull(),
   mimeType: varchar("mime_type", { length: 100 }).notNull(),
   category: resourceCategoryEnum("category").notNull(),
-  subcategory: subcategoryEnum("subcategory"),
+  subcategory: varchar("subcategory", { length: 255 }),
   thumbnailUrl: text("thumbnail_url"),
   thumbnailKey: text("thumbnail_key"),
   downloadCount: integer("download_count").default(0).notNull(),
   likeCount: integer("like_count").default(0).notNull(),
+  displayOrder: integer("display_order").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+const folders = pgTable("folders", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  category: varchar("category", { length: 50 }).notNull(),
+  description: text("description"),
   displayOrder: integer("display_order").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -642,6 +652,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             console.error("❌ PPT thumbnail fetch error:", error);
             return res.json({ result: { data: { success: false, thumbnail: null, error: String(error) } } });
           }
+        }
+
+        // ============ FOLDERS ============
+        case "folders.list": {
+          const data = await db.select().from(folders).orderBy(desc(folders.displayOrder), desc(folders.createdAt));
+          return res.json({ result: { data } });
+        }
+
+        case "folders.get": {
+          const result = await db.select().from(folders).where(eq(folders.id, input.id)).limit(1);
+          return res.json({ result: { data: result[0] || null } });
+        }
+
+        case "folders.create": {
+          const result = await db.insert(folders).values({
+            name: input.name,
+            category: input.category,
+            description: input.description || "",
+            displayOrder: input.displayOrder || 0,
+          }).returning();
+          return res.json({ result: { data: result[0] } });
+        }
+
+        case "folders.update": {
+          const updateData: any = { updatedAt: new Date() };
+          if (input.name !== undefined) updateData.name = input.name;
+          if (input.description !== undefined) updateData.description = input.description;
+          await db.update(folders).set(updateData).where(eq(folders.id, input.id));
+          return res.json({ result: { data: { success: true } } });
+        }
+
+        case "folders.delete": {
+          await db.delete(folders).where(eq(folders.id, input.id));
+          return res.json({ result: { data: { success: true } } });
         }
 
         // ============ SYSTEM ============
