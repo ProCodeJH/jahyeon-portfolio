@@ -1,10 +1,11 @@
 import { z } from "zod";
 import { initTRPC, TRPCError } from "@trpc/server";
-import { 
+import {
   getDb,
   getAllProjects, getProjectById, createProject, updateProject, deleteProject,
   getAllCertifications, getCertificationById, createCertification, updateCertification, deleteCertification,
-  getAllResources, getResourceById, createResource, updateResource, deleteResource, incrementResourceDownload
+  getAllResources, getResourceById, createResource, updateResource, deleteResource, incrementResourceDownload,
+  getAllFolders, getFolderById, createFolder, updateFolder, deleteFolder
 } from "./db";
 import { projects, certifications, resources, users, sessions } from "../drizzle/schema";
 import { eq, sql, and, gte } from "drizzle-orm";
@@ -224,6 +225,33 @@ export const appRouter = t.router({
       const totalViews = projectsList.reduce((sum, p) => sum + (p.viewCount || 0), 0);
       const totalDownloads = resourcesList.reduce((sum, r) => sum + (r.downloadCount || 0), 0);
       return { totalViews, todayViews: 0, uniqueVisitors: 0, totalDownloads, projectCount: projectsList.length, resourceCount: resourcesList.length, certCount: certsList.length, topProjects: projectsList.slice(0, 5), topResources: resourcesList.slice(0, 5) };
+    }),
+  }),
+
+  folders: t.router({
+    list: publicProcedure.query(async () => getAllFolders()),
+    get: publicProcedure.input(z.object({ id: z.number() })).query(async ({ input }) => {
+      const folder = await getFolderById(input.id);
+      if (!folder) throw new TRPCError({ code: "NOT_FOUND" });
+      return folder;
+    }),
+    create: protectedProcedure.input(z.object({
+      name: z.string().min(1),
+      category: z.string(),
+      description: z.string().optional().default(""),
+    })).mutation(async ({ input }) => createFolder(input)),
+    update: protectedProcedure.input(z.object({
+      id: z.number(),
+      name: z.string().min(1).optional(),
+      description: z.string().optional(),
+    })).mutation(async ({ input }) => {
+      const { id, ...data } = input;
+      await updateFolder(id, data);
+      return { success: true };
+    }),
+    delete: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
+      await deleteFolder(input.id);
+      return { success: true };
     }),
   }),
 });

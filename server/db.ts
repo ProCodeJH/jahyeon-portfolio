@@ -1,11 +1,12 @@
 import { eq, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
-import { 
+import {
   InsertUser, users,
   projects, InsertProject,
   certifications, InsertCertification,
-  resources, InsertResource
+  resources, InsertResource,
+  folders, InsertFolder
 } from "../drizzle/schema";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -193,4 +194,37 @@ export async function incrementResourceDownload(id: number) {
       .set({ downloadCount: resource.downloadCount + 1 })
       .where(eq(resources.id, id));
   }
+}
+
+// Folders queries
+export async function getAllFolders() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(folders).orderBy(desc(folders.displayOrder), desc(folders.createdAt));
+}
+
+export async function getFolderById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(folders).where(eq(folders.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createFolder(folder: InsertFolder) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(folders).values(folder).returning();
+  return result[0];
+}
+
+export async function updateFolder(id: number, folder: Partial<InsertFolder>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(folders).set({ ...folder, updatedAt: new Date() }).where(eq(folders.id, id));
+}
+
+export async function deleteFolder(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(folders).where(eq(folders.id, id));
 }

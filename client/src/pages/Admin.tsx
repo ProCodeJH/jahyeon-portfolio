@@ -53,6 +53,7 @@ export default function Admin() {
   const { data: projects, isLoading: projectsLoading } = trpc.projects.list.useQuery();
   const { data: certifications, isLoading: certsLoading } = trpc.certifications.list.useQuery();
   const { data: resources, isLoading: resourcesLoading } = trpc.resources.list.useQuery();
+  const { data: folders, isLoading: foldersLoading } = trpc.folders.list.useQuery();
   const { data: analytics } = trpc.analytics.adminStats.useQuery(undefined, { enabled: isAuthenticated });
 
   const createProject = trpc.projects.create.useMutation({
@@ -79,6 +80,17 @@ export default function Admin() {
   });
   const deleteResource = trpc.resources.delete.useMutation({
     onSuccess: () => { utils.resources.list.invalidate(); toast.success("Deleted"); },
+  });
+  const createFolder = trpc.folders.create.useMutation({
+    onSuccess: () => { utils.folders.list.invalidate(); toast.success("Folder created"); setShowCreateFolderDialog(false); setNewFolderName(""); },
+    onError: (e) => toast.error(e.message),
+  });
+  const updateFolder = trpc.folders.update.useMutation({
+    onSuccess: () => { utils.folders.list.invalidate(); toast.success("Folder updated"); setShowRenameFolderDialog(false); setRenamingFolder(null); },
+    onError: (e) => toast.error(e.message),
+  });
+  const deleteFolder = trpc.folders.delete.useMutation({
+    onSuccess: () => { utils.folders.list.invalidate(); toast.success("Folder deleted"); },
   });
 
   // Upload mutations
@@ -134,12 +146,23 @@ export default function Admin() {
       return;
     }
 
-    // Update all resources in this folder
-    const resourcesToUpdate = resources?.filter(
-      r => r.category === renamingFolder.category && r.subcategory === renamingFolder.oldName
-    ) || [];
-
     try {
+      // Find folder in DB
+      const folderInDb = folders?.find(f => f.category === renamingFolder.category && f.name === renamingFolder.oldName);
+
+      // Update folder in DB if it exists
+      if (folderInDb) {
+        await updateFolder.mutateAsync({
+          id: folderInDb.id,
+          name: renamingFolder.newName,
+        });
+      }
+
+      // Update all resources in this folder
+      const resourcesToUpdate = resources?.filter(
+        r => r.category === renamingFolder.category && r.subcategory === renamingFolder.oldName
+      ) || [];
+
       await Promise.all(
         resourcesToUpdate.map(resource =>
           updateResource.mutateAsync({
@@ -148,6 +171,7 @@ export default function Admin() {
           })
         )
       );
+
       toast.success(`Folder renamed to "${renamingFolder.newName}"`);
       setShowRenameFolderDialog(false);
       setRenamingFolder(null);
@@ -169,8 +193,17 @@ export default function Admin() {
   // Build folder tree structure
   const getFolderTree = (category: ResourceCategory) => {
     const categoryResources = resources?.filter(r => r.category === category) || [];
+    const categoryFolders = folders?.filter(f => f.category === category) || [];
     const folderMap = new Map<string, any[]>();
 
+    // Add folders from DB (even if empty)
+    categoryFolders.forEach(folder => {
+      if (!folderMap.has(folder.name)) {
+        folderMap.set(folder.name, []);
+      }
+    });
+
+    // Add resources to their folders
     categoryResources.forEach(resource => {
       const folder = resource.subcategory || "Uncategorized";
       if (!folderMap.has(folder)) {
@@ -1032,17 +1065,17 @@ export default function Admin() {
                     toast.error("Please enter a folder name");
                     return;
                   }
-                  // Folder is created when you upload a file to it
-                  toast.success(`Folder "${newFolderName}" will be created when you upload a file to it`);
-                  setResourceForm({...resourceForm, category: selectedCategory, subcategory: newFolderName});
-                  setShowCreateFolderDialog(false);
-                  setShowResourceDialog(true);
-                  setNewFolderName("");
+                  createFolder.mutate({
+                    name: newFolderName,
+                    category: selectedCategory,
+                    description: "",
+                  });
                 }}
-                disabled={!newFolderName.trim()}
+                disabled={!newFolderName.trim() || createFolder.isPending}
                 className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-black rounded-xl"
               >
-                Create & Upload File
+                {createFolder.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                Create Folder
               </Button>
               <Button
                 variant="outline"
