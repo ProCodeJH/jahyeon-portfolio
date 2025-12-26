@@ -20,14 +20,6 @@ export default function Home() {
         <GradientMeshBackground />
         <SubtleDots />
 
-        {/* 3D Spline Interactive */}
-        <div className="absolute inset-0 opacity-50 pointer-events-auto">
-          <spline-viewer
-            url="https://prod.spline.design/9P2BtEilezMDcvqI/scene.splinecode"
-            style={{ width: '100%', height: '100%' }}
-          />
-        </div>
-
         {/* Ambient Light Effects */}
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
