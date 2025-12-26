@@ -91,7 +91,9 @@ export default function Admin() {
   const [showResourceDialog, setShowResourceDialog] = useState(false);
   const [showEditResourceDialog, setShowEditResourceDialog] = useState(false);
   const [showCreateFolderDialog, setShowCreateFolderDialog] = useState(false);
+  const [showRenameFolderDialog, setShowRenameFolderDialog] = useState(false);
   const [editingResource, setEditingResource] = useState<any>(null);
+  const [renamingFolder, setRenamingFolder] = useState<{category: ResourceCategory, oldName: string, newName: string} | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
@@ -119,6 +121,39 @@ export default function Admin() {
   const handleEditResource = (resource: any) => {
     setEditingResource(resource);
     setShowEditResourceDialog(true);
+  };
+
+  const handleRenameFolder = (category: ResourceCategory, oldName: string) => {
+    setRenamingFolder({ category, oldName, newName: oldName });
+    setShowRenameFolderDialog(true);
+  };
+
+  const handleRenameFolderSubmit = async () => {
+    if (!renamingFolder || !renamingFolder.newName.trim()) {
+      toast.error("Please enter a folder name");
+      return;
+    }
+
+    // Update all resources in this folder
+    const resourcesToUpdate = resources?.filter(
+      r => r.category === renamingFolder.category && r.subcategory === renamingFolder.oldName
+    ) || [];
+
+    try {
+      await Promise.all(
+        resourcesToUpdate.map(resource =>
+          updateResource.mutateAsync({
+            id: resource.id,
+            subcategory: renamingFolder.newName,
+          })
+        )
+      );
+      toast.success(`Folder renamed to "${renamingFolder.newName}"`);
+      setShowRenameFolderDialog(false);
+      setRenamingFolder(null);
+    } catch (error) {
+      toast.error("Failed to rename folder");
+    }
   };
 
   const toggleFolder = (folderPath: string) => {
@@ -553,23 +588,38 @@ export default function Admin() {
                     return (
                       <div key={folder.path} className="bg-white/[0.01]">
                         {/* Folder Header */}
-                        <button
-                          onClick={() => toggleFolder(folder.path)}
-                          className="w-full p-3 flex items-center gap-3 hover:bg-white/[0.02] transition-all"
-                        >
-                          <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
-                            <FolderOpen className="w-4 h-4 text-purple-400" />
-                          </div>
-                          <div className="flex-1 text-left">
-                            <h3 className="text-white font-medium text-sm">{folder.name === "Uncategorized" ? "📄 " + folder.name : "📁 " + folder.name}</h3>
-                            <p className="text-white/30 text-xs">{folder.items.length} files</p>
-                          </div>
-                          {isExpanded ? (
-                            <ChevronDown className="w-4 h-4 text-white/50" />
-                          ) : (
-                            <ChevronRight className="w-4 h-4 text-white/30" />
+                        <div className="p-3 flex items-center gap-3 hover:bg-white/[0.02] transition-all">
+                          <button
+                            onClick={() => toggleFolder(folder.path)}
+                            className="flex-1 flex items-center gap-3"
+                          >
+                            <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                              <FolderOpen className="w-4 h-4 text-purple-400" />
+                            </div>
+                            <div className="flex-1 text-left">
+                              <h3 className="text-white font-medium text-sm">{folder.name === "Uncategorized" ? "📄 " + folder.name : "📁 " + folder.name}</h3>
+                              <p className="text-white/30 text-xs">{folder.items.length} files</p>
+                            </div>
+                            {isExpanded ? (
+                              <ChevronDown className="w-4 h-4 text-white/50" />
+                            ) : (
+                              <ChevronRight className="w-4 h-4 text-white/30" />
+                            )}
+                          </button>
+                          {folder.name !== "Uncategorized" && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRenameFolder(selectedCategory, folder.name);
+                              }}
+                              className="h-7 w-7 p-0 text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/10"
+                            >
+                              <Pencil className="h-3 w-3" />
+                            </Button>
                           )}
-                        </button>
+                        </div>
 
                         {/* Folder Contents */}
                         {isExpanded && (
@@ -628,29 +678,43 @@ export default function Admin() {
                       {/* Folder/Subcategory */}
                       <div>
                         <Label className="text-white/70">Folder (Optional)</Label>
-                        <p className="text-white/40 text-xs mb-2">Organize files into folders (e.g., "Arduino", "Chapter 1-3")</p>
-                        <Input
-                          value={resourceForm.subcategory}
-                          onChange={e => setResourceForm({...resourceForm, subcategory: e.target.value})}
-                          placeholder="e.g., Arduino, Python Basics, Chapter 1-5"
-                          className="mt-1.5 bg-white/5 border-white/10 text-white"
-                        />
-                        {resources?.filter(r => r.category === resourceForm.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).length > 0 && (
-                          <div className="mt-2">
-                            <p className="text-white/50 text-xs mb-1">Existing folders:</p>
-                            <div className="flex flex-wrap gap-1.5">
-                              {resources?.filter(r => r.category === resourceForm.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).map(folder => (
-                                <button
-                                  key={folder}
-                                  type="button"
-                                  onClick={() => setResourceForm({...resourceForm, subcategory: folder || ""})}
-                                  className="px-2 py-1 bg-white/10 hover:bg-white/20 rounded-md text-xs text-white/70 border border-white/10"
-                                >
-                                  📁 {folder}
-                                </button>
-                              ))}
-                            </div>
+                        <p className="text-white/40 text-xs mb-2">Select existing folder or create new</p>
+
+                        {/* Folder Dropdown */}
+                        {resources?.filter(r => r.category === resourceForm.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).length > 0 ? (
+                          <div className="space-y-2">
+                            <Select value={resourceForm.subcategory || "custom"} onValueChange={(v) => setResourceForm({...resourceForm, subcategory: v === "custom" ? "" : v})}>
+                              <SelectTrigger className="mt-1.5 bg-white/5 border-white/10 text-white">
+                                <SelectValue placeholder="Select folder or create new" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-[#111] border-white/10">
+                                <SelectItem value="custom" className="text-white/50 hover:bg-white/10">
+                                  ✏️ Create new folder...
+                                </SelectItem>
+                                {resources?.filter(r => r.category === resourceForm.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).map(folder => (
+                                  <SelectItem key={folder} value={folder || ""} className="text-white hover:bg-white/10">
+                                    📁 {folder}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+
+                            {(resourceForm.subcategory === "" || !resources?.filter(r => r.category === resourceForm.category && r.subcategory).map(r => r.subcategory).includes(resourceForm.subcategory)) && (
+                              <Input
+                                value={resourceForm.subcategory}
+                                onChange={e => setResourceForm({...resourceForm, subcategory: e.target.value})}
+                                placeholder="Enter new folder name (e.g., Arduino, Chapter 1-5)"
+                                className="bg-white/5 border-white/10 text-white"
+                              />
+                            )}
                           </div>
+                        ) : (
+                          <Input
+                            value={resourceForm.subcategory}
+                            onChange={e => setResourceForm({...resourceForm, subcategory: e.target.value})}
+                            placeholder="e.g., Arduino, Python Basics, Chapter 1-5"
+                            className="mt-1.5 bg-white/5 border-white/10 text-white"
+                          />
                         )}
                       </div>
 
@@ -772,29 +836,46 @@ export default function Admin() {
                   <FolderInput className="w-4 h-4" />
                   Move to Folder
                 </Label>
-                <p className="text-white/40 text-xs mb-2">Change folder location or create new</p>
-                <Input
-                  value={editingResource.subcategory || ""}
-                  onChange={e => setEditingResource({...editingResource, subcategory: e.target.value})}
-                  placeholder="e.g., Arduino, Python Basics, Chapter 1-5"
-                  className="mt-1.5 bg-white/5 border-white/10 text-white"
-                />
-                {resources?.filter(r => r.category === editingResource.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).length > 0 && (
-                  <div className="mt-2">
-                    <p className="text-white/50 text-xs mb-1">Available folders:</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {resources?.filter(r => r.category === editingResource.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).map(folder => (
-                        <button
-                          key={folder}
-                          type="button"
-                          onClick={() => setEditingResource({...editingResource, subcategory: folder || ""})}
-                          className={`px-2 py-1 rounded-md text-xs border ${editingResource.subcategory === folder ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'bg-white/10 hover:bg-white/20 text-white/70 border-white/10'}`}
-                        >
-                          📁 {folder}
-                        </button>
-                      ))}
-                    </div>
+                <p className="text-white/40 text-xs mb-2">Select existing folder or create new</p>
+
+                {/* Folder Dropdown */}
+                {resources?.filter(r => r.category === editingResource.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).length > 0 ? (
+                  <div className="space-y-2">
+                    <Select value={editingResource.subcategory || "custom"} onValueChange={(v) => setEditingResource({...editingResource, subcategory: v === "custom" ? "" : v})}>
+                      <SelectTrigger className="mt-1.5 bg-white/5 border-white/10 text-white">
+                        <SelectValue placeholder="Select folder or create new" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#111] border-white/10">
+                        <SelectItem value="custom" className="text-white/50 hover:bg-white/10">
+                          ✏️ Create new folder...
+                        </SelectItem>
+                        <SelectItem value="" className="text-white/50 hover:bg-white/10">
+                          📄 Uncategorized (no folder)
+                        </SelectItem>
+                        {resources?.filter(r => r.category === editingResource.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).map(folder => (
+                          <SelectItem key={folder} value={folder || ""} className="text-white hover:bg-white/10">
+                            📁 {folder}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    {(editingResource.subcategory === "" || !resources?.filter(r => r.category === editingResource.category && r.subcategory).map(r => r.subcategory).includes(editingResource.subcategory)) && editingResource.subcategory !== null && (
+                      <Input
+                        value={editingResource.subcategory || ""}
+                        onChange={e => setEditingResource({...editingResource, subcategory: e.target.value})}
+                        placeholder="Enter new folder name (e.g., Arduino, Chapter 1-5)"
+                        className="bg-white/5 border-white/10 text-white"
+                      />
+                    )}
                   </div>
+                ) : (
+                  <Input
+                    value={editingResource.subcategory || ""}
+                    onChange={e => setEditingResource({...editingResource, subcategory: e.target.value})}
+                    placeholder="e.g., Arduino, Python Basics, Chapter 1-5"
+                    className="mt-1.5 bg-white/5 border-white/10 text-white"
+                  />
                 )}
               </div>
 
@@ -932,6 +1013,61 @@ export default function Admin() {
                 onClick={() => {
                   setShowCreateFolderDialog(false);
                   setNewFolderName("");
+                }}
+                className="border-white/20 bg-transparent text-white hover:bg-white/10"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* RENAME FOLDER DIALOG */}
+      <Dialog open={showRenameFolderDialog} onOpenChange={setShowRenameFolderDialog}>
+        <DialogContent className="max-w-md bg-[#111] border-white/10 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-light">Rename Folder</DialogTitle>
+            <DialogDescription className="text-white/50">
+              Rename "{renamingFolder?.oldName}" - all files in this folder will be updated
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label className="text-white/70">Current Name</Label>
+              <div className="mt-1.5 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white/50">
+                📁 {renamingFolder?.oldName}
+              </div>
+            </div>
+
+            <div>
+              <Label className="text-white/70">New Name *</Label>
+              <Input
+                value={renamingFolder?.newName || ""}
+                onChange={e => setRenamingFolder(renamingFolder ? {...renamingFolder, newName: e.target.value} : null)}
+                placeholder="Enter new folder name"
+                className="mt-1.5 bg-white/5 border-white/10 text-white"
+                autoFocus
+              />
+              <p className="text-white/40 text-xs mt-1">
+                💡 This will update {resources?.filter(r => r.category === renamingFolder?.category && r.subcategory === renamingFolder?.oldName).length || 0} files
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                onClick={handleRenameFolderSubmit}
+                disabled={!renamingFolder?.newName.trim() || renamingFolder?.newName === renamingFolder?.oldName || updateResource.isPending}
+                className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black rounded-xl"
+              >
+                {updateResource.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                Rename Folder
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowRenameFolderDialog(false);
+                  setRenamingFolder(null);
                 }}
                 className="border-white/20 bg-transparent text-white hover:bg-white/10"
               >
