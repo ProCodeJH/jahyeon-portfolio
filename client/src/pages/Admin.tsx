@@ -180,6 +180,40 @@ export default function Admin() {
     }
   };
 
+  const handleDeleteFolder = async (category: ResourceCategory, folderName: string) => {
+    if (!confirm(`Delete folder "${folderName}"? All files will be moved to Uncategorized.`)) {
+      return;
+    }
+
+    try {
+      // Find folder in DB
+      const folderInDb = folders?.find(f => f.category === category && f.name === folderName);
+
+      // Move all resources in this folder to Uncategorized
+      const resourcesToMove = resources?.filter(
+        r => r.category === category && r.subcategory === folderName
+      ) || [];
+
+      await Promise.all(
+        resourcesToMove.map(resource =>
+          updateResource.mutateAsync({
+            id: resource.id,
+            subcategory: null,
+          })
+        )
+      );
+
+      // Delete folder from DB if it exists
+      if (folderInDb) {
+        await deleteFolder.mutateAsync({ id: folderInDb.id });
+      }
+
+      toast.success(`Folder "${folderName}" deleted. Files moved to Uncategorized.`);
+    } catch (error) {
+      toast.error("Failed to delete folder");
+    }
+  };
+
   const toggleFolder = (folderPath: string) => {
     const newExpanded = new Set(expandedFolders);
     if (newExpanded.has(folderPath)) {
@@ -640,17 +674,30 @@ export default function Admin() {
                             )}
                           </button>
                           {folder.name !== "Uncategorized" && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleRenameFolder(selectedCategory, folder.name);
-                              }}
-                              className="h-7 w-7 p-0 text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/10"
-                            >
-                              <Pencil className="h-3 w-3" />
-                            </Button>
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleRenameFolder(selectedCategory, folder.name);
+                                }}
+                                className="h-7 w-7 p-0 text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/10"
+                              >
+                                <Pencil className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteFolder(selectedCategory, folder.name);
+                                }}
+                                className="h-7 w-7 p-0 text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </>
                           )}
                         </div>
 
