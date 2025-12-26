@@ -412,7 +412,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
         
         case "resources.update": {
-          const updateData = { ...input.data, updatedAt: new Date() };
+          const updateData: any = { updatedAt: new Date() };
+          if (input.title !== undefined) updateData.title = input.title;
+          if (input.description !== undefined) updateData.description = input.description;
+          if (input.category !== undefined) updateData.category = input.category;
+          if (input.subcategory !== undefined) updateData.subcategory = input.subcategory;
+          if (input.displayOrder !== undefined) updateData.displayOrder = input.displayOrder;
           await db.update(resources).set(updateData).where(eq(resources.id, input.id));
           return res.json({ result: { data: { success: true } } });
         }
