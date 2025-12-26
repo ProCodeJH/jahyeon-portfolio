@@ -34,8 +34,16 @@ const publicProcedure = t.procedure;
 const protectedProcedure = t.procedure.use(isAuthenticated);
 
 async function uploadToR2(fileName: string, fileContent: Buffer, contentType: string): Promise<{ url: string; key: string }> {
-  const key = `uploads/${Date.now()}-${fileName.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-  await s3Client.send(new PutObjectCommand({ Bucket: R2_BUCKET, Key: key, Body: fileContent, ContentType: contentType }));
+  // Preserve UTF-8 characters (Korean, etc.) in filename - only replace path-unsafe characters
+  const safeFileName = fileName.replace(/[\/\\:*?"<>|]/g, "_");
+  const key = `uploads/${Date.now()}-${encodeURIComponent(safeFileName)}`;
+  await s3Client.send(new PutObjectCommand({
+    Bucket: R2_BUCKET,
+    Key: key,
+    Body: fileContent,
+    ContentType: contentType,
+    ContentDisposition: `inline; filename*=UTF-8''${encodeURIComponent(safeFileName)}`
+  }));
   return { url: `${R2_PUBLIC_URL}/${key}`, key };
 }
 
@@ -92,12 +100,15 @@ export const appRouter = t.router({
         throw new TRPCError({ code: "BAD_REQUEST", message: "File too large. Max 500MB allowed." });
       }
 
-      const key = `uploads/${Date.now()}-${input.fileName.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-      
+      // Preserve UTF-8 characters (Korean, etc.) in filename
+      const safeFileName = input.fileName.replace(/[\/\\:*?"<>|]/g, "_");
+      const key = `uploads/${Date.now()}-${encodeURIComponent(safeFileName)}`;
+
       const command = new PutObjectCommand({
         Bucket: R2_BUCKET,
         Key: key,
         ContentType: input.contentType,
+        ContentDisposition: `inline; filename*=UTF-8''${encodeURIComponent(safeFileName)}`
       });
 
       const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });

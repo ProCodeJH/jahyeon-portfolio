@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "wouter";
-import { Loader2, Plus, Trash2, Eye, Heart, BarChart3, FileText, LogOut, ImageIcon, Video, X, FolderOpen, Award, Upload, TrendingUp, Presentation, Code, Cpu, Terminal, CheckCircle } from "lucide-react";
+import { Loader2, Plus, Trash2, Eye, Heart, BarChart3, FileText, LogOut, ImageIcon, Video, X, FolderOpen, Award, Upload, TrendingUp, Presentation, Code, Cpu, Terminal, CheckCircle, Pencil, FolderInput } from "lucide-react";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 
@@ -73,6 +73,10 @@ export default function Admin() {
     onSuccess: () => { utils.resources.list.invalidate(); toast.success("Resource created"); setShowResourceDialog(false); resetResourceForm(); },
     onError: (e) => toast.error(e.message),
   });
+  const updateResource = trpc.resources.update.useMutation({
+    onSuccess: () => { utils.resources.list.invalidate(); toast.success("Resource updated"); setShowEditResourceDialog(false); setEditingResource(null); },
+    onError: (e) => toast.error(e.message),
+  });
   const deleteResource = trpc.resources.delete.useMutation({
     onSuccess: () => { utils.resources.list.invalidate(); toast.success("Deleted"); },
   });
@@ -85,6 +89,8 @@ export default function Admin() {
   const [showProjectDialog, setShowProjectDialog] = useState(false);
   const [showCertDialog, setShowCertDialog] = useState(false);
   const [showResourceDialog, setShowResourceDialog] = useState(false);
+  const [showEditResourceDialog, setShowEditResourceDialog] = useState(false);
+  const [editingResource, setEditingResource] = useState<any>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
@@ -105,6 +111,11 @@ export default function Admin() {
   const resetProjectForm = () => setProjectForm({ title: "", description: "", technologies: "", category: "c_lang", imageUrl: "", imageKey: "", videoUrl: "", videoKey: "", thumbnailUrl: "", thumbnailKey: "", projectUrl: "", githubUrl: "" });
   const resetCertForm = () => setCertForm({ title: "", issuer: "", issueDate: "", expiryDate: "", credentialId: "", credentialUrl: "", imageUrl: "", imageKey: "", description: "" });
   const resetResourceForm = () => setResourceForm({ title: "", description: "", category: "daily_life", subcategory: "", fileUrl: "", fileKey: "", fileName: "", fileSize: 0, mimeType: "", thumbnailUrl: "", thumbnailKey: "" });
+
+  const handleEditResource = (resource: any) => {
+    setEditingResource(resource);
+    setShowEditResourceDialog(true);
+  };
 
   // ============================================
   // 🚀 Presigned URL 업로드 (대용량 파일 지원)
@@ -588,7 +599,10 @@ export default function Admin() {
                         {resource.fileSize ? <span className="text-xs text-white/30">{formatFileSize(resource.fileSize)}</span> : null}
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm" onClick={() => deleteResource.mutate({ id: resource.id })} className="text-red-400 hover:text-red-300 hover:bg-red-500/10"><Trash2 className="h-4 w-4" /></Button>
+                    <div className="flex gap-2">
+                      <Button variant="ghost" size="sm" onClick={() => handleEditResource(resource)} className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"><Pencil className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="sm" onClick={() => deleteResource.mutate({ id: resource.id })} className="text-red-400 hover:text-red-300 hover:bg-red-500/10"><Trash2 className="h-4 w-4" /></Button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -613,6 +627,128 @@ export default function Admin() {
           </TabsContent>
         </Tabs>
       </main>
+
+      {/* EDIT RESOURCE DIALOG */}
+      {editingResource && (
+        <Dialog open={showEditResourceDialog} onOpenChange={setShowEditResourceDialog}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-[#111] border-white/10 text-white">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-light">Edit Resource</DialogTitle>
+              <DialogDescription className="text-white/50">Update resource details and folder location</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-5 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-white/70">Title *</Label>
+                  <Input
+                    value={editingResource.title}
+                    onChange={e => setEditingResource({...editingResource, title: e.target.value})}
+                    className="mt-1.5 bg-white/5 border-white/10 text-white"
+                  />
+                </div>
+                <div>
+                  <Label className="text-white/70">Category *</Label>
+                  <Select value={editingResource.category} onValueChange={(v: ResourceCategory) => setEditingResource({...editingResource, category: v})}>
+                    <SelectTrigger className="mt-1.5 bg-white/5 border-white/10 text-white"><SelectValue /></SelectTrigger>
+                    <SelectContent className="bg-[#111] border-white/10">
+                      {RESOURCE_CATEGORIES.map(c => (
+                        <SelectItem key={c.value} value={c.value} className="text-white hover:bg-white/10">
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: c.color }} />
+                            {c.label}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Folder Selection */}
+              <div>
+                <Label className="text-white/70 flex items-center gap-2">
+                  <FolderInput className="w-4 h-4" />
+                  Move to Folder
+                </Label>
+                <p className="text-white/40 text-xs mb-2">Change folder location or create new</p>
+                <Input
+                  value={editingResource.subcategory || ""}
+                  onChange={e => setEditingResource({...editingResource, subcategory: e.target.value})}
+                  placeholder="e.g., Arduino, Python Basics, Chapter 1-5"
+                  className="mt-1.5 bg-white/5 border-white/10 text-white"
+                />
+                {resources?.filter(r => r.category === editingResource.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-white/50 text-xs mb-1">Available folders:</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {resources?.filter(r => r.category === editingResource.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).map(folder => (
+                        <button
+                          key={folder}
+                          type="button"
+                          onClick={() => setEditingResource({...editingResource, subcategory: folder || ""})}
+                          className={`px-2 py-1 rounded-md text-xs border ${editingResource.subcategory === folder ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'bg-white/10 hover:bg-white/20 text-white/70 border-white/10'}`}
+                        >
+                          📁 {folder}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <Label className="text-white/70">Description</Label>
+                <Textarea
+                  value={editingResource.description || ""}
+                  onChange={e => setEditingResource({...editingResource, description: e.target.value})}
+                  rows={2}
+                  className="mt-1.5 bg-white/5 border-white/10 text-white"
+                />
+              </div>
+
+              <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+                <Label className="text-white/70">Current File</Label>
+                <div className="flex items-center gap-3 mt-2">
+                  {getFileTypeIcon(editingResource.mimeType || '', editingResource.fileName || '')}
+                  <div>
+                    <p className="text-white text-sm">{editingResource.fileName}</p>
+                    <p className="text-white/40 text-xs">{formatFileSize(editingResource.fileSize)}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => {
+                    updateResource.mutate({
+                      id: editingResource.id,
+                      title: editingResource.title,
+                      description: editingResource.description,
+                      category: editingResource.category,
+                      subcategory: editingResource.subcategory,
+                    });
+                  }}
+                  disabled={!editingResource.title || updateResource.isPending}
+                  className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-black rounded-xl"
+                >
+                  {updateResource.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                  Save Changes
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowEditResourceDialog(false);
+                    setEditingResource(null);
+                  }}
+                  className="border-white/20 bg-transparent text-white hover:bg-white/10"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
