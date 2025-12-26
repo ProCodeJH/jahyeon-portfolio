@@ -1,10 +1,11 @@
 import { z } from "zod";
 import { initTRPC, TRPCError } from "@trpc/server";
-import { 
+import {
   getDb,
   getAllProjects, getProjectById, createProject, updateProject, deleteProject,
   getAllCertifications, getCertificationById, createCertification, updateCertification, deleteCertification,
-  getAllResources, getResourceById, createResource, updateResource, deleteResource, incrementResourceDownload
+  getAllResources, getResourceById, createResource, updateResource, deleteResource, incrementResourceDownload,
+  getAllFolders, getFolderById, createFolder, updateFolder, deleteFolder
 } from "./db";
 import { projects, certifications, resources, users, sessions } from "../drizzle/schema";
 import { eq, sql, and, gte } from "drizzle-orm";
@@ -34,8 +35,16 @@ const publicProcedure = t.procedure;
 const protectedProcedure = t.procedure.use(isAuthenticated);
 
 async function uploadToR2(fileName: string, fileContent: Buffer, contentType: string): Promise<{ url: string; key: string }> {
-  const key = `uploads/${Date.now()}-${fileName.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-  await s3Client.send(new PutObjectCommand({ Bucket: R2_BUCKET, Key: key, Body: fileContent, ContentType: contentType }));
+  // Preserve UTF-8 characters (Korean, etc.) in filename - only replace path-unsafe characters
+  const safeFileName = fileName.replace(/[\/\\:*?"<>|]/g, "_");
+  const key = `uploads/${Date.now()}-${encodeURIComponent(safeFileName)}`;
+  await s3Client.send(new PutObjectCommand({
+    Bucket: R2_BUCKET,
+    Key: key,
+    Body: fileContent,
+    ContentType: contentType,
+    ContentDisposition: `inline; filename*=UTF-8''${encodeURIComponent(safeFileName)}`
+  }));
   return { url: `${R2_PUBLIC_URL}/${key}`, key };
 }
 
@@ -92,12 +101,15 @@ export const appRouter = t.router({
         throw new TRPCError({ code: "BAD_REQUEST", message: "File too large. Max 500MB allowed." });
       }
 
-      const key = `uploads/${Date.now()}-${input.fileName.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-      
+      // Preserve UTF-8 characters (Korean, etc.) in filename
+      const safeFileName = input.fileName.replace(/[\/\\:*?"<>|]/g, "_");
+      const key = `uploads/${Date.now()}-${encodeURIComponent(safeFileName)}`;
+
       const command = new PutObjectCommand({
         Bucket: R2_BUCKET,
         Key: key,
         ContentType: input.contentType,
+        ContentDisposition: `inline; filename*=UTF-8''${encodeURIComponent(safeFileName)}`
       });
 
       const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
@@ -213,6 +225,33 @@ export const appRouter = t.router({
       const totalViews = projectsList.reduce((sum, p) => sum + (p.viewCount || 0), 0);
       const totalDownloads = resourcesList.reduce((sum, r) => sum + (r.downloadCount || 0), 0);
       return { totalViews, todayViews: 0, uniqueVisitors: 0, totalDownloads, projectCount: projectsList.length, resourceCount: resourcesList.length, certCount: certsList.length, topProjects: projectsList.slice(0, 5), topResources: resourcesList.slice(0, 5) };
+    }),
+  }),
+
+  folders: t.router({
+    list: publicProcedure.query(async () => getAllFolders()),
+    get: publicProcedure.input(z.object({ id: z.number() })).query(async ({ input }) => {
+      const folder = await getFolderById(input.id);
+      if (!folder) throw new TRPCError({ code: "NOT_FOUND" });
+      return folder;
+    }),
+    create: protectedProcedure.input(z.object({
+      name: z.string().min(1),
+      category: z.string(),
+      description: z.string().optional().default(""),
+    })).mutation(async ({ input }) => createFolder(input)),
+    update: protectedProcedure.input(z.object({
+      id: z.number(),
+      name: z.string().min(1).optional(),
+      description: z.string().optional(),
+    })).mutation(async ({ input }) => {
+      const { id, ...data } = input;
+      await updateFolder(id, data);
+      return { success: true };
+    }),
+    delete: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
+      await deleteFolder(input.id);
+      return { success: true };
     }),
   }),
 });

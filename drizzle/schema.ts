@@ -4,7 +4,6 @@ import { pgTable, pgEnum, serial, text, timestamp, varchar, integer } from "driz
 export const roleEnum = pgEnum("role", ["user", "admin"]);
 export const categoryEnum = pgEnum("category", ["c_lang", "arduino", "python", "embedded", "iot", "firmware", "hardware", "software"]);
 export const resourceCategoryEnum = pgEnum("resource_category", ["daily_life", "lecture_c", "lecture_arduino", "lecture_python", "presentation", "lecture_materials", "arduino_projects", "c_projects", "python_projects"]);
-export const subcategoryEnum = pgEnum("subcategory", ["code", "documentation", "images"]);
 
 /**
  * Core user table backing auth flow.
@@ -100,7 +99,7 @@ export const resources = pgTable("resources", {
   fileSize: integer("file_size").default(0).notNull(),
   mimeType: varchar("mime_type", { length: 100 }),
   category: resourceCategoryEnum("category").notNull(),
-  subcategory: subcategoryEnum("subcategory"),
+  subcategory: varchar("subcategory", { length: 255 }), // Folder name (e.g., "Arduino", "Chapter 1-5")
   thumbnailUrl: text("thumbnail_url"),
   thumbnailKey: text("thumbnail_key"),
   downloadCount: integer("download_count").default(0).notNull(),
@@ -111,3 +110,19 @@ export const resources = pgTable("resources", {
 
 export type Resource = typeof resources.$inferSelect;
 export type InsertResource = typeof resources.$inferInsert;
+
+/**
+ * Folders table - stores folder structure for resources
+ */
+export const folders = pgTable("folders", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  category: resourceCategoryEnum("category").notNull(),
+  description: text("description"),
+  displayOrder: integer("display_order").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type Folder = typeof folders.$inferSelect;
+export type InsertFolder = typeof folders.$inferInsert;

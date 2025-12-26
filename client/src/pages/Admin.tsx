@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "wouter";
-import { Loader2, Plus, Trash2, Eye, Heart, BarChart3, FileText, LogOut, ImageIcon, Video, X, FolderOpen, Award, Upload, TrendingUp, Presentation, Code, Cpu, Terminal, CheckCircle } from "lucide-react";
+import { Loader2, Plus, Trash2, Eye, Heart, BarChart3, FileText, LogOut, ImageIcon, Video, X, FolderOpen, Award, Upload, TrendingUp, Presentation, Code, Cpu, Terminal, CheckCircle, Pencil, FolderInput, ChevronDown, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 
@@ -53,6 +53,7 @@ export default function Admin() {
   const { data: projects, isLoading: projectsLoading } = trpc.projects.list.useQuery();
   const { data: certifications, isLoading: certsLoading } = trpc.certifications.list.useQuery();
   const { data: resources, isLoading: resourcesLoading } = trpc.resources.list.useQuery();
+  const { data: folders, isLoading: foldersLoading } = trpc.folders.list.useQuery();
   const { data: analytics } = trpc.analytics.adminStats.useQuery(undefined, { enabled: isAuthenticated });
 
   const createProject = trpc.projects.create.useMutation({
@@ -73,8 +74,23 @@ export default function Admin() {
     onSuccess: () => { utils.resources.list.invalidate(); toast.success("Resource created"); setShowResourceDialog(false); resetResourceForm(); },
     onError: (e) => toast.error(e.message),
   });
+  const updateResource = trpc.resources.update.useMutation({
+    onSuccess: () => { utils.resources.list.invalidate(); toast.success("Resource updated"); setShowEditResourceDialog(false); setEditingResource(null); },
+    onError: (e) => toast.error(e.message),
+  });
   const deleteResource = trpc.resources.delete.useMutation({
     onSuccess: () => { utils.resources.list.invalidate(); toast.success("Deleted"); },
+  });
+  const createFolder = trpc.folders.create.useMutation({
+    onSuccess: () => { utils.folders.list.invalidate(); toast.success("Folder created"); setShowCreateFolderDialog(false); setNewFolderName(""); },
+    onError: (e) => toast.error(e.message),
+  });
+  const updateFolder = trpc.folders.update.useMutation({
+    onSuccess: () => { utils.folders.list.invalidate(); toast.success("Folder updated"); setShowRenameFolderDialog(false); setRenamingFolder(null); },
+    onError: (e) => toast.error(e.message),
+  });
+  const deleteFolder = trpc.folders.delete.useMutation({
+    onSuccess: () => { utils.folders.list.invalidate(); toast.success("Folder deleted"); },
   });
 
   // Upload mutations
@@ -85,8 +101,16 @@ export default function Admin() {
   const [showProjectDialog, setShowProjectDialog] = useState(false);
   const [showCertDialog, setShowCertDialog] = useState(false);
   const [showResourceDialog, setShowResourceDialog] = useState(false);
+  const [showEditResourceDialog, setShowEditResourceDialog] = useState(false);
+  const [showCreateFolderDialog, setShowCreateFolderDialog] = useState(false);
+  const [showRenameFolderDialog, setShowRenameFolderDialog] = useState(false);
+  const [editingResource, setEditingResource] = useState<any>(null);
+  const [renamingFolder, setRenamingFolder] = useState<{category: ResourceCategory, oldName: string, newName: string} | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
+  const [newFolderName, setNewFolderName] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<ResourceCategory>("presentation");
 
   const [projectForm, setProjectForm] = useState({
     title: "", description: "", technologies: "", category: "c_lang" as ProjectCategory,
@@ -105,6 +129,130 @@ export default function Admin() {
   const resetProjectForm = () => setProjectForm({ title: "", description: "", technologies: "", category: "c_lang", imageUrl: "", imageKey: "", videoUrl: "", videoKey: "", thumbnailUrl: "", thumbnailKey: "", projectUrl: "", githubUrl: "" });
   const resetCertForm = () => setCertForm({ title: "", issuer: "", issueDate: "", expiryDate: "", credentialId: "", credentialUrl: "", imageUrl: "", imageKey: "", description: "" });
   const resetResourceForm = () => setResourceForm({ title: "", description: "", category: "daily_life", subcategory: "", fileUrl: "", fileKey: "", fileName: "", fileSize: 0, mimeType: "", thumbnailUrl: "", thumbnailKey: "" });
+
+  const handleEditResource = (resource: any) => {
+    setEditingResource(resource);
+    setShowEditResourceDialog(true);
+  };
+
+  const handleRenameFolder = (category: ResourceCategory, oldName: string) => {
+    setRenamingFolder({ category, oldName, newName: oldName });
+    setShowRenameFolderDialog(true);
+  };
+
+  const handleRenameFolderSubmit = async () => {
+    if (!renamingFolder || !renamingFolder.newName.trim()) {
+      toast.error("Please enter a folder name");
+      return;
+    }
+
+    try {
+      // Find folder in DB
+      const folderInDb = folders?.find(f => f.category === renamingFolder.category && f.name === renamingFolder.oldName);
+
+      // Update folder in DB if it exists
+      if (folderInDb) {
+        await updateFolder.mutateAsync({
+          id: folderInDb.id,
+          name: renamingFolder.newName,
+        });
+      }
+
+      // Update all resources in this folder
+      const resourcesToUpdate = resources?.filter(
+        r => r.category === renamingFolder.category && r.subcategory === renamingFolder.oldName
+      ) || [];
+
+      await Promise.all(
+        resourcesToUpdate.map(resource =>
+          updateResource.mutateAsync({
+            id: resource.id,
+            subcategory: renamingFolder.newName,
+          })
+        )
+      );
+
+      toast.success(`Folder renamed to "${renamingFolder.newName}"`);
+      setShowRenameFolderDialog(false);
+      setRenamingFolder(null);
+    } catch (error) {
+      toast.error("Failed to rename folder");
+    }
+  };
+
+  const handleDeleteFolder = async (category: ResourceCategory, folderName: string) => {
+    if (!confirm(`Delete folder "${folderName}"? All files will be moved to Uncategorized.`)) {
+      return;
+    }
+
+    try {
+      // Find folder in DB
+      const folderInDb = folders?.find(f => f.category === category && f.name === folderName);
+
+      // Move all resources in this folder to Uncategorized
+      const resourcesToMove = resources?.filter(
+        r => r.category === category && r.subcategory === folderName
+      ) || [];
+
+      await Promise.all(
+        resourcesToMove.map(resource =>
+          updateResource.mutateAsync({
+            id: resource.id,
+            subcategory: null,
+          })
+        )
+      );
+
+      // Delete folder from DB if it exists
+      if (folderInDb) {
+        await deleteFolder.mutateAsync({ id: folderInDb.id });
+      }
+
+      toast.success(`Folder "${folderName}" deleted. Files moved to Uncategorized.`);
+    } catch (error) {
+      toast.error("Failed to delete folder");
+    }
+  };
+
+  const toggleFolder = (folderPath: string) => {
+    const newExpanded = new Set(expandedFolders);
+    if (newExpanded.has(folderPath)) {
+      newExpanded.delete(folderPath);
+    } else {
+      newExpanded.add(folderPath);
+    }
+    setExpandedFolders(newExpanded);
+  };
+
+  // Build folder tree structure
+  const getFolderTree = (category: ResourceCategory) => {
+    const categoryResources = resources?.filter(r => r.category === category) || [];
+    const categoryFolders = folders?.filter(f => f.category === category) || [];
+    const folderMap = new Map<string, any[]>();
+
+    // Add folders from DB (even if empty)
+    categoryFolders.forEach(folder => {
+      if (!folderMap.has(folder.name)) {
+        folderMap.set(folder.name, []);
+      }
+    });
+
+    // Add resources to their folders
+    categoryResources.forEach(resource => {
+      const folder = resource.subcategory || "Uncategorized";
+      if (!folderMap.has(folder)) {
+        folderMap.set(folder, []);
+      }
+      folderMap.get(folder)!.push(resource);
+    });
+
+    return Array.from(folderMap.entries()).map(([folder, items]) => ({
+      name: folder,
+      path: folder,
+      items,
+      children: []
+    }));
+  };
 
   // ============================================
   // 🚀 Presigned URL 업로드 (대용량 파일 지원)
@@ -462,18 +610,135 @@ export default function Admin() {
           {/* RESOURCES TAB - 500MB 지원! */}
           <TabsContent value="resources">
             <div className="bg-white/[0.02] border border-white/5 rounded-2xl">
-              <div className="p-6 border-b border-white/5 flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-light text-white">Resources</h2>
-                  <p className="text-white/50 mt-1 flex items-center gap-2">
-                    Videos, PPT, PDF 
-                    <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-xs rounded-full flex items-center gap-1">
-                      <CheckCircle className="w-3 h-3" /> Up to 500MB
-                    </span>
-                  </p>
+              <div className="p-6 border-b border-white/5">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h2 className="text-xl font-light text-white">Resources</h2>
+                    <p className="text-white/50 mt-1 flex items-center gap-2">
+                      Videos, PPT, PDF
+                      <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-xs rounded-full flex items-center gap-1">
+                        <CheckCircle className="w-3 h-3" /> Up to 500MB
+                      </span>
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button onClick={() => setShowCreateFolderDialog(true)} className="bg-purple-500 hover:bg-purple-600 text-white rounded-xl">
+                      <FolderOpen className="h-4 w-4 mr-2" />New Folder
+                    </Button>
+                  </div>
                 </div>
+
+                {/* Category Tabs */}
+                <div className="flex gap-2 flex-wrap">
+                  {RESOURCE_CATEGORIES.map(cat => (
+                    <button
+                      key={cat.value}
+                      onClick={() => setSelectedCategory(cat.value)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${selectedCategory === cat.value ? 'text-white' : 'bg-white/5 text-white/50 hover:bg-white/10'}`}
+                      style={selectedCategory === cat.value ? { backgroundColor: cat.color } : {}}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Folder Tree View */}
+              <div className="divide-y divide-white/5">
+                {resourcesLoading ? (
+                  <div className="p-12 text-center"><Loader2 className="h-6 w-6 animate-spin mx-auto text-emerald-400" /></div>
+                ) : getFolderTree(selectedCategory).length === 0 ? (
+                  <div className="p-12 text-center text-white/40">No resources in this category</div>
+                ) : (
+                  getFolderTree(selectedCategory).map(folder => {
+                    const isExpanded = expandedFolders.has(folder.path);
+                    return (
+                      <div key={folder.path} className="bg-white/[0.01]">
+                        {/* Folder Header */}
+                        <div className="p-3 flex items-center gap-3 hover:bg-white/[0.02] transition-all">
+                          <button
+                            onClick={() => toggleFolder(folder.path)}
+                            className="flex-1 flex items-center gap-3"
+                          >
+                            <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                              <FolderOpen className="w-4 h-4 text-purple-400" />
+                            </div>
+                            <div className="flex-1 text-left">
+                              <h3 className="text-white font-medium text-sm">{folder.name === "Uncategorized" ? "📄 " + folder.name : "📁 " + folder.name}</h3>
+                              <p className="text-white/30 text-xs">{folder.items.length} files</p>
+                            </div>
+                            {isExpanded ? (
+                              <ChevronDown className="w-4 h-4 text-white/50" />
+                            ) : (
+                              <ChevronRight className="w-4 h-4 text-white/30" />
+                            )}
+                          </button>
+                          {folder.name !== "Uncategorized" && (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleRenameFolder(selectedCategory, folder.name);
+                                }}
+                                className="h-7 w-7 p-0 text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/10"
+                              >
+                                <Pencil className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteFolder(selectedCategory, folder.name);
+                                }}
+                                className="h-7 w-7 p-0 text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </>
+                          )}
+                        </div>
+
+                        {/* Folder Contents */}
+                        {isExpanded && (
+                          <div className="bg-white/[0.02] divide-y divide-white/5">
+                            {folder.items.map(resource => (
+                              <div key={resource.id} className="p-2 pl-14 flex items-center gap-3 hover:bg-white/[0.02]">
+                                <div className="w-10 h-10 rounded-lg bg-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                                  {resource.thumbnailUrl ? (
+                                    <img src={resource.thumbnailUrl} className="w-full h-full object-cover" />
+                                  ) : (
+                                    getFileTypeIcon(resource.mimeType || '', resource.fileName || '')
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="text-white text-xs truncate">{resource.title}</h4>
+                                  <p className="text-white/30 text-[10px] truncate">{resource.fileName}</p>
+                                </div>
+                                <div className="flex gap-1">
+                                  <Button variant="ghost" size="sm" onClick={() => handleEditResource(resource)} className="h-7 w-7 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10">
+                                    <Pencil className="h-3 w-3" />
+                                  </Button>
+                                  <Button variant="ghost" size="sm" onClick={() => deleteResource.mutate({ id: resource.id })} className="h-7 w-7 p-0 text-red-400 hover:text-red-300 hover:bg-red-500/10">
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Add Resource Button - Fixed Position */}
+              <div className="p-4 border-t border-white/5">
                 <Dialog open={showResourceDialog} onOpenChange={setShowResourceDialog}>
-                  <DialogTrigger asChild><Button className="bg-emerald-500 hover:bg-emerald-600 text-black rounded-xl"><Plus className="h-4 w-4 mr-2" />Add Resource</Button></DialogTrigger>
+                  <DialogTrigger asChild><Button className="w-full bg-emerald-500 hover:bg-emerald-600 text-black rounded-xl"><Plus className="h-4 w-4 mr-2" />Add Resource</Button></DialogTrigger>
                   <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-[#111] border-white/10 text-white">
                     <DialogHeader>
                       <DialogTitle className="text-xl font-light">New Resource</DialogTitle>
@@ -489,6 +754,69 @@ export default function Admin() {
                           </Select>
                         </div>
                       </div>
+
+                      {/* Folder/Subcategory */}
+                      <div>
+                        <Label className="text-white/70">Folder (Optional)</Label>
+                        <p className="text-white/40 text-xs mb-2">Select existing folder or create new</p>
+
+                        {/* Get all unique folders from both DB and resources */}
+                        {(() => {
+                          const dbFolders = folders?.filter(f => f.category === resourceForm.category).map(f => f.name) || [];
+                          const resourceFolders = resources?.filter(r => r.category === resourceForm.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i) || [];
+                          const allFolders = [...new Set([...dbFolders, ...resourceFolders])];
+
+                          return allFolders.length > 0 ? (
+                            <div className="space-y-2">
+                              <Select
+                                value={
+                                  allFolders.includes(resourceForm.subcategory)
+                                    ? resourceForm.subcategory
+                                    : "custom"
+                                }
+                                onValueChange={(v) => {
+                                  if (v === "custom") {
+                                    setResourceForm({...resourceForm, subcategory: ""});
+                                  } else {
+                                    setResourceForm({...resourceForm, subcategory: v});
+                                  }
+                                }}
+                              >
+                                <SelectTrigger className="mt-1.5 bg-white/5 border-white/10 text-white">
+                                  <SelectValue placeholder="Select folder or create new" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-[#111] border-white/10">
+                                  <SelectItem value="custom" className="text-white/50 hover:bg-white/10">
+                                    ✏️ Create new folder...
+                                  </SelectItem>
+                                  {allFolders.sort().map(folder => (
+                                    <SelectItem key={folder} value={folder} className="text-white hover:bg-white/10">
+                                      📁 {folder}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+
+                              {!allFolders.includes(resourceForm.subcategory) && (
+                                <Input
+                                  value={resourceForm.subcategory}
+                                  onChange={e => setResourceForm({...resourceForm, subcategory: e.target.value})}
+                                  placeholder="Enter new folder name (e.g., Arduino, Chapter 1-5)"
+                                  className="bg-white/5 border-white/10 text-white"
+                                />
+                              )}
+                            </div>
+                          ) : (
+                            <Input
+                              value={resourceForm.subcategory}
+                              onChange={e => setResourceForm({...resourceForm, subcategory: e.target.value})}
+                              placeholder="e.g., Arduino, Python Basics, Chapter 1-5"
+                              className="mt-1.5 bg-white/5 border-white/10 text-white"
+                            />
+                          );
+                        })()}
+                      </div>
+
                       <div><Label className="text-white/70">Description</Label><Textarea value={resourceForm.description} onChange={e => setResourceForm({...resourceForm, description: e.target.value})} rows={2} className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
                       
                       {/* 파일 업로드 - 500MB 지원 */}
@@ -543,24 +871,6 @@ export default function Admin() {
                   </DialogContent>
                 </Dialog>
               </div>
-              
-              <div className="divide-y divide-white/5">
-                {resourcesLoading ? (<div className="p-12 text-center"><Loader2 className="h-6 w-6 animate-spin mx-auto text-emerald-400" /></div>) : !resources?.length ? (<div className="p-12 text-center text-white/40">No resources yet</div>) : resources.map(resource => (
-                  <div key={resource.id} className="p-4 flex items-center gap-4 hover:bg-white/[0.02]">
-                    <div className="w-16 h-16 rounded-xl bg-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center">{resource.thumbnailUrl ? (<img src={resource.thumbnailUrl} className="w-full h-full object-cover" />) : getFileTypeIcon(resource.mimeType || '', resource.fileName || '')}</div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-white truncate">{resource.title}</h3>
-                      <p className="text-sm text-white/40 truncate">{resource.fileName || resource.description}</p>
-                      <div className="flex items-center gap-3 mt-1">
-                        <span className="px-2 py-0.5 rounded text-xs" style={{ backgroundColor: RESOURCE_CATEGORIES.find(c => c.value === resource.category)?.color + '30', color: RESOURCE_CATEGORIES.find(c => c.value === resource.category)?.color }}>{resource.category}</span>
-                        <span className="text-xs text-white/30">{resource.downloadCount || 0} downloads</span>
-                        {resource.fileSize ? <span className="text-xs text-white/30">{formatFileSize(resource.fileSize)}</span> : null}
-                      </div>
-                    </div>
-                    <Button variant="ghost" size="sm" onClick={() => deleteResource.mutate({ id: resource.id })} className="text-red-400 hover:text-red-300 hover:bg-red-500/10"><Trash2 className="h-4 w-4" /></Button>
-                  </div>
-                ))}
-              </div>
             </div>
           </TabsContent>
 
@@ -582,6 +892,313 @@ export default function Admin() {
           </TabsContent>
         </Tabs>
       </main>
+
+      {/* EDIT RESOURCE DIALOG */}
+      {editingResource && (
+        <Dialog open={showEditResourceDialog} onOpenChange={setShowEditResourceDialog}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-[#111] border-white/10 text-white">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-light">Edit Resource</DialogTitle>
+              <DialogDescription className="text-white/50">Update resource details and folder location</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-5 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-white/70">Title *</Label>
+                  <Input
+                    value={editingResource.title}
+                    onChange={e => setEditingResource({...editingResource, title: e.target.value})}
+                    className="mt-1.5 bg-white/5 border-white/10 text-white"
+                  />
+                </div>
+                <div>
+                  <Label className="text-white/70">Category *</Label>
+                  <Select value={editingResource.category} onValueChange={(v: ResourceCategory) => setEditingResource({...editingResource, category: v})}>
+                    <SelectTrigger className="mt-1.5 bg-white/5 border-white/10 text-white"><SelectValue /></SelectTrigger>
+                    <SelectContent className="bg-[#111] border-white/10">
+                      {RESOURCE_CATEGORIES.map(c => (
+                        <SelectItem key={c.value} value={c.value} className="text-white hover:bg-white/10">
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: c.color }} />
+                            {c.label}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Folder Selection */}
+              <div>
+                <Label className="text-white/70 flex items-center gap-2">
+                  <FolderInput className="w-4 h-4" />
+                  Move to Folder
+                </Label>
+                <p className="text-white/40 text-xs mb-2">Select existing folder or create new</p>
+
+                {/* Get all unique folders from both DB and resources */}
+                {(() => {
+                  const dbFolders = folders?.filter(f => f.category === editingResource.category).map(f => f.name) || [];
+                  const resourceFolders = resources?.filter(r => r.category === editingResource.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i) || [];
+                  const allFolders = [...new Set([...dbFolders, ...resourceFolders])];
+
+                  return allFolders.length > 0 ? (
+                    <div className="space-y-2">
+                      <Select
+                        value={
+                          editingResource.subcategory === "" || editingResource.subcategory === null
+                            ? "none"
+                            : allFolders.includes(editingResource.subcategory)
+                            ? editingResource.subcategory
+                            : "custom"
+                        }
+                        onValueChange={(v) => {
+                          if (v === "custom") {
+                            setEditingResource({...editingResource, subcategory: ""});
+                          } else if (v === "none") {
+                            setEditingResource({...editingResource, subcategory: null});
+                          } else {
+                            setEditingResource({...editingResource, subcategory: v});
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="mt-1.5 bg-white/5 border-white/10 text-white">
+                          <SelectValue placeholder="Select folder or create new" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[#111] border-white/10">
+                          <SelectItem value="custom" className="text-white/50 hover:bg-white/10">
+                            ✏️ Create new folder...
+                          </SelectItem>
+                          <SelectItem value="none" className="text-white/50 hover:bg-white/10">
+                            📄 Uncategorized (no folder)
+                          </SelectItem>
+                          {allFolders.sort().map(folder => (
+                            <SelectItem key={folder} value={folder} className="text-white hover:bg-white/10">
+                              📁 {folder}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      {editingResource.subcategory !== null && !allFolders.includes(editingResource.subcategory) && (
+                        <Input
+                          value={editingResource.subcategory || ""}
+                          onChange={e => setEditingResource({...editingResource, subcategory: e.target.value})}
+                          placeholder="Enter new folder name (e.g., Arduino, Chapter 1-5)"
+                          className="bg-white/5 border-white/10 text-white"
+                        />
+                      )}
+                    </div>
+                  ) : (
+                    <Input
+                      value={editingResource.subcategory || ""}
+                      onChange={e => setEditingResource({...editingResource, subcategory: e.target.value})}
+                      placeholder="e.g., Arduino, Python Basics, Chapter 1-5"
+                      className="mt-1.5 bg-white/5 border-white/10 text-white"
+                    />
+                  );
+                })()}
+              </div>
+
+              <div>
+                <Label className="text-white/70">Description</Label>
+                <Textarea
+                  value={editingResource.description || ""}
+                  onChange={e => setEditingResource({...editingResource, description: e.target.value})}
+                  rows={2}
+                  className="mt-1.5 bg-white/5 border-white/10 text-white"
+                />
+              </div>
+
+              <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+                <Label className="text-white/70">Current File</Label>
+                <div className="flex items-center gap-3 mt-2">
+                  {getFileTypeIcon(editingResource.mimeType || '', editingResource.fileName || '')}
+                  <div>
+                    <p className="text-white text-sm">{editingResource.fileName}</p>
+                    <p className="text-white/40 text-xs">{formatFileSize(editingResource.fileSize)}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => {
+                    updateResource.mutate({
+                      id: editingResource.id,
+                      title: editingResource.title,
+                      description: editingResource.description,
+                      category: editingResource.category,
+                      subcategory: editingResource.subcategory,
+                    });
+                  }}
+                  disabled={!editingResource.title || updateResource.isPending}
+                  className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-black rounded-xl"
+                >
+                  {updateResource.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                  Save Changes
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowEditResourceDialog(false);
+                    setEditingResource(null);
+                  }}
+                  className="border-white/20 bg-transparent text-white hover:bg-white/10"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* CREATE FOLDER DIALOG */}
+      <Dialog open={showCreateFolderDialog} onOpenChange={setShowCreateFolderDialog}>
+        <DialogContent className="max-w-md bg-[#111] border-white/10 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-light">Create New Folder</DialogTitle>
+            <DialogDescription className="text-white/50">
+              Create a folder to organize your files. Use "/" for nested folders (e.g., "Arduino/Chapter1")
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label className="text-white/70">Category *</Label>
+              <Select value={selectedCategory} onValueChange={(v: ResourceCategory) => setSelectedCategory(v)}>
+                <SelectTrigger className="mt-1.5 bg-white/5 border-white/10 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-[#111] border-white/10">
+                  {RESOURCE_CATEGORIES.map(c => (
+                    <SelectItem key={c.value} value={c.value} className="text-white hover:bg-white/10">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: c.color }} />
+                        {c.label}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label className="text-white/70">Folder Name *</Label>
+              <Input
+                value={newFolderName}
+                onChange={e => setNewFolderName(e.target.value)}
+                placeholder="e.g., Arduino or Arduino/Chapter1"
+                className="mt-1.5 bg-white/5 border-white/10 text-white"
+              />
+              <p className="text-white/40 text-xs mt-1">
+                💡 Use "/" to create nested folders (e.g., "Arduino/Chapter1/Basics")
+              </p>
+            </div>
+
+            {/* Existing folders in category */}
+            {resources?.filter(r => r.category === selectedCategory && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).length > 0 && (
+              <div>
+                <p className="text-white/50 text-xs mb-2">Existing folders:</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {resources?.filter(r => r.category === selectedCategory && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).map(folder => (
+                    <span key={folder} className="px-2 py-1 bg-white/10 rounded-md text-xs text-white/50">
+                      📁 {folder}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <Button
+                onClick={() => {
+                  if (!newFolderName.trim()) {
+                    toast.error("Please enter a folder name");
+                    return;
+                  }
+                  createFolder.mutate({
+                    name: newFolderName,
+                    category: selectedCategory,
+                    description: "",
+                  });
+                }}
+                disabled={!newFolderName.trim() || createFolder.isPending}
+                className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-black rounded-xl"
+              >
+                {createFolder.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                Create Folder
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowCreateFolderDialog(false);
+                  setNewFolderName("");
+                }}
+                className="border-white/20 bg-transparent text-white hover:bg-white/10"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* RENAME FOLDER DIALOG */}
+      <Dialog open={showRenameFolderDialog} onOpenChange={setShowRenameFolderDialog}>
+        <DialogContent className="max-w-md bg-[#111] border-white/10 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-light">Rename Folder</DialogTitle>
+            <DialogDescription className="text-white/50">
+              Rename "{renamingFolder?.oldName}" - all files in this folder will be updated
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label className="text-white/70">Current Name</Label>
+              <div className="mt-1.5 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white/50">
+                📁 {renamingFolder?.oldName}
+              </div>
+            </div>
+
+            <div>
+              <Label className="text-white/70">New Name *</Label>
+              <Input
+                value={renamingFolder?.newName || ""}
+                onChange={e => setRenamingFolder(renamingFolder ? {...renamingFolder, newName: e.target.value} : null)}
+                placeholder="Enter new folder name"
+                className="mt-1.5 bg-white/5 border-white/10 text-white"
+                autoFocus
+              />
+              <p className="text-white/40 text-xs mt-1">
+                💡 This will update {resources?.filter(r => r.category === renamingFolder?.category && r.subcategory === renamingFolder?.oldName).length || 0} files
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                onClick={handleRenameFolderSubmit}
+                disabled={!renamingFolder?.newName.trim() || renamingFolder?.newName === renamingFolder?.oldName || updateResource.isPending}
+                className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black rounded-xl"
+              >
+                {updateResource.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                Rename Folder
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowRenameFolderDialog(false);
+                  setRenamingFolder(null);
+                }}
+                className="border-white/20 bg-transparent text-white hover:bg-white/10"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
