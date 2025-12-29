@@ -8,6 +8,13 @@ import { SubtleDots } from "@/components/backgrounds/SubtleDots";
 import { TiltCard } from "@/components/effects/TiltCard";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
 import { Navigation } from "@/components/layout/Navigation";
+import { GitHubActivity } from "@/components/features/GitHubActivity";
+import { InteractiveTimeline } from "@/components/features/InteractiveTimeline";
+import { SkillTree } from "@/components/features/SkillTree";
+import { CodePlayground } from "@/components/features/CodePlayground";
+import { Project3DGallery } from "@/components/features/Project3DGallery";
+import { CircuitSimulator } from "@/components/features/CircuitSimulator";
+import { SensorDashboard } from "@/components/features/SensorDashboard";
 
 export default function Home() {
   const { data: projects } = trpc.projects.list.useQuery();
@@ -680,6 +687,15 @@ export default function Home() {
           </AnimatedSection>
         </div>
       </section>
+
+      {/* NEW FEATURES - Interactive Components */}
+      <GitHubActivity />
+      <InteractiveTimeline />
+      <SkillTree />
+      <CodePlayground />
+      <Project3DGallery />
+      <CircuitSimulator />
+      <SensorDashboard />
 
       {/* Premium Animations */}
       <style>{`
