@@ -16,7 +16,8 @@ import {
   CheckCircle,
   XCircle,
   Book,
-  Sparkles
+  Sparkles,
+  Code
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

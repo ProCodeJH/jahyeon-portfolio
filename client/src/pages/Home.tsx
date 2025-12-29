@@ -9,7 +9,6 @@ import { TiltCard } from "@/components/effects/TiltCard";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
 import { Navigation } from "@/components/layout/Navigation";
 import { GitHubActivity } from "@/components/features/GitHubActivity";
-import { InteractiveTimeline } from "@/components/features/InteractiveTimeline";
 
 export default function Home() {
   const { data: projects } = trpc.projects.list.useQuery();
@@ -685,7 +684,6 @@ export default function Home() {
 
       {/* NEW FEATURES - Interactive Components */}
       <GitHubActivity />
-      <InteractiveTimeline />
 
       {/* Premium Animations */}
       <style>{`
