@@ -7,6 +7,8 @@ export function Navigation() {
 
   const menuItems = [
     { name: "Work", path: "/projects" },
+    { name: "Circuit Lab", path: "/circuit-lab" },
+    { name: "Code Editor", path: "/code-editor" },
     { name: "Certifications", path: "/certifications" },
     { name: "Resources", path: "/resources" }
   ];

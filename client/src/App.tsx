@@ -9,6 +9,8 @@ import Projects from "./pages/Projects";
 import Certifications from "./pages/Certifications";
 import Resources from "./pages/Resources";
 import Admin from "./pages/Admin";
+import CircuitLab from "./pages/CircuitLab";
+import CodeEditor from "./pages/CodeEditor";
 
 function Router() {
   return (
@@ -18,6 +20,8 @@ function Router() {
       <Route path="/certifications" component={Certifications} />
       <Route path="/resources" component={Resources} />
       <Route path="/admin" component={Admin} />
+      <Route path="/circuit-lab" component={CircuitLab} />
+      <Route path="/code-editor" component={CodeEditor} />
       <Route path="/404" component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
