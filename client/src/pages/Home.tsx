@@ -8,6 +8,7 @@ import { SubtleDots } from "@/components/backgrounds/SubtleDots";
 import { TiltCard } from "@/components/effects/TiltCard";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
 import { Navigation } from "@/components/layout/Navigation";
+import { SplineScene } from "@/components/3d/SplineScene";
 
 export default function Home() {
   const { data: projects } = trpc.projects.list.useQuery();
@@ -19,6 +20,13 @@ export default function Home() {
       <div className="fixed inset-0">
         <GradientMeshBackground />
         <SubtleDots />
+
+        {/* 🎨 Abstract/Art Theme - Spline 3D */}
+        <SplineScene
+          sceneUrl="https://prod.spline.design/ZIloIOkaB5v3Q89d/scene.splinecode"
+          opacity={0.35}
+          className="pointer-events-auto"
+        />
 
         {/* Ambient Light Effects */}
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" />
