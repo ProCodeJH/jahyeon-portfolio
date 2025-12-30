@@ -259,14 +259,14 @@ export default function CodeEditor() {
   // Theme application with safeguard for SSR
   useEffect(() => {
     if (settings?.theme) {
-      document.documentElement.setAttribute('data-theme', settings.theme);
+      document.documentElement.setAttribute('data-theme', settings?.theme);
     }
   }, [settings?.theme]);
 
   const getThemeClasses = () => {
     if (!settings) return 'bg-[#1E1E1E] text-white'; // Default to dark theme
 
-    switch (settings.theme) {
+    switch (settings?.theme) {
       case 'dark':
         return 'bg-[#1E1E1E] text-white';
       case 'high-contrast':

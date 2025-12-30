@@ -26,12 +26,12 @@ export function SplitEditor() {
   };
 
   const getEditorOptions = () => ({
-    minimap: { enabled: settings.minimap },
-    fontSize: settings.fontSize,
-    fontFamily: settings.fontFamily,
-    tabSize: settings.tabSize,
-    wordWrap: settings.wordWrap ? 'on' as const : 'off' as const,
-    lineNumbers: settings.lineNumbers ? 'on' as const : 'off' as const,
+    minimap: { enabled: settings?.minimap ?? true },
+    fontSize: settings?.fontSize ?? 14,
+    fontFamily: settings?.fontFamily ?? 'monospace',
+    tabSize: settings?.tabSize ?? 2,
+    wordWrap: settings?.wordWrap ? 'on' as const : 'off' as const,
+    lineNumbers: settings?.lineNumbers ? 'on' as const : 'off' as const,
     scrollBeyondLastLine: false,
     automaticLayout: true,
     smoothScrolling: true,
