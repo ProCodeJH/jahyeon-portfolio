@@ -10,7 +10,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   root: "./apps/web",
   build: {
-    outDir: "../dist/public",
+    outDir: "../../dist/public",
     emptyOutDir: true,
   },
   resolve: {
