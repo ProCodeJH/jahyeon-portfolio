@@ -9,3 +9,11 @@ export * from './contracts';
 // Export core data structures
 export { ConnectivityGraph } from './ConnectivityGraph';
 export { ComponentRegistry, componentRegistry } from './ComponentRegistry';
+
+// Export demo circuits
+export {
+  getBlinkDemo,
+  getUltrasonicDemo,
+  getServoDemo,
+  getAllDemos,
+} from './DemoCircuits';
