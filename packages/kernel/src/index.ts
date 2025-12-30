@@ -11,6 +11,21 @@ export { ConnectivityGraph } from './ConnectivityGraph';
 export { ComponentRegistry, componentRegistry } from './ComponentRegistry';
 export { LogicAnalyzer } from './LogicAnalyzer';
 
+// Export command system (undo/redo)
+export {
+  CommandHistory,
+  GroupCommand,
+  AddComponentCommand,
+  RemoveComponentCommand,
+  MoveComponentCommand,
+  AddWireCommand,
+  RemoveWireCommand,
+  UpdatePropertyCommand,
+} from './CommandHistory';
+
+// Export project file management
+export { ProjectFileManager } from './ProjectFile';
+
 // Export demo circuits
 export {
   getBlinkDemo,
