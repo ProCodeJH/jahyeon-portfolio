@@ -1,13 +1,14 @@
 /**
- * Professional Circuit Lab - Tinkercad Quality
- * Left: Code Editor | Center: Circuit Canvas | Right: Component Library
+ * Professional Circuit Lab - 완전히 작동하는 Tinkercad 퀄리티
+ * 실제 Arduino 코드 실행 + 컴포넌트 시뮬레이션
  */
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Navigation } from '@/components/layout/Navigation';
 import { useCircuitStore } from '@/lib/circuit-store';
 import { ComponentLibrary } from '@/components/circuit/ComponentLibrary';
 import { CircuitCanvas } from '@/components/circuit/CircuitCanvas';
+import { ArduinoSimulator } from '@/utils/arduino-simulator';
 import Editor from '@monaco-editor/react';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,15 +19,14 @@ import {
   Grid3x3,
   FileText,
   Trash2,
-  Download,
-  Upload,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 
-const defaultCode = `// Tinkercad-Style Circuit Lab
+const defaultCode = `// Professional Circuit Lab
+// 완전히 작동하는 Arduino 시뮬레이터
 #define LED_PIN 13
 #define PIR_PIN 7
 #define PHOTO_PIN A0
@@ -37,7 +37,7 @@ void setup() {
   Serial.begin(115200);
 
   Serial.println("🎨 Circuit Lab Ready!");
-  Serial.println("Drag components to the canvas");
+  Serial.println("Real Arduino Simulation Running!");
 }
 
 void loop() {
@@ -51,9 +51,10 @@ void loop() {
   Serial.print(" | Light: ");
   Serial.println(lightValue);
 
-  // Control LED
+  // Control LED based on PIR
   if (pirState == HIGH) {
     digitalWrite(LED_PIN, HIGH);
+    Serial.println("💡 LED ON");
   } else {
     digitalWrite(LED_PIN, LOW);
   }
@@ -68,37 +69,185 @@ export default function CircuitLab() {
   const [serialOutput, setSerialOutput] = useState('');
   const [showCodeEditor, setShowCodeEditor] = useState(true);
   const [showSerialMonitor, setShowSerialMonitor] = useState(true);
+  const [compileError, setCompileError] = useState('');
+
+  const simulatorRef = useRef<ArduinoSimulator | null>(null);
+  const serialBufferRef = useRef<HTMLDivElement>(null);
+
+  // Initialize Arduino Simulator
+  useEffect(() => {
+    simulatorRef.current = new ArduinoSimulator({
+      onSerialOutput: (text) => {
+        setSerialOutput(prev => {
+          const newOutput = prev + text;
+          // Auto-scroll to bottom
+          setTimeout(() => {
+            if (serialBufferRef.current) {
+              serialBufferRef.current.scrollTop = serialBufferRef.current.scrollHeight;
+            }
+          }, 10);
+          return newOutput;
+        });
+      },
+      onPinChange: (pin, digitalValue, analogValue) => {
+        console.log(`Pin ${pin} changed: Digital=${digitalValue}, Analog=${analogValue}`);
+
+        // Update component visuals based on pin changes
+        const store = useCircuitStore.getState();
+        const updatedComponents = store.components.map(component => {
+          // Update Arduino UNO onboard LED (pin 13)
+          if (component.type === 'arduino-uno' && pin === 13) {
+            return {
+              ...component,
+              properties: {
+                ...component.properties,
+                led13Brightness: analogValue / 1023, // 0-1 range
+                led13On: digitalValue,
+              }
+            };
+          }
+
+          // Update LED components connected to this pin
+          if (component.type === 'led') {
+            // Check if any pin of this LED is connected to the Arduino pin
+            const isConnected = component.pins.some(p => {
+              // Check if there's a wire connecting this pin to Arduino pin
+              const wire = store.wires.find(w =>
+                (w.fromPinId === p.id || w.toPinId === p.id)
+              );
+              return wire !== undefined;
+            });
+
+            if (isConnected) {
+              return {
+                ...component,
+                properties: {
+                  ...component.properties,
+                  brightness: analogValue / 1023, // 0-1 range for PWM
+                  isOn: digitalValue,
+                }
+              };
+            }
+          }
+
+          return component;
+        });
+
+        // Update the store with new component states
+        store.loadCircuit({ components: updatedComponents });
+      },
+      onAnalogRead: (pin) => {
+        // Simulate sensor values
+        if (pin === 14) { // A0 (PHOTO_PIN)
+          // Simulate photoresistor: random light values
+          return Math.floor(Math.random() * 300) + 400; // 400-700
+        }
+        return 0;
+      }
+    });
+
+    return () => {
+      if (simulatorRef.current) {
+        simulatorRef.current.stop();
+      }
+    };
+  }, []);
+
+  // Simulate PIR sensor and photoresistor
+  useEffect(() => {
+    if (!isRunning || !simulatorRef.current) return;
+
+    // PIR sensor simulation (every 2 seconds)
+    const pirInterval = setInterval(() => {
+      if (simulatorRef.current) {
+        // Randomly trigger PIR sensor (pin 7)
+        const motion = Math.random() > 0.7; // 30% chance of motion
+        simulatorRef.current.setPinValue(7, motion);
+
+        // Update PIR sensor visual state
+        const store = useCircuitStore.getState();
+        const updatedComponents = store.components.map(component => {
+          if (component.type === 'pir-sensor') {
+            return {
+              ...component,
+              properties: {
+                ...component.properties,
+                motionDetected: motion,
+              }
+            };
+          }
+          return component;
+        });
+        store.loadCircuit({ components: updatedComponents });
+      }
+    }, 2000);
+
+    // Photoresistor simulation (every 500ms)
+    const photoInterval = setInterval(() => {
+      const store = useCircuitStore.getState();
+      const updatedComponents = store.components.map(component => {
+        if (component.type === 'photoresistor') {
+          // Simulate varying light levels
+          const newLightLevel = Math.floor(Math.random() * 300) + 400; // 400-700
+          return {
+            ...component,
+            properties: {
+              ...component.properties,
+              lightLevel: newLightLevel,
+            }
+          };
+        }
+        return component;
+      });
+      store.loadCircuit({ components: updatedComponents });
+    }, 500);
+
+    return () => {
+      clearInterval(pirInterval);
+      clearInterval(photoInterval);
+    };
+  }, [isRunning]);
 
   const handleRun = async () => {
+    if (!simulatorRef.current) return;
+
+    setCompileError('');
+    setSerialOutput('🔨 Compiling Arduino code...\n');
+
+    // Simulate compilation delay
+    await new Promise(resolve => setTimeout(resolve, 600));
+
+    // Compile code
+    const result = await simulatorRef.current.compile(code);
+
+    if (!result.success) {
+      setCompileError(result.error || 'Compilation failed');
+      setSerialOutput(prev => prev + `\n❌ Compilation Error:\n${result.error}\n`);
+      return;
+    }
+
+    setSerialOutput(prev => prev + '✅ Compilation successful!\n🚀 Starting simulation...\n\n');
+
+    // Start Arduino simulation
+    await new Promise(resolve => setTimeout(resolve, 300));
+    simulatorRef.current.start();
     setIsRunning(true);
-    setSerialOutput('🔨 Compiling code...\n');
-
-    await new Promise(resolve => setTimeout(resolve, 800));
-
-    setSerialOutput(prev => prev + '✅ Compilation successful\n🚀 Running simulation...\n\n');
-
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    const mockOutput = `🎨 Circuit Lab Ready!
-Drag components to the canvas
-PIR: None | Light: 512
-PIR: None | Light: 515
-PIR: MOTION | Light: 498
-PIR: MOTION | Light: 501
-
-✅ Simulation running...`;
-
-    setSerialOutput(prev => prev + mockOutput);
   };
 
   const handleStop = () => {
+    if (simulatorRef.current) {
+      simulatorRef.current.stop();
+    }
     setIsRunning(false);
-    setSerialOutput(prev => prev + '\n\n⏹️ Simulation stopped\n');
   };
 
   const handleReset = () => {
+    if (simulatorRef.current) {
+      simulatorRef.current.reset();
+    }
     setIsRunning(false);
     setSerialOutput('');
+    setCompileError('');
   };
 
   return (
@@ -116,8 +265,13 @@ PIR: MOTION | Light: 501
             <div className="flex items-center gap-2 text-sm">
               <span className="font-bold text-gray-900">Circuit Lab</span>
               <span className="text-gray-400">/</span>
-              <span className="text-gray-600">Tinkercad Style</span>
+              <span className="text-gray-600">Professional Arduino Simulator</span>
             </div>
+            {compileError && (
+              <span className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded">
+                ❌ Compile Error
+              </span>
+            )}
           </div>
 
           {/* Center: View Modes */}
@@ -143,11 +297,16 @@ PIR: MOTION | Light: 501
             <Button
               onClick={handleRun}
               disabled={isRunning}
-              className="bg-green-600 hover:bg-green-700 h-8"
+              className={cn(
+                "h-8",
+                isRunning
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-green-600 hover:bg-green-700"
+              )}
               size="sm"
             >
               <Play className="w-3.5 h-3.5 mr-1.5" />
-              {isRunning ? 'Running' : 'Start'}
+              {isRunning ? 'Running...' : 'Start Simulation'}
             </Button>
 
             <Button
@@ -166,6 +325,7 @@ PIR: MOTION | Light: 501
               variant="ghost"
               size="sm"
               className="h-8"
+              title="Reset Simulation"
             >
               <RotateCcw className="w-3.5 h-3.5" />
             </Button>
@@ -179,15 +339,7 @@ PIR: MOTION | Light: 501
               className="h-8 text-red-600 hover:text-red-700"
             >
               <Trash2 className="w-3.5 h-3.5 mr-1.5" />
-              Clear
-            </Button>
-
-            <Button variant="ghost" size="sm" className="h-8">
-              <Download className="w-3.5 h-3.5" />
-            </Button>
-
-            <Button variant="ghost" size="sm" className="h-8">
-              <Upload className="w-3.5 h-3.5" />
+              Clear Circuit
             </Button>
           </div>
         </div>
@@ -208,6 +360,7 @@ PIR: MOTION | Light: 501
                     <div className="flex items-center gap-2">
                       <CodeIcon className="w-4 h-4 text-blue-600" />
                       <span className="text-sm font-bold text-gray-900">Arduino Code</span>
+                      <span className="text-xs text-gray-500">(Live Editing)</span>
                     </div>
                     <Button
                       variant="ghost"
@@ -229,11 +382,14 @@ PIR: MOTION | Light: 501
                       options={{
                         minimap: { enabled: false },
                         fontSize: 13,
-                        fontFamily: 'JetBrains Mono, Fira Code, monospace',
+                        fontFamily: 'JetBrains Mono, Fira Code, Consolas, monospace',
                         lineNumbers: 'on',
                         scrollBeyondLastLine: false,
                         automaticLayout: true,
                         tabSize: 2,
+                        wordWrap: 'on',
+                        cursorStyle: 'line',
+                        smoothScrolling: true,
                       }}
                     />
                   </div>
@@ -247,6 +403,7 @@ PIR: MOTION | Light: 501
             <button
               onClick={() => setShowCodeEditor(true)}
               className="w-8 bg-white border-r border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors"
+              title="Show Code Editor"
             >
               <ChevronRight className="w-4 h-4 text-gray-600" />
             </button>
@@ -267,7 +424,7 @@ PIR: MOTION | Light: 501
                       Schematic View
                     </h3>
                     <p className="text-sm text-gray-500 max-w-md">
-                      Auto-generated circuit schematic coming soon!
+                      Auto-generated circuit schematic coming in Phase 1.4
                     </p>
                   </div>
                 </div>
@@ -275,51 +432,79 @@ PIR: MOTION | Light: 501
             )}
 
             {viewMode === 'code' && (
-              <div className="flex-1 p-6 overflow-auto">
-                <Editor
-                  height="100%"
-                  language="cpp"
-                  value={code}
-                  onChange={(value) => setCode(value || '')}
-                  theme="light"
-                  options={{
-                    minimap: { enabled: true },
-                    fontSize: 14,
-                    fontFamily: 'JetBrains Mono, Fira Code, monospace',
-                    lineNumbers: 'on',
-                    scrollBeyondLastLine: false,
-                    automaticLayout: true,
-                    tabSize: 2,
-                  }}
-                />
+              <div className="flex-1 p-6 overflow-auto bg-white">
+                <div className="max-w-5xl mx-auto">
+                  <div className="mb-4 flex items-center justify-between">
+                    <h2 className="text-lg font-bold text-gray-900">Full Code Editor</h2>
+                    <div className="flex gap-2">
+                      <Button onClick={handleRun} disabled={isRunning} size="sm" className="bg-green-600 hover:bg-green-700">
+                        <Play className="w-4 h-4 mr-1.5" />
+                        Run Code
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="border border-gray-200 rounded-lg overflow-hidden" style={{ height: 'calc(100vh - 250px)' }}>
+                    <Editor
+                      height="100%"
+                      language="cpp"
+                      value={code}
+                      onChange={(value) => setCode(value || '')}
+                      theme="light"
+                      options={{
+                        minimap: { enabled: true },
+                        fontSize: 14,
+                        fontFamily: 'JetBrains Mono, Fira Code, Consolas, monospace',
+                        lineNumbers: 'on',
+                        scrollBeyondLastLine: false,
+                        automaticLayout: true,
+                        tabSize: 2,
+                        wordWrap: 'on',
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
             )}
 
             {/* Bottom: Serial Monitor (Collapsible) */}
             {showSerialMonitor && viewMode !== 'code' && (
-              <div className="h-48 border-t border-gray-200 bg-white shrink-0">
-                <div className="flex items-center justify-between px-4 py-2 bg-gray-900 border-b border-gray-700">
-                  <div className="flex items-center gap-2">
+              <div className="h-48 border-t border-gray-200 bg-gray-900 shrink-0 flex flex-col">
+                <div className="flex items-center justify-between px-4 py-2 bg-gray-800 border-b border-gray-700 shrink-0">
+                  <div className="flex items-center gap-3">
                     <div className={cn(
-                      'w-2 h-2 rounded-full',
-                      isRunning ? 'bg-green-500 animate-pulse' : 'bg-gray-500'
+                      'w-2 h-2 rounded-full transition-all',
+                      isRunning ? 'bg-green-500 animate-pulse shadow-lg shadow-green-500/50' : 'bg-gray-500'
                     )} />
                     <span className="text-sm font-bold text-white">Serial Monitor</span>
-                    <span className="text-xs text-gray-400">115200 baud</span>
+                    <span className="text-xs text-gray-400">115200 baud | Real-time Output</span>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowSerialMonitor(false)}
-                    className="h-6 text-white hover:bg-gray-800"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSerialOutput('')}
+                      className="h-6 text-xs text-gray-400 hover:text-white hover:bg-gray-700"
+                    >
+                      Clear
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowSerialMonitor(false)}
+                      className="h-6 text-white hover:bg-gray-700"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
 
-                <div className="h-[calc(100%-40px)] overflow-auto p-4 bg-gray-900 font-mono text-sm">
-                  <pre className="text-green-400 whitespace-pre-wrap">
-                    {serialOutput || '// Waiting for simulation to start...'}
+                <div
+                  ref={serialBufferRef}
+                  className="flex-1 overflow-auto p-4 font-mono text-sm"
+                  style={{ maxHeight: '176px' }}
+                >
+                  <pre className="text-green-400 whitespace-pre-wrap leading-relaxed">
+                    {serialOutput || '// Waiting for simulation to start...\n// Click "Start Simulation" to run your Arduino code!'}
                   </pre>
                 </div>
               </div>
@@ -328,7 +513,7 @@ PIR: MOTION | Light: 501
             {!showSerialMonitor && viewMode !== 'code' && (
               <button
                 onClick={() => setShowSerialMonitor(true)}
-                className="h-8 bg-gray-900 text-white flex items-center justify-center hover:bg-gray-800 transition-colors text-sm"
+                className="h-8 bg-gray-900 text-white flex items-center justify-center hover:bg-gray-800 transition-colors text-sm font-medium"
               >
                 <ChevronRight className="w-4 h-4 mr-1" />
                 Show Serial Monitor

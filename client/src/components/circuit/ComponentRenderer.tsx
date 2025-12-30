@@ -88,7 +88,19 @@ export function ComponentRenderer({ component, isSelected }: ComponentRendererPr
             <text x={definition.width - 35} y={23} fill="#00FF00" fontSize={10}>PWR</text>
 
             {/* Pin 13 LED */}
-            <circle cx={definition.width / 2} cy={definition.height / 2} r={12} fill="#FF0000" opacity={0.3} />
+            <circle
+              cx={definition.width / 2}
+              cy={definition.height / 2}
+              r={12}
+              fill="#FF0000"
+              opacity={component.properties.led13On ? (component.properties.led13Brightness || 0.8) : 0.1}
+            />
+            {component.properties.led13On && (
+              <>
+                <circle cx={definition.width / 2} cy={definition.height / 2} r={16} fill="#FF0000" opacity={0.3} />
+                <circle cx={definition.width / 2} cy={definition.height / 2} r={20} fill="#FF0000" opacity={0.15} />
+              </>
+            )}
 
             {/* Digital Pins */}
             {[...Array(14)].map((_, i) => (
@@ -109,11 +121,24 @@ export function ComponentRenderer({ component, isSelected }: ComponentRendererPr
         );
 
       case 'led':
+        const ledBrightness = component.properties.brightness ?? 0;
+        const ledIsOn = component.properties.isOn ?? false;
+        const ledColor = component.properties.color || 'red';
+        const ledOpacity = ledIsOn ? Math.max(0.4, ledBrightness) : 0.1;
+
         return (
           <g>
             {/* LED Body */}
-            <ellipse cx={15} cy={20} rx={15} ry={20} fill={component.properties.color || 'red'} opacity={0.7} />
-            <ellipse cx={15} cy={20} rx={12} ry={17} fill={component.properties.color || 'red'} opacity={0.4} />
+            <ellipse cx={15} cy={20} rx={15} ry={20} fill={ledColor} opacity={ledOpacity * 0.7} />
+            <ellipse cx={15} cy={20} rx={12} ry={17} fill={ledColor} opacity={ledOpacity * 0.4} />
+
+            {/* Glow effect when ON */}
+            {ledIsOn && ledBrightness > 0.3 && (
+              <>
+                <ellipse cx={15} cy={20} rx={20} ry={25} fill={ledColor} opacity={ledBrightness * 0.3} />
+                <ellipse cx={15} cy={20} rx={25} ry={30} fill={ledColor} opacity={ledBrightness * 0.15} />
+              </>
+            )}
 
             {/* Leads */}
             <line x1={15} y1={40} x2={15} y2={60} stroke="#666" strokeWidth={2} />
@@ -143,6 +168,8 @@ export function ComponentRenderer({ component, isSelected }: ComponentRendererPr
         );
 
       case 'pir-sensor':
+        const pirActive = component.properties.motionDetected ?? false;
+
         return (
           <g>
             {/* Sensor Body */}
@@ -150,7 +177,20 @@ export function ComponentRenderer({ component, isSelected }: ComponentRendererPr
 
             {/* Lens */}
             <circle cx={30} cy={30} r={20} fill="white" opacity={0.8} />
-            <circle cx={30} cy={30} r={16} fill="#E0E0E0" />
+            <circle cx={30} cy={30} r={16} fill={pirActive ? "#FFD700" : "#E0E0E0"} />
+
+            {/* Motion Detection Indicator */}
+            {pirActive && (
+              <>
+                <circle cx={30} cy={30} r={12} fill="#FF6B00" opacity={0.6}>
+                  <animate attributeName="r" values="12;16;12" dur="1s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.6;0.2;0.6" dur="1s" repeatCount="indefinite" />
+                </circle>
+                <circle cx={50} cy={15} r={3} fill="#FF0000">
+                  <animate attributeName="opacity" values="1;0.3;1" dur="0.8s" repeatCount="indefinite" />
+                </circle>
+              </>
+            )}
 
             {/* Label */}
             <text x={30} y={65} textAnchor="middle" fontSize={10} fontWeight="bold" fill="white">PIR</text>
@@ -186,6 +226,9 @@ export function ComponentRenderer({ component, isSelected }: ComponentRendererPr
         );
 
       case 'photoresistor':
+        const lightLevel = component.properties.lightLevel ?? 500;
+        const lightIntensity = Math.min(1, lightLevel / 1000); // 0-1 range
+
         return (
           <g>
             {/* LDR Body */}
@@ -199,8 +242,11 @@ export function ComponentRenderer({ component, isSelected }: ComponentRendererPr
             <line x1={20} y1={-5} x2={20} y2={0} stroke="#666" strokeWidth={2} />
             <line x1={20} y1={50} x2={20} y2={55} stroke="#666" strokeWidth={2} />
 
-            {/* Light Indicator */}
-            <circle cx={20} cy={25} r={8} fill="#FFFF00" opacity={0.3} />
+            {/* Light Indicator with dynamic brightness */}
+            <circle cx={20} cy={25} r={8} fill="#FFFF00" opacity={lightIntensity * 0.6} />
+            {lightIntensity > 0.5 && (
+              <circle cx={20} cy={25} r={12} fill="#FFFF00" opacity={lightIntensity * 0.3} />
+            )}
 
             {/* Label */}
             <text x={20} y={65} textAnchor="middle" fontSize={7} fill="#666">LDR</text>
