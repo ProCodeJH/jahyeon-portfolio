@@ -1,8 +1,11 @@
 'use client';
 
 import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Home() {
+  const { user } = useAuth();
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <div className="container mx-auto px-4 py-16">
@@ -52,18 +55,37 @@ export default function Home() {
 
         {/* CTA Buttons */}
         <div className="flex gap-4 justify-center mb-16">
-          <Link
-            href="/editor"
-            className="px-8 py-4 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors shadow-lg"
-          >
-            Launch Editor
-          </Link>
-          <Link
-            href="/docs"
-            className="px-8 py-4 bg-white text-gray-800 rounded-lg font-semibold hover:bg-gray-50 transition-colors shadow-lg border border-gray-200"
-          >
-            Documentation
-          </Link>
+          {user ? (
+            <>
+              <Link
+                href="/dashboard"
+                className="px-8 py-4 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors shadow-lg"
+              >
+                Go to Dashboard
+              </Link>
+              <Link
+                href="/editor"
+                className="px-8 py-4 bg-white text-gray-800 rounded-lg font-semibold hover:bg-gray-50 transition-colors shadow-lg border border-gray-200"
+              >
+                Launch Editor
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="px-8 py-4 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors shadow-lg"
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/register"
+                className="px-8 py-4 bg-white text-gray-800 rounded-lg font-semibold hover:bg-gray-50 transition-colors shadow-lg border border-gray-200"
+              >
+                Get Started
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Architecture Overview */}
@@ -91,9 +113,9 @@ export default function Home() {
 
         {/* Status */}
         <div className="mt-16 text-center">
-          <div className="inline-block bg-yellow-50 border border-yellow-200 rounded-lg px-6 py-3">
-            <span className="text-yellow-800 font-semibold">
-              🚧 Phase 1.0 Complete - Infrastructure scaffolded
+          <div className="inline-block bg-green-50 border border-green-200 rounded-lg px-6 py-3">
+            <span className="text-green-800 font-semibold">
+              ✅ Phase 1.1 Complete - Auth + Dashboard Ready
             </span>
           </div>
         </div>
