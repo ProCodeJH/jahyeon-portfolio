@@ -9,6 +9,7 @@ export * from './contracts';
 // Export core data structures
 export { ConnectivityGraph } from './ConnectivityGraph';
 export { ComponentRegistry, componentRegistry } from './ComponentRegistry';
+export { LogicAnalyzer } from './LogicAnalyzer';
 
 // Export demo circuits
 export {
