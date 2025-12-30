@@ -5,3 +5,7 @@
 
 export { ArduinoRuntime } from './ArduinoRuntime';
 export { HIGH, LOW, INPUT, OUTPUT, INPUT_PULLUP, A0, A1, A2, A3, A4, A5 } from './ArduinoRuntime';
+
+// Arduino Libraries
+export { Servo, createServo } from './ServoLibrary';
+export { Wire, WireClass, createWire } from './WireLibrary';
