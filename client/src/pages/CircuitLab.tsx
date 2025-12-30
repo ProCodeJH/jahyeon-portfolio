@@ -78,20 +78,22 @@ export default function CircuitLab() {
   // Add demo circuit on first load
   useEffect(() => {
     if (components.length === 0) {
-      // Add Arduino UNO
-      addComponent('arduino-uno', 200, 200);
+      // Add Arduino UNO (center)
+      addComponent('arduino-uno', 300, 300);
 
-      // Add Breadboard
-      addComponent('breadboard', 500, 200);
+      // Add Breadboard (right)
+      addComponent('breadboard', 600, 300);
 
-      // Add LED
-      addComponent('led', 600, 150);
-
-      // Add PIR Sensor
-      addComponent('pir-sensor', 400, 350);
-
-      // Add Photoresistor
-      addComponent('photoresistor', 700, 350);
+      // Add components around the circuit
+      addComponent('led', 150, 200);
+      addComponent('pir-sensor', 150, 350);
+      addComponent('photoresistor', 150, 500);
+      addComponent('ultrasonic', 450, 150);
+      addComponent('servo', 450, 500);
+      addComponent('dht22', 750, 150);
+      addComponent('lcd', 750, 500);
+      addComponent('resistor', 250, 200);
+      addComponent('button', 250, 350);
     }
   }, []);
 

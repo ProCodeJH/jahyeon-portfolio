@@ -11,6 +11,10 @@ import { PIRSensor3D } from './PIRSensor3D';
 import { Photoresistor3D } from './Photoresistor3D';
 import { Button3D } from './Button3D';
 import { Breadboard3D } from './Breadboard3D';
+import { UltrasonicSensor3D } from './UltrasonicSensor3D';
+import { ServoMotor3D } from './ServoMotor3D';
+import { DHT22Sensor3D } from './DHT22Sensor3D';
+import { LCD1602Display3D } from './LCD1602Display3D';
 
 interface Component3DProps {
   component: Component;
@@ -90,6 +94,45 @@ export function Component3D({ component }: Component3DProps) {
 
     case 'breadboard':
       return <Breadboard3D position={position3D} />;
+
+    case 'ultrasonic':
+      return (
+        <UltrasonicSensor3D
+          position={position3D}
+          rotation={rotation3D}
+          distance={component.properties.distance}
+          isActive={component.properties.isActive}
+        />
+      );
+
+    case 'servo':
+      return (
+        <ServoMotor3D
+          position={position3D}
+          rotation={rotation3D}
+          angle={component.properties.angle || 90}
+        />
+      );
+
+    case 'dht22':
+      return (
+        <DHT22Sensor3D
+          position={position3D}
+          rotation={rotation3D}
+          temperature={component.properties.temperature}
+          humidity={component.properties.humidity}
+        />
+      );
+
+    case 'lcd':
+      return (
+        <LCD1602Display3D
+          position={position3D}
+          rotation={rotation3D}
+          text={component.properties.text}
+          backlight={component.properties.backlight}
+        />
+      );
 
     default:
       // Fallback: generic box
