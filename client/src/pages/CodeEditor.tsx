@@ -256,12 +256,16 @@ export default function CodeEditor() {
 
   const [output, setOutput] = useState('');
 
-  // Theme application
+  // Theme application with safeguard for SSR
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', settings.theme);
-  }, [settings.theme]);
+    if (settings?.theme) {
+      document.documentElement.setAttribute('data-theme', settings.theme);
+    }
+  }, [settings?.theme]);
 
   const getThemeClasses = () => {
+    if (!settings) return 'bg-[#1E1E1E] text-white'; // Default to dark theme
+
     switch (settings.theme) {
       case 'dark':
         return 'bg-[#1E1E1E] text-white';
@@ -298,14 +302,14 @@ export default function CodeEditor() {
                   maxSize={40}
                   className={cn(
                     'border-r',
-                    settings.theme === 'dark' ? 'border-[#2D2D2D]' : 'border-gray-200'
+                    settings?.theme === 'dark' ? 'border-[#2D2D2D]' : 'border-gray-200'
                   )}
                 >
                   {activeActivityBarItem === 'explorer' && <FileTree />}
                   {activeActivityBarItem === 'search' && (
                     <div className={cn(
                       'h-full flex items-center justify-center',
-                      settings.theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
+                      settings?.theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
                     )}>
                       <p className="text-sm">Search panel coming soon</p>
                     </div>
@@ -313,7 +317,7 @@ export default function CodeEditor() {
                   {activeActivityBarItem === 'git' && (
                     <div className={cn(
                       'h-full flex items-center justify-center',
-                      settings.theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
+                      settings?.theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
                     )}>
                       <p className="text-sm">Git integration coming soon</p>
                     </div>
@@ -321,7 +325,7 @@ export default function CodeEditor() {
                   {activeActivityBarItem === 'extensions' && (
                     <div className={cn(
                       'h-full flex items-center justify-center',
-                      settings.theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
+                      settings?.theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
                     )}>
                       <p className="text-sm">Extensions coming soon</p>
                     </div>
@@ -330,12 +334,12 @@ export default function CodeEditor() {
 
                 <PanelResizeHandle className={cn(
                   'w-1 relative group',
-                  settings.theme === 'dark' ? 'bg-[#2D2D2D]' : 'bg-gray-200'
+                  settings?.theme === 'dark' ? 'bg-[#2D2D2D]' : 'bg-gray-200'
                 )}>
                   <div className={cn(
                     'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity',
                     'w-6 h-12 flex items-center justify-center rounded',
-                    settings.theme === 'dark' ? 'bg-[#37373D]' : 'bg-gray-300'
+                    settings?.theme === 'dark' ? 'bg-[#37373D]' : 'bg-gray-300'
                   )}>
                     <GripVertical className="w-4 h-4" />
                   </div>
@@ -362,12 +366,12 @@ export default function CodeEditor() {
                   <>
                     <PanelResizeHandle className={cn(
                       'h-1 relative group',
-                      settings.theme === 'dark' ? 'bg-[#2D2D2D]' : 'bg-gray-200'
+                      settings?.theme === 'dark' ? 'bg-[#2D2D2D]' : 'bg-gray-200'
                     )}>
                       <div className={cn(
                         'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity',
                         'w-12 h-6 flex items-center justify-center rounded',
-                        settings.theme === 'dark' ? 'bg-[#37373D]' : 'bg-gray-300'
+                        settings?.theme === 'dark' ? 'bg-[#37373D]' : 'bg-gray-300'
                       )}>
                         <GripVertical className="w-4 h-4 rotate-90" />
                       </div>
@@ -399,7 +403,7 @@ export default function CodeEditor() {
           onClick={() => useEnterpriseIDE.getState().toggleZenMode()}
           className={cn(
             'fixed top-4 right-4 p-2 rounded-lg shadow-lg transition-colors z-50',
-            settings.theme === 'dark'
+            settings?.theme === 'dark'
               ? 'bg-[#37373D] text-white hover:bg-[#3E3E42]'
               : 'bg-white text-gray-900 hover:bg-gray-100'
           )}

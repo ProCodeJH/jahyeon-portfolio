@@ -13,7 +13,9 @@ export function SplitEditor() {
   const { editorGroups, activeGroupId, settings, updateTabContent } = useIDEStore();
 
   const getMonacoTheme = () => {
-    switch (settings.theme) {
+    if (!settings) return 'vs-dark';
+
+    switch (settings?.theme) {
       case 'dark':
         return 'vs-dark';
       case 'high-contrast':
@@ -57,25 +59,25 @@ export function SplitEditor() {
     return (
       <div className={cn(
         'flex-1 flex items-center justify-center',
-        settings.theme === 'dark' ? 'bg-[#1E1E1E]' : 'bg-white'
+        settings?.theme === 'dark' ? 'bg-[#1E1E1E]' : 'bg-white'
       )}>
         <div className="text-center space-y-4">
           <div className={cn(
             'text-6xl mb-4',
-            settings.theme === 'dark' ? 'text-gray-600' : 'text-gray-300'
+            settings?.theme === 'dark' ? 'text-gray-600' : 'text-gray-300'
           )}>
             📝
           </div>
           <div className="space-y-2">
             <h3 className={cn(
               'text-xl font-bold',
-              settings.theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+              settings?.theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
             )}>
               No Editor Open
             </h3>
             <p className={cn(
               'text-sm',
-              settings.theme === 'dark' ? 'text-gray-500' : 'text-gray-500'
+              settings?.theme === 'dark' ? 'text-gray-500' : 'text-gray-500'
             )}>
               Select a file from Explorer or open a Template
             </p>
@@ -152,7 +154,7 @@ export function SplitEditor() {
               ) : (
                 <div className={cn(
                   'flex items-center justify-center h-full',
-                  settings.theme === 'dark' ? 'bg-[#1E1E1E] text-gray-500' : 'bg-white text-gray-400'
+                  settings?.theme === 'dark' ? 'bg-[#1E1E1E] text-gray-500' : 'bg-white text-gray-400'
                 )}>
                   <p className="text-sm">No file open in this editor group</p>
                 </div>
@@ -163,12 +165,12 @@ export function SplitEditor() {
             {index < editorGroups.length - 1 && (
               <PanelResizeHandle className={cn(
                 'w-1 relative group',
-                settings.theme === 'dark' ? 'bg-[#2D2D2D]' : 'bg-gray-200'
+                settings?.theme === 'dark' ? 'bg-[#2D2D2D]' : 'bg-gray-200'
               )}>
                 <div className={cn(
                   'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity',
                   'w-6 h-12 flex items-center justify-center rounded',
-                  settings.theme === 'dark' ? 'bg-[#37373D]' : 'bg-gray-300'
+                  settings?.theme === 'dark' ? 'bg-[#37373D]' : 'bg-gray-300'
                 )}>
                   <GripVertical className="w-4 h-4" />
                 </div>
