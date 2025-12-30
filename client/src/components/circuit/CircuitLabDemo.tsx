@@ -13,44 +13,43 @@
 import { useState, useEffect } from 'react';
 import { Circuit3DCanvas } from './Circuit3DCanvas';
 import { getAllDemos } from '@circuit-sim/kernel/DemoCircuits';
-import type { CircuitDef, SerialOutput } from '@circuit-sim/kernel/contracts';
+import { useSimulation } from '@/hooks/useSimulation';
+import type { CircuitDef } from '@circuit-sim/kernel/contracts';
 
 type DemoName = 'blink' | 'ultrasonic' | 'servo';
 
 export function CircuitLabDemo() {
   const [selectedDemo, setSelectedDemo] = useState<DemoName>('blink');
   const [circuit, setCircuit] = useState<CircuitDef | null>(null);
-  const [isRunning, setIsRunning] = useState(false);
-  const [serialOutput, setSerialOutput] = useState<SerialOutput[]>([]);
+
+  // Use simulation hook
+  const sim = useSimulation();
 
   // Load demo circuit
   useEffect(() => {
     const demos = getAllDemos();
-    setCircuit(demos[selectedDemo]);
-    setSerialOutput([]);
-  }, [selectedDemo]);
+    const newCircuit = demos[selectedDemo];
+    setCircuit(newCircuit);
+
+    // Initialize simulation with new circuit
+    if (sim.state.isInitialized) {
+      sim.init(newCircuit);
+    }
+  }, [selectedDemo, sim.state.isInitialized]);
 
   const handleRun = () => {
-    setIsRunning(true);
+    sim.run();
     console.log('[Demo] Starting simulation...');
-    // TODO: Send RUN command to SimWorker
   };
 
   const handlePause = () => {
-    setIsRunning(false);
+    sim.pause();
     console.log('[Demo] Pausing simulation...');
-    // TODO: Send PAUSE command to SimWorker
   };
 
   const handleReset = () => {
-    setIsRunning(false);
-    setSerialOutput([]);
+    sim.reset();
     console.log('[Demo] Resetting circuit...');
-    // TODO: Send RESET command to SimWorker
-  };
-
-  const handleSerialMessage = (output: SerialOutput) => {
-    setSerialOutput(prev => [...prev, output]);
   };
 
   if (!circuit) {
@@ -105,14 +104,14 @@ export function CircuitLabDemo() {
             <div className="control-buttons">
               <button
                 onClick={handleRun}
-                disabled={isRunning}
+                disabled={sim.state.isRunning}
                 className="btn-primary"
               >
                 ▶️ Run
               </button>
               <button
                 onClick={handlePause}
-                disabled={!isRunning}
+                disabled={!sim.state.isRunning}
                 className="btn-secondary"
               >
                 ⏸️ Pause
@@ -125,7 +124,9 @@ export function CircuitLabDemo() {
               </button>
             </div>
             <div className="status-indicator">
-              Status: {isRunning ? '🟢 Running' : '🔴 Stopped'}
+              Status: {sim.state.isRunning ? '🟢 Running' : '🔴 Stopped'} |
+              Time: {(sim.state.time_us / 1000000).toFixed(2)}s |
+              FPS: {sim.state.fps}
             </div>
           </section>
 
@@ -141,12 +142,12 @@ export function CircuitLabDemo() {
           <section className="serial-section">
             <h3>💬 Serial Monitor (9600 baud)</h3>
             <div className="serial-output">
-              {serialOutput.length === 0 ? (
+              {sim.serialOutput.length === 0 ? (
                 <div className="serial-empty">
                   No output yet. Click Run to start.
                 </div>
               ) : (
-                serialOutput.map((output, i) => (
+                sim.serialOutput.map((output, i) => (
                   <div key={i} className="serial-line">
                     <span className="serial-time">
                       [{(output.timestamp_us / 1000000).toFixed(3)}s]
@@ -157,7 +158,7 @@ export function CircuitLabDemo() {
               )}
             </div>
             <button
-              onClick={() => setSerialOutput([])}
+              onClick={() => sim.reset()}
               className="btn-small"
             >
               Clear
