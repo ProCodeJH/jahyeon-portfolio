@@ -62,7 +62,7 @@ void loop() {
 }`;
 
 export default function CircuitLab() {
-  const { viewMode, setViewMode, components, clearCircuit } = useCircuitStore();
+  const { viewMode, setViewMode, components = [], clearCircuit } = useCircuitStore();
   const [code, setCode] = useState(defaultCode);
   const [isRunning, setIsRunning] = useState(false);
   const [serialOutput, setSerialOutput] = useState('');

@@ -8,7 +8,7 @@ import { Activity, GitBranch, Clock, Database } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function StatusBar() {
-  const { executionStatus, executionResult, activeTabId, tabs } = useIDEStore();
+  const { executionStatus, executionResult, activeTabId, tabs = [] } = useIDEStore();
 
   const activeTab = tabs.find(t => t.id === activeTabId);
 

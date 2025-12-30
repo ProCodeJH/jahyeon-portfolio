@@ -10,7 +10,7 @@ import { GripVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function SplitEditor() {
-  const { editorGroups, activeGroupId, settings, updateTabContent } = useIDEStore();
+  const { editorGroups = [], activeGroupId, settings, updateTabContent } = useIDEStore();
 
   const getMonacoTheme = () => {
     if (!settings) return 'vs-dark';

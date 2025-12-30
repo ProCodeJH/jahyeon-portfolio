@@ -124,7 +124,7 @@ function FileTreeItem({ file, depth }: FileTreeItemProps) {
 }
 
 export function FileTree() {
-  const { files } = useIDEStore();
+  const { files = [] } = useIDEStore();
 
   return (
     <div className="h-full flex flex-col bg-white">

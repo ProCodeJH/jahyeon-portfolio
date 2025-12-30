@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 
 export function CircuitCanvas() {
   const canvasRef = useRef<HTMLDivElement>(null);
-  const { components, wires, addComponent, selectedComponentId, selectComponent } = useCircuitStore();
+  const { components = [], wires = [], addComponent, selectedComponentId, selectComponent } = useCircuitStore();
   const [zoom, setZoom] = useState(1);
   const [showGrid, setShowGrid] = useState(true);
   const [pan, setPan] = useState({ x: 0, y: 0 });

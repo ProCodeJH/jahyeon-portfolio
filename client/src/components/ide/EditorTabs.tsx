@@ -8,7 +8,7 @@ import { X, Pin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function EditorTabs() {
-  const { tabs, activeTabId, setActiveTab, closeTab, pinTab } = useIDEStore();
+  const { tabs = [], activeTabId, setActiveTab, closeTab, pinTab } = useIDEStore();
 
   if (tabs.length === 0) {
     return null;

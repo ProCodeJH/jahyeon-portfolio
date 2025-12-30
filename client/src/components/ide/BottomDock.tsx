@@ -14,7 +14,7 @@ interface BottomDockProps {
 }
 
 export function BottomDock({ output }: BottomDockProps) {
-  const { problems } = useIDEStore();
+  const { problems = [] } = useIDEStore();
   const [isMaximized, setIsMaximized] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
 
