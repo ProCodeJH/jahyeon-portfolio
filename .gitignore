@@ -7,7 +7,6 @@ pnpm-lock.yaml
 # Build outputs
 dist/
 build/
-public/
 .next/
 out/
 
