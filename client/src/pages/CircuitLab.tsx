@@ -8,6 +8,7 @@ import { Navigation } from '@/components/layout/Navigation';
 import { useCircuitStore } from '@/lib/circuit-store';
 import { ComponentLibrary } from '@/components/circuit/ComponentLibrary';
 import { CircuitCanvas } from '@/components/circuit/CircuitCanvas';
+import { Circuit3DCanvas } from '@/components/circuit/Circuit3DCanvas';
 import { ArduinoSimulator } from '@/utils/arduino-simulator';
 import Editor from '@monaco-editor/react';
 import { Button } from '@/components/ui/button';
@@ -63,7 +64,7 @@ void loop() {
 }`;
 
 export default function CircuitLab() {
-  const { viewMode, setViewMode, components = [], clearCircuit } = useCircuitStore();
+  const { viewMode, setViewMode, components = [], clearCircuit, addComponent } = useCircuitStore();
   const [code, setCode] = useState(defaultCode);
   const [isRunning, setIsRunning] = useState(false);
   const [serialOutput, setSerialOutput] = useState('');
@@ -73,6 +74,26 @@ export default function CircuitLab() {
 
   const simulatorRef = useRef<ArduinoSimulator | null>(null);
   const serialBufferRef = useRef<HTMLDivElement>(null);
+
+  // Add demo circuit on first load
+  useEffect(() => {
+    if (components.length === 0) {
+      // Add Arduino UNO
+      addComponent('arduino-uno', 200, 200);
+
+      // Add Breadboard
+      addComponent('breadboard', 500, 200);
+
+      // Add LED
+      addComponent('led', 600, 150);
+
+      // Add PIR Sensor
+      addComponent('pir-sensor', 400, 350);
+
+      // Add Photoresistor
+      addComponent('photoresistor', 700, 350);
+    }
+  }, []);
 
   // Initialize Arduino Simulator
   useEffect(() => {
@@ -412,7 +433,7 @@ export default function CircuitLab() {
           {/* Center: Circuit Canvas or View */}
           <div className="flex-1 flex flex-col overflow-hidden">
             {viewMode === 'simulation' && (
-              <CircuitCanvas />
+              <Circuit3DCanvas />
             )}
 
             {viewMode === 'schematic' && (
