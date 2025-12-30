@@ -1,0 +1,17 @@
+{
+  "name": "@circuit-sim/kernel",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./contracts": "./src/contracts.ts",
+    "./ConnectivityGraph": "./src/ConnectivityGraph.ts",
+    "./ComponentRegistry": "./src/ComponentRegistry.ts",
+    "./LogicAnalyzer": "./src/LogicAnalyzer.ts",
+    "./CommandHistory": "./src/CommandHistory.ts",
+    "./ProjectFile": "./src/ProjectFile.ts",
+    "./DemoCircuits": "./src/DemoCircuits.ts"
+  }
+}

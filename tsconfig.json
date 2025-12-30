@@ -17,7 +17,15 @@
     "types": ["node", "vite/client"],
     "paths": {
       "@/*": ["./client/src/*"],
-      "@shared/*": ["./shared/*"]
+      "@shared/*": ["./shared/*"],
+      "@circuit-sim/kernel": ["./packages/kernel/src/index.ts"],
+      "@circuit-sim/kernel/*": ["./packages/kernel/src/*"],
+      "@circuit-sim/render": ["./packages/render/src/index.ts"],
+      "@circuit-sim/render/*": ["./packages/render/src/*"],
+      "@circuit-sim/mcu": ["./packages/mcu/src/index.ts"],
+      "@circuit-sim/mcu/*": ["./packages/mcu/src/*"],
+      "@circuit-sim/worker": ["./apps/worker/src/index.ts"],
+      "@circuit-sim/worker/*": ["./apps/worker/src/*"]
     }
   }
 }

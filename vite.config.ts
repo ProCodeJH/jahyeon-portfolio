@@ -17,6 +17,10 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./client/src"),
       "@shared": path.resolve(__dirname, "./shared"),
+      "@circuit-sim/kernel": path.resolve(__dirname, "./packages/kernel/src"),
+      "@circuit-sim/render": path.resolve(__dirname, "./packages/render/src"),
+      "@circuit-sim/mcu": path.resolve(__dirname, "./packages/mcu/src"),
+      "@circuit-sim/worker": path.resolve(__dirname, "./apps/worker/src"),
     },
   },
   server: {

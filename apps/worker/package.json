@@ -1,0 +1,12 @@
+{
+  "name": "@circuit-sim/worker",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./SimEngine": "./src/SimEngine.ts",
+    "./circuit.worker": "./src/circuit.worker.ts"
+  }
+}
