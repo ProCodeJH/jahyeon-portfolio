@@ -8,7 +8,7 @@
  * - Communication: Message-based (WorkerCommand → WorkerEvent)
  */
 
-import { SimEngine } from '@circuit-sim/worker/SimEngine';
+import { SimEngine } from './SimEngine';
 import { ArduinoRuntime } from '@circuit-sim/mcu';
 import { ConnectivityGraph } from '@circuit-sim/kernel';
 import type {
@@ -109,13 +109,13 @@ function handleInit(circuit: CircuitDef): void {
   // Create connectivity graph
   graph = new ConnectivityGraph();
 
+  // Create simulation engine
+  engine = new SimEngine(graph);
+
   // Add all wires to graph
   for (const wire of circuit.wires) {
     graph.addWire(wire);
   }
-
-  // Create simulation engine
-  engine = new SimEngine(graph);
 
   // Find Arduino component
   const arduinoComponent = circuit.components.find(c => c.type === 'arduino-uno');

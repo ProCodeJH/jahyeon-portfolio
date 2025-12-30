@@ -88,9 +88,14 @@ class EventQueue {
 /**
  * Simulation Engine
  */
+interface ComponentSimulator {
+  type: string;
+  simulate: (ctx: any) => Promise<void> | void;
+}
+
 export class SimEngine {
   private graph: ConnectivityGraph;
-  private components: Map<ComponentId, ComponentInstance>;
+  private components: Map<ComponentId, ComponentSimulator>;
   private eventQueue: EventQueue;
   private currentTime_us: number;
   private running: boolean;
@@ -107,8 +112,8 @@ export class SimEngine {
   // State snapshots
   private dirtyComponents: Set<ComponentId>;
 
-  constructor() {
-    this.graph = new ConnectivityGraph();
+  constructor(graph: ConnectivityGraph) {
+    this.graph = graph;
     this.components = new Map();
     this.eventQueue = new EventQueue();
     this.currentTime_us = 0;
@@ -120,68 +125,18 @@ export class SimEngine {
     this.dirtyComponents = new Set();
   }
 
-  // ==========================================================================
-  // LIFECYCLE
-  // ==========================================================================
-
   /**
-   * Initialize with circuit definition
+   * Register a component simulator
    */
-  init(circuit: CircuitDef): void {
-    this.reset();
-
-    // Load components
-    for (const comp of circuit.components) {
-      this.components.set(comp.id, comp);
-    }
-
-    // Build connectivity graph
-    for (const wire of circuit.wires) {
-      this.graph.addWire(wire);
-    }
-
-    this.postEvent({
-      type: 'READY',
-    });
+  registerComponent(id: ComponentId, simulator: ComponentSimulator): void {
+    this.components.set(id, simulator);
   }
 
   /**
-   * Start simulation
+   * Start simulation (non-blocking)
    */
-  async run(): Promise<void> {
-    if (this.running) return;
-
+  start(): void {
     this.running = true;
-    this.paused = false;
-    this.lastFrameTime = performance.now();
-
-    // Main loop
-    while (this.running) {
-      if (!this.paused) {
-        await this.tick();
-      } else {
-        // Sleep when paused
-        await this.sleep(16); // ~60fps idle
-      }
-
-      // Yield to event loop occasionally
-      if (this.frameCount % 10 === 0) {
-        await this.sleep(0);
-      }
-    }
-  }
-
-  /**
-   * Pause simulation
-   */
-  pause(): void {
-    this.paused = true;
-  }
-
-  /**
-   * Resume simulation
-   */
-  resume(): void {
     this.paused = false;
   }
 
@@ -194,181 +149,136 @@ export class SimEngine {
   }
 
   /**
-   * Reset simulation
+   * Check if running
+   */
+  isRunning(): boolean {
+    return this.running && !this.paused;
+  }
+
+  /**
+   * Get current time
+   */
+  getCurrentTime(): number {
+    return this.currentTime_us;
+  }
+
+  // ==========================================================================
+  // LIFECYCLE
+  // ==========================================================================
+
+  /**
+   * Reset simulation state
    */
   reset(): void {
-    this.graph.clear();
-    this.components.clear();
     this.eventQueue.clear();
     this.currentTime_us = 0;
     this.nextAnalogTime_us = this.ANALOG_STEP_US;
     this.dirtyComponents.clear();
     this.frameCount = 0;
+    this.running = false;
+    this.paused = false;
   }
 
   /**
-   * Step simulation by N microseconds
+   * Execute one simulation tick (called by worker update loop)
    */
-  async step(micros: number): Promise<void> {
-    const targetTime = this.currentTime_us + micros;
+  tick(delta_ms: number): void {
+    if (!this.running || this.paused) return;
 
-    while (this.currentTime_us < targetTime) {
-      await this.tick();
-    }
-  }
+    // Advance time by delta (convert ms to µs)
+    const delta_us = delta_ms * 1000;
+    const targetTime = this.currentTime_us + delta_us;
 
-  // ==========================================================================
-  // SIMULATION TICK
-  // ==========================================================================
-
-  /**
-   * Execute one simulation tick
-   */
-  private async tick(): Promise<void> {
-    // Process events until next analog step
-    while (!this.eventQueue.isEmpty() && this.eventQueue.peek()!.time_us <= this.nextAnalogTime_us) {
+    // Process events until target time
+    while (!this.eventQueue.isEmpty() && this.eventQueue.peek()!.time_us <= targetTime) {
       const event = this.eventQueue.pop()!;
       this.currentTime_us = event.time_us;
-      await this.processEvent(event);
+      this.processEvent(event);
     }
 
-    // Fixed-step analog update
-    this.currentTime_us = this.nextAnalogTime_us;
-    await this.processAnalogStep();
-    this.nextAnalogTime_us += this.ANALOG_STEP_US;
+    // Process analog steps that occurred during this delta
+    while (this.nextAnalogTime_us <= targetTime) {
+      this.processAnalogStep();
+      this.nextAnalogTime_us += this.ANALOG_STEP_US;
+    }
 
-    // Send state snapshot to UI (throttled)
+    // Advance time to target
+    this.currentTime_us = targetTime;
     this.frameCount++;
-    if (this.frameCount % 6 === 0) {
-      // ~10fps state updates
-      await this.sendSnapshot();
-    }
-
-    // Performance metrics
-    const now = performance.now();
-    if (now - this.lastFrameTime > 1000) {
-      const fps = this.frameCount / ((now - this.lastFrameTime) / 1000);
-      this.postEvent({
-        type: 'PERFORMANCE',
-        fps,
-        memory_mb: (performance as any).memory?.usedJSHeapSize / 1024 / 1024 || 0,
-      });
-      this.frameCount = 0;
-      this.lastFrameTime = now;
-    }
   }
 
   /**
    * Process a single event
    */
-  private async processEvent(event: SimEvent): Promise<void> {
+  private processEvent(event: SimEvent): void {
     switch (event.type) {
       case 'EDGE':
-        // Digital edge event (e.g., button press)
-        await this.handleEdgeEvent(event);
+        // Digital edge event (e.g., Arduino digitalWrite)
+        this.handleEdgeEvent(event);
         break;
 
       case 'TIMER':
         // Timer callback (e.g., delay() completion)
-        await this.handleTimerEvent(event);
+        if (event.data.callback) {
+          event.data.callback();
+        }
         break;
 
       case 'MCU':
         // MCU instruction or callback
-        await this.handleMcuEvent(event);
+        if (event.data.callback) {
+          event.data.callback();
+        }
         break;
 
       case 'SERIAL':
-        // Serial output
-        this.postEvent({
-          type: 'SERIAL',
-          output: {
-            timestamp_us: event.time_us,
-            port: event.data.port || 'Serial',
-            text: event.data.text,
-          },
-        });
+        // Serial output - forward to UI
         break;
 
       default:
-        console.warn('Unknown event type:', event.type);
+        console.warn('[SimEngine] Unknown event type:', event.type);
     }
   }
 
   /**
    * Handle edge event (digital state change)
    */
-  private async handleEdgeEvent(event: SimEvent): Promise<void> {
+  private handleEdgeEvent(event: SimEvent): void {
     const { pin, state } = event.data;
 
-    // Update net state
+    // Update net state in graph
     this.graph.setPinState(pin, state);
 
-    // Notify components connected to this net
+    // Mark connected components as dirty
     const net = this.graph.getNet(pin);
     for (const connectedPin of net.pins) {
-      const component = this.components.get(connectedPin.component);
-      if (component) {
-        this.dirtyComponents.add(component.id);
-        // Component will be updated in analog step
-      }
+      this.dirtyComponents.add(connectedPin.component);
     }
-
-    // Propagate to UI
-    this.postEvent({
-      type: 'PIN_CHANGE',
-      pin,
-      state: this.graph.getPinState(pin),
-    });
-  }
-
-  /**
-   * Handle timer event
-   */
-  private async handleTimerEvent(event: SimEvent): Promise<void> {
-    // Execute callback
-    if (event.data.callback) {
-      await event.data.callback();
-    }
-  }
-
-  /**
-   * Handle MCU event
-   */
-  private async handleMcuEvent(event: SimEvent): Promise<void> {
-    // This will be filled in by Arduino Runtime
-    // For now, just log
-    console.log('MCU event:', event.data);
   }
 
   /**
    * Process analog step (fixed-rate)
    */
-  private async processAnalogStep(): Promise<void> {
+  private processAnalogStep(): void {
     // Update all dirty components
     for (const compId of this.dirtyComponents) {
       const component = this.components.get(compId);
-      if (component) {
-        // Call component simulation hook
-        // (Will be implemented by component plugins)
-        await this.simulateComponent(component);
+      if (component && component.simulate) {
+        try {
+          // Call component simulation hook
+          component.simulate({
+            getPin: (pinId: string) => this.graph.getPinState({ component: compId, pin: pinId }),
+            setPin: (pinId: string, state: PinState) => {
+              this.graph.setPinState({ component: compId, pin: pinId }, state);
+            },
+          });
+        } catch (error) {
+          console.error(`[SimEngine] Component ${compId} simulation error:`, error);
+        }
       }
     }
 
     this.dirtyComponents.clear();
-  }
-
-  /**
-   * Simulate a component (placeholder for plugin system)
-   */
-  private async simulateComponent(component: ComponentInstance): Promise<void> {
-    // This will be replaced by component plugin system
-    // For now, simple LED example:
-    if (component.type === 'led') {
-      // Read anode and cathode voltages
-      // Calculate brightness based on voltage drop
-      // Update component.state.brightness
-    }
   }
 
   // ==========================================================================
@@ -386,114 +296,9 @@ export class SimEngine {
   }
 
   /**
-   * Get current simulation time
+   * Get connectivity graph (for external access)
    */
-  getCurrentTime_us(): number {
-    return this.currentTime_us;
-  }
-
-  // ==========================================================================
-  // STATE SNAPSHOT
-  // ==========================================================================
-
-  /**
-   * Send state snapshot to UI
-   */
-  private async sendSnapshot(): Promise<void> {
-    const snapshot: SimSnapshot = {
-      timestamp_us: this.currentTime_us,
-      components: new Map(
-        Array.from(this.components.entries()).map(([id, comp]) => [
-          id,
-          comp.state,
-        ])
-      ),
-      nets: new Map(
-        this.graph.getAllNets().map(net => [net.id, net.state])
-      ),
-      serial: [], // Serial outputs are sent via separate events
-    };
-
-    this.postEvent({
-      type: 'STATE',
-      snapshot,
-    });
-  }
-
-  // ==========================================================================
-  // WORKER COMMUNICATION
-  // ==========================================================================
-
-  /**
-   * Handle command from UI thread
-   */
-  handleCommand(command: WorkerCommand): void {
-    switch (command.type) {
-      case 'INIT':
-        this.init(command.circuit);
-        break;
-
-      case 'RUN':
-        this.run();
-        break;
-
-      case 'PAUSE':
-        this.pause();
-        break;
-
-      case 'STEP':
-        this.step(command.micros);
-        break;
-
-      case 'RESET':
-        this.reset();
-        break;
-
-      case 'SET_PIN':
-        this.graph.setPinState(command.pin, { voltage: command.value });
-        break;
-
-      case 'ADD_WIRE':
-        this.graph.addWire(command.wire);
-        break;
-
-      case 'REMOVE_WIRE':
-        this.graph.removeWire(command.wireId);
-        break;
-
-      default:
-        console.warn('Unknown command:', (command as any).type);
-    }
-  }
-
-  /**
-   * Post event to UI thread
-   */
-  private postEvent(event: WorkerEvent): void {
-    self.postMessage(event);
-  }
-
-  // ==========================================================================
-  // UTILITIES
-  // ==========================================================================
-
-  /**
-   * Sleep for N milliseconds (async)
-   */
-  private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+  getGraph(): ConnectivityGraph {
+    return this.graph;
   }
 }
-
-// ==========================================================================
-// WORKER ENTRY POINT
-// ==========================================================================
-
-const engine = new SimEngine();
-
-self.onmessage = (event: MessageEvent<WorkerCommand>) => {
-  engine.handleCommand(event.data);
-};
-
-// Signal ready
-self.postMessage({ type: 'READY' } as WorkerEvent);
