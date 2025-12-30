@@ -70,14 +70,14 @@ export function ActivityBar() {
   };
 
   const toggleTheme = () => {
-    const newTheme = settings.theme === 'dark' ? 'light' : 'dark';
+    const newTheme = settings?.theme === 'dark' ? 'light' : 'dark';
     updateSettings({ theme: newTheme });
   };
 
   return (
     <div className={cn(
       'w-12 flex flex-col items-center border-r transition-colors',
-      settings.theme === 'dark'
+      settings?.theme === 'dark'
         ? 'bg-[#1E1E1E] border-[#2D2D2D]'
         : 'bg-[#F3F3F3] border-gray-200'
     )}>
@@ -95,7 +95,7 @@ export function ActivityBar() {
                     onClick={() => handleItemClick(item.id)}
                     className={cn(
                       'w-10 h-10 flex items-center justify-center rounded-lg transition-all relative group',
-                      settings.theme === 'dark'
+                      settings?.theme === 'dark'
                         ? isActive
                           ? 'bg-[#37373D] text-white'
                           : 'text-[#CCCCCC] hover:bg-[#2A2D2E]'
@@ -110,7 +110,7 @@ export function ActivityBar() {
                     {isActive && (
                       <div className={cn(
                         'absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 rounded-r',
-                        settings.theme === 'dark' ? 'bg-white' : 'bg-blue-600'
+                        settings?.theme === 'dark' ? 'bg-white' : 'bg-blue-600'
                       )} />
                     )}
                   </button>
@@ -132,12 +132,12 @@ export function ActivityBar() {
                 onClick={toggleTheme}
                 className={cn(
                   'w-10 h-10 flex items-center justify-center rounded-lg transition-all',
-                  settings.theme === 'dark'
+                  settings?.theme === 'dark'
                     ? 'text-[#CCCCCC] hover:bg-[#2A2D2E]'
                     : 'text-gray-600 hover:bg-white/60'
                 )}
               >
-                {settings.theme === 'dark' ? (
+                {settings?.theme === 'dark' ? (
                   <Sun className="w-5 h-5" />
                 ) : (
                   <Moon className="w-5 h-5" />
@@ -152,7 +152,7 @@ export function ActivityBar() {
           {/* User Profile */}
           <div className={cn(
             'w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold',
-            settings.theme === 'dark'
+            settings?.theme === 'dark'
               ? 'bg-blue-600 text-white'
               : 'bg-blue-500 text-white'
           )}>

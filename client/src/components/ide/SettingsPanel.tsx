@@ -52,7 +52,7 @@ export function SettingsPanel() {
                     Color Theme
                   </Label>
                   <Select
-                    value={settings.theme}
+                    value={settings?.theme}
                     onValueChange={(value: Theme) => updateSettings({ theme: value })}
                   >
                     <SelectTrigger className="w-[180px]">
@@ -81,11 +81,11 @@ export function SettingsPanel() {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <Label className="text-sm font-medium">
-                      Font Size: {settings.fontSize}px
+                      Font Size: {settings?.fontSize}px
                     </Label>
                   </div>
                   <Slider
-                    value={[settings.fontSize]}
+                    value={[settings?.fontSize]}
                     onValueChange={([value]) => updateSettings({ fontSize: value })}
                     min={10}
                     max={24}
@@ -103,7 +103,7 @@ export function SettingsPanel() {
                     Font Family
                   </Label>
                   <Select
-                    value={settings.fontFamily}
+                    value={settings?.fontFamily}
                     onValueChange={(value) => updateSettings({ fontFamily: value })}
                   >
                     <SelectTrigger className="w-[240px]">
@@ -122,11 +122,11 @@ export function SettingsPanel() {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <Label className="text-sm font-medium">
-                      Tab Size: {settings.tabSize} spaces
+                      Tab Size: {settings?.tabSize} spaces
                     </Label>
                   </div>
                   <Slider
-                    value={[settings.tabSize]}
+                    value={[settings?.tabSize]}
                     onValueChange={([value]) => updateSettings({ tabSize: value })}
                     min={2}
                     max={8}
@@ -152,7 +152,7 @@ export function SettingsPanel() {
                   </div>
                   <Switch
                     id="wordWrap"
-                    checked={settings.wordWrap}
+                    checked={settings?.wordWrap}
                     onCheckedChange={(checked) => updateSettings({ wordWrap: checked })}
                   />
                 </div>
@@ -168,7 +168,7 @@ export function SettingsPanel() {
                   </div>
                   <Switch
                     id="lineNumbers"
-                    checked={settings.lineNumbers}
+                    checked={settings?.lineNumbers}
                     onCheckedChange={(checked) => updateSettings({ lineNumbers: checked })}
                   />
                 </div>
@@ -196,7 +196,7 @@ export function SettingsPanel() {
                   </div>
                   <Switch
                     id="minimap"
-                    checked={settings.minimap}
+                    checked={settings?.minimap}
                     onCheckedChange={(checked) => updateSettings({ minimap: checked })}
                   />
                 </div>
@@ -212,7 +212,7 @@ export function SettingsPanel() {
                   </div>
                   <Switch
                     id="autoSave"
-                    checked={settings.autoSave}
+                    checked={settings?.autoSave}
                     onCheckedChange={(checked) => updateSettings({ autoSave: checked })}
                   />
                 </div>
@@ -228,7 +228,7 @@ export function SettingsPanel() {
                   </div>
                   <Switch
                     id="formatOnSave"
-                    checked={settings.formatOnSave}
+                    checked={settings?.formatOnSave}
                     onCheckedChange={(checked) => updateSettings({ formatOnSave: checked })}
                   />
                 </div>
