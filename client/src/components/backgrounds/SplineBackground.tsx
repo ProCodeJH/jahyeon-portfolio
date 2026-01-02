@@ -358,10 +358,11 @@ export default function SplineBackground() {
         }}
         shadows
       >
-        {/* ToneMapping Effect using Canvas의 linearToneMapping */}
-        <toneMapping
-          attach="toneMapping"
-          args={[THREE.ACESFilmicToneMapping, 0.5]}
+        {/* Simple color adjustment for cinematic feel */}
+        <color
+          attach="color"
+          args={["#1a1a2e", "#ec4899"]}
+          toneMapExposure={0.5}
         />
         {/* 고급 조명 설정 */}
         <ambientLight intensity={0.3} color="#ffffff" />
@@ -452,11 +453,6 @@ export default function SplineBackground() {
 
         {/* 후처리 효과 - Three.js 네이티브로 구현 */}
         <fog attach="fog" args={["#1e1b4b", 5, 30]} />
-        <toneMapping
-          attach="toneMapping"
-          type={THREE.ACESFilmicToneMapping}
-          exposure={0.5}
-        />
 
         {/* 환경 및 효과 - 더 고급 */}
         <Environment
