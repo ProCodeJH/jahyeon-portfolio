@@ -14,7 +14,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import InteractiveTechBackground from "@/components/backgrounds/InteractiveTechBackground";
+import SplineBackground from "@/components/backgrounds/SplineBackground";
 import { TiltCard } from "@/components/effects/TiltCard";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
 import { Navigation } from "@/components/layout/Navigation";
@@ -25,8 +25,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen text-white overflow-hidden relative">
-      {/* 3D Interactive Background */}
-      <InteractiveTechBackground />
+      {/* Spline Style 3D Interactive Background */}
+      <SplineBackground />
 
       {/* Premium Navigation */}
       <Navigation />
@@ -38,9 +38,9 @@ export default function Home() {
             {/* Left: Premium Typography */}
             <div className="space-y-6 md:space-y-8">
               <AnimatedSection>
-                <div className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-3 rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-200/50 backdrop-blur-xl shadow-lg">
-                  <div className="w-2 h-2 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 animate-pulse" />
-                  <p className="text-sm md:text-base font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600 tracking-wide">
+                <div className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-3 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg">
+                  <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 animate-pulse" />
+                  <p className="text-sm md:text-base font-bold text-blue-300 tracking-wide">
                     Embedded Engineer & Coding Instructor
                   </p>
                 </div>
@@ -48,15 +48,15 @@ export default function Home() {
 
               <AnimatedSection delay={150}>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-[1.1] tracking-tight">
-                  <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-purple-900 to-blue-900 animate-gradient-x drop-shadow-sm">
+                  <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-blue-300 via-indigo-300 to-purple-300 animate-gradient-x drop-shadow-sm">
                     Thinking of ideas
                   </span>
                   <br />
-                  <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 animate-gradient-x mt-2 drop-shadow-lg">
-                    that help the world,
+                  <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-purple-300 via-pink-300 to-blue-300 animate-gradient-x mt-2 drop-shadow-lg">
+                    that help's world,
                   </span>
                   <br />
-                  <span className="inline-block text-gray-900 mt-2 relative drop-shadow-sm">
+                  <span className="inline-block text-white mt-2 relative drop-shadow-sm">
                     creating, growing
                     <svg
                       className="absolute -bottom-2 md:-bottom-3 left-0 w-full"
@@ -78,8 +78,8 @@ export default function Home() {
                           x2="100%"
                           y2="0%"
                         >
-                          <stop offset="0%" stopColor="#9333ea" />
-                          <stop offset="100%" stopColor="#3b82f6" />
+                          <stop offset="0%" stopColor="#60a5fa" />
+                          <stop offset="100%" stopColor="#c084fc" />
                         </linearGradient>
                       </defs>
                     </svg>
@@ -88,9 +88,9 @@ export default function Home() {
               </AnimatedSection>
 
               <AnimatedSection delay={300}>
-                <p className="text-lg md:text-xl lg:text-2xl text-gray-600 leading-relaxed max-w-xl font-light">
+                <p className="text-lg md:text-xl lg:text-2xl text-gray-300 leading-relaxed max-w-xl font-light">
                   Walking the path toward{" "}
-                  <span className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
+                  <span className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
                     bigger dreams
                   </span>
                 </p>
@@ -100,9 +100,9 @@ export default function Home() {
                 <Link href="/projects">
                   <Button
                     size="lg"
-                    className="group relative rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white px-8 md:px-10 h-14 md:h-16 text-base md:text-lg font-bold overflow-hidden shadow-2xl shadow-purple-500/50 hover:shadow-purple-500/70 hover:scale-105 transition-all duration-500"
+                    className="group relative rounded-2xl bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white px-8 md:px-10 h-14 md:h-16 text-base md:text-lg font-bold overflow-hidden shadow-2xl shadow-blue-500/50 hover:shadow-blue-500/70 hover:scale-105 transition-all duration-500"
                   >
-                    <span className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <span className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <span className="relative flex items-center gap-2 md:gap-3">
                       View Work
                       <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-2 transition-transform duration-300" />
@@ -116,12 +116,12 @@ export default function Home() {
             {/* Right: Premium Video Container */}
             <AnimatedSection delay={300}>
               <TiltCard sensitivity={8}>
-                <div className="relative aspect-square rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-purple-100 via-pink-50 to-blue-100 p-1 shadow-2xl shadow-purple-500/20 group">
+                <div className="relative aspect-square rounded-[2.5rem] overflow-hidden p-1 shadow-2xl shadow-blue-500/20 group">
                   {/* Premium Border Gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 rounded-[2.5rem] opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-[2.5rem] opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
 
                   {/* Video Container */}
-                  <div className="relative w-full h-full rounded-[2.4rem] overflow-hidden bg-gradient-to-br from-purple-900/10 to-blue-900/10 backdrop-blur-xl">
+                  <div className="relative w-full h-full rounded-[2.4rem] overflow-hidden backdrop-blur-xl bg-white/5">
                     {/* Hero Video */}
                     <video
                       autoPlay
@@ -134,16 +134,16 @@ export default function Home() {
                       <source src="/hero-video.mp4" type="video/mp4" />
                     </video>
 
-                    {/* Premium Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-purple-900/20 via-transparent to-blue-900/20 opacity-60 group-hover:opacity-30 transition-opacity duration-500" />
+                    {/* Dark Overlay for Glass Effect */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/40 to-slate-900/80" />
 
                     {/* Animated Border Glow */}
-                    <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-[2.5rem] opacity-0 group-hover:opacity-20 blur-2xl transition-opacity duration-500" />
+                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-[2.5rem] opacity-0 group-hover:opacity-20 blur-2xl transition-opacity duration-500" />
                   </div>
 
                   {/* Floating Particles */}
-                  <div className="absolute top-10 left-10 w-3 h-3 rounded-full bg-purple-400 animate-float" />
-                  <div className="absolute bottom-20 right-16 w-2 h-2 rounded-full bg-blue-400 animate-float delay-500" />
+                  <div className="absolute top-10 left-10 w-3 h-3 rounded-full bg-blue-400 animate-float" />
+                  <div className="absolute bottom-20 right-16 w-2 h-2 rounded-full bg-purple-400 animate-float delay-500" />
                   <div className="absolute top-32 right-12 w-2 h-2 rounded-full bg-pink-400 animate-float delay-1000" />
                 </div>
               </TiltCard>
