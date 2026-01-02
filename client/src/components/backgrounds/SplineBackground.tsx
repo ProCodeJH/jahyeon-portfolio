@@ -10,11 +10,6 @@ import {
   ContactShadows,
   useCursor,
 } from "@react-three/drei";
-import {
-  EffectComposer,
-  UnrealBloomPass,
-  ChromaticAberration,
-} from "@react-three/postprocessing";
 import * as THREE from "three";
 
 // 유기적인 변형 오브젝트 컴포넌트 (엔터프라이즈급)
@@ -360,6 +355,8 @@ export default function SplineBackground() {
           antialias: true,
           alpha: true,
           powerPreference: "high-performance",
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 0.5,
         }}
         shadows
       >
@@ -450,11 +447,36 @@ export default function SplineBackground() {
         <TechRing radius={5.0} speed={0.1} color="#a855f7" thickness={0.1} />
         <TechRing radius={6.5} speed={0.08} color="#ec4899" thickness={0.08} />
 
-        {/* 후처리 효과 */}
-        <EffectComposer>
-          <UnrealBloomPass threshold={0.8} strength={1.5} radius={0.8} />
-          <ChromaticAberration offset={[0.001, 0.002]} />
-        </EffectComposer>
+        {/* 후처리 효과 - Three.js 네이티브로 구현 */}
+        <fog attach="fog" args={["#1e1b4b", 5, 30]} />
+        <toneMapping
+          attach="toneMapping"
+          type={THREE.ACESFilmicToneMapping}
+          exposure={0.5}
+        />
+
+        {/* 환경 및 효과 - 더 고급 */}
+        <Environment
+          preset="city"
+          background={false}
+          environmentIntensity={0.5}
+        />
+        <Stars
+          radius={200}
+          depth={60}
+          count={8000}
+          factor={4}
+          saturation={0}
+          fade
+          speed={0.5}
+        />
+        <ContactShadows
+          position={[0, -5, 0]}
+          opacity={0.4}
+          scale={30}
+          blur={3}
+          far={15}
+        />
       </Canvas>
     </div>
   );
