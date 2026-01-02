@@ -355,11 +355,14 @@ export default function SplineBackground() {
           antialias: true,
           alpha: true,
           powerPreference: "high-performance",
-          toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 0.5,
         }}
         shadows
       >
+        {/* ToneMapping Effect using Canvas의 linearToneMapping */}
+        <toneMapping
+          attach="toneMapping"
+          args={[THREE.ACESFilmicToneMapping, 0.5]}
+        />
         {/* 고급 조명 설정 */}
         <ambientLight intensity={0.3} color="#ffffff" />
         <directionalLight
