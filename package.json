@@ -80,14 +80,14 @@
     "vaul": "^1.1.2",
     "wouter": "^3.3.5",
     "zod": "^4.1.12",
-    "@react-three/drei": "^9.92.0",
-    "@react-three/fiber": "^8.15.0",
-    "three": "^0.160.0",
+    "@react-three/drei": "^9.117.0",
+    "@react-three/fiber": "^8.17.0",
+    "three": "^0.170.0",
     "@monaco-editor/react": "^4.6.0",
-    "zustand": "^4.4.7"
+    "zustand": "^5.0.0"
   },
   "devDependencies": {
-    "@types/three": "^0.160.0",
+    "@types/three": "^0.170.0",
     "@tailwindcss/typography": "^0.5.15",
     "@vercel/node": "^3.0.0",
     "@tailwindcss/vite": "^4.1.3",
