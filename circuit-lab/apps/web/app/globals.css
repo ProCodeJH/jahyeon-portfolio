@@ -1,0 +1,167 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 15%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 13%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 174 100% 29%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 25%;
+    --input: 217 33% 20%;
+    --ring: 174 100% 29%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(222 47% 11%);
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(217 33% 30%);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(217 33% 40%);
+}
+
+/* Monaco Editor overrides */
+.monaco-editor {
+  font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace !important;
+}
+
+.monaco-editor .margin {
+  background: hsl(222 47% 13%) !important;
+}
+
+/* Canvas container */
+.circuit-canvas {
+  width: 100%;
+  height: 100%;
+  outline: none;
+}
+
+.circuit-canvas canvas {
+  outline: none;
+}
+
+/* Component panel */
+.component-item {
+  @apply flex items-center gap-3 p-3 rounded-lg cursor-grab transition-all;
+  @apply bg-secondary/50 hover:bg-secondary border border-transparent;
+}
+
+.component-item:hover {
+  @apply border-primary/30;
+}
+
+.component-item:active {
+  @apply cursor-grabbing scale-95;
+}
+
+/* Serial monitor */
+.serial-output {
+  @apply font-mono text-sm leading-relaxed;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* Toolbar */
+.toolbar-button {
+  @apply flex items-center justify-center w-10 h-10 rounded-lg transition-all;
+  @apply bg-secondary hover:bg-secondary/80 text-foreground;
+}
+
+.toolbar-button:hover {
+  @apply text-primary;
+}
+
+.toolbar-button.active {
+  @apply bg-primary text-primary-foreground;
+}
+
+/* Status indicators */
+.status-dot {
+  @apply w-2 h-2 rounded-full;
+}
+
+.status-dot.running {
+  @apply bg-green-500 animate-pulse;
+}
+
+.status-dot.paused {
+  @apply bg-yellow-500;
+}
+
+.status-dot.stopped {
+  @apply bg-red-500;
+}
+
+.status-dot.compiling {
+  @apply bg-blue-500 animate-pulse;
+}
+
+/* Pin highlighting */
+.pin-highlight {
+  animation: pin-pulse 1s ease-in-out infinite;
+}
+
+@keyframes pin-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(0, 151, 157, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(0, 151, 157, 0);
+  }
+}
+
+/* Loading states */
+.skeleton {
+  @apply animate-pulse bg-secondary rounded;
+}
+
+/* Tooltip styles */
+[data-radix-popper-content-wrapper] {
+  z-index: 100 !important;
+}
+
+/* Context menu */
+.context-menu-item {
+  @apply flex items-center gap-2 px-3 py-2 text-sm rounded cursor-pointer;
+  @apply hover:bg-secondary focus:bg-secondary outline-none;
+}
+
+.context-menu-item.destructive {
+  @apply text-destructive hover:bg-destructive/10 focus:bg-destructive/10;
+}

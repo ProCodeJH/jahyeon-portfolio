@@ -1,0 +1,75 @@
+# Compile Worker Dockerfile
+# Secure sandbox environment for Arduino compilation
+
+FROM ubuntu:22.04 AS arduino-base
+
+# Prevent interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    git \
+    python3 \
+    python3-pip \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Arduino CLI
+RUN curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=/usr/local/bin sh
+
+# Initialize Arduino CLI and install cores
+RUN arduino-cli config init && \
+    arduino-cli core update-index && \
+    arduino-cli core install arduino:avr
+
+# Create non-root user for compilation
+RUN useradd -m -s /bin/bash compiler
+RUN mkdir -p /home/compiler/sketches /home/compiler/output
+RUN chown -R compiler:compiler /home/compiler
+
+# Node.js stage
+FROM node:20-alpine AS node-base
+
+RUN corepack enable && corepack prepare pnpm@9 --activate
+
+WORKDIR /app
+
+# Copy package files
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* ./
+COPY apps/worker-compile/package.json ./apps/worker-compile/
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile --prod
+
+# Copy worker source
+COPY apps/worker-compile ./apps/worker-compile
+
+# Final stage
+FROM arduino-base AS runner
+
+# Install Node.js
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy node application
+COPY --from=node-base /app/node_modules /app/node_modules
+COPY --from=node-base /app/apps/worker-compile /app/apps/worker-compile
+
+WORKDIR /app/apps/worker-compile
+
+# Create directories
+RUN mkdir -p /tmp/compile /tmp/output
+RUN chown -R compiler:compiler /tmp/compile /tmp/output
+
+# Environment
+ENV NODE_ENV=production
+ENV COMPILE_TIMEOUT=30000
+ENV MAX_CONCURRENT_JOBS=4
+
+# Run as non-root
+USER compiler
+
+CMD ["node", "dist/main.js"]
