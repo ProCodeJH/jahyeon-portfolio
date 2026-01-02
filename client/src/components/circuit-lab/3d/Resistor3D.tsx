@@ -1,4 +1,4 @@
-import { useRef, useMemo } from 'react';
+import { useMemo } from 'react';
 import * as THREE from 'three';
 
 interface Resistor3DProps {
@@ -31,19 +31,9 @@ const multiplierColors: Record<number, string> = {
   10000: '#FFFF00',  // Yellow (x10k)
   100000: '#00FF00', // Green (x100k)
   1000000: '#0000FF', // Blue (x1M)
-  0.1: '#FFD700',    // Gold (x0.1)
-  0.01: '#C0C0C0',   // Silver (x0.01)
-};
-
-const toleranceColors: Record<number, string> = {
-  1: '#8B4513',   // Brown ±1%
-  2: '#FF0000',   // Red ±2%
-  5: '#FFD700',   // Gold ±5%
-  10: '#C0C0C0',  // Silver ±10%
 };
 
 function getResistorBands(value: number): string[] {
-  // Get significant digits and multiplier
   const str = value.toString();
   let digits: number[];
   let multiplier: number;
@@ -62,7 +52,7 @@ function getResistorBands(value: number): string[] {
   const band1 = colorCodes[digits[0]] || '#000000';
   const band2 = colorCodes[digits[1]] || '#000000';
   const band3 = multiplierColors[multiplier] || '#000000';
-  const band4 = toleranceColors[5]; // Default 5% tolerance (gold)
+  const band4 = '#FFD700'; // Gold (5% tolerance)
 
   return [band1, band2, band3, band4];
 }
@@ -74,23 +64,20 @@ export function Resistor3D({
   onClick,
   isSelected
 }: Resistor3DProps) {
-  const groupRef = useRef<THREE.Group>(null);
-
-  // Resistor dimensions (1/4W through-hole)
-  const bodyLength = 0.065; // 6.5mm
-  const bodyRadius = 0.012; // 2.4mm diameter
-  const legLength = 0.025;
-  const legRadius = 0.003;
-  const bandWidth = 0.004;
+  // Resistor dimensions (1/4W through-hole scaled to scene units)
+  const bodyLength = 0.0065;
+  const bodyRadius = 0.0012;
+  const legLength = 0.003;
+  const legRadius = 0.0003;
+  const bandWidth = 0.0004;
 
   const bands = useMemo(() => getResistorBands(value), [value]);
 
   return (
     <group
-      ref={groupRef}
       position={position}
       rotation={rotation}
-      onClick={onClick}
+      onClick={(e) => { e.stopPropagation(); onClick?.(); }}
     >
       {/* Main resistor body */}
       <mesh rotation={[0, 0, Math.PI / 2]}>
@@ -104,24 +91,24 @@ export function Resistor3D({
 
       {/* End caps */}
       <mesh position={[-bodyLength / 2, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[bodyRadius + 0.001, bodyRadius + 0.001, 0.003, 16]} />
+        <cylinderGeometry args={[bodyRadius + 0.0001, bodyRadius + 0.0001, 0.0003, 16]} />
         <meshStandardMaterial color="#B8A07A" roughness={0.5} metalness={0.2} />
       </mesh>
       <mesh position={[bodyLength / 2, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[bodyRadius + 0.001, bodyRadius + 0.001, 0.003, 16]} />
+        <cylinderGeometry args={[bodyRadius + 0.0001, bodyRadius + 0.0001, 0.0003, 16]} />
         <meshStandardMaterial color="#B8A07A" roughness={0.5} metalness={0.2} />
       </mesh>
 
       {/* Color bands */}
       {bands.map((color, index) => {
-        const xOffset = -bodyLength / 2 + 0.012 + index * 0.012;
+        const xOffset = -bodyLength / 2 + 0.0012 + index * 0.0012;
         return (
           <mesh
             key={index}
             position={[xOffset, 0, 0]}
             rotation={[0, 0, Math.PI / 2]}
           >
-            <cylinderGeometry args={[bodyRadius + 0.001, bodyRadius + 0.001, bandWidth, 16]} />
+            <cylinderGeometry args={[bodyRadius + 0.0001, bodyRadius + 0.0001, bandWidth, 16]} />
             <meshStandardMaterial color={color} roughness={0.4} metalness={0.1} />
           </mesh>
         );
@@ -142,7 +129,7 @@ export function Resistor3D({
       {/* Selection indicator */}
       {isSelected && (
         <mesh position={[0, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-          <cylinderGeometry args={[bodyRadius + 0.005, bodyRadius + 0.005, bodyLength + 0.01, 16]} />
+          <cylinderGeometry args={[bodyRadius + 0.0005, bodyRadius + 0.0005, bodyLength + 0.001, 16]} />
           <meshBasicMaterial color="#00ff00" transparent opacity={0.3} />
         </mesh>
       )}

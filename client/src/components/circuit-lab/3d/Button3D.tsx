@@ -23,16 +23,16 @@ export function Button3D({
   const buttonRef = useRef<THREE.Mesh>(null);
   const [localPressed, setLocalPressed] = useState(false);
 
-  // Tactile button dimensions (6mm x 6mm)
-  const bodyWidth = 0.06;  // 6mm
-  const bodyHeight = 0.035; // 3.5mm
-  const buttonRadius = 0.018; // 1.8mm
-  const buttonHeight = 0.025; // 2.5mm
-  const legWidth = 0.01;
-  const legHeight = 0.03;
+  // Tactile button dimensions (6mm x 6mm scaled)
+  const bodyWidth = 0.006;
+  const bodyHeight = 0.0035;
+  const buttonRadius = 0.0018;
+  const buttonHeight = 0.0025;
+  const legWidth = 0.001;
+  const legHeight = 0.003;
 
   const pressed = isPressed || localPressed;
-  const buttonYOffset = pressed ? 0.003 : 0.008;
+  const buttonYOffset = pressed ? 0.0003 : 0.0008;
 
   // Animate button press
   useFrame(() => {
@@ -62,7 +62,7 @@ export function Button3D({
     <group
       ref={groupRef}
       position={position}
-      onClick={onClick}
+      onClick={(e) => { e.stopPropagation(); onClick?.(); }}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       onPointerLeave={() => {
@@ -97,7 +97,7 @@ export function Button3D({
 
       {/* Button cap top highlight */}
       <mesh position={[0, bodyHeight / 2 + buttonYOffset + buttonHeight / 2, 0]}>
-        <cylinderGeometry args={[buttonRadius - 0.002, buttonRadius - 0.002, 0.002, 32]} />
+        <cylinderGeometry args={[buttonRadius - 0.0002, buttonRadius - 0.0002, 0.0002, 32]} />
         <meshStandardMaterial
           color="#444444"
           roughness={0.4}
@@ -107,33 +107,33 @@ export function Button3D({
 
       {/* 4 metal legs */}
       {/* Top-left */}
-      <mesh position={[-bodyWidth / 2 + 0.008, -legHeight / 2, -bodyWidth / 2 + 0.008]}>
-        <boxGeometry args={[legWidth, legHeight, 0.003]} />
+      <mesh position={[-bodyWidth / 2 + 0.0008, -legHeight / 2, -bodyWidth / 2 + 0.0008]}>
+        <boxGeometry args={[legWidth, legHeight, 0.0003]} />
         <meshStandardMaterial color="#C0C0C0" roughness={0.3} metalness={0.8} />
       </mesh>
 
       {/* Top-right */}
-      <mesh position={[bodyWidth / 2 - 0.008, -legHeight / 2, -bodyWidth / 2 + 0.008]}>
-        <boxGeometry args={[legWidth, legHeight, 0.003]} />
+      <mesh position={[bodyWidth / 2 - 0.0008, -legHeight / 2, -bodyWidth / 2 + 0.0008]}>
+        <boxGeometry args={[legWidth, legHeight, 0.0003]} />
         <meshStandardMaterial color="#C0C0C0" roughness={0.3} metalness={0.8} />
       </mesh>
 
       {/* Bottom-left */}
-      <mesh position={[-bodyWidth / 2 + 0.008, -legHeight / 2, bodyWidth / 2 - 0.008]}>
-        <boxGeometry args={[legWidth, legHeight, 0.003]} />
+      <mesh position={[-bodyWidth / 2 + 0.0008, -legHeight / 2, bodyWidth / 2 - 0.0008]}>
+        <boxGeometry args={[legWidth, legHeight, 0.0003]} />
         <meshStandardMaterial color="#C0C0C0" roughness={0.3} metalness={0.8} />
       </mesh>
 
       {/* Bottom-right */}
-      <mesh position={[bodyWidth / 2 - 0.008, -legHeight / 2, bodyWidth / 2 - 0.008]}>
-        <boxGeometry args={[legWidth, legHeight, 0.003]} />
+      <mesh position={[bodyWidth / 2 - 0.0008, -legHeight / 2, bodyWidth / 2 - 0.0008]}>
+        <boxGeometry args={[legWidth, legHeight, 0.0003]} />
         <meshStandardMaterial color="#C0C0C0" roughness={0.3} metalness={0.8} />
       </mesh>
 
       {/* Selection indicator */}
       {isSelected && (
         <mesh position={[0, bodyHeight / 2, 0]}>
-          <boxGeometry args={[bodyWidth + 0.01, bodyHeight + 0.01, bodyWidth + 0.01]} />
+          <boxGeometry args={[bodyWidth + 0.001, bodyHeight + 0.001, bodyWidth + 0.001]} />
           <meshBasicMaterial color="#00ff00" transparent opacity={0.3} />
         </mesh>
       )}

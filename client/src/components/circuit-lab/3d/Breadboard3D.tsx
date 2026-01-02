@@ -3,91 +3,37 @@
  */
 
 import { useMemo } from 'react';
-import { Text } from '@react-three/drei';
 import * as THREE from 'three';
-import type { CircuitComponent } from '../store';
 
 interface Breadboard3DProps {
-  component: CircuitComponent;
-  selected?: boolean;
+  position: [number, number, number];
+  rotation?: [number, number, number];
+  isSelected?: boolean;
   onClick?: () => void;
-  onHoleClick?: (holeId: string) => void;
 }
 
 // Colors
-const BODY_COLOR = new THREE.Color(0xf5f5f0);
-const HOLE_COLOR = new THREE.Color(0x333333);
-const RAIL_POS_COLOR = new THREE.Color(0xcc0000);
-const RAIL_NEG_COLOR = new THREE.Color(0x0066cc);
+const BODY_COLOR = '#f5f5f0';
+const HOLE_COLOR = '#333333';
+const RAIL_POS_COLOR = '#cc0000';
+const RAIL_NEG_COLOR = '#0066cc';
 
-// Dimensions (mm)
-const WIDTH = 165.1;
-const HEIGHT = 54.61;
-const THICKNESS = 8.5;
-const HOLE_SPACING = 2.54;
-const COLS = 63;
+// Dimensions (scaled)
+const SCALE = 0.001;
+const WIDTH = 165.1 * SCALE;
+const HEIGHT = 54.61 * SCALE;
+const THICKNESS = 8.5 * SCALE;
 
 export function Breadboard3D({
-  component,
-  selected = false,
-  onClick,
-  onHoleClick
+  position,
+  rotation = [0, 0, 0],
+  isSelected = false,
+  onClick
 }: Breadboard3DProps) {
-  const topRows = ['a', 'b', 'c', 'd', 'e'];
-  const bottomRows = ['f', 'g', 'h', 'i', 'j'];
-
-  // Generate holes
-  const holes = useMemo(() => {
-    const holeList: { id: string; x: number; y: number; type: string }[] = [];
-    const startX = -WIDTH / 2 + 10;
-
-    // Power rails
-    for (let col = 1; col <= COLS; col++) {
-      holeList.push({
-        id: `+${col}`,
-        x: startX + (col - 1) * HOLE_SPACING,
-        y: HEIGHT / 2 - 4,
-        type: 'power',
-      });
-      holeList.push({
-        id: `-${col}`,
-        x: startX + (col - 1) * HOLE_SPACING,
-        y: HEIGHT / 2 - 4 - HOLE_SPACING,
-        type: 'ground',
-      });
-    }
-
-    // Top terminal strip
-    topRows.forEach((row, rowIndex) => {
-      for (let col = 1; col <= COLS; col++) {
-        holeList.push({
-          id: `${row}${col}`,
-          x: startX + (col - 1) * HOLE_SPACING,
-          y: HEIGHT / 2 - 14 - rowIndex * HOLE_SPACING,
-          type: 'terminal',
-        });
-      }
-    });
-
-    // Bottom terminal strip
-    bottomRows.forEach((row, rowIndex) => {
-      for (let col = 1; col <= COLS; col++) {
-        holeList.push({
-          id: `${row}${col}`,
-          x: startX + (col - 1) * HOLE_SPACING,
-          y: -HEIGHT / 2 + 14 + (4 - rowIndex) * HOLE_SPACING,
-          type: 'terminal',
-        });
-      }
-    });
-
-    return holeList;
-  }, []);
-
   return (
     <group
-      position={[component.position.x, component.position.y, component.position.z]}
-      rotation={[-Math.PI / 2, 0, 0]}
+      position={position}
+      rotation={rotation}
       onClick={(e) => {
         e.stopPropagation();
         onClick?.();
@@ -95,99 +41,54 @@ export function Breadboard3D({
     >
       {/* Main body */}
       <mesh>
-        <boxGeometry args={[WIDTH, HEIGHT, THICKNESS]} />
+        <boxGeometry args={[WIDTH, THICKNESS, HEIGHT]} />
         <meshStandardMaterial color={BODY_COLOR} roughness={0.4} metalness={0.05} />
       </mesh>
 
       {/* Center gap */}
-      <mesh position={[0, 0, THICKNESS / 2 + 0.1]}>
-        <boxGeometry args={[WIDTH - 20, 6, 0.5]} />
-        <meshStandardMaterial color={0xdddddd} />
+      <mesh position={[0, THICKNESS / 2 + 0.0005, 0]}>
+        <boxGeometry args={[WIDTH - 0.02, 0.001, 0.006]} />
+        <meshStandardMaterial color="#dddddd" />
       </mesh>
 
-      {/* Power rail lines */}
-      <mesh position={[0, HEIGHT / 2 - 4, THICKNESS / 2 + 0.1]}>
-        <boxGeometry args={[WIDTH - 20, 0.5, 0.1]} />
+      {/* Power rail lines - Top */}
+      <mesh position={[0, THICKNESS / 2 + 0.0005, -HEIGHT / 2 + 0.006]}>
+        <boxGeometry args={[WIDTH - 0.02, 0.0005, 0.001]} />
         <meshStandardMaterial color={RAIL_POS_COLOR} />
       </mesh>
-      <mesh position={[0, HEIGHT / 2 - 4 - HOLE_SPACING, THICKNESS / 2 + 0.1]}>
-        <boxGeometry args={[WIDTH - 20, 0.5, 0.1]} />
+      <mesh position={[0, THICKNESS / 2 + 0.0005, -HEIGHT / 2 + 0.009]}>
+        <boxGeometry args={[WIDTH - 0.02, 0.0005, 0.001]} />
         <meshStandardMaterial color={RAIL_NEG_COLOR} />
       </mesh>
 
-      {/* Holes (only render every 5th for performance) */}
-      {holes.filter((_, i) => i % 3 === 0).map((hole) => (
-        <group
-          key={hole.id}
-          position={[hole.x, hole.y, THICKNESS / 2]}
-          onClick={(e) => {
-            e.stopPropagation();
-            onHoleClick?.(hole.id);
-          }}
-        >
-          <mesh>
-            <cylinderGeometry args={[0.5, 0.5, 0.5, 12]} />
-            <meshStandardMaterial color={HOLE_COLOR} />
-          </mesh>
-          <mesh position={[0, 0, -1]}>
-            <cylinderGeometry args={[0.35, 0.35, 2, 12]} />
-            <meshStandardMaterial color={0xcccccc} metalness={0.8} roughness={0.2} />
-          </mesh>
-        </group>
-      ))}
+      {/* Power rail lines - Bottom */}
+      <mesh position={[0, THICKNESS / 2 + 0.0005, HEIGHT / 2 - 0.006]}>
+        <boxGeometry args={[WIDTH - 0.02, 0.0005, 0.001]} />
+        <meshStandardMaterial color={RAIL_POS_COLOR} />
+      </mesh>
+      <mesh position={[0, THICKNESS / 2 + 0.0005, HEIGHT / 2 - 0.009]}>
+        <boxGeometry args={[WIDTH - 0.02, 0.0005, 0.001]} />
+        <meshStandardMaterial color={RAIL_NEG_COLOR} />
+      </mesh>
 
-      {/* Row labels */}
-      {topRows.map((row, index) => (
-        <Text
-          key={`top-${row}`}
-          position={[-WIDTH / 2 + 5, HEIGHT / 2 - 14 - index * HOLE_SPACING, THICKNESS / 2 + 0.1]}
-          fontSize={1.5}
-          color={0x666666}
-          anchorX="center"
-          anchorY="middle"
-        >
-          {row.toUpperCase()}
-        </Text>
-      ))}
+      {/* Simplified hole representation - just show strips */}
+      {/* Top terminal strip */}
+      <mesh position={[0, THICKNESS / 2 + 0.0003, -0.008]}>
+        <boxGeometry args={[WIDTH - 0.02, 0.0005, 0.012]} />
+        <meshStandardMaterial color="#e8e8e0" />
+      </mesh>
 
-      {bottomRows.map((row, index) => (
-        <Text
-          key={`bottom-${row}`}
-          position={[-WIDTH / 2 + 5, -HEIGHT / 2 + 14 + (4 - index) * HOLE_SPACING, THICKNESS / 2 + 0.1]}
-          fontSize={1.5}
-          color={0x666666}
-          anchorX="center"
-          anchorY="middle"
-        >
-          {row.toUpperCase()}
-        </Text>
-      ))}
-
-      {/* Power rail labels */}
-      <Text
-        position={[-WIDTH / 2 + 5, HEIGHT / 2 - 4, THICKNESS / 2 + 0.1]}
-        fontSize={1.5}
-        color={RAIL_POS_COLOR}
-        anchorX="center"
-        anchorY="middle"
-      >
-        +
-      </Text>
-      <Text
-        position={[-WIDTH / 2 + 5, HEIGHT / 2 - 4 - HOLE_SPACING, THICKNESS / 2 + 0.1]}
-        fontSize={1.5}
-        color={RAIL_NEG_COLOR}
-        anchorX="center"
-        anchorY="middle"
-      >
-        -
-      </Text>
+      {/* Bottom terminal strip */}
+      <mesh position={[0, THICKNESS / 2 + 0.0003, 0.008]}>
+        <boxGeometry args={[WIDTH - 0.02, 0.0005, 0.012]} />
+        <meshStandardMaterial color="#e8e8e0" />
+      </mesh>
 
       {/* Selection highlight */}
-      {selected && (
-        <mesh position={[0, 0, -0.5]}>
-          <boxGeometry args={[WIDTH + 4, HEIGHT + 4, 0.5]} />
-          <meshBasicMaterial color={0x00aaff} transparent opacity={0.3} />
+      {isSelected && (
+        <mesh position={[0, -0.001, 0]}>
+          <boxGeometry args={[WIDTH + 0.008, 0.002, HEIGHT + 0.008]} />
+          <meshBasicMaterial color="#00aaff" transparent opacity={0.4} />
         </mesh>
       )}
     </group>

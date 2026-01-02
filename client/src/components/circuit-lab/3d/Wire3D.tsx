@@ -14,7 +14,7 @@ export function Wire3D({
   start,
   end,
   color = '#FF0000',
-  thickness = 0.003,
+  thickness = 0.001,
   onClick,
   isSelected
 }: Wire3DProps) {
@@ -25,7 +25,7 @@ export function Wire3D({
     // Calculate midpoint with slight arc for 3D effect
     const midPoint = new THREE.Vector3().addVectors(startVec, endVec).multiplyScalar(0.5);
     const distance = startVec.distanceTo(endVec);
-    midPoint.y += distance * 0.1; // Slight arc up
+    midPoint.y += distance * 0.15; // Slight arc up
 
     // Create curved path using QuadraticBezierCurve3
     const curve = new THREE.QuadraticBezierCurve3(startVec, midPoint, endVec);
@@ -33,14 +33,12 @@ export function Wire3D({
     return new THREE.TubeGeometry(curve, 32, thickness, 8, false);
   }, [start, end, thickness]);
 
-  const wireColor = useMemo(() => new THREE.Color(color), [color]);
-
   return (
-    <group onClick={onClick}>
+    <group onClick={(e) => { e.stopPropagation(); onClick?.(); }}>
       {/* Main wire */}
       <mesh geometry={wireGeometry}>
         <meshStandardMaterial
-          color={wireColor}
+          color={color}
           roughness={0.4}
           metalness={0.6}
         />
