@@ -9,11 +9,13 @@ import {
   Environment,
   ContactShadows,
   useCursor,
+} from "@react-three/drei";
+import {
   EffectComposer,
   RenderPass,
   UnrealBloomPass,
   ChromaticAberration,
-} from "@react-three/drei";
+} from "@react-three/postprocessing";
 import * as THREE from "three";
 
 // 유기적인 변형 오브젝트 컴포넌트 (엔터프라이즈급)
