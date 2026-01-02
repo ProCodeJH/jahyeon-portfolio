@@ -12,7 +12,6 @@ import {
 } from "@react-three/drei";
 import {
   EffectComposer,
-  RenderPass,
   UnrealBloomPass,
   ChromaticAberration,
 } from "@react-three/postprocessing";
@@ -453,7 +452,6 @@ export default function SplineBackground() {
 
         {/* 후처리 효과 */}
         <EffectComposer>
-          <RenderPass />
           <UnrealBloomPass threshold={0.8} strength={1.5} radius={0.8} />
           <ChromaticAberration offset={[0.001, 0.002]} />
         </EffectComposer>
