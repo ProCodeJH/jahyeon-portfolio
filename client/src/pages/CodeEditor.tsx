@@ -206,17 +206,42 @@ const simulateCompile = async (code: string, language: Language): Promise<{ succ
   output += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
   output += `📤 프로그램 출력:\n`;
 
-  const printMatches = code.match(/(?:console\.log|print(?:ln)?|fmt\.Print(?:ln|f)?|std::cout)\s*[(<][^)>]+[)>]/g);
-  if (printMatches) {
-    printMatches.slice(0, 10).forEach(() => {
-      output += `   Hello, World!\n`;
-    });
-  } else {
-    output += `   (출력 없음)\n`;
-  }
+  // Extract actual print content from code
+  const extractPrintContent = (code: string, lang: Language): string[] => {
+    const results: string[] = [];
+
+    if (lang === 'javascript' || lang === 'typescript') {
+      const matches = code.matchAll(/console\.log\s*\(\s*(['"`])([^'"`]*)\1\s*\)/g);
+      for (const match of matches) results.push(match[2]);
+      const templateMatches = code.matchAll(/console\.log\s*\(\s*`([^`]*)`\s*\)/g);
+      for (const match of templateMatches) results.push(match[1].replace(/\$\{[^}]+\}/g, '[value]'));
+    } else if (lang === 'python') {
+      const matches = code.matchAll(/print\s*\(\s*(['"])([^'"]*)\1\s*\)/g);
+      for (const match of matches) results.push(match[2]);
+      const fMatches = code.matchAll(/print\s*\(\s*f['"]([^'"]*)['"]\s*\)/g);
+      for (const match of fMatches) results.push(match[1].replace(/\{[^}]+\}/g, '[value]'));
+    } else if (lang === 'c' || lang === 'cpp' || lang === 'arduino') {
+      const matches = code.matchAll(/(?:printf|Serial\.println?|std::cout\s*<<)\s*\(\s*["']([^"']*)["']/g);
+      for (const match of matches) results.push(match[1].replace(/\\n/g, ''));
+    } else if (lang === 'rust') {
+      const matches = code.matchAll(/println!\s*\(\s*["']([^"']*)["']/g);
+      for (const match of matches) results.push(match[1].replace(/\{\}/g, '[value]'));
+    } else if (lang === 'go') {
+      const matches = code.matchAll(/fmt\.Print(?:ln|f)?\s*\(\s*["']([^"']*)["']/g);
+      for (const match of matches) results.push(match[1].replace(/%[sdvf]/g, '[value]'));
+    }
+
+    return results.length > 0 ? results : ['프로그램이 실행되었습니다.'];
+  };
+
+  const printOutputs = extractPrintContent(code, language);
+  printOutputs.slice(0, 15).forEach(line => {
+    output += `   ${line}\n`;
+  });
 
   output += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-  output += `⏱️ 실행 시간: ${(Math.random() * 100).toFixed(2)}ms`;
+  output += `⏱️ 실행 시간: ${(Math.random() * 50 + 10).toFixed(2)}ms\n`;
+  output += `💾 메모리 사용: ${Math.floor(Math.random() * 500 + 100)} KB`;
 
   return { success: true, output, errors: [] };
 };
