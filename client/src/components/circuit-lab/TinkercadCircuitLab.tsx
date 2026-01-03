@@ -11,6 +11,12 @@ import * as THREE from 'three';
 import { Link } from 'wouter';
 import Editor from '@monaco-editor/react';
 
+// Enterprise Arduino Simulator
+import { ArduinoSimulator, CompileResult, SimulationState, PinRuntimeState } from '@/lib/arduino-simulator';
+
+// 3D Sensor Components
+import { UltrasonicSensor3D, DHT22Sensor3D } from './3d/sensors';
+
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -89,6 +95,7 @@ type ComponentType =
   | 'ultrasonic'
   | 'photoresistor'
   | 'temperature'
+  | 'dht22'
   | 'ir_sensor'
   | 'lcd_16x2'
   | 'seven_segment'
@@ -130,7 +137,9 @@ interface Wire {
   points: [number, number, number][];
 }
 
-interface SimulationState {
+// SimulationState is imported from @/lib/arduino-simulator
+// Local CircuitSimulationState for UI state tracking
+interface CircuitSimulationState {
   isRunning: boolean;
   time: number;
   speed: number;
@@ -199,6 +208,7 @@ const COMPONENT_LIBRARY: {
       { type: 'photoresistor', name: 'Photoresistor', nameKo: '조도 센서', description: 'CdS 광저항' },
       { type: 'temperature', name: 'Temp Sensor', nameKo: '온도 센서', description: 'TMP36 온도 센서' },
       { type: 'ultrasonic', name: 'Ultrasonic', nameKo: '초음파 센서', description: 'HC-SR04 거리 센서' },
+      { type: 'dht22', name: 'DHT22 Sensor', nameKo: 'DHT22 센서', description: '온습도 센서 모듈' },
       { type: 'ir_sensor', name: 'IR Sensor', nameKo: '적외선 센서', description: 'IR 수신 모듈' },
     ],
   },
@@ -1126,6 +1136,31 @@ function CircuitScene({
                 onClick={() => onSelectComponent(component.id)}
               />
             );
+          case 'ultrasonic':
+            return (
+              <UltrasonicSensor3D
+                key={component.id}
+                position={component.position}
+                rotation={component.rotation}
+                distance={component.properties?.distance || 100}
+                isActive={component.properties?.isActive || false}
+                isSelected={isSelected}
+                onClick={() => onSelectComponent(component.id)}
+              />
+            );
+          case 'dht22':
+            return (
+              <DHT22Sensor3D
+                key={component.id}
+                position={component.position}
+                rotation={component.rotation}
+                temperature={component.properties?.temperature || 25}
+                humidity={component.properties?.humidity || 50}
+                isActive={component.properties?.isActive || false}
+                isSelected={isSelected}
+                onClick={() => onSelectComponent(component.id)}
+              />
+            );
           default:
             return null;
         }
@@ -1170,9 +1205,73 @@ export function TinkercadCircuitLab() {
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedCategories, setExpandedCategories] = useState<string[]>(['Microcontrollers', 'Basic Components']);
   const [wiringStart, setWiringStart] = useState<{ componentId: string; pinId: string; worldPos: [number, number, number] } | null>(null);
+  const [compileErrors, setCompileErrors] = useState<string[]>([]);
+  const [simulationTime, setSimulationTime] = useState(0);
 
   // Refs
   const idCounterRef = useRef(0);
+  const simulatorRef = useRef<ArduinoSimulator | null>(null);
+
+  // Initialize Enterprise Simulator
+  useEffect(() => {
+    const simulator = new ArduinoSimulator('UNO');
+    simulatorRef.current = simulator;
+
+    // Setup callbacks
+    simulator.setCallbacks({
+      onSerialOutput: (data) => {
+        setSerialOutput(prev => prev + data);
+      },
+      onStateChange: (state, stats) => {
+        const isRunning = state === 'RUNNING';
+        setIsSimulating(isRunning);
+        setSimulationTime(stats.executionTimeMs);
+        // Activate/deactivate sensors based on simulation state
+        setComponents(prev => prev.map(c => {
+          if (c.type === 'ultrasonic' || c.type === 'dht22') {
+            return { ...c, properties: { ...c.properties, isActive: isRunning } };
+          }
+          return c;
+        }));
+      },
+      onPinChange: (pinId, state) => {
+        // Update LED components based on pin 13 (built-in LED)
+        if (pinId === 13) {
+          setComponents(prev => prev.map(c => {
+            if (c.type.startsWith('led_')) {
+              const brightness = state.digitalState === 'PWM'
+                ? state.pwmDuty / 255
+                : (state.digitalState === 'HIGH' ? 1 : 0);
+              return {
+                ...c,
+                properties: {
+                  ...c.properties,
+                  isOn: state.digitalState === 'HIGH' || (state.digitalState === 'PWM' && state.pwmDuty > 0),
+                  brightness,
+                },
+              };
+            }
+            return c;
+          }));
+        }
+      },
+      onError: (error) => {
+        setCompileErrors(prev => [...prev, error.messageKo || error.message]);
+        setSerialOutput(prev => prev + `\n오류: ${error.messageKo || error.message}\n`);
+      },
+      onCompile: (result) => {
+        if (!result.success) {
+          setCompileErrors(result.errors.map(e => e.messageKo || e.message));
+        } else {
+          setCompileErrors([]);
+        }
+      },
+    });
+
+    return () => {
+      simulator.dispose();
+    };
+  }, []);
 
   // Generate unique ID
   const generateId = useCallback(() => {
@@ -1213,6 +1312,14 @@ export function TinkercadCircuitLab() {
       case 'button':
         position = [0.04 + offset, 0.005, 0.02];
         properties = { isPressed: false };
+        break;
+      case 'ultrasonic':
+        position = [0.05 + offset, 0.015, 0.03];
+        properties = { distance: 100, isActive: false };
+        break;
+      case 'dht22':
+        position = [0.06 + offset, 0.015, 0.02];
+        properties = { temperature: 25, humidity: 50, isActive: false };
         break;
     }
 
@@ -1269,46 +1376,73 @@ export function TinkercadCircuitLab() {
     }
   }, [toolMode, wiringStart, wireColor, generateId]);
 
-  // Simulation controls
-  const handleRun = useCallback(() => {
-    setIsSimulating(true);
-    setSerialOutput('시뮬레이션 시작...\n');
-
-    // Simple simulation - toggle LED on pin 13
-    const ledComponent = components.find(c => c.type.startsWith('led_'));
-    if (ledComponent) {
-      let isOn = false;
-      const interval = setInterval(() => {
-        isOn = !isOn;
-        setComponents(prev => prev.map(c =>
-          c.id === ledComponent.id
-            ? { ...c, properties: { ...c.properties, isOn } }
-            : c
-        ));
-        setSerialOutput(prev => prev + `LED ${isOn ? 'ON' : 'OFF'}\n`);
-      }, 1000);
-
-      // Store interval ID for cleanup
-      (window as any).__simInterval = interval;
+  // Simulation controls - Using Enterprise ArduinoSimulator
+  const handleRun = useCallback(async () => {
+    if (!simulatorRef.current) {
+      setSerialOutput('오류: 시뮬레이터가 초기화되지 않았습니다.\n');
+      return;
     }
-  }, [components]);
+
+    setCompileErrors([]);
+    setSerialOutput('========================================\n');
+    setSerialOutput(prev => prev + '🔧 컴파일 중...\n');
+    setSerialOutput(prev => prev + '----------------------------------------\n');
+
+    try {
+      // Compile the Arduino code
+      const result = simulatorRef.current.compile(code);
+
+      if (result.success) {
+        setSerialOutput(prev => prev + '✅ 컴파일 성공!\n');
+        setSerialOutput(prev => prev + `   코드 크기: ${result.codeSize || 0} bytes\n`);
+        setSerialOutput(prev => prev + `   변수 사용: ${result.memoryUsage || 0} bytes\n`);
+        setSerialOutput(prev => prev + '----------------------------------------\n');
+        setSerialOutput(prev => prev + '🚀 시뮬레이션 시작...\n');
+        setSerialOutput(prev => prev + '========================================\n\n');
+
+        // Start simulation
+        await simulatorRef.current.start();
+        setIsSimulating(true);
+      } else {
+        setSerialOutput(prev => prev + '❌ 컴파일 실패!\n');
+        setSerialOutput(prev => prev + '----------------------------------------\n');
+        result.errors.forEach(err => {
+          const line = err.line ? `[줄 ${err.line}] ` : '';
+          setSerialOutput(prev => prev + `   ${line}${err.messageKo || err.message}\n`);
+        });
+        setCompileErrors(result.errors.map(e => e.messageKo || e.message));
+        setIsSimulating(false);
+      }
+    } catch (error: any) {
+      setSerialOutput(prev => prev + `❌ 오류: ${error.message}\n`);
+      setCompileErrors([error.message]);
+      setIsSimulating(false);
+    }
+  }, [code]);
 
   const handleStop = useCallback(() => {
-    setIsSimulating(false);
-    if ((window as any).__simInterval) {
-      clearInterval((window as any).__simInterval);
+    if (simulatorRef.current) {
+      simulatorRef.current.stop();
     }
-    setSerialOutput(prev => prev + '시뮬레이션 정지\n');
+    setIsSimulating(false);
+    setSerialOutput(prev => prev + '\n----------------------------------------\n');
+    setSerialOutput(prev => prev + '⏹️ 시뮬레이션 정지\n');
+    setSerialOutput(prev => prev + '========================================\n');
   }, []);
 
   const handleReset = useCallback(() => {
-    handleStop();
+    if (simulatorRef.current) {
+      simulatorRef.current.reset();
+    }
+    setIsSimulating(false);
     setSerialOutput('');
+    setCompileErrors([]);
+    setSimulationTime(0);
     setComponents(prev => prev.map(c => ({
       ...c,
-      properties: { ...c.properties, isOn: false, isPressed: false },
+      properties: { ...c.properties, isOn: false, isPressed: false, brightness: 0 },
     })));
-  }, [handleStop]);
+  }, []);
 
   // Toggle category expansion
   const toggleCategory = useCallback((category: string) => {
