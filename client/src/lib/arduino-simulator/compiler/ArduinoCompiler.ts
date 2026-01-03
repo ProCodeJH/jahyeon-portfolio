@@ -505,7 +505,30 @@ class ArduinoTranspiler {
     // Function body
     if (name === 'setup' || name === 'loop') {
       this.output.push(`async function ${name}(runtime) {\n`);
-      this.output.push(`  const { pinMode, digitalWrite, digitalRead, analogWrite, analogRead, delay, millis, micros, Serial, map, constrain, min, max, abs, pow, sqrt, sq, random, randomSeed, HIGH, LOW, LED_BUILTIN } = runtime;\n`);
+      // Use runtime.method() directly instead of destructuring to preserve 'this' binding
+      this.output.push(`  const HIGH = runtime.HIGH;\n`);
+      this.output.push(`  const LOW = runtime.LOW;\n`);
+      this.output.push(`  const LED_BUILTIN = runtime.LED_BUILTIN;\n`);
+      this.output.push(`  const pinMode = (p, m) => runtime.pinMode(p, m);\n`);
+      this.output.push(`  const digitalWrite = (p, v) => runtime.digitalWrite(p, v);\n`);
+      this.output.push(`  const digitalRead = (p) => runtime.digitalRead(p);\n`);
+      this.output.push(`  const analogWrite = (p, v) => runtime.analogWrite(p, v);\n`);
+      this.output.push(`  const analogRead = (p) => runtime.analogRead(p);\n`);
+      this.output.push(`  const delay = (ms) => runtime.delay(ms);\n`);
+      this.output.push(`  const delayMicroseconds = (us) => runtime.delayMicroseconds(us);\n`);
+      this.output.push(`  const millis = () => runtime.millis();\n`);
+      this.output.push(`  const micros = () => runtime.micros();\n`);
+      this.output.push(`  const Serial = runtime.Serial;\n`);
+      this.output.push(`  const map = (v, fl, fh, tl, th) => runtime.map(v, fl, fh, tl, th);\n`);
+      this.output.push(`  const constrain = (v, l, h) => runtime.constrain(v, l, h);\n`);
+      this.output.push(`  const min = (a, b) => runtime.min(a, b);\n`);
+      this.output.push(`  const max = (a, b) => runtime.max(a, b);\n`);
+      this.output.push(`  const abs = (v) => runtime.abs(v);\n`);
+      this.output.push(`  const pow = (b, e) => runtime.pow(b, e);\n`);
+      this.output.push(`  const sqrt = (v) => runtime.sqrt(v);\n`);
+      this.output.push(`  const sq = (v) => runtime.sq(v);\n`);
+      this.output.push(`  const random = (a, b) => b !== undefined ? runtime.random(a, b) : runtime.random(a);\n`);
+      this.output.push(`  const randomSeed = (s) => runtime.randomSeed(s);\n`);
     } else {
       this.output.push(`function ${name}(${params.join(', ')}) {\n`);
     }
