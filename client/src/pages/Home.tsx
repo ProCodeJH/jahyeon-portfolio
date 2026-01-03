@@ -10,7 +10,6 @@ import {
   CircuitBoard,
   Layers,
   GraduationCap,
-  Play,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -31,7 +30,7 @@ export default function Home() {
       {/* Premium Navigation */}
       <Navigation />
 
-{/* Hero Section with 3D Background */}
+      {/* Hero Section with 3D Background */}
       <section className="min-h-screen flex items-center relative pt-24 md:pt-32 px-4 md:px-8">
         <div className="max-w-7xl mx-auto w-full relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 md:gap-16 lg:gap-24 items-center">
@@ -96,76 +95,8 @@ export default function Home() {
                 </Link>
               </AnimatedSection>
             </div>
-              </AnimatedSection>
 
-              <AnimatedSection delay={150}>
-                <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-[1.1] tracking-tight">
-                  <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-purple-900 to-blue-900 animate-gradient-x drop-shadow-sm">
-                    Thinking of ideas
-                  </span>
-                  <br />
-                  <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 animate-gradient-x mt-2 drop-shadow-lg">
-                    that help the world,
-                  </span>
-                  <br />
-                  <span className="inline-block text-gray-900 mt-2 relative drop-shadow-sm">
-                    creating, growing
-                    <svg
-                      className="absolute -bottom-2 md:-bottom-3 left-0 w-full"
-                      viewBox="0 0 300 12"
-                      fill="none"
-                    >
-                      <path
-                        d="M0 6 Q150 12, 300 6"
-                        stroke="url(#gradient)"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        className="animate-draw"
-                      />
-                      <defs>
-                        <linearGradient
-                          id="gradient"
-                          x1="0%"
-                          y1="0%"
-                          x2="100%"
-                          y2="0%"
-                        >
-                          <stop offset="0%" stopColor="#9333ea" />
-                          <stop offset="100%" stopColor="#3b82f6" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
-                  </span>
-                </h1>
-              </AnimatedSection>
-
-              <AnimatedSection delay={300}>
-                <p className="text-lg md:text-xl lg:text-2xl text-gray-600 leading-relaxed max-w-xl font-light">
-                  Walking the path toward{" "}
-                  <span className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
-                    bigger dreams
-                  </span>
-                </p>
-              </AnimatedSection>
-
-              <AnimatedSection delay={450}>
-                <Link href="/projects">
-                  <Button
-                    size="lg"
-                    className="group relative rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white px-8 md:px-10 h-14 md:h-16 text-base md:text-lg font-bold overflow-hidden shadow-2xl shadow-purple-500/50 hover:shadow-purple-500/70 hover:scale-105 transition-all duration-500"
-                  >
-                    <span className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <span className="relative flex items-center gap-2 md:gap-3">
-                      View Work
-                      <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-2 transition-transform duration-300" />
-                    </span>
-                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                  </Button>
-                </Link>
-              </AnimatedSection>
-            </div>
-
-{/* Right: Video Container with Glass Effect */}
+            {/* Right: Video Container with Glass Effect */}
             <AnimatedSection delay={300}>
               <TiltCard sensitivity={8}>
                 <div className="relative aspect-square rounded-[2.5rem] overflow-hidden p-1 shadow-2xl shadow-blue-500/20 group">
@@ -197,11 +128,11 @@ export default function Home() {
         </div>
       </section>
 
-{/* Expertise Section */}
+      {/* Expertise Section */}
       <section className="py-20 md:py-32 lg:py-40 px-4 md:px-8 relative overflow-hidden">
         {/* Dark Background Overlay for Readability */}
         <div className="absolute inset-0 bg-slate-950/80" />
-        
+
         <div className="max-w-7xl mx-auto relative z-10">
           <AnimatedSection>
             <div className="text-center mb-12 md:mb-16 lg:mb-20">
@@ -275,9 +206,8 @@ export default function Home() {
                     style={{ backgroundSize: "200% 200%" }}
                   />
 
-{/* Main Card with Dark Glassmorphism */}
+                  {/* Main Card with Dark Glassmorphism */}
                   <div className="relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-2xl hover:shadow-blue-500/30 transition-all duration-700 h-[400px] md:h-[450px] lg:h-[500px] group-hover:scale-[1.05] group-hover:-translate-y-3">
-
                     {/* Dark Background with Image */}
                     <div className="absolute inset-0 overflow-hidden">
                       <img
@@ -285,7 +215,6 @@ export default function Home() {
                         alt={item.title}
                         className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-all duration-1000"
                       />
-
                       {/* Darker gradient at bottom for text readability */}
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/70 to-transparent" />
                     </div>
@@ -297,7 +226,6 @@ export default function Home() {
 
                     {/* Content Container */}
                     <div className="relative h-full p-6 md:p-8 flex flex-col justify-between">
-
                       {/* Icon with 3D Effect */}
                       <div className="relative">
                         <div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-gradient-to-br ${item.iconBg} backdrop-blur-xl border-2 border-white/30 flex items-center justify-center shadow-2xl ${item.glowColor} group-hover:scale-125 group-hover:rotate-12 transition-all duration-700`}>
@@ -305,7 +233,6 @@ export default function Home() {
                           {/* Icon Glow */}
                           <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-50 blur-xl rounded-2xl md:rounded-3xl transition-opacity duration-500`} />
                         </div>
-
                         {/* Pulsing Ring */}
                         <div className="absolute inset-0 w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl border-2 border-white/20 group-hover:scale-150 group-hover:opacity-0 transition-all duration-700" />
                       </div>
@@ -330,65 +257,6 @@ export default function Home() {
                     {/* Premium Glow Effect */}
                     <div className={`absolute -inset-1 bg-gradient-to-r ${item.color} rounded-[2rem] opacity-0 group-hover:opacity-40 blur-2xl transition-all duration-700 -z-10`} />
                   </div>
-
-                    {/* Floating Particles */}
-                    <div
-                      className="absolute top-10 right-10 w-2 h-2 rounded-full bg-white/60 animate-float"
-                      style={{ animationDelay: "0s", animationDuration: "3s" }}
-                    />
-                    <div
-                      className="absolute top-20 right-20 w-3 h-3 rounded-full bg-white/40 animate-float"
-                      style={{ animationDelay: "1s", animationDuration: "4s" }}
-                    />
-                    <div
-                      className="absolute bottom-20 left-10 w-2 h-2 rounded-full bg-white/50 animate-float"
-                      style={{ animationDelay: "2s", animationDuration: "5s" }}
-                    />
-
-                    {/* Content Container */}
-                    <div className="relative h-full p-6 md:p-8 flex flex-col justify-between">
-                      {/* Icon with 3D Effect */}
-                      <div className="relative">
-                        <div
-                          className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-gradient-to-br ${item.iconBg} backdrop-blur-xl border-2 border-white/40 flex items-center justify-center shadow-2xl ${item.glowColor} group-hover:scale-125 group-hover:rotate-12 transition-all duration-700`}
-                        >
-                          <item.icon className="w-8 h-8 md:w-10 md:h-10 text-white drop-shadow-2xl group-hover:scale-110 transition-transform duration-500" />
-                          {/* Icon Glow */}
-                          <div
-                            className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-50 blur-xl rounded-2xl md:rounded-3xl transition-opacity duration-500`}
-                          />
-                        </div>
-
-                        {/* Pulsing Ring */}
-                        <div
-                          className={`absolute inset-0 w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl border-2 border-white/30 group-hover:scale-150 group-hover:opacity-0 transition-all duration-700`}
-                        />
-                      </div>
-
-                      {/* Text Content with Enhanced Typography */}
-                      <div className="space-y-2 md:space-y-3">
-                        <h3 className="text-2xl md:text-3xl font-black text-white mb-2 md:mb-3 drop-shadow-2xl group-hover:translate-x-3 group-hover:scale-105 transition-all duration-500 leading-tight">
-                          {item.title}
-                        </h3>
-                        <p className="text-white/95 text-sm md:text-base leading-relaxed drop-shadow-lg font-medium group-hover:translate-x-2 transition-transform duration-500">
-                          {item.desc}
-                        </p>
-
-                        {/* Premium Indicator Bar */}
-                        <div className="flex items-center gap-2 pt-2 md:pt-3 opacity-0 group-hover:opacity-100 transition-all duration-700 delay-100">
-                          <div
-                            className={`h-1 w-0 group-hover:w-12 md:group-hover:w-16 bg-gradient-to-r ${item.color} rounded-full transition-all duration-700 shadow-lg`}
-                          />
-                          <Sparkles className="w-3 h-3 md:w-4 md:h-4 text-white/80 opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-200" />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Premium Glow Effect */}
-                    <div
-                      className={`absolute -inset-1 bg-gradient-to-r ${item.color} rounded-[2rem] opacity-0 group-hover:opacity-40 blur-2xl transition-all duration-700 -z-10`}
-                    />
-                  </div>
                 </div>
               </AnimatedSection>
             ))}
@@ -400,10 +268,10 @@ export default function Home() {
       <section className="py-20 md:py-32 lg:py-40 px-4 md:px-8 relative">
         {/* Dark Background Overlay for Readability */}
         <div className="absolute inset-0 bg-slate-950/80" />
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto relative z-10">
           <AnimatedSection>
             <div className="text-center mb-12 md:mb-16 lg:mb-20">
-<div className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-3 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 mb-4 md:mb-6">
+              <div className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-3 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 mb-4 md:mb-6">
                 <Layers className="w-4 md:w-5 h-4 md:h-5 text-blue-400" />
                 <span className="text-xs md:text-sm font-bold text-blue-300 tracking-wider uppercase">Career Path</span>
               </div>
@@ -453,7 +321,7 @@ export default function Home() {
               return (
                 <AnimatedSection key={idx} delay={idx * 100}>
                   <TiltCard sensitivity={6}>
-<div
+                    <div
                       className={`group relative p-5 md:p-8 rounded-2xl md:rounded-3xl bg-slate-900/60 backdrop-blur-xl border-2 ${
                         exp.current
                           ? "border-blue-400 shadow-2xl shadow-blue-500/20"
@@ -510,47 +378,6 @@ export default function Home() {
 
                       {/* Premium Border Glow */}
                       <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl md:rounded-3xl opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500 -z-10" />
-                    </div>
-
-                        {/* Content */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-2 md:mb-3">
-                            <p
-                              className={`text-xs md:text-sm font-black font-mono tracking-wider ${
-                                exp.current
-                                  ? "text-purple-600"
-                                  : "text-gray-500"
-                              }`}
-                            >
-                              {exp.year}
-                            </p>
-                            {exp.current && (
-                              <span className="px-2 md:px-3 py-0.5 md:py-1 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 text-white text-[10px] md:text-xs font-black tracking-wider shadow-lg">
-                                CURRENT
-                              </span>
-                            )}
-                          </div>
-                          <h3 className="text-lg md:text-2xl font-black text-gray-900 mb-1 md:mb-2 group-hover:text-purple-600 transition-colors">
-                            {exp.company}
-                          </h3>
-                          <p className="text-sm md:text-base text-gray-600 font-medium mb-1">
-                            {exp.role}
-                          </p>
-                          {exp.subtitle && (
-                            <p className="text-xs md:text-sm text-purple-600 font-semibold mb-1">
-                              {exp.subtitle}
-                            </p>
-                          )}
-                          {exp.position && (
-                            <p className="text-xs md:text-sm text-gray-500 italic">
-                              Position: {exp.position}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Premium Border Glow */}
-                      <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl md:rounded-3xl opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500 -z-10" />
                     </div>
                   </TiltCard>
                 </AnimatedSection>
@@ -612,11 +439,10 @@ export default function Home() {
                       if (isFuture) setActiveIndex(idx);
                     }}
                   >
-{/* Card */}
+                    {/* Card */}
                     <div className={`relative w-full h-full rounded-[3rem] overflow-hidden shadow-2xl transition-all duration-700 ${
                       isActive ? 'shadow-blue-500/30 scale-100' : 'shadow-black/40'
                     }`}>
-
                       {/* Premium Gradient Border */}
                       <div className={`absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-[3rem] blur-xl transition-opacity duration-500 ${
                         isActive ? 'opacity-60' : 'opacity-0'
@@ -624,7 +450,6 @@ export default function Home() {
 
                       {/* Card Content */}
                       <div className="relative w-full h-full rounded-[3rem] bg-slate-900 overflow-hidden">
-
                         {/* Image Background */}
                         {project.imageUrl && (
                           <div className="absolute inset-0">
@@ -690,7 +515,7 @@ export default function Home() {
               })}
             </div>
 
-{/* Navigation Buttons */}
+            {/* Navigation Buttons */}
             <button
               onClick={() => setActiveIndex(Math.max(0, activeIndex - 1))}
               disabled={activeIndex === 0}
@@ -707,19 +532,7 @@ export default function Home() {
               <ChevronRight className="w-6 h-6 md:w-8 md:h-8 mx-auto" />
             </button>
 
-            <button
-              onClick={() =>
-                setActiveIndex(
-                  Math.min((projects?.length || 1) - 1, activeIndex + 1),
-                )
-              }
-              disabled={activeIndex === (projects?.length || 1) - 1}
-              className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-[100] w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/90 backdrop-blur-xl border-2 border-purple-500 text-purple-600 shadow-2xl hover:scale-110 hover:bg-purple-500 hover:text-white transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
-            >
-              <ChevronRight className="w-6 h-6 md:w-8 md:h-8 mx-auto" />
-            </button>
-
-{/* Dot Indicators */}
+            {/* Dot Indicators */}
             <div className="absolute -bottom-20 left-1/2 -translate-x-1/2 flex items-center gap-3 z-[100]">
               {projects?.slice(0, 5).map((_, idx) => (
                 <button
@@ -757,7 +570,7 @@ export default function Home() {
 
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <AnimatedSection>
-<div className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-3 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 mb-6 md:mb-10">
+            <div className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-3 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 mb-6 md:mb-10">
               <Sparkles className="w-4 md:w-5 h-4 md:h-5 text-blue-400" />
               <span className="text-xs md:text-sm font-bold text-blue-300 tracking-wider uppercase">Join The Community</span>
             </div>
@@ -803,87 +616,26 @@ export default function Home() {
 
                 {/* Scrolling Track */}
                 <div className="flex gap-6 md:gap-8 animate-scroll-left-fast">
-                  {/* First Set */}
+                  {/* AI Tools */}
                   {[
-                    {
-                      name: "ChatGPT",
-                      logo: "🤖",
-                      bg: "from-emerald-500 to-green-600",
-                      shadow: "shadow-emerald-500/50",
-                    },
-                    {
-                      name: "Gemini",
-                      logo: "✨",
-                      bg: "from-blue-500 to-indigo-600",
-                      shadow: "shadow-blue-500/50",
-                    },
-                    {
-                      name: "Claude",
-                      logo: "🎯",
-                      bg: "from-orange-500 to-red-600",
-                      shadow: "shadow-orange-500/50",
-                    },
-                    {
-                      name: "Cursor",
-                      logo: "⚡",
-                      bg: "from-cyan-500 to-blue-600",
-                      shadow: "shadow-cyan-500/50",
-                    },
-                    {
-                      name: "Copilot",
-                      logo: "🚀",
-                      bg: "from-indigo-500 to-purple-600",
-                      shadow: "shadow-indigo-500/50",
-                    },
-                    {
-                      name: "BlackBox",
-                      logo: "⬛",
-                      bg: "from-gray-800 to-black",
-                      shadow: "shadow-gray-800/50",
-                    },
-                    {
-                      name: "CodeGPT",
-                      logo: "💻",
-                      bg: "from-teal-500 to-cyan-600",
-                      shadow: "shadow-teal-500/50",
-                    },
-                    {
-                      name: "GLM",
-                      logo: "🌟",
-                      bg: "from-pink-500 to-rose-600",
-                      shadow: "shadow-pink-500/50",
-                    },
-                    {
-                      name: "Manus",
-                      logo: "🎨",
-                      bg: "from-purple-500 to-pink-600",
-                      shadow: "shadow-purple-500/50",
-                    },
-                    {
-                      name: "nanobananaPro",
-                      logo: "🍌",
-                      bg: "from-yellow-500 to-orange-600",
-                      shadow: "shadow-yellow-500/50",
-                    },
+                    { name: "ChatGPT", logo: "🤖", bg: "from-emerald-500 to-green-600", shadow: "shadow-emerald-500/50" },
+                    { name: "Gemini", logo: "✨", bg: "from-blue-500 to-indigo-600", shadow: "shadow-blue-500/50" },
+                    { name: "Claude", logo: "🎯", bg: "from-orange-500 to-red-600", shadow: "shadow-orange-500/50" },
+                    { name: "Cursor", logo: "⚡", bg: "from-cyan-500 to-blue-600", shadow: "shadow-cyan-500/50" },
+                    { name: "Copilot", logo: "🚀", bg: "from-indigo-500 to-purple-600", shadow: "shadow-indigo-500/50" },
+                    { name: "BlackBox", logo: "⬛", bg: "from-gray-800 to-black", shadow: "shadow-gray-800/50" },
+                    { name: "CodeGPT", logo: "💻", bg: "from-teal-500 to-cyan-600", shadow: "shadow-teal-500/50" },
+                    { name: "GLM", logo: "🌟", bg: "from-pink-500 to-rose-600", shadow: "shadow-pink-500/50" },
+                    { name: "Manus", logo: "🎨", bg: "from-purple-500 to-pink-600", shadow: "shadow-purple-500/50" },
+                    { name: "nanobananaPro", logo: "🍌", bg: "from-yellow-500 to-orange-600", shadow: "shadow-yellow-500/50" },
                   ].map((ai, i) => (
                     <div key={`ai-1-${i}`} className="flex-shrink-0 group">
                       <div
                         className={`relative w-36 md:w-44 lg:w-48 h-20 md:h-24 lg:h-28 rounded-2xl md:rounded-3xl bg-gradient-to-br ${ai.bg} flex flex-col items-center justify-center shadow-xl ${ai.shadow} hover:shadow-2xl transition-all duration-500 hover:scale-110 hover:-translate-y-2 border-2 border-white/20 overflow-hidden`}
                       >
-                        {/* Shimmer Effect */}
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-
-                        {/* Logo */}
-                        <div className="text-3xl md:text-4xl lg:text-5xl mb-1 md:mb-2 filter drop-shadow-lg relative z-10">
-                          {ai.logo}
-                        </div>
-
-                        {/* Name */}
-                        <span className="text-white font-black text-xs md:text-sm lg:text-base tracking-wide relative z-10 drop-shadow-lg">
-                          {ai.name}
-                        </span>
-
-                        {/* Glow Effect */}
+                        <div className="text-3xl md:text-4xl lg:text-5xl mb-1 md:mb-2 filter drop-shadow-lg relative z-10">{ai.logo}</div>
+                        <span className="text-white font-black text-xs md:text-sm lg:text-base tracking-wide relative z-10 drop-shadow-lg">{ai.name}</span>
                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                       </div>
                     </div>
@@ -891,85 +643,24 @@ export default function Home() {
 
                   {/* Duplicate for Seamless Loop */}
                   {[
-                    {
-                      name: "ChatGPT",
-                      logo: "🤖",
-                      bg: "from-emerald-500 to-green-600",
-                      shadow: "shadow-emerald-500/50",
-                    },
-                    {
-                      name: "Gemini",
-                      logo: "✨",
-                      bg: "from-blue-500 to-indigo-600",
-                      shadow: "shadow-blue-500/50",
-                    },
-                    {
-                      name: "Claude",
-                      logo: "🎯",
-                      bg: "from-orange-500 to-red-600",
-                      shadow: "shadow-orange-500/50",
-                    },
-                    {
-                      name: "Cursor",
-                      logo: "⚡",
-                      bg: "from-cyan-500 to-blue-600",
-                      shadow: "shadow-cyan-500/50",
-                    },
-                    {
-                      name: "Copilot",
-                      logo: "🚀",
-                      bg: "from-indigo-500 to-purple-600",
-                      shadow: "shadow-indigo-500/50",
-                    },
-                    {
-                      name: "BlackBox",
-                      logo: "⬛",
-                      bg: "from-gray-800 to-black",
-                      shadow: "shadow-gray-800/50",
-                    },
-                    {
-                      name: "CodeGPT",
-                      logo: "💻",
-                      bg: "from-teal-500 to-cyan-600",
-                      shadow: "shadow-teal-500/50",
-                    },
-                    {
-                      name: "GLM",
-                      logo: "🌟",
-                      bg: "from-pink-500 to-rose-600",
-                      shadow: "shadow-pink-500/50",
-                    },
-                    {
-                      name: "Manus",
-                      logo: "🎨",
-                      bg: "from-purple-500 to-pink-600",
-                      shadow: "shadow-purple-500/50",
-                    },
-                    {
-                      name: "nanobananaPro",
-                      logo: "🍌",
-                      bg: "from-yellow-500 to-orange-600",
-                      shadow: "shadow-yellow-500/50",
-                    },
+                    { name: "ChatGPT", logo: "🤖", bg: "from-emerald-500 to-green-600", shadow: "shadow-emerald-500/50" },
+                    { name: "Gemini", logo: "✨", bg: "from-blue-500 to-indigo-600", shadow: "shadow-blue-500/50" },
+                    { name: "Claude", logo: "🎯", bg: "from-orange-500 to-red-600", shadow: "shadow-orange-500/50" },
+                    { name: "Cursor", logo: "⚡", bg: "from-cyan-500 to-blue-600", shadow: "shadow-cyan-500/50" },
+                    { name: "Copilot", logo: "🚀", bg: "from-indigo-500 to-purple-600", shadow: "shadow-indigo-500/50" },
+                    { name: "BlackBox", logo: "⬛", bg: "from-gray-800 to-black", shadow: "shadow-gray-800/50" },
+                    { name: "CodeGPT", logo: "💻", bg: "from-teal-500 to-cyan-600", shadow: "shadow-teal-500/50" },
+                    { name: "GLM", logo: "🌟", bg: "from-pink-500 to-rose-600", shadow: "shadow-pink-500/50" },
+                    { name: "Manus", logo: "🎨", bg: "from-purple-500 to-pink-600", shadow: "shadow-purple-500/50" },
+                    { name: "nanobananaPro", logo: "🍌", bg: "from-yellow-500 to-orange-600", shadow: "shadow-yellow-500/50" },
                   ].map((ai, i) => (
                     <div key={`ai-2-${i}`} className="flex-shrink-0 group">
                       <div
                         className={`relative w-36 md:w-44 lg:w-48 h-20 md:h-24 lg:h-28 rounded-2xl md:rounded-3xl bg-gradient-to-br ${ai.bg} flex flex-col items-center justify-center shadow-xl ${ai.shadow} hover:shadow-2xl transition-all duration-500 hover:scale-110 hover:-translate-y-2 border-2 border-white/20 overflow-hidden`}
                       >
-                        {/* Shimmer Effect */}
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-
-                        {/* Logo */}
-                        <div className="text-3xl md:text-4xl lg:text-5xl mb-1 md:mb-2 filter drop-shadow-lg relative z-10">
-                          {ai.logo}
-                        </div>
-
-                        {/* Name */}
-                        <span className="text-white font-black text-xs md:text-sm lg:text-base tracking-wide relative z-10 drop-shadow-lg">
-                          {ai.name}
-                        </span>
-
-                        {/* Glow Effect */}
+                        <div className="text-3xl md:text-4xl lg:text-5xl mb-1 md:mb-2 filter drop-shadow-lg relative z-10">{ai.logo}</div>
+                        <span className="text-white font-black text-xs md:text-sm lg:text-base tracking-wide relative z-10 drop-shadow-lg">{ai.name}</span>
                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                       </div>
                     </div>
