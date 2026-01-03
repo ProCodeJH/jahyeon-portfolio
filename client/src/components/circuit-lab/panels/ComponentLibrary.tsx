@@ -39,122 +39,131 @@ interface ComponentLibraryProps {
 }
 
 const COMPONENT_CATEGORIES = [
-  { id: 'microcontrollers', name: 'Microcontrollers', icon: <Cpu className="w-4 h-4" /> },
-  { id: 'basics', name: 'Basic Components', icon: <CircuitBoard className="w-4 h-4" /> },
-  { id: 'output', name: 'Output', icon: <Lightbulb className="w-4 h-4" /> },
-  { id: 'input', name: 'Input', icon: <ToggleLeft className="w-4 h-4" /> },
-  { id: 'power', name: 'Power', icon: <Zap className="w-4 h-4" /> },
-  { id: 'sensors', name: 'Sensors', icon: <Gauge className="w-4 h-4" /> },
+  { id: 'microcontrollers', name: '마이크로컨트롤러', icon: <Cpu className="w-4 h-4" /> },
+  { id: 'basics', name: '기본 부품', icon: <CircuitBoard className="w-4 h-4" /> },
+  { id: 'output', name: '출력', icon: <Lightbulb className="w-4 h-4" /> },
+  { id: 'input', name: '입력', icon: <ToggleLeft className="w-4 h-4" /> },
+  { id: 'power', name: '전원', icon: <Zap className="w-4 h-4" /> },
+  { id: 'sensors', name: '센서', icon: <Gauge className="w-4 h-4" /> },
 ];
 
 const COMPONENTS: ComponentDef[] = [
   {
     id: 'arduino_uno',
-    name: 'Arduino UNO',
-    description: 'ATmega328P microcontroller board',
+    name: '아두이노 UNO',
+    description: 'ATmega328P 마이크로컨트롤러 보드',
     category: 'microcontrollers',
     icon: <Cpu className="w-5 h-5 text-teal-400" />,
     pinCount: 28,
-    tags: ['arduino', 'atmega', 'microcontroller'],
+    tags: ['아두이노', 'arduino', 'atmega'],
   },
   {
     id: 'breadboard',
-    name: 'Breadboard',
-    description: 'Full-size solderless breadboard',
+    name: '브레드보드',
+    description: '풀사이즈 솔더리스 브레드보드',
     category: 'basics',
     icon: <CircuitBoard className="w-5 h-5 text-gray-400" />,
     pinCount: 830,
-    tags: ['breadboard', 'prototyping'],
+    tags: ['브레드보드', 'breadboard'],
   },
   {
     id: 'led',
     name: 'LED',
-    description: '5mm Light Emitting Diode',
+    description: '5mm 발광 다이오드',
     category: 'output',
     icon: <Lightbulb className="w-5 h-5 text-yellow-400" />,
     pinCount: 2,
-    tags: ['led', 'light', 'indicator'],
+    tags: ['led', '발광', '표시'],
   },
   {
     id: 'led_rgb',
     name: 'RGB LED',
-    description: 'Common cathode RGB LED',
+    description: '공통 캐소드 RGB LED',
     category: 'output',
     icon: <Lightbulb className="w-5 h-5 text-purple-400" />,
     pinCount: 4,
-    tags: ['led', 'rgb', 'color'],
+    tags: ['led', 'rgb', '색상'],
   },
   {
     id: 'resistor',
-    name: 'Resistor',
-    description: '1/4W through-hole resistor',
+    name: '저항',
+    description: '1/4W 스루홀 저항',
     category: 'basics',
     icon: <Zap className="w-5 h-5 text-orange-400" />,
     pinCount: 2,
-    tags: ['resistor', 'passive'],
+    tags: ['저항', 'resistor', '수동'],
   },
   {
     id: 'button',
-    name: 'Push Button',
-    description: 'Momentary tactile switch',
+    name: '푸시 버튼',
+    description: '순간 택트 스위치',
     category: 'input',
     icon: <ToggleLeft className="w-5 h-5 text-blue-400" />,
     pinCount: 4,
-    tags: ['button', 'switch', 'input'],
+    tags: ['버튼', 'button', '스위치'],
   },
   {
     id: 'potentiometer',
-    name: 'Potentiometer',
-    description: '10kΩ rotary potentiometer',
+    name: '가변저항',
+    description: '10kΩ 회전식 가변저항',
     category: 'input',
     icon: <Disc className="w-5 h-5 text-green-400" />,
     pinCount: 3,
-    tags: ['potentiometer', 'analog', 'input'],
+    tags: ['가변저항', 'potentiometer', '아날로그'],
   },
   {
     id: 'buzzer',
-    name: 'Piezo Buzzer',
-    description: 'Active piezo buzzer',
+    name: '피에조 버저',
+    description: '능동형 피에조 버저',
     category: 'output',
     icon: <Speaker className="w-5 h-5 text-pink-400" />,
     pinCount: 2,
-    tags: ['buzzer', 'sound', 'audio'],
+    tags: ['버저', 'buzzer', '소리'],
   },
   {
     id: 'lcd',
-    name: 'LCD Display',
-    description: '16x2 character LCD',
+    name: 'LCD 디스플레이',
+    description: '16x2 문자 LCD',
     category: 'output',
     icon: <Monitor className="w-5 h-5 text-cyan-400" />,
     pinCount: 16,
-    tags: ['lcd', 'display', 'screen'],
+    tags: ['lcd', '디스플레이', '화면'],
   },
   {
     id: 'capacitor',
-    name: 'Capacitor',
-    description: 'Ceramic capacitor',
+    name: '커패시터',
+    description: '세라믹 커패시터',
     category: 'basics',
     icon: <Zap className="w-5 h-5 text-indigo-400" />,
     pinCount: 2,
-    tags: ['capacitor', 'passive'],
+    tags: ['커패시터', 'capacitor', '수동'],
   },
   {
     id: 'photoresistor',
-    name: 'Photoresistor',
-    description: 'Light-dependent resistor (LDR)',
+    name: '광센서 (LDR)',
+    description: '조도 감지 저항',
     category: 'sensors',
     icon: <Gauge className="w-5 h-5 text-amber-400" />,
     pinCount: 2,
-    tags: ['photoresistor', 'ldr', 'light', 'sensor'],
+    tags: ['광센서', 'ldr', '조도', '센서'],
   },
   {
     id: 'temperature',
-    name: 'Temperature Sensor',
-    description: 'TMP36 temperature sensor',
+    name: '온도 센서',
+    description: 'TMP36 온도 센서',
     category: 'sensors',
     icon: <Gauge className="w-5 h-5 text-red-400" />,
     pinCount: 3,
-    tags: ['temperature', 'sensor', 'tmp36'],
+    tags: ['온도', 'temperature', '센서'],
+  },
+  {
+    id: 'ultrasonic',
+    name: '초음파 센서',
+    description: 'HC-SR04 거리 센서',
+    category: 'sensors',
+    icon: <Gauge className="w-5 h-5 text-blue-400" />,
+    pinCount: 4,
+    tags: ['초음파', 'ultrasonic', '거리', '센서'],
   },
 ];
 
@@ -196,13 +205,13 @@ export function ComponentLibrary({ onAddComponent }: ComponentLibraryProps) {
     <div className="flex flex-col h-full bg-[#252526]">
       {/* Header */}
       <div className="px-3 py-2 border-b border-[#3c3c3c]">
-        <h3 className="text-sm font-semibold text-gray-200 mb-2">Components</h3>
+        <h3 className="text-sm font-semibold text-gray-200 mb-2">부품 라이브러리</h3>
         <div className="relative">
           <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search components..."
+            placeholder="부품 검색..."
             className="h-8 pl-8 bg-[#3c3c3c] border-none text-sm text-gray-200 placeholder:text-gray-500"
           />
         </div>
@@ -294,8 +303,8 @@ export function ComponentLibrary({ onAddComponent }: ComponentLibraryProps) {
       {/* Footer */}
       <div className="px-3 py-2 border-t border-[#3c3c3c] text-xs text-gray-500">
         <div className="flex items-center justify-between">
-          <span>{COMPONENTS.length} components</span>
-          <span className="text-blue-400">Drag to add</span>
+          <span>{COMPONENTS.length}개 부품</span>
+          <span className="text-blue-400">클릭하여 추가</span>
         </div>
       </div>
     </div>

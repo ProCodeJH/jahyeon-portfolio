@@ -5,7 +5,7 @@
 import { create } from 'zustand';
 
 // Types
-export type ComponentType = 'arduino' | 'breadboard' | 'led' | 'resistor' | 'button';
+export type ComponentType = 'arduino' | 'breadboard' | 'led' | 'resistor' | 'button' | 'temperature' | 'photoresistor' | 'ultrasonic';
 
 export interface CircuitComponent {
   id: string;
@@ -61,21 +61,28 @@ interface CircuitState {
   reset: () => void;
 }
 
-const DEFAULT_CODE = `// Arduino Blink Example
+const DEFAULT_CODE = `// 아두이노 LED 깜빡이기 예제
+// Arduino Blink Example
+
 void setup() {
+  // 내장 LED 핀을 출력으로 설정
   pinMode(LED_BUILTIN, OUTPUT);
+
+  // 시리얼 통신 시작 (9600 보드레이트)
   Serial.begin(9600);
-  Serial.println("Blink started!");
+  Serial.println("LED 깜빡이기 시작!");
 }
 
 void loop() {
+  // LED 켜기
   digitalWrite(LED_BUILTIN, HIGH);
-  Serial.println("LED ON");
-  delay(1000);
+  Serial.println("LED 켜짐");
+  delay(1000);  // 1초 대기
 
+  // LED 끄기
   digitalWrite(LED_BUILTIN, LOW);
-  Serial.println("LED OFF");
-  delay(1000);
+  Serial.println("LED 꺼짐");
+  delay(1000);  // 1초 대기
 }
 `;
 

@@ -1,6 +1,7 @@
 /**
  * Circuit Lab Application
  * Production-grade 3D Arduino Circuit Simulator
+ * 한국어 UI 지원
  */
 
 import { useState, useCallback, useRef, useEffect, Suspense } from 'react';
@@ -11,8 +12,22 @@ import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { MonacoEditor } from './editor/MonacoEditor';
 import { SerialMonitor } from './panels/SerialMonitor';
 import { ComponentLibrary } from './panels/ComponentLibrary';
+import { LogicAnalyzer } from './panels/LogicAnalyzer';
+import { SimulationTimeline } from './panels/SimulationTimeline';
 import { useCircuitStore, ComponentType } from './store';
-import { Arduino3D, Breadboard3D, LED3D, Resistor3D, Button3D, Wire3D } from './3d';
+import {
+  Arduino3D,
+  Breadboard3D,
+  LED3D,
+  PWMLED3D,
+  Resistor3D,
+  Button3D,
+  Wire3D,
+  PinNetVisualization,
+  TemperatureSensor3D,
+  Photoresistor3D,
+  UltrasonicSensor3D,
+} from './3d';
 
 import { NetlistManager } from '@/lib/circuit/kernel/NetlistManager';
 import { SimulationEngine } from '@/lib/circuit/sim/SimulationEngine';
@@ -38,11 +53,44 @@ import {
   Layers,
   Eye,
   EyeOff,
+  Activity,
+  Clock,
 } from 'lucide-react';
 import { Link } from 'wouter';
 
+// 한국어 UI 텍스트
+const UI_TEXT = {
+  title: '회로 실험실',
+  subtitle: '3D 아두이노 시뮬레이터',
+  home: '홈',
+  run: '실행',
+  stop: '정지',
+  reset: '초기화',
+  running: '실행 중',
+  ready: '대기',
+  components: '부품',
+  simulation: '시뮬레이션',
+  active: '활성',
+  stopped: '정지됨',
+  dragToRotate: '드래그: 회전 • 스크롤: 확대/축소',
+  mcu: 'Arduino UNO • ATmega328P',
+  clock: '16 MHz',
+  viewTabs: {
+    scene: '3D 뷰',
+    code: '코드',
+    analyzer: '분석기',
+  },
+};
+
+// Code-Hardware Highlight Context
+interface HighlightContext {
+  activeLine: number | null;
+  activeComponent: string | null;
+  activePin: string | null;
+}
+
 // 3D Scene Component
-function CircuitScene() {
+function CircuitScene({ highlightContext }: { highlightContext: HighlightContext }) {
   const { components, wires, selectedId, setSelectedId, updateComponent } = useCircuitStore();
 
   return (
@@ -84,9 +132,13 @@ function CircuitScene() {
         followCamera={false}
       />
 
+      {/* Pin/Net Visualization Layer */}
+      <PinNetVisualization />
+
       {/* Components */}
       {components.map((component) => {
         const isSelected = selectedId === component.id;
+        const isHighlighted = highlightContext.activeComponent === component.id;
 
         switch (component.type) {
           case 'arduino':
@@ -96,7 +148,7 @@ function CircuitScene() {
                 position={component.position}
                 rotation={component.rotation}
                 onClick={() => setSelectedId(component.id)}
-                isSelected={isSelected}
+                isSelected={isSelected || isHighlighted}
               />
             );
           case 'breadboard':
@@ -106,11 +158,22 @@ function CircuitScene() {
                 position={component.position}
                 rotation={component.rotation}
                 onClick={() => setSelectedId(component.id)}
-                isSelected={isSelected}
+                isSelected={isSelected || isHighlighted}
               />
             );
           case 'led':
-            return (
+            // Use PWMLED3D for PWM-capable LEDs
+            return component.properties?.pwmEnabled ? (
+              <PWMLED3D
+                key={component.id}
+                position={component.position}
+                color={component.properties?.color || '#ff0000'}
+                isOn={component.properties?.isOn || false}
+                pwmDuty={component.properties?.pwmDuty || 255}
+                onClick={() => setSelectedId(component.id)}
+                isSelected={isSelected || isHighlighted}
+              />
+            ) : (
               <LED3D
                 key={component.id}
                 position={component.position}
@@ -118,7 +181,7 @@ function CircuitScene() {
                 isOn={component.properties?.isOn || false}
                 brightness={component.properties?.brightness || 1}
                 onClick={() => setSelectedId(component.id)}
-                isSelected={isSelected}
+                isSelected={isSelected || isHighlighted}
               />
             );
           case 'resistor':
@@ -129,7 +192,7 @@ function CircuitScene() {
                 rotation={component.rotation}
                 value={component.properties?.value || 220}
                 onClick={() => setSelectedId(component.id)}
-                isSelected={isSelected}
+                isSelected={isSelected || isHighlighted}
               />
             );
           case 'button':
@@ -145,7 +208,41 @@ function CircuitScene() {
                   properties: { ...component.properties, isPressed: false }
                 })}
                 onClick={() => setSelectedId(component.id)}
-                isSelected={isSelected}
+                isSelected={isSelected || isHighlighted}
+              />
+            );
+          case 'temperature':
+            return (
+              <TemperatureSensor3D
+                key={component.id}
+                position={component.position}
+                rotation={component.rotation}
+                temperature={component.properties?.temperature || 25}
+                onClick={() => setSelectedId(component.id)}
+                isSelected={isSelected || isHighlighted}
+              />
+            );
+          case 'photoresistor':
+            return (
+              <Photoresistor3D
+                key={component.id}
+                position={component.position}
+                rotation={component.rotation}
+                lightLevel={component.properties?.lightLevel || 512}
+                onClick={() => setSelectedId(component.id)}
+                isSelected={isSelected || isHighlighted}
+              />
+            );
+          case 'ultrasonic':
+            return (
+              <UltrasonicSensor3D
+                key={component.id}
+                position={component.position}
+                rotation={component.rotation}
+                distance={component.properties?.distance || 100}
+                isActive={component.properties?.isActive || false}
+                onClick={() => setSelectedId(component.id)}
+                isSelected={isSelected || isHighlighted}
               />
             );
           default:
@@ -182,11 +279,22 @@ export function CircuitLabApp() {
   const [isRunning, setIsRunning] = useState(false);
   const [activePanel, setActivePanel] = useState<'components' | 'code' | 'properties'>('components');
   const [showGrid, setShowGrid] = useState(true);
-  const [viewMode, setViewMode] = useState<'3d' | 'schematic'>('3d');
+  const [viewMode, setViewMode] = useState<'scene' | 'code' | 'analyzer'>('scene');
+  const [simulationTime, setSimulationTime] = useState(0);
+  const [simulationSpeed, setSimulationSpeed] = useState(1);
+  const [showTimeline, setShowTimeline] = useState(true);
+  const [showLogicAnalyzer, setShowLogicAnalyzer] = useState(false);
+
+  // Code-Hardware Highlight Context
+  const [highlightContext, setHighlightContext] = useState<HighlightContext>({
+    activeLine: null,
+    activeComponent: null,
+    activePin: null,
+  });
 
   // Initialize simulation engine
   useEffect(() => {
-    netlistRef.current = new NetlistManager('circuit_1', 'Main Circuit');
+    netlistRef.current = new NetlistManager('circuit_1', '메인 회로');
     engineRef.current = new SimulationEngine(netlistRef.current);
     executorRef.current = new CodeExecutor(engineRef.current);
 
@@ -197,7 +305,15 @@ export function CircuitLabApp() {
       executorRef.current.onOutput(setSerialOutput);
     }
 
+    // Track simulation time
+    const timeInterval = setInterval(() => {
+      if (engineRef.current?.isRunning()) {
+        setSimulationTime(engineRef.current.getTime());
+      }
+    }, 50);
+
     return () => {
+      clearInterval(timeInterval);
       engineRef.current?.stop();
       executorRef.current?.stop();
     };
@@ -222,6 +338,8 @@ export function CircuitLabApp() {
       const match = result.error.match(/Line (\d+):/);
       if (match) {
         setCompileErrors([{ line: parseInt(match[1]), message: result.error }]);
+        // Highlight error in code
+        setHighlightContext(prev => ({ ...prev, activeLine: parseInt(match[1]) }));
       } else {
         setCompileErrors([{ line: 1, message: result.error }]);
       }
@@ -236,6 +354,7 @@ export function CircuitLabApp() {
     engineRef.current?.stop();
     setIsRunning(false);
     setSimulating(false);
+    setHighlightContext({ activeLine: null, activeComponent: null, activePin: null });
   }, [setSimulating]);
 
   // Handle reset
@@ -245,8 +364,21 @@ export function CircuitLabApp() {
     engineRef.current?.reset();
     setSerialOutput('');
     setCompileErrors([]);
+    setSimulationTime(0);
     reset();
   }, [handleStop, reset]);
+
+  // Handle speed change
+  const handleSpeedChange = useCallback((speed: number) => {
+    setSimulationSpeed(speed);
+    engineRef.current?.setSpeed(speed);
+  }, []);
+
+  // Handle timeline seek
+  const handleTimelineSeek = useCallback((time: number) => {
+    setSimulationTime(time);
+    // In a real implementation, this would seek the simulation state
+  }, []);
 
   // Handle add component
   const handleAddComponent = useCallback((componentType: string) => {
@@ -276,6 +408,18 @@ export function CircuitLabApp() {
         position = [-0.03, 0, 0.08 + offset];
         type = 'button';
         break;
+      case 'temperature':
+        position = [0.05, 0, 0.08 + offset];
+        type = 'temperature' as ComponentType;
+        break;
+      case 'photoresistor':
+        position = [0.07, 0, 0.08 + offset];
+        type = 'photoresistor' as ComponentType;
+        break;
+      case 'ultrasonic':
+        position = [0.09, 0.01, 0.08 + offset];
+        type = 'ultrasonic' as ComponentType;
+        break;
     }
 
     const properties: Record<string, unknown> = {};
@@ -285,6 +429,13 @@ export function CircuitLabApp() {
       properties.brightness = 1;
     } else if (type === 'resistor') {
       properties.value = 220;
+    } else if (type === ('temperature' as ComponentType)) {
+      properties.temperature = 25;
+    } else if (type === ('photoresistor' as ComponentType)) {
+      properties.lightLevel = 512;
+    } else if (type === ('ultrasonic' as ComponentType)) {
+      properties.distance = 100;
+      properties.isActive = false;
     }
 
     addComponent({
@@ -308,7 +459,7 @@ export function CircuitLabApp() {
           <Link href="/">
             <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
               <Home className="w-4 h-4 mr-2" />
-              Home
+              {UI_TEXT.home}
             </Button>
           </Link>
           <div className="flex items-center gap-2">
@@ -316,13 +467,44 @@ export function CircuitLabApp() {
               <Cpu className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-sm font-bold text-white">Circuit Lab</h1>
-              <p className="text-[10px] text-gray-500">3D Arduino Simulator</p>
+              <h1 className="text-sm font-bold text-white">{UI_TEXT.title}</h1>
+              <p className="text-[10px] text-gray-500">{UI_TEXT.subtitle}</p>
             </div>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
+          {/* View Mode Tabs */}
+          <div className="flex items-center bg-[#252540] rounded-lg p-0.5 mr-2">
+            <button
+              onClick={() => setViewMode('scene')}
+              className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                viewMode === 'scene' ? 'bg-[#3a3a5a] text-white' : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <Box className="w-3.5 h-3.5 inline mr-1" />
+              {UI_TEXT.viewTabs.scene}
+            </button>
+            <button
+              onClick={() => setViewMode('code')}
+              className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                viewMode === 'code' ? 'bg-[#3a3a5a] text-white' : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <Code2 className="w-3.5 h-3.5 inline mr-1" />
+              {UI_TEXT.viewTabs.code}
+            </button>
+            <button
+              onClick={() => setViewMode('analyzer')}
+              className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                viewMode === 'analyzer' ? 'bg-[#3a3a5a] text-white' : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <Activity className="w-3.5 h-3.5 inline mr-1" />
+              {UI_TEXT.viewTabs.analyzer}
+            </button>
+          </div>
+
           {/* Simulation controls */}
           <div className="flex items-center gap-1 bg-[#252540] rounded-lg p-1">
             {isRunning ? (
@@ -333,17 +515,17 @@ export function CircuitLabApp() {
                 className="h-7 px-3 text-red-400 hover:text-red-300 hover:bg-red-500/20"
               >
                 <Square className="w-3.5 h-3.5 mr-1" />
-                Stop
+                {UI_TEXT.stop}
               </Button>
             ) : (
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => {}}
+                onClick={() => handleRun('', 'arduino')}
                 className="h-7 px-3 text-green-400 hover:text-green-300 hover:bg-green-500/20"
               >
                 <Play className="w-3.5 h-3.5 mr-1" />
-                Run
+                {UI_TEXT.run}
               </Button>
             )}
             <Button
@@ -359,11 +541,20 @@ export function CircuitLabApp() {
           {/* Status */}
           <div className="flex items-center gap-2 px-3 py-1 bg-[#252540] rounded-lg">
             <div className={`w-2 h-2 rounded-full ${isRunning ? 'bg-green-500 animate-pulse' : 'bg-gray-500'}`} />
-            <span className="text-xs text-gray-400">{isRunning ? 'Running' : 'Ready'}</span>
+            <span className="text-xs text-gray-400">{isRunning ? UI_TEXT.running : UI_TEXT.ready}</span>
           </div>
 
           {/* View controls */}
           <div className="flex items-center gap-1 bg-[#252540] rounded-lg p-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowTimeline(!showTimeline)}
+              className={`h-7 w-7 p-0 ${showTimeline ? 'text-blue-400' : 'text-gray-400'}`}
+              title="타임라인 표시/숨기기"
+            >
+              <Clock className="w-3.5 h-3.5" />
+            </Button>
             <Button
               variant="ghost"
               size="sm"
@@ -393,53 +584,83 @@ export function CircuitLabApp() {
 
           <PanelResizeHandle className="w-1 bg-[#2a2a4a] hover:bg-[#4a4a6a] transition-colors" />
 
-          {/* Center panel - 3D View & Code Editor */}
+          {/* Center panel - Main View Area */}
           <Panel defaultSize={50}>
             <PanelGroup direction="vertical">
-              {/* 3D View */}
-              <Panel defaultSize={60} minSize={30}>
-                <div className="h-full relative bg-gradient-to-b from-[#1a1a2e] to-[#0f0f1a]">
-                  <Canvas
-                    shadows
-                    gl={{
-                      antialias: true,
-                      alpha: false,
-                      powerPreference: 'high-performance',
+              {/* Primary View (3D / Code / Analyzer) */}
+              <Panel defaultSize={showTimeline ? 75 : 100} minSize={40}>
+                {viewMode === 'scene' && (
+                  <div className="h-full relative bg-gradient-to-b from-[#1a1a2e] to-[#0f0f1a]">
+                    <Canvas
+                      shadows
+                      gl={{
+                        antialias: true,
+                        alpha: false,
+                        powerPreference: 'high-performance',
+                      }}
+                      dpr={[1, 2]}
+                    >
+                      <color attach="background" args={['#12121f']} />
+                      <fog attach="fog" args={['#12121f', 0.5, 3]} />
+                      <Suspense fallback={null}>
+                        <CircuitScene highlightContext={highlightContext} />
+                      </Suspense>
+                    </Canvas>
+
+                    {/* Overlay controls */}
+                    <div className="absolute bottom-4 left-4 flex items-center gap-2">
+                      <Badge variant="secondary" className="bg-black/50 text-gray-300 backdrop-blur-sm">
+                        <Zap className="w-3 h-3 mr-1 text-yellow-400" />
+                        {components.length} {UI_TEXT.components}
+                      </Badge>
+                    </div>
+
+                    <div className="absolute bottom-4 right-4 text-xs text-gray-500 bg-black/30 px-2 py-1 rounded backdrop-blur-sm">
+                      {UI_TEXT.dragToRotate}
+                    </div>
+                  </div>
+                )}
+
+                {viewMode === 'code' && (
+                  <MonacoEditor
+                    onRun={handleRun}
+                    onStop={handleStop}
+                    isRunning={isRunning}
+                    errors={compileErrors}
+                  />
+                )}
+
+                {viewMode === 'analyzer' && (
+                  <LogicAnalyzer
+                    isRunning={isRunning}
+                    simulationTime={simulationTime}
+                    onStart={() => {
+                      handleRun('', 'arduino');
                     }}
-                    dpr={[1, 2]}
-                  >
-                    <color attach="background" args={['#12121f']} />
-                    <fog attach="fog" args={['#12121f', 0.5, 3]} />
-                    <Suspense fallback={null}>
-                      <CircuitScene />
-                    </Suspense>
-                  </Canvas>
-
-                  {/* Overlay controls */}
-                  <div className="absolute bottom-4 left-4 flex items-center gap-2">
-                    <Badge variant="secondary" className="bg-black/50 text-gray-300 backdrop-blur-sm">
-                      <Zap className="w-3 h-3 mr-1 text-yellow-400" />
-                      {components.length} components
-                    </Badge>
-                  </div>
-
-                  <div className="absolute bottom-4 right-4 text-xs text-gray-500 bg-black/30 px-2 py-1 rounded backdrop-blur-sm">
-                    Drag to rotate • Scroll to zoom
-                  </div>
-                </div>
+                    onStop={handleStop}
+                    onReset={handleReset}
+                  />
+                )}
               </Panel>
 
-              <PanelResizeHandle className="h-1 bg-[#2a2a4a] hover:bg-[#4a4a6a] transition-colors" />
-
-              {/* Code Editor */}
-              <Panel defaultSize={40} minSize={20}>
-                <MonacoEditor
-                  onRun={handleRun}
-                  onStop={handleStop}
-                  isRunning={isRunning}
-                  errors={compileErrors}
-                />
-              </Panel>
+              {/* Timeline Panel */}
+              {showTimeline && (
+                <>
+                  <PanelResizeHandle className="h-1 bg-[#2a2a4a] hover:bg-[#4a4a6a] transition-colors" />
+                  <Panel defaultSize={25} minSize={15} maxSize={40}>
+                    <SimulationTimeline
+                      currentTime={simulationTime}
+                      isRunning={isRunning}
+                      speed={simulationSpeed}
+                      onPlay={() => handleRun('', 'arduino')}
+                      onPause={handleStop}
+                      onStop={handleReset}
+                      onSeek={handleTimelineSeek}
+                      onSpeedChange={handleSpeedChange}
+                    />
+                  </Panel>
+                </>
+              )}
             </PanelGroup>
           </Panel>
 
@@ -459,11 +680,14 @@ export function CircuitLabApp() {
       {/* Status bar */}
       <footer className="h-6 flex items-center justify-between px-3 bg-[#16162a] border-t border-[#2a2a4a] text-xs text-gray-500">
         <div className="flex items-center gap-4">
-          <span>Arduino UNO • ATmega328P</span>
-          <span>16 MHz</span>
+          <span>{UI_TEXT.mcu}</span>
+          <span>{UI_TEXT.clock}</span>
+          <span className="text-blue-400">
+            시뮬레이션 시간: {(simulationTime / 1000000).toFixed(2)}s
+          </span>
         </div>
         <div className="flex items-center gap-4">
-          <span>Simulation: {isSimulating ? 'Active' : 'Stopped'}</span>
+          <span>{UI_TEXT.simulation}: {isSimulating ? UI_TEXT.active : UI_TEXT.stopped}</span>
           <Badge variant="secondary" className="h-4 text-[10px] bg-purple-500/20 text-purple-400">
             v1.0.0
           </Badge>
