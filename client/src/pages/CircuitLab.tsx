@@ -1,10 +1,10 @@
 /**
  * Circuit Lab Page
- * Production-grade 3D Arduino Circuit Simulator
+ * Production-grade Tinkercad-style 3D Arduino Circuit Simulator
  */
 
-import { CircuitLabApp } from '@/components/circuit-lab/CircuitLabApp';
+import { TinkercadCircuitLab } from '@/components/circuit-lab/TinkercadCircuitLab';
 
 export default function CircuitLab() {
-  return <CircuitLabApp />;
+  return <TinkercadCircuitLab />;
 }
