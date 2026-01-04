@@ -5,8 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
 import { Download, Loader2, FileText, Video, ExternalLink, Play, Presentation, Terminal, Cpu, Code, X, Eye, Sparkles, BookOpen, Zap, Heart, MessageCircle, Send, FolderOpen, ChevronDown, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
-import { GradientMeshBackground } from "@/components/backgrounds/GradientMeshBackground";
-import { SubtleDots } from "@/components/backgrounds/SubtleDots";
+import UltraPremiumBackground from "@/components/3d/UltraPremiumBackground";
 import { TiltCard } from "@/components/effects/TiltCard";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
 import { Navigation } from "@/components/layout/Navigation";
@@ -358,12 +357,9 @@ export default function Resources() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 text-gray-900 overflow-hidden">
-      {/* Clean Background */}
-      <div className="fixed inset-0">
-        <GradientMeshBackground />
-        <SubtleDots />
-      </div>
+    <div className="min-h-screen bg-[#050510] text-white overflow-hidden">
+      {/* Ultra Premium 3D Background */}
+      <UltraPremiumBackground />
 
       {/* Navigation */}
       <Navigation />
@@ -373,24 +369,24 @@ export default function Resources() {
         <div className="max-w-7xl mx-auto">
           <AnimatedSection>
             <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center shadow-lg shadow-cyan-500/30">
                 <BookOpen className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
-              <p className="text-purple-600 font-medium text-xs md:text-sm tracking-wider uppercase">Learning Materials</p>
+              <p className="text-cyan-400 font-medium text-xs md:text-sm tracking-wider uppercase">Learning Materials</p>
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 md:mb-6 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-purple-900 to-blue-900">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 md:mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-cyan-200 to-blue-300">
               Resources
             </h1>
-            <p className="text-gray-600 text-base md:text-lg lg:text-xl max-w-2xl">
+            <p className="text-gray-300 text-base md:text-lg lg:text-xl max-w-2xl">
               Access lecture materials, code samples, presentations, and video tutorials.
-              <span className="flex items-center gap-2 text-purple-600 mt-2 md:mt-3 text-sm md:text-base font-medium"><Eye className="w-3 h-3 md:w-4 md:h-4" />Click to preview PPT/PDF files!</span>
+              <span className="flex items-center gap-2 text-cyan-400 mt-2 md:mt-3 text-sm md:text-base font-medium"><Eye className="w-3 h-3 md:w-4 md:h-4" />Click to preview PPT/PDF files!</span>
             </p>
           </AnimatedSection>
         </div>
       </section>
 
       {/* Filter */}
-      <section className="py-4 md:py-6 lg:py-8 sticky top-16 md:top-20 lg:top-24 z-40 bg-white/60 backdrop-blur-xl border-y border-gray-200/50">
+      <section className="py-4 md:py-6 lg:py-8 sticky top-16 md:top-20 lg:top-24 z-40 bg-gray-900/60 backdrop-blur-xl border-y border-gray-700/50">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <AnimatedSection delay={100}>
             <div className="flex flex-wrap gap-2 md:gap-3">
