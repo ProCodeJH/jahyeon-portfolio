@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
 import { Download, Loader2, FileText, Video, ExternalLink, Play, Presentation, Terminal, Cpu, Code, X, Eye, Sparkles, BookOpen, Zap, Heart, MessageCircle, Send, FolderOpen, ChevronDown, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
-import { HyperPremiumBackground } from "@/components/3d/HyperPremiumBackground";
+import { CleanBackground } from "@/components/3d/CleanBackground";
 import { TiltCard } from "@/components/effects/TiltCard";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
 import { Navigation } from "@/components/layout/Navigation";
@@ -358,8 +358,8 @@ export default function Resources() {
 
   return (
     <div className="min-h-screen bg-[#050510] text-white overflow-hidden">
-      {/* Hyper Premium 3D Background with FSM AI Robot */}
-      <HyperPremiumBackground />
+      {/* Clean Background with AI Robot */}
+      <CleanBackground />
 
       {/* Navigation */}
       <Navigation />

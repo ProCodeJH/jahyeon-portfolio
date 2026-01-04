@@ -3,7 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { ExternalLink, Loader2, Award, Building, ShieldCheck, X, CheckCircle, Sparkles } from "lucide-react";
-import { HyperPremiumBackground } from "@/components/3d/HyperPremiumBackground";
+import { CleanBackground } from "@/components/3d/CleanBackground";
 import { TiltCard } from "@/components/effects/TiltCard";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
 import { Navigation } from "@/components/layout/Navigation";
@@ -14,8 +14,8 @@ export default function Certifications() {
 
   return (
     <div className="min-h-screen bg-[#050510] text-white overflow-hidden">
-      {/* Hyper Premium 3D Background with FSM AI Robot */}
-      <HyperPremiumBackground />
+      {/* Clean Background with AI Robot */}
+      <CleanBackground />
 
       {/* Navigation */}
       <Navigation />

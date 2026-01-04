@@ -13,7 +13,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { HyperPremiumBackground } from "@/components/3d/HyperPremiumBackground";
+import { CleanBackground } from "@/components/3d/CleanBackground";
 import { TiltCard } from "@/components/effects/TiltCard";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
 import { Navigation } from "@/components/layout/Navigation";
@@ -24,8 +24,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen text-white overflow-hidden relative">
-      {/* Hyper Premium 3D Background with FSM AI Robot */}
-      <HyperPremiumBackground />
+      {/* Clean Background with AI Robot */}
+      <CleanBackground />
 
       {/* Premium Navigation */}
       <Navigation />
