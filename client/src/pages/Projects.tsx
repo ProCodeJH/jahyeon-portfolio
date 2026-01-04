@@ -3,7 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { ExternalLink, Github, Loader2, Eye, Code, Cpu, Terminal, Play, X, ArrowUpRight, ArrowLeft } from "lucide-react";
-import UltraPremiumBackground from "@/components/3d/UltraPremiumBackground";
+import { HyperPremiumBackground } from "@/components/3d/HyperPremiumBackground";
 import { TiltCard } from "@/components/effects/TiltCard";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
 import { Navigation } from "@/components/layout/Navigation";
@@ -28,8 +28,8 @@ export default function Projects() {
 
   return (
     <div className="min-h-screen bg-[#050510] text-white overflow-hidden">
-      {/* Ultra Premium 3D Background */}
-      <UltraPremiumBackground />
+      {/* Hyper Premium 3D Background with FSM AI Robot */}
+      <HyperPremiumBackground />
 
       {/* Navigation */}
       <Navigation />
