@@ -7,43 +7,43 @@ import { getDefaultProperties, getDefaultPins } from './defaults';
 
 // Create the store
 export const useCircuitLabStore = create<CircuitLabStore>()(
-    subscribeWithSelector((set, get) => ({
-        // Initial state
-        components: new Map(),
-        wires: new Map(),
+  subscribeWithSelector((set, get) => ({
+    // Initial state
+    components: new Map(),
+    wires: new Map(),
 
-        view: {
-            centerX: 0,
-            centerY: 0,
-            zoom: 1,
-            showGrid: true,
-            showLabels: true,
-            showPinNames: false,
-            gridSnap: true,
-            toolMode: 'select',
-            placementType: null,
-            placementPreview: null,
-        },
+    view: {
+      centerX: 0,
+      centerY: 0,
+      zoom: 1,
+      showGrid: true,
+      showLabels: true,
+      showPinNames: false,
+      gridSnap: true,
+      toolMode: 'select',
+      placementType: null,
+      placementPreview: null,
+    },
 
-        simulation: {
-            isRunning: false,
-            isPaused: false,
-            speed: 1,
-            time: 0,
-            pinStates: new Map(),
-            serialBuffer: [],
-        },
+    simulation: {
+      isRunning: false,
+      isPaused: false,
+      speed: 1,
+      time: 0,
+      pinStates: new Map(),
+      serialBuffer: [],
+    },
 
-        selectedIds: new Set(),
-        hoveredId: null,
-        wiringFrom: null,
-        code: DEFAULT_CODE,
-        compileErrors: [],
-        nextId: 1,
+    selectedIds: new Set(),
+    hoveredId: null,
+    wiringFrom: null,
+    code: DEFAULT_CODE,
+    compileErrors: [],
+    nextId: 1,
 
-        // Component actions
-        addComponent: (type, gridX, gridZ) => {
-            const id = \`comp_\${get().nextId}\`;
+    // Component actions
+    addComponent: (type, gridX, gridZ) => {
+      const id = `comp_${get().nextId}`;
       const component: ComponentData = {
         id,
         type,
@@ -128,7 +128,7 @@ export const useCircuitLabStore = create<CircuitLabStore>()(
           // In a real app we might want more specific property updaters
           const newProperties = { ...component.properties } as any;
           newProperties[key] = value;
-          
+
           newComponents.set(id, {
             ...component,
             properties: newProperties,
@@ -140,7 +140,7 @@ export const useCircuitLabStore = create<CircuitLabStore>()(
 
     // Wire actions
     addWire: (startCompId, startPinId, endCompId, endPinId, color) => {
-      const id = \`wire_\${get().nextId}\`;
+      const id = `wire_${get().nextId}`;
       const wire: WireData = {
         id,
         color,

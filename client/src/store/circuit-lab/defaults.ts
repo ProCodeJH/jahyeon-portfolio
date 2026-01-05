@@ -3,73 +3,73 @@ import { ComponentType, PinData, PinType, PinDirection, ComponentProperties } fr
 
 // Default properties for each component type
 export function getDefaultProperties(type: ComponentType): ComponentProperties {
-    switch (type) {
-        case 'led_red':
-        case 'led_green':
-        case 'led_blue':
-        case 'led_yellow':
-        case 'led_white':
-            return { brightness: 0, isOn: false };
-        case 'led_rgb':
-            return { r: 0, g: 0, b: 0, isOn: false };
-        case 'resistor':
-            return { value: 220, tolerance: 5 };
-        case 'capacitor':
-            return { value: 100, unit: 'uF' };
-        case 'potentiometer':
-            return { value: 10000, position: 0.5 };
-        case 'button':
-            return { isPressed: false };
-        case 'switch_spdt':
-            return { position: 0 };
-        case 'buzzer':
-            return { frequency: 0, isOn: false };
-        case 'servo':
-            return { angle: 90 };
-        case 'motor_dc':
-            return { speed: 0, direction: 1 };
-        case 'ultrasonic':
-            return { distance: 100, isActive: false };
-        case 'dht22':
-            return { temperature: 25, humidity: 50, isActive: false };
-        case 'photoresistor':
-            return { lightLevel: 0.5 };
-        case 'temperature':
-            return { temperature: 25 };
-        case 'battery_9v':
-            return { voltage: 9 };
-        default:
-            return {};
-    }
+  switch (type) {
+    case 'led_red':
+    case 'led_green':
+    case 'led_blue':
+    case 'led_yellow':
+    case 'led_white':
+      return { brightness: 0, isOn: false };
+    case 'led_rgb':
+      return { r: 0, g: 0, b: 0, isOn: false };
+    case 'resistor':
+      return { value: 220, tolerance: 5 };
+    case 'capacitor':
+      return { value: 100, unit: 'uF' };
+    case 'potentiometer':
+      return { value: 10000, position: 0.5 };
+    case 'button':
+      return { isPressed: false };
+    case 'switch_spdt':
+      return { position: 0 };
+    case 'buzzer':
+      return { frequency: 0, isOn: false };
+    case 'servo':
+      return { angle: 90 };
+    case 'motor_dc':
+      return { speed: 0, direction: 1 };
+    case 'ultrasonic':
+      return { distance: 100, isActive: false };
+    case 'dht22':
+      return { temperature: 25, humidity: 50, isActive: false };
+    case 'photoresistor':
+      return { lightLevel: 0.5 };
+    case 'temperature':
+      return { temperature: 25 };
+    case 'battery_9v':
+      return { voltage: 9 };
+    default:
+      return {};
+  }
 }
 
 // Default pins for each component type
 export function getDefaultPins(type: ComponentType): PinData[] {
-    const createPin = (
-        id: string,
-        name: string,
-        pinType: PinType,
-        direction: PinDirection,
-        offset: [number, number, number]
-    ): PinData => ({
-        id,
-        name,
-        type: pinType,
-        direction,
-        state: 'FLOATING',
-        voltage: 0,
-        localOffset: offset,
-    });
+  const createPin = (
+    id: string,
+    name: string,
+    pinType: PinType,
+    direction: PinDirection,
+    offset: [number, number, number]
+  ): PinData => ({
+    id,
+    name,
+    type: pinType,
+    direction,
+    state: 'FLOATING',
+    voltage: 0,
+    localOffset: offset,
+  });
 
-    switch (type) {
-        case 'arduino_uno':
-            const pins: PinData[] = [];
-            // Digital pins 0-13
-            for (let i = 0; i <= 13; i++) {
-                const isPwm = [3, 5, 6, 9, 10, 11].includes(i);
-                pins.push(createPin(
-                    \`D\${i}\`,
-          \`D\${i}\${isPwm ? '~' : ''}\`,
+  switch (type) {
+    case 'arduino_uno':
+      const pins: PinData[] = [];
+      // Digital pins 0-13
+      for (let i = 0; i <= 13; i++) {
+        const isPwm = [3, 5, 6, 9, 10, 11].includes(i);
+        pins.push(createPin(
+          `D${i}`,
+          `D${i}${isPwm ? '~' : ''}`,
           isPwm ? 'pwm' : 'digital',
           'bidirectional',
           [13, 0, -10 + i * 1]
@@ -78,8 +78,8 @@ export function getDefaultPins(type: ComponentType): PinData[] {
       // Analog pins A0-A5
       for (let i = 0; i <= 5; i++) {
         pins.push(createPin(
-          \`A\${i}\`,
-          \`A\${i}\`,
+          `A${i}`,
+          `A${i}`,
           'analog',
           'input',
           [-13, 0, -4 + i * 1]
