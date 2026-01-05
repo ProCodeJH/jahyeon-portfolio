@@ -1,26 +1,17 @@
 import { useRef, useState, useEffect } from 'react';
-import Spline from '@splinetool/react-spline';
-import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 
 export default function FuturisticHero() {
     const containerRef = useRef<HTMLDivElement>(null);
     const [isMobile, setIsMobile] = useState(false);
 
-    // Scroll Progress for Parallax
     const { scrollYProgress } = useScroll({
         target: containerRef,
         offset: ["start start", "end start"]
     });
 
-    // Parallax Transforms
-    const textY = useTransform(scrollYProgress, [0, 1], [0, 200]);
-    const textOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-    const robotScale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
-
-    // Mouse Interaction (Damping)
-    const springConfig = { damping: 20, stiffness: 100 };
-    const mouseX = useSpring(0, springConfig);
-    const mouseY = useSpring(0, springConfig);
+    const textY = useTransform(scrollYProgress, [0, 1], [0, 150]);
+    const overlayOpacity = useTransform(scrollYProgress, [0, 0.5], [0.3, 0.8]);
 
     useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -29,116 +20,74 @@ export default function FuturisticHero() {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    const handleMouseMove = (e: React.MouseEvent) => {
-        const { clientX, clientY } = e;
-        const { innerWidth, innerHeight } = window;
-        mouseX.set((clientX / innerWidth - 0.5) * 20); // -10 to 10 deg
-        mouseY.set((clientY / innerHeight - 0.5) * 20);
-    };
-
     return (
         <div
             ref={containerRef}
-            className="relative w-full h-[150vh] bg-[#050505] overflow-hidden font-sans selection:bg-blue-500/30"
-            onMouseMove={handleMouseMove}
+            className="relative w-full h-screen overflow-hidden bg-black font-sans selection:bg-blue-500/50"
         >
-            {/* 
-        NOISE TEXTURE OVERLAY 
-        Adds cinematic grain using CSS noise pattern
-      */}
-            <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.07] mix-blend-overlay"
-                style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
-                }}
-            />
-
-            {/* 
-        LAYER 1: BACKGROUND TYPOGRAPHY (Parallax)
-        Massive text behind the robot
-      */}
-            <motion.div
-                style={{ y: textY, opacity: textOpacity } as any}
-                className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none select-none"
-            >
-                <div className="w-full max-w-[1600px] px-6 relative h-full flex flex-col justify-between py-32">
-                    {/* Top Text */}
-                    <h1 className="text-[10vw] md:text-[8vw] leading-[0.85] font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white/10 to-transparent text-center md:text-left">
-                        EMBEDDED<br />INTELLIGENCE
-                    </h1>
-
-                    {/* Bottom Text */}
-                    <h1 className="text-[10vw] md:text-[8vw] leading-[0.85] font-black tracking-tighter text-white/5 text-center md:text-right">
-                        LOW-LEVEL<br />OPTIMIZATION
-                    </h1>
-                </div>
-            </motion.div>
-
-            {/* 
-        LAYER 2: SPLINE 3D SCENE
-        The Robot Centerpiece
-        Note: Using a placeholder URL. User needs to replace this.
-      */}
-            <div className="absolute inset-0 z-20 flex items-center justify-center">
-                <motion.div
-                    style={{ scale: robotScale } as any}
-                    className="w-full h-screen relative"
+            {/* BACKGROUND VIDEO */}
+            <div className="absolute inset-0 z-0">
+                <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover scale-105"
                 >
-                    {/* 
-            TODO: REPLACE WITH YOUR ROBOT URL 
-            Current: Shape placeholder
-          */}
-                    <Spline
-                        scene="https://prod.spline.design/6Wq1Q7YGyM-iab9i/scene.splinecode"
-                        className="w-full h-full"
-                    />
+                    <source src="/hero-video.mp4" type="video/mp4" />
+                </video>
 
-                    {/* Fallback/Loading overlay could go here */}
-                    <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-blue-400/50 text-xs uppercase tracking-widest animate-pulse">
-                        Initializing Neural Link...
-                    </div>
+                {/* Overlay for Readability & Tone */}
+                <div className="absolute inset-0 bg-blue-950/30 mix-blend-multiply" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
+            </div>
+
+            {/* TYPOGRAPHY */}
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none px-4">
+                <motion.div
+                    style={{ y: textY } as any}
+                    className="text-center space-y-4"
+                >
+                    <h2 className="text-blue-400 font-bold tracking-[0.3em] text-sm md:text-xl uppercase animate-pulse">
+                        System Architecture & AI
+                    </h2>
+
+                    <h1 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter text-white leading-[0.9]">
+                        EMBEDDED<br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-600 filter drop-shadow-[0_0_20px_rgba(59,130,246,0.5)]">
+                            INTELLIGENCE
+                        </span>
+                    </h1>
+
+                    <p className="max-w-xl mx-auto text-gray-200 text-base md:text-xl font-light tracking-wide pt-6 leading-relaxed mix-blend-overlay">
+                        Optimizing the boundary between Hardware and Software
+                    </p>
                 </motion.div>
             </div>
 
-            {/* 
-        LAYER 3: FOREGROUND OVERLAY TEXT (Artistic)
-        Text that sits 'on top' or blends with the robot
-      */}
-            <div className="absolute inset-0 z-30 pointer-events-none flex flex-col items-center justify-center">
-                <div className="relative">
-                    <h2 className="text-6xl md:text-9xl font-bold tracking-tighter text-white mix-blend-overlay opacity-80 backdrop-blur-[2px]">
-                        AI ARCHITECT
-                    </h2>
-                    <h3 className="text-4xl md:text-7xl font-bold tracking-tighter text-blue-500 mix-blend-color-dodge opacity-60 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center">
-                        SYSTEM OS
-                    </h3>
-                </div>
-            </div>
-
-            {/* 
-        LAYER 4: UI & NAVIGATION (Glassmorphism)
-      */}
-            <nav className="absolute top-0 left-0 w-full z-40 px-6 py-8 flex justify-between items-center">
-                <div className="text-white font-mono text-sm tracking-widest border border-white/20 px-4 py-1 rounded-full backdrop-blur-md bg-white/5">
-                    JAHYEON_PORTFOLIO_V2.0
+            {/* NAVIGATION */}
+            <nav className="absolute top-0 left-0 w-full z-40 px-6 py-8 flex justify-between items-center text-white mix-blend-difference">
+                <div className="font-mono text-sm tracking-widest border border-white/50 px-4 py-1 rounded-full">
+                    JAHYEON_PORTFOLIO
                 </div>
 
                 <div className="hidden md:flex gap-8">
-                    {['PROJECTS', 'ABOUT', 'CONTACT'].map((item) => (
+                    {['ABOUT', 'PROJECTS', 'CONTACT'].map((item) => (
                         <button
                             key={item}
-                            className="text-white/60 hover:text-white text-xs font-bold tracking-[0.2em] transition-colors relative group"
+                            className="text-white/80 hover:text-white text-xs font-bold tracking-[0.2em] transition-colors relative group"
                         >
                             {item}
-                            <span className="absolute -bottom-2 left-0 w-0 h-[1px] bg-blue-500 transition-all group-hover:w-full" />
+                            <span className="absolute -bottom-2 left-0 w-0 h-[1px] bg-white transition-all group-hover:w-full" />
                         </button>
                     ))}
                 </div>
             </nav>
 
-            {/* Scroll Indicator */}
-            <div className="absolute bottom-8 left-6 z-40 text-white/40 font-mono text-xs flex flex-col gap-2">
-                <div className="h-12 w-[1px] bg-gradient-to-b from-transparent via-white/50 to-transparent mx-auto" />
-                SCROLL TO EXPLORE
+            {/* SCROLL INDICATOR */}
+            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-2 text-white mix-blend-difference">
+                <span className="text-[10px] tracking-[0.3em] font-light uppercase opacity-70">Scroll</span>
+                <div className="w-[1px] h-12 bg-gradient-to-b from-white via-white/50 to-transparent" />
             </div>
         </div>
     );
