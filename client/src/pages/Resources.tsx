@@ -100,31 +100,31 @@ export default function Resources() {
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-slate-100">
                           <MoreVertical className="h-4 w-4 text-slate-400" />
+                        </Button>
                       </DropdownMenuTrigger>
-                    </DropdownMenuContent>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>Download</DropdownMenuItem>
-                      <DropdownMenuItem>Share</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>Download</DropdownMenuItem>
+                        <DropdownMenuItem>Share</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+
+                  <h3 className="text-xl font-bold text-slate-900 mb-2 leading-tight group-hover:text-blue-600 transition-colors">
+                    {resource.title}
+                  </h3>
+                  <p className="text-sm text-slate-500 mb-6 line-clamp-2">
+                    {resource.description || "No description provided."}
+                  </p>
+
+                  <Button className="w-full bg-slate-900 text-white hover:bg-blue-600 rounded-xl font-bold h-12 shadow-md hover:shadow-lg transition-all">
+                    Access Resource
+                  </Button>
                 </div>
-
-                <h3 className="text-xl font-bold text-slate-900 mb-2 leading-tight group-hover:text-blue-600 transition-colors">
-                  {resource.title}
-                </h3>
-                <p className="text-sm text-slate-500 mb-6 line-clamp-2">
-                  {resource.description || "No description provided."}
-                </p>
-
-                <Button className="w-full bg-slate-900 text-white hover:bg-blue-600 rounded-xl font-bold h-12 shadow-md hover:shadow-lg transition-all">
-                  Access Resource
-                </Button>
               </div>
-              </div>
-        ))}
-    </div>
-  )
-}
+            ))}
+          </div>
+        )
+        }
       </main >
     </div >
   );

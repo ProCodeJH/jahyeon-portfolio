@@ -47,7 +47,7 @@ export default function Projects() {
   const filteredProjects = projects?.filter(p =>
     p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+    p.technologies?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -132,9 +132,9 @@ export default function Projects() {
                   <div className="p-8 flex-1 flex flex-col justify-between relative bg-white">
                     <div>
                       <div className="flex gap-2 mb-4 overflow-x-auto no-scrollbar pb-1">
-                        {project.tags?.slice(0, 3).map((tag, i) => (
+                        {project.technologies?.split(',').slice(0, 3).map((tag, i) => (
                           <span key={i} className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wide">
-                            {tag}
+                            {tag.trim()}
                           </span>
                         ))}
                       </div>
