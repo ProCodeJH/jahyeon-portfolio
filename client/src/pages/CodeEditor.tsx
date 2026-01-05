@@ -267,7 +267,6 @@ export default function CodeEditor() {
   const [showSettings, setShowSettings] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState('blink');
 
-  const editorRef = useRef<any>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
 
   const currentLang = useMemo(() => LANGUAGES.find(l => l.id === language) || LANGUAGES[0], [language]);
@@ -313,8 +312,9 @@ export default function CodeEditor() {
         setErrors(result.errors);
         setOutput(`❌ 컴파일 실패\n\n${result.errors.map(e => `[줄 ${e.line}] ${e.message}`).join('\n')}`);
       }
-    } catch (err: any) {
-      setOutput(`❌ 오류: ${err.message}`);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      setOutput(`❌ 오류: ${errorMessage}`);
     } finally {
       setIsCompiling(false);
     }
@@ -346,7 +346,6 @@ export default function CodeEditor() {
   }, [code, fileName, currentLang.extension]);
 
   const handleEditorMount: OnMount = useCallback((editor) => {
-    editorRef.current = editor;
     editor.focus();
   }, []);
 

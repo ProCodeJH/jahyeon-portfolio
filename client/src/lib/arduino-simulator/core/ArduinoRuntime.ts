@@ -339,7 +339,7 @@ export class ArduinoRuntime {
       this.log('INFO', 'Serial.end()');
     },
 
-    print: (value: any): void => {
+    print: (value: string | number | boolean): void => {
       if (!this.serialInitialized) {
         this.log('WARN', 'Serial.print called before Serial.begin');
         return;
@@ -348,7 +348,7 @@ export class ArduinoRuntime {
       this.emitSerialOutput(output);
     },
 
-    println: (value?: any): void => {
+    println: (value?: string | number | boolean): void => {
       if (!this.serialInitialized) {
         this.log('WARN', 'Serial.println called before Serial.begin');
         return;

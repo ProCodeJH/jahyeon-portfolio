@@ -16,7 +16,7 @@ import * as THREE from 'three';
 import { Link } from 'wouter';
 import Editor from '@monaco-editor/react';
 
-import { useCircuitLabStore, ComponentType, GRID_UNIT } from '@/store/circuitLabStore';
+import { useCircuitLabStore, ComponentType, GRID_UNIT } from '@/store/circuit-lab';
 import { InstancedComponentsRenderer } from './InstancedComponents';
 import { CADCamera, CADGrid, PlacementPreview, SnapIndicator } from './CADCamera';
 import { WireRenderer, WIRE_COLORS } from './WireRenderer';
@@ -66,59 +66,59 @@ const COMPONENT_LIBRARY: {
     description: string;
   }[];
 }[] = [
-  {
-    category: 'Microcontrollers',
-    categoryKo: '마이크로컨트롤러',
-    icon: Cpu,
-    items: [
-      { type: 'arduino_uno', name: 'Arduino Uno R3', nameKo: '아두이노 우노 R3', description: 'ATmega328P 마이크로컨트롤러' },
-    ],
-  },
-  {
-    category: 'Connectors',
-    categoryKo: '연결부품',
-    icon: Layers,
-    items: [
-      { type: 'breadboard_half', name: 'Breadboard (Half)', nameKo: '브레드보드 (하프)', description: '400핀 브레드보드' },
-      { type: 'breadboard_mini', name: 'Breadboard (Mini)', nameKo: '브레드보드 (미니)', description: '170핀 미니 브레드보드' },
-    ],
-  },
-  {
-    category: 'Output',
-    categoryKo: '출력',
-    icon: Zap,
-    items: [
-      { type: 'led_red', name: 'LED (Red)', nameKo: 'LED (빨강)', description: '5mm 빨간색 LED' },
-      { type: 'led_green', name: 'LED (Green)', nameKo: 'LED (초록)', description: '5mm 초록색 LED' },
-      { type: 'led_blue', name: 'LED (Blue)', nameKo: 'LED (파랑)', description: '5mm 파란색 LED' },
-      { type: 'led_yellow', name: 'LED (Yellow)', nameKo: 'LED (노랑)', description: '5mm 노란색 LED' },
-      { type: 'buzzer', name: 'Buzzer', nameKo: '버저', description: '피에조 버저' },
-      { type: 'servo', name: 'Servo Motor', nameKo: '서보 모터', description: 'SG90 마이크로 서보' },
-    ],
-  },
-  {
-    category: 'Input',
-    categoryKo: '입력',
-    icon: MousePointer,
-    items: [
-      { type: 'button', name: 'Push Button', nameKo: '푸시 버튼', description: '택트 스위치' },
-      { type: 'potentiometer', name: 'Potentiometer', nameKo: '가변저항', description: '10kΩ 가변저항' },
-      { type: 'ultrasonic', name: 'Ultrasonic', nameKo: '초음파 센서', description: 'HC-SR04 거리 센서' },
-      { type: 'dht22', name: 'DHT22', nameKo: 'DHT22 센서', description: '온습도 센서' },
-      { type: 'photoresistor', name: 'Photoresistor', nameKo: '조도 센서', description: 'CdS 광저항' },
-    ],
-  },
-  {
-    category: 'Passive',
-    categoryKo: '수동부품',
-    icon: Cable,
-    items: [
-      { type: 'resistor', name: 'Resistor', nameKo: '저항', description: '1/4W 탄소피막 저항' },
-      { type: 'capacitor', name: 'Capacitor', nameKo: '캐패시터', description: '세라믹 캐패시터' },
-      { type: 'diode', name: 'Diode', nameKo: '다이오드', description: '1N4148 신호용 다이오드' },
-    ],
-  },
-];
+    {
+      category: 'Microcontrollers',
+      categoryKo: '마이크로컨트롤러',
+      icon: Cpu,
+      items: [
+        { type: 'arduino_uno', name: 'Arduino Uno R3', nameKo: '아두이노 우노 R3', description: 'ATmega328P 마이크로컨트롤러' },
+      ],
+    },
+    {
+      category: 'Connectors',
+      categoryKo: '연결부품',
+      icon: Layers,
+      items: [
+        { type: 'breadboard_half', name: 'Breadboard (Half)', nameKo: '브레드보드 (하프)', description: '400핀 브레드보드' },
+        { type: 'breadboard_mini', name: 'Breadboard (Mini)', nameKo: '브레드보드 (미니)', description: '170핀 미니 브레드보드' },
+      ],
+    },
+    {
+      category: 'Output',
+      categoryKo: '출력',
+      icon: Zap,
+      items: [
+        { type: 'led_red', name: 'LED (Red)', nameKo: 'LED (빨강)', description: '5mm 빨간색 LED' },
+        { type: 'led_green', name: 'LED (Green)', nameKo: 'LED (초록)', description: '5mm 초록색 LED' },
+        { type: 'led_blue', name: 'LED (Blue)', nameKo: 'LED (파랑)', description: '5mm 파란색 LED' },
+        { type: 'led_yellow', name: 'LED (Yellow)', nameKo: 'LED (노랑)', description: '5mm 노란색 LED' },
+        { type: 'buzzer', name: 'Buzzer', nameKo: '버저', description: '피에조 버저' },
+        { type: 'servo', name: 'Servo Motor', nameKo: '서보 모터', description: 'SG90 마이크로 서보' },
+      ],
+    },
+    {
+      category: 'Input',
+      categoryKo: '입력',
+      icon: MousePointer,
+      items: [
+        { type: 'button', name: 'Push Button', nameKo: '푸시 버튼', description: '택트 스위치' },
+        { type: 'potentiometer', name: 'Potentiometer', nameKo: '가변저항', description: '10kΩ 가변저항' },
+        { type: 'ultrasonic', name: 'Ultrasonic', nameKo: '초음파 센서', description: 'HC-SR04 거리 센서' },
+        { type: 'dht22', name: 'DHT22', nameKo: 'DHT22 센서', description: '온습도 센서' },
+        { type: 'photoresistor', name: 'Photoresistor', nameKo: '조도 센서', description: 'CdS 광저항' },
+      ],
+    },
+    {
+      category: 'Passive',
+      categoryKo: '수동부품',
+      icon: Cable,
+      items: [
+        { type: 'resistor', name: 'Resistor', nameKo: '저항', description: '1/4W 탄소피막 저항' },
+        { type: 'capacitor', name: 'Capacitor', nameKo: '캐패시터', description: '세라믹 캐패시터' },
+        { type: 'diode', name: 'Diode', nameKo: '다이오드', description: '1N4148 신호용 다이오드' },
+      ],
+    },
+  ];
 
 // ============================================
 // INTERACTION HANDLER (Raycasting for selection)
@@ -328,7 +328,7 @@ export function CADCircuitLab() {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Don't trigger if typing in input
       if (document.activeElement?.tagName === 'INPUT' ||
-          document.activeElement?.tagName === 'TEXTAREA') {
+        document.activeElement?.tagName === 'TEXTAREA') {
         return;
       }
 
@@ -479,22 +479,20 @@ export function CADCircuitLab() {
           <div className="flex border-b border-[#252530]">
             <button
               onClick={() => setActivePanel('components')}
-              className={`flex-1 py-2 text-xs font-medium transition-colors ${
-                activePanel === 'components'
+              className={`flex-1 py-2 text-xs font-medium transition-colors ${activePanel === 'components'
                   ? 'text-white bg-[#1a1a24]'
                   : 'text-gray-400 hover:text-white'
-              }`}
+                }`}
             >
               <Layers className="w-3.5 h-3.5 inline mr-1" />
               부품
             </button>
             <button
               onClick={() => setActivePanel('code')}
-              className={`flex-1 py-2 text-xs font-medium transition-colors ${
-                activePanel === 'code'
+              className={`flex-1 py-2 text-xs font-medium transition-colors ${activePanel === 'code'
                   ? 'text-white bg-[#1a1a24]'
                   : 'text-gray-400 hover:text-white'
-              }`}
+                }`}
             >
               <Code2 className="w-3.5 h-3.5 inline mr-1" />
               코드
@@ -553,17 +551,15 @@ export function CADCircuitLab() {
                             <button
                               key={item.type}
                               onClick={() => handleAddComponent(item.type)}
-                              className={`w-full flex items-center gap-2 px-4 py-2 text-xs transition-colors group ${
-                                view.placementType === item.type
+                              className={`w-full flex items-center gap-2 px-4 py-2 text-xs transition-colors group ${view.placementType === item.type
                                   ? 'bg-cyan-500/20 text-cyan-300'
                                   : 'text-gray-400 hover:text-white hover:bg-[#1a1a24]'
-                              }`}
+                                }`}
                             >
-                              <div className={`w-6 h-6 rounded flex items-center justify-center ${
-                                view.placementType === item.type
+                              <div className={`w-6 h-6 rounded flex items-center justify-center ${view.placementType === item.type
                                   ? 'bg-cyan-500/30'
                                   : 'bg-[#1a1a24] group-hover:bg-[#252530]'
-                              }`}>
+                                }`}>
                                 <Plus className="w-3 h-3" />
                               </div>
                               <div className="flex-1 text-left">
@@ -621,11 +617,10 @@ export function CADCircuitLab() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setToolMode(mode)}
-                className={`h-7 px-2 ${
-                  view.toolMode === mode
+                className={`h-7 px-2 ${view.toolMode === mode
                     ? 'bg-cyan-500/20 text-cyan-400'
                     : 'text-gray-400 hover:text-white'
-                }`}
+                  }`}
                 title={label}
               >
                 <Icon className="w-4 h-4" />
@@ -656,9 +651,8 @@ export function CADCircuitLab() {
                   <button
                     key={wc.color}
                     onClick={() => setSelectedWireColor(wc.color)}
-                    className={`w-5 h-5 rounded-full border-2 transition-transform ${
-                      selectedWireColor === wc.color ? 'border-white scale-110' : 'border-transparent'
-                    }`}
+                    className={`w-5 h-5 rounded-full border-2 transition-transform ${selectedWireColor === wc.color ? 'border-white scale-110' : 'border-transparent'
+                      }`}
                     style={{ backgroundColor: wc.color }}
                     title={`${wc.name} (${wc.use})`}
                   />

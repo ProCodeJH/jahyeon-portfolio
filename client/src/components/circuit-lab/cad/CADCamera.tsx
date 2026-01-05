@@ -11,7 +11,7 @@
 import { useRef, useEffect, useCallback } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useCircuitLabStore } from '@/store/circuitLabStore';
+import { useCircuitLabStore } from '@/store/circuit-lab';
 
 interface CADCameraProps {
   mode?: 'top-down' | 'isometric';

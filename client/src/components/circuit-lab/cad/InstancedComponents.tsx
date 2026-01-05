@@ -11,7 +11,13 @@
 import { useRef, useMemo, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useCircuitLabStore, ComponentData, GRID_UNIT } from '@/store/circuitLabStore';
+import {
+  useCircuitLabStore,
+  ComponentData,
+  GRID_UNIT,
+  LEDProperties,
+  ButtonProperties
+} from '@/store/circuit-lab';
 
 // ============================================
 // GEOMETRY CACHE (Procedural, no GLTF)
@@ -118,7 +124,11 @@ function createBreadboardGeometry(size: 'full' | 'half' | 'mini'): THREE.BufferG
     mini: [0.046, 0.0085, 0.035],
   };
 
-  const [width, height, depth] = dimensions[size];
+  const [width, height, depth] = [
+    dimensions[size]?.[0] || dimensions.half[0],
+    dimensions[size]?.[1] || dimensions.half[1],
+    dimensions[size]?.[2] || dimensions.half[2],
+  ];
   return new THREE.BoxGeometry(width, height, depth);
 }
 
@@ -243,8 +253,9 @@ export function LEDInstancedRenderer({ components }: InstancedRendererProps) {
 
       // Set color based on type and state
       const baseColor = colorMap[comp.type] || colorMap.led_red;
-      const isOn = comp.properties.isOn;
-      const brightness = comp.properties.brightness || 1;
+      const props = comp.properties as LEDProperties;
+      const isOn = props.isOn;
+      const brightness = props.brightness || 1;
 
       const color = isOn
         ? baseColor.clone().multiplyScalar(brightness)
@@ -337,7 +348,8 @@ export function ButtonInstancedRenderer({ components }: InstancedRendererProps) 
     if (!meshRef.current || buttonComponents.length === 0) return;
 
     buttonComponents.forEach((comp, i) => {
-      const yOffset = comp.properties.isPressed ? -0.0005 : 0;
+      const props = comp.properties as ButtonProperties;
+      const yOffset = props.isPressed ? -0.0005 : 0;
       dummy.position.set(
         comp.gridX * GRID_UNIT,
         comp.gridY * GRID_UNIT + yOffset,
@@ -424,6 +436,7 @@ export function UltrasonicInstancedRenderer({ components }: InstancedRendererPro
   const material = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#1565c0',
     roughness: 0.5,
+    metalness: 0.1,
   }), []);
 
   useEffect(() => {

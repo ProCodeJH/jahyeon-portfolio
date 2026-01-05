@@ -11,7 +11,7 @@ import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { Line } from '@react-three/drei';
-import { useCircuitLabStore, WireData, GRID_UNIT } from '@/store/circuitLabStore';
+import { useCircuitLabStore, WireData, GRID_UNIT } from '@/store/circuit-lab';
 
 // ============================================
 // SINGLE WIRE COMPONENT
