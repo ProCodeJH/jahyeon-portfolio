@@ -1,6 +1,11 @@
 /**
- * Clean Simple Background with Free-Moving AI Robot
- * 깔끔하고 심플한 배경 + 자유롭게 움직이는 AI 로봇
+ * Clean White-Tone Background with Elegant AI Robot
+ * 깔끔한 화이트톤 배경 + 세련된 AI 로봇
+ *
+ * Design inspiration: 1X NEO, Tesla Optimus Gen 2
+ * - Minimalist humanoid form
+ * - Soft, elegant materials
+ * - Smooth, natural movements
  */
 
 import { Suspense, useRef, useMemo } from 'react';
@@ -8,212 +13,286 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 
 // ============================================
-// ELEGANT HUMANOID AI ROBOT
+// ELEGANT HUMANOID AI ROBOT (NEO-inspired)
 // ============================================
 
-function AIRobot() {
+function ElegantAIRobot() {
   const groupRef = useRef<THREE.Group>(null);
   const headRef = useRef<THREE.Group>(null);
+  const leftArmRef = useRef<THREE.Group>(null);
+  const rightArmRef = useRef<THREE.Group>(null);
   const { pointer, viewport } = useThree();
 
-  // Use refs for animation state (no re-renders)
-  const targetPosition = useRef(new THREE.Vector3(0.5, 0, 0));
-  const currentPosition = useRef(new THREE.Vector3(0.5, 0, 0));
-  const wanderTarget = useRef(new THREE.Vector3(0.5, 0, 0));
-  const wanderTimer = useRef(0);
-  const idleTimer = useRef(0);
+  // Animation state stored in refs (no re-renders)
+  const animState = useRef({
+    targetX: 0.8,
+    targetY: 0,
+    currentX: 0.8,
+    currentY: 0,
+    wanderX: 0.8,
+    wanderY: 0,
+    wanderTimer: 0,
+    wanderInterval: 4, // Fixed interval - no Math.random() in condition
+    idleTime: 0,
+    breathPhase: 0,
+  });
 
   useFrame((state, delta) => {
-    const time = state.clock.elapsedTime;
-
     if (!groupRef.current || !headRef.current) return;
 
-    // Update wander target every 3-5 seconds
-    wanderTimer.current += delta;
-    if (wanderTimer.current > 3 + Math.random() * 2) {
-      wanderTimer.current = 0;
-      // Random position within bounds
-      wanderTarget.current.set(
-        (Math.random() - 0.5) * 1.5, // X: -0.75 to 0.75
-        (Math.random() - 0.5) * 0.6, // Y: -0.3 to 0.3
-        0
-      );
+    const s = animState.current;
+    const time = state.clock.elapsedTime;
+
+    // Update wander timer with FIXED interval (no random in condition)
+    s.wanderTimer += delta;
+    if (s.wanderTimer >= s.wanderInterval) {
+      s.wanderTimer = 0;
+      // Set new random interval for next cycle
+      s.wanderInterval = 3 + Math.random() * 3;
+      // New random wander target within bounds
+      s.wanderX = (Math.random() - 0.5) * 2;
+      s.wanderY = (Math.random() - 0.5) * 0.8;
     }
 
-    // Check if mouse is active
-    const mouseActive = Math.abs(pointer.x) > 0.05 || Math.abs(pointer.y) > 0.05;
+    // Check mouse activity
+    const mouseActive = Math.abs(pointer.x) > 0.03 || Math.abs(pointer.y) > 0.03;
 
     if (mouseActive) {
-      // Follow mouse
-      targetPosition.current.set(
-        pointer.x * viewport.width * 0.3,
-        pointer.y * viewport.height * 0.3,
-        0
-      );
-      idleTimer.current = 0;
+      // Follow mouse with curiosity
+      s.targetX = pointer.x * viewport.width * 0.25;
+      s.targetY = pointer.y * viewport.height * 0.25;
+      s.idleTime = 0;
     } else {
-      // Wander freely
-      idleTimer.current += delta;
-      if (idleTimer.current > 1) {
-        targetPosition.current.lerp(wanderTarget.current, delta * 0.5);
+      // Gradual transition to wander mode
+      s.idleTime += delta;
+      if (s.idleTime > 1.5) {
+        const wanderLerp = Math.min((s.idleTime - 1.5) * 0.3, 1);
+        s.targetX = THREE.MathUtils.lerp(s.targetX, s.wanderX, wanderLerp * delta);
+        s.targetY = THREE.MathUtils.lerp(s.targetY, s.wanderY, wanderLerp * delta);
       }
     }
 
-    // Smooth movement
-    currentPosition.current.lerp(targetPosition.current, delta * 2);
-    groupRef.current.position.x = currentPosition.current.x;
-    groupRef.current.position.y = currentPosition.current.y + Math.sin(time * 1.5) * 0.02;
+    // Smooth movement with easing
+    s.currentX = THREE.MathUtils.lerp(s.currentX, s.targetX, delta * 1.8);
+    s.currentY = THREE.MathUtils.lerp(s.currentY, s.targetY, delta * 1.8);
 
-    // Head looks at mouse
-    const lookX = pointer.x * 0.3;
-    const lookY = pointer.y * 0.2;
-    headRef.current.rotation.y = THREE.MathUtils.lerp(headRef.current.rotation.y, lookX, delta * 3);
-    headRef.current.rotation.x = THREE.MathUtils.lerp(headRef.current.rotation.x, -lookY, delta * 3);
+    // Apply position with gentle floating
+    s.breathPhase += delta * 1.2;
+    const floatY = Math.sin(s.breathPhase) * 0.015;
+    const breathScale = 1 + Math.sin(s.breathPhase * 0.8) * 0.005;
+
+    groupRef.current.position.x = s.currentX;
+    groupRef.current.position.y = s.currentY + floatY;
+    groupRef.current.scale.setScalar(0.55 * breathScale);
+
+    // Head tracking with smooth easing
+    const lookX = pointer.x * 0.4;
+    const lookY = pointer.y * 0.25;
+    headRef.current.rotation.y = THREE.MathUtils.lerp(
+      headRef.current.rotation.y,
+      lookX,
+      delta * 4
+    );
+    headRef.current.rotation.x = THREE.MathUtils.lerp(
+      headRef.current.rotation.x,
+      -lookY * 0.5,
+      delta * 4
+    );
+
+    // Subtle arm movement
+    if (leftArmRef.current && rightArmRef.current) {
+      const armSwing = Math.sin(time * 0.8) * 0.08;
+      leftArmRef.current.rotation.x = armSwing;
+      rightArmRef.current.rotation.x = -armSwing;
+    }
   });
 
-  // Eye glow color
-  const eyeColor = '#00d4ff';
+  // Premium material colors - soft, elegant
+  const bodyColor = '#f8f9fa';
+  const accentColor = '#e9ecef';
+  const jointColor = '#dee2e6';
+  const glowColor = '#4dabf7';
+  const eyeColor = '#339af0';
 
   return (
-    <group ref={groupRef} position={[0.5, 0, 0]} scale={0.6}>
-      {/* Head */}
+    <group ref={groupRef} position={[0.8, 0, 0]}>
+      {/* HEAD - Sleek, minimal design */}
       <group ref={headRef}>
-        {/* Face plate - sleek oval */}
+        {/* Main head - smooth capsule */}
         <mesh>
-          <capsuleGeometry args={[0.08, 0.06, 16, 16]} />
+          <capsuleGeometry args={[0.065, 0.04, 24, 24]} />
           <meshStandardMaterial
-            color="#e8e8e8"
-            roughness={0.15}
+            color={bodyColor}
+            roughness={0.25}
+            metalness={0.3}
+          />
+        </mesh>
+
+        {/* Face visor - elegant curved panel */}
+        <mesh position={[0, 0.01, 0.05]} rotation={[0.1, 0, 0]}>
+          <boxGeometry args={[0.09, 0.045, 0.02]} />
+          <meshStandardMaterial
+            color="#212529"
+            roughness={0.1}
             metalness={0.8}
           />
         </mesh>
 
-        {/* Forehead detail */}
-        <mesh position={[0, 0.06, 0.04]}>
-          <boxGeometry args={[0.1, 0.03, 0.02]} />
-          <meshStandardMaterial color="#00b4d8" roughness={0.3} metalness={0.9} />
-        </mesh>
-
-        {/* Left Eye */}
-        <group position={[-0.025, 0.01, 0.075]}>
+        {/* Left Eye - soft glow */}
+        <group position={[-0.022, 0.015, 0.055]}>
           <mesh>
-            <sphereGeometry args={[0.018, 24, 24]} />
+            <circleGeometry args={[0.012, 32]} />
             <meshStandardMaterial
               color={eyeColor}
               emissive={eyeColor}
-              emissiveIntensity={1.5}
+              emissiveIntensity={0.8}
               roughness={0.1}
             />
           </mesh>
-          <pointLight color={eyeColor} intensity={0.3} distance={0.3} />
+          <pointLight color={glowColor} intensity={0.15} distance={0.2} />
         </group>
 
-        {/* Right Eye */}
-        <group position={[0.025, 0.01, 0.075]}>
+        {/* Right Eye - soft glow */}
+        <group position={[0.022, 0.015, 0.055]}>
           <mesh>
-            <sphereGeometry args={[0.018, 24, 24]} />
+            <circleGeometry args={[0.012, 32]} />
             <meshStandardMaterial
               color={eyeColor}
               emissive={eyeColor}
-              emissiveIntensity={1.5}
+              emissiveIntensity={0.8}
               roughness={0.1}
             />
           </mesh>
-          <pointLight color={eyeColor} intensity={0.3} distance={0.3} />
+          <pointLight color={glowColor} intensity={0.15} distance={0.2} />
         </group>
 
-        {/* Side head panels */}
-        {[-0.07, 0.07].map((x, i) => (
-          <mesh key={i} position={[x, 0, 0]}>
-            <cylinderGeometry args={[0.02, 0.025, 0.08, 16]} />
-            <meshStandardMaterial color="#d0d0d0" roughness={0.2} metalness={0.9} />
+        {/* Ear sensors */}
+        {[-0.065, 0.065].map((x, i) => (
+          <mesh key={i} position={[x, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.015, 0.018, 0.015, 16]} />
+            <meshStandardMaterial color={accentColor} roughness={0.3} metalness={0.4} />
           </mesh>
         ))}
       </group>
 
-      {/* Neck */}
-      <mesh position={[0, -0.1, 0]}>
-        <cylinderGeometry args={[0.025, 0.03, 0.04, 16]} />
-        <meshStandardMaterial color="#c0c0c0" roughness={0.3} metalness={0.8} />
-      </mesh>
-
-      {/* Torso */}
-      <group position={[0, -0.22, 0]}>
-        {/* Main body */}
+      {/* NECK - Articulated segments */}
+      <group position={[0, -0.08, 0]}>
         <mesh>
-          <capsuleGeometry args={[0.06, 0.12, 16, 16]} />
-          <meshStandardMaterial color="#f0f0f0" roughness={0.2} metalness={0.7} />
+          <cylinderGeometry args={[0.022, 0.028, 0.035, 16]} />
+          <meshStandardMaterial color={jointColor} roughness={0.4} metalness={0.3} />
+        </mesh>
+      </group>
+
+      {/* TORSO - Elegant proportions */}
+      <group position={[0, -0.2, 0]}>
+        {/* Upper torso */}
+        <mesh>
+          <capsuleGeometry args={[0.055, 0.08, 16, 16]} />
+          <meshStandardMaterial color={bodyColor} roughness={0.25} metalness={0.3} />
         </mesh>
 
-        {/* Chest light */}
-        <mesh position={[0, 0.02, 0.055]}>
-          <circleGeometry args={[0.025, 24]} />
+        {/* Chest indicator - subtle glow */}
+        <mesh position={[0, 0.02, 0.05]}>
+          <circleGeometry args={[0.018, 32]} />
           <meshStandardMaterial
-            color="#00d4ff"
-            emissive="#00d4ff"
-            emissiveIntensity={2}
+            color={glowColor}
+            emissive={glowColor}
+            emissiveIntensity={0.6}
             roughness={0.1}
           />
         </mesh>
-        <pointLight color="#00d4ff" intensity={0.5} distance={0.5} position={[0, 0.02, 0.06]} />
+
+        {/* Lower torso */}
+        <mesh position={[0, -0.1, 0]}>
+          <capsuleGeometry args={[0.045, 0.05, 16, 16]} />
+          <meshStandardMaterial color={accentColor} roughness={0.3} metalness={0.25} />
+        </mesh>
 
         {/* Shoulder joints */}
-        {[-0.08, 0.08].map((x, i) => (
-          <mesh key={i} position={[x, 0.04, 0]}>
-            <sphereGeometry args={[0.025, 16, 16]} />
-            <meshStandardMaterial color="#e0e0e0" roughness={0.25} metalness={0.85} />
+        {[-0.07, 0.07].map((x, i) => (
+          <mesh key={i} position={[x, 0.035, 0]}>
+            <sphereGeometry args={[0.022, 24, 24]} />
+            <meshStandardMaterial color={jointColor} roughness={0.35} metalness={0.4} />
           </mesh>
         ))}
       </group>
 
-      {/* Arms */}
-      {[-1, 1].map((side, i) => (
-        <group key={i} position={[side * 0.1, -0.22, 0]}>
-          {/* Upper arm */}
-          <mesh position={[side * 0.02, -0.06, 0]}>
-            <capsuleGeometry args={[0.018, 0.06, 8, 8]} />
-            <meshStandardMaterial color="#e8e8e8" roughness={0.2} metalness={0.8} />
-          </mesh>
-          {/* Lower arm */}
-          <mesh position={[side * 0.02, -0.14, 0]}>
-            <capsuleGeometry args={[0.015, 0.05, 8, 8]} />
-            <meshStandardMaterial color="#d8d8d8" roughness={0.25} metalness={0.75} />
-          </mesh>
-          {/* Hand */}
-          <mesh position={[side * 0.02, -0.2, 0]}>
-            <sphereGeometry args={[0.015, 12, 12]} />
-            <meshStandardMaterial color="#f0f0f0" roughness={0.3} metalness={0.7} />
-          </mesh>
-        </group>
-      ))}
+      {/* LEFT ARM */}
+      <group ref={leftArmRef} position={[-0.09, -0.18, 0]}>
+        {/* Upper arm */}
+        <mesh position={[0, -0.045, 0]}>
+          <capsuleGeometry args={[0.016, 0.05, 12, 12]} />
+          <meshStandardMaterial color={bodyColor} roughness={0.25} metalness={0.3} />
+        </mesh>
+        {/* Elbow */}
+        <mesh position={[0, -0.085, 0]}>
+          <sphereGeometry args={[0.014, 16, 16]} />
+          <meshStandardMaterial color={jointColor} roughness={0.35} metalness={0.4} />
+        </mesh>
+        {/* Lower arm */}
+        <mesh position={[0, -0.125, 0]}>
+          <capsuleGeometry args={[0.013, 0.04, 12, 12]} />
+          <meshStandardMaterial color={accentColor} roughness={0.3} metalness={0.25} />
+        </mesh>
+        {/* Hand */}
+        <mesh position={[0, -0.165, 0]}>
+          <sphereGeometry args={[0.012, 12, 12]} />
+          <meshStandardMaterial color={bodyColor} roughness={0.3} metalness={0.3} />
+        </mesh>
+      </group>
 
-      {/* Ambient glow */}
-      <pointLight color="#00d4ff" intensity={0.2} distance={1} />
+      {/* RIGHT ARM */}
+      <group ref={rightArmRef} position={[0.09, -0.18, 0]}>
+        {/* Upper arm */}
+        <mesh position={[0, -0.045, 0]}>
+          <capsuleGeometry args={[0.016, 0.05, 12, 12]} />
+          <meshStandardMaterial color={bodyColor} roughness={0.25} metalness={0.3} />
+        </mesh>
+        {/* Elbow */}
+        <mesh position={[0, -0.085, 0]}>
+          <sphereGeometry args={[0.014, 16, 16]} />
+          <meshStandardMaterial color={jointColor} roughness={0.35} metalness={0.4} />
+        </mesh>
+        {/* Lower arm */}
+        <mesh position={[0, -0.125, 0]}>
+          <capsuleGeometry args={[0.013, 0.04, 12, 12]} />
+          <meshStandardMaterial color={accentColor} roughness={0.3} metalness={0.25} />
+        </mesh>
+        {/* Hand */}
+        <mesh position={[0, -0.165, 0]}>
+          <sphereGeometry args={[0.012, 12, 12]} />
+          <meshStandardMaterial color={bodyColor} roughness={0.3} metalness={0.3} />
+        </mesh>
+      </group>
+
+      {/* Subtle ambient glow */}
+      <pointLight color={glowColor} intensity={0.1} distance={0.8} />
     </group>
   );
 }
 
 // ============================================
-// SIMPLE PARTICLE BACKGROUND
+// SUBTLE FLOATING PARTICLES
 // ============================================
 
-function SimpleParticles() {
-  const count = 50;
+function SubtleParticles() {
+  const count = 30;
   const pointsRef = useRef<THREE.Points>(null);
 
-  const particles = useMemo(() => {
-    const positions = new Float32Array(count * 3);
+  const positions = useMemo(() => {
+    const arr = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 5;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 4;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 2 - 2;
+      arr[i * 3] = (Math.random() - 0.5) * 6;
+      arr[i * 3 + 1] = (Math.random() - 0.5) * 4;
+      arr[i * 3 + 2] = (Math.random() - 0.5) * 2 - 3;
     }
-    return positions;
+    return arr;
   }, []);
 
   useFrame((state) => {
     if (pointsRef.current) {
-      pointsRef.current.rotation.y = state.clock.elapsedTime * 0.02;
+      pointsRef.current.rotation.y = state.clock.elapsedTime * 0.01;
+      pointsRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.05) * 0.02;
     }
   });
 
@@ -223,15 +302,15 @@ function SimpleParticles() {
         <bufferAttribute
           attach="attributes-position"
           count={count}
-          array={particles}
+          array={positions}
           itemSize={3}
         />
       </bufferGeometry>
       <pointsMaterial
-        size={0.02}
-        color="#335577"
+        size={0.015}
+        color="#adb5bd"
         transparent
-        opacity={0.4}
+        opacity={0.3}
         sizeAttenuation
       />
     </points>
@@ -245,16 +324,31 @@ function SimpleParticles() {
 function Scene() {
   return (
     <>
-      {/* Simple lighting */}
-      <ambientLight intensity={0.4} />
-      <directionalLight position={[2, 3, 2]} intensity={0.6} />
-      <directionalLight position={[-2, 2, -1]} intensity={0.2} color="#88aaff" />
+      {/* Soft, diffused lighting for elegant look */}
+      <ambientLight intensity={0.7} color="#ffffff" />
+      <directionalLight
+        position={[3, 4, 2]}
+        intensity={0.5}
+        color="#f8f9fa"
+        castShadow={false}
+      />
+      <directionalLight
+        position={[-2, 3, -1]}
+        intensity={0.25}
+        color="#e7f5ff"
+      />
+      {/* Rim light for depth */}
+      <directionalLight
+        position={[0, -2, 3]}
+        intensity={0.15}
+        color="#d0ebff"
+      />
 
-      {/* AI Robot */}
-      <AIRobot />
+      {/* Elegant AI Robot */}
+      <ElegantAIRobot />
 
-      {/* Subtle particles */}
-      <SimpleParticles />
+      {/* Subtle background particles */}
+      <SubtleParticles />
     </>
   );
 }
@@ -274,7 +368,9 @@ export function CleanBackground() {
           powerPreference: 'high-performance',
         }}
         dpr={[1, 1.5]}
-        style={{ background: 'linear-gradient(180deg, #0a0a14 0%, #101020 100%)' }}
+        style={{
+          background: 'linear-gradient(165deg, #ffffff 0%, #f8f9fa 30%, #f1f3f5 70%, #e9ecef 100%)',
+        }}
       >
         <Suspense fallback={null}>
           <Scene />
