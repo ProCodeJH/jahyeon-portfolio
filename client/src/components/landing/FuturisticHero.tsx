@@ -1,9 +1,13 @@
 import { useRef, useState, useEffect } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { Link, useLocation } from 'wouter';
+import { Menu, X } from 'lucide-react';
 
 export default function FuturisticHero() {
     const containerRef = useRef<HTMLDivElement>(null);
     const [isMobile, setIsMobile] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [location] = useLocation();
 
     const { scrollYProgress } = useScroll({
         target: containerRef,
@@ -11,7 +15,6 @@ export default function FuturisticHero() {
     });
 
     const textY = useTransform(scrollYProgress, [0, 1], [0, 150]);
-    const overlayOpacity = useTransform(scrollYProgress, [0, 0.5], [0.3, 0.8]);
 
     useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -19,6 +22,15 @@ export default function FuturisticHero() {
         window.addEventListener('resize', checkMobile);
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
+
+    const navItems = [
+        { label: 'PROJECTS', href: '/projects' },
+        { label: 'RESOURCES', href: '/resources' },
+        { label: 'CERTIFICATIONS', href: '/certifications' },
+        { label: 'CODE EDITOR', href: '/code-editor' },
+        { label: 'CIRCUIT LAB', href: '/circuit-lab' },
+        { label: 'ADMIN', href: '/admin' },
+    ];
 
     return (
         <div
@@ -67,28 +79,72 @@ export default function FuturisticHero() {
 
             {/* NAVIGATION - Overlay Style */}
             <nav className="absolute top-0 left-0 w-full z-40 px-6 py-8 flex justify-between items-center text-white mix-blend-difference">
-                <div className="font-mono text-sm tracking-widest border border-white/50 px-4 py-1 rounded-full">
-                    JAHYEON_PORTFOLIO
+                <Link href="/">
+                    <div className="font-mono text-sm tracking-widest border border-white/50 px-4 py-1 rounded-full cursor-pointer hover:bg-white hover:text-black transition-colors">
+                        JAHYEON_PORTFOLIO
+                    </div>
+                </Link>
+
+                {/* DESKTOP NAV */}
+                <div className="hidden md:flex gap-8">
+                    {navItems.map((item) => (
+                        <Link key={item.label} href={item.href}>
+                            <button className="text-white/80 hover:text-white text-xs font-bold tracking-[0.2em] transition-colors relative group">
+                                {item.label}
+                                <span className="absolute -bottom-2 left-0 w-0 h-[1px] bg-white transition-all group-hover:w-full" />
+                            </button>
+                        </Link>
+                    ))}
                 </div>
 
-                <div className="hidden md:flex gap-8">
-                    {['ABOUT', 'PROJECTS', 'CONTACT'].map((item) => (
-                        <button
-                            key={item}
-                            className="text-white/80 hover:text-white text-xs font-bold tracking-[0.2em] transition-colors relative group"
-                        >
-                            {item}
-                            <span className="absolute -bottom-2 left-0 w-0 h-[1px] bg-white transition-all group-hover:w-full" />
-                        </button>
-                    ))}
+                {/* MOBILE NAV TOGGLE */}
+                <div className="md:hidden">
+                    <button onClick={() => setIsMenuOpen(true)}>
+                        <Menu className="w-8 h-8 text-white" />
+                    </button>
                 </div>
             </nav>
 
+            {/* MOBILE MENU OVERLAY */}
+            <AnimatePresence>
+                {isMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, x: '100%' }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: '100%' }}
+                        transition={{ duration: 0.3, ease: 'circOut' }}
+                        className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center pointer-events-auto"
+                        {...({} as any)}
+                    >
+                        <button
+                            onClick={() => setIsMenuOpen(false)}
+                            className="absolute top-8 right-6 text-white hover:text-blue-500"
+                        >
+                            <X className="w-10 h-10" />
+                        </button>
+
+                        <div className="flex flex-col items-center gap-8">
+                            {navItems.map((item) => (
+                                <Link key={item.label} href={item.href}>
+                                    <button
+                                        onClick={() => setIsMenuOpen(false)}
+                                        className="text-2xl md:text-4xl font-black text-white hover:text-blue-500 tracking-tighter hover:tracking-wide transition-all duration-300"
+                                    >
+                                        {item.label}
+                                    </button>
+                                </Link>
+                            ))}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             {/* SCROLL INDICATOR */}
-            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-2 text-white mix-blend-difference">
+            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-2 text-white mix-blend-difference pointer-events-none">
                 <span className="text-[10px] tracking-[0.3em] font-light uppercase opacity-70">Scroll To Explore</span>
                 <div className="w-[1px] h-12 bg-gradient-to-b from-white via-white/50 to-transparent" />
             </div>
         </div>
     );
 }
+
