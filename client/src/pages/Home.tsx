@@ -12,9 +12,9 @@ import {
   GraduationCap,
   ChevronLeft,
   ChevronRight,
+  ExternalLink,
 } from "lucide-react";
 import FuturisticHero from "@/components/landing/FuturisticHero";
-import { TiltCard } from "@/components/effects/TiltCard";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
 
 export default function Home() {
@@ -22,99 +22,97 @@ export default function Home() {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 overflow-hidden relative font-sans">
+    <div className="min-h-screen bg-slate-50 text-slate-900 overflow-hidden relative font-sans selection:bg-blue-100 selection:text-blue-900">
 
       {/* 
-        HERO SECTION 
-        Dark Video Background (As requested 'reverted')
+        HERO SECTION (Dark Video - Preserved)
       */}
       <FuturisticHero />
 
       {/* 
-        EXPERTISE SECTION (Light Theme)
-        Clean White Background, High Contrast Text
+        EXPERTISE SECTION (Enterprise Light)
+        Huge Typography, Spacious Layout
       */}
-      <section className="py-24 md:py-32 px-4 md:px-8 relative overflow-hidden bg-white">
-        <div className="max-w-7xl mx-auto relative z-10">
+      <section className="py-32 md:py-48 px-6 md:px-12 relative overflow-hidden bg-white">
+        <div className="max-w-[1800px] mx-auto relative z-10">
           <AnimatedSection>
-            <div className="text-center mb-16 md:mb-24">
-              <div className="inline-flex items-center gap-2 md:gap-3 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 mb-6 shadow-sm">
-                <Sparkles className="w-4 h-4 text-blue-600 animate-spin-slow" />
-                <span className="text-xs md:text-sm font-bold text-blue-600 tracking-wider uppercase">Core Expertise</span>
+            <div className="text-center mb-20 md:mb-32">
+              <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-blue-50 border border-blue-100 mb-8 transform hover:scale-105 transition-transform duration-300 cursor-default">
+                <Sparkles className="w-5 h-5 text-blue-600 animate-pulse" />
+                <span className="text-sm md:text-base font-bold text-blue-700 tracking-widest uppercase">Core Expertise</span>
               </div>
-              <h2 className="text-4xl md:text-6xl lg:text-7xl font-black mb-6 tracking-tight text-slate-900">
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500">
-                  Expertise
+              <h2 className="text-6xl md:text-8xl lg:text-9xl font-black mb-8 tracking-tighter text-slate-900 leading-[0.9]">
+                Technical<br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                  Mastery
                 </span>
               </h2>
-              <div className="w-24 h-1.5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full mx-auto opacity-80" />
+              <p className="text-xl md:text-2xl text-slate-500 max-w-3xl mx-auto leading-relaxed">
+                Delivering industry-leading solutions across embedded systems and full-stack architecture.
+              </p>
             </div>
           </AnimatedSection>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
             {[
               {
                 icon: CircuitBoard,
                 title: "Embedded Systems",
-                desc: "MCU programming, RTOS, firmware optimization",
-                color: "from-blue-500 to-cyan-500",
-                iconBg: "bg-blue-50",
-                iconColor: "text-blue-600",
-                img: "/images/expertise/embedded-systems.jpg",
+                desc: "Real-time operating systems (RTOS), Firmware optimization, Hardware abstraction layers.",
+                color: "text-blue-600",
+                bg: "bg-blue-50",
+                border: "border-blue-100"
               },
               {
                 icon: Code,
-                title: "Software dev",
-                desc: "Python, Java, C/C++, Full-stack",
-                color: "from-indigo-500 to-purple-500",
-                iconBg: "bg-indigo-50",
-                iconColor: "text-indigo-600",
-                img: "/images/expertise/software-development.jpg",
+                title: "Software Engineering",
+                desc: "Scalable Full-stack architecture, Cloud-native solutions, Modern CI/CD pipelines.",
+                color: "text-indigo-600",
+                bg: "bg-indigo-50",
+                border: "border-indigo-100"
               },
               {
                 icon: Zap,
                 title: "IoT Solutions",
-                desc: "Connected devices, sensors, automation",
-                color: "from-orange-500 to-amber-500",
-                iconBg: "bg-orange-50",
-                iconColor: "text-orange-600",
-                img: "/images/expertise/iot-solutions.jpg",
+                desc: "Industrial IoT protocols (MQTT, CoAP), Sensor fusion, Edge computing integration.",
+                color: "text-amber-600",
+                bg: "bg-amber-50",
+                border: "border-amber-100"
               },
               {
                 icon: GraduationCap,
-                title: "Coding Education",
-                desc: "Teaching programming, mentoring developers",
-                color: "from-emerald-500 to-teal-500",
-                iconBg: "bg-emerald-50",
-                iconColor: "text-emerald-600",
-                img: "/images/expertise/coding-education.jpg",
+                title: "Technical Education",
+                desc: "Curriculum development, Developer mentoring, Technical workshop facilitation.",
+                color: "text-emerald-600",
+                bg: "bg-emerald-50",
+                border: "border-emerald-100"
               },
             ].map((item, idx) => (
               <AnimatedSection key={idx} delay={idx * 100}>
-                <TiltCard sensitivity={4}>
-                  <div className="group relative h-[400px] rounded-[2rem] bg-white border border-slate-200 shadow-xl hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 overflow-hidden">
+                <div className={`group relative h-full min-h-[420px] p-10 rounded-[2.5rem] bg-white border-2 ${item.border} hover:border-transparent hover:shadow-2xl hover:shadow-blue-900/10 transition-all duration-500 overflow-hidden flex flex-col justify-between`}>
 
-                    {/* Top Gradient */}
-                    <div className={`absolute top-0 inset-x-0 h-40 bg-gradient-to-b ${item.color} opacity-10 group-hover:opacity-20 transition-opacity`} />
+                  {/* Hover Gradient Background */}
+                  <div className={`absolute inset-0 bg-gradient-to-br ${item.bg} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
 
-                    <div className="relative h-full p-8 flex flex-col items-center text-center justify-between z-10">
-                      <div className={`w-20 h-20 rounded-2xl ${item.iconBg} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500`}>
-                        <item.icon className={`w-10 h-10 ${item.iconColor}`} />
-                      </div>
+                  <div className="relative z-10">
+                    <div className={`w-24 h-24 rounded-3xl ${item.bg} flex items-center justify-center mb-10 group-hover:scale-110 group-hover:bg-white transition-all duration-500 shadow-sm`}>
+                      <item.icon className={`w-12 h-12 ${item.color}`} />
+                    </div>
 
-                      <div className="space-y-4">
-                        <h3 className="text-2xl font-black text-slate-800 group-hover:text-blue-600 transition-colors">
-                          {item.title}
-                        </h3>
-                        <p className="text-slate-500 leading-relaxed font-medium">
-                          {item.desc}
-                        </p>
-                      </div>
+                    <h3 className="text-3xl font-black text-slate-900 mb-6 group-hover:translate-x-2 transition-transform duration-300">
+                      {item.title}
+                    </h3>
+                  </div>
 
-                      <div className="w-12 h-1 rounded-full bg-slate-100 group-hover:w-full group-hover:bg-gradient-to-r group-hover:from-transparent group-hover:via-blue-500 group-hover:to-transparent transition-all duration-500" />
+                  <div className="relative z-10">
+                    <p className="text-lg text-slate-500 font-medium leading-relaxed group-hover:text-slate-700 transition-colors">
+                      {item.desc}
+                    </p>
+                    <div className="mt-8 flex items-center gap-2 text-sm font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0 text-slate-900">
+                      Learn More <ArrowRight className="w-4 h-4" />
                     </div>
                   </div>
-                </TiltCard>
+                </div>
               </AnimatedSection>
             ))}
           </div>
@@ -122,82 +120,104 @@ export default function Home() {
       </section>
 
       {/* 
-        PROFESSIONAL JOURNEY (Light Theme)
-        Bg-Slate-50
+        PROFESSIONAL JOURNEY
       */}
-      <section className="py-24 md:py-32 px-4 md:px-8 bg-slate-50 relative">
-        <div className="max-w-7xl mx-auto relative z-10">
+      <section className="py-32 md:py-48 px-6 md:px-12 bg-slate-50 relative">
+        <div className="max-w-[1400px] mx-auto relative z-10">
           <AnimatedSection>
-            <div className="text-center mb-16 md:mb-20">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 border border-indigo-100 mb-6">
-                <Layers className="w-4 h-4 text-indigo-600" />
-                <span className="text-xs md:text-sm font-bold text-indigo-600 tracking-wider uppercase">Career Path</span>
+            <div className="flex flex-col md:flex-row items-end justify-between mb-24 gap-8">
+              <div>
+                <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-indigo-50 border border-indigo-100 mb-6">
+                  <Layers className="w-5 h-5 text-indigo-600" />
+                  <span className="text-sm font-bold text-indigo-700 tracking-widest uppercase">Career Path</span>
+                </div>
+                <h2 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter text-slate-900">
+                  Professional<br />Journey
+                </h2>
               </div>
-              <h2 className="text-4xl md:text-6xl font-black mb-6 tracking-tight text-slate-900">
-                Professional Journey
-              </h2>
+              <p className="text-xl text-slate-500 max-w-md leading-relaxed pb-4">
+                A timeline of continuous growth and technical leadership in the tech industry.
+              </p>
             </div>
           </AnimatedSection>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-5xl mx-auto">
+          <div className="space-y-6">
             {[
-              { year: "2025", company: "Coding Academy", role: "Coding Instructor", icon: GraduationCap, current: true },
-              { year: "~2024.11", company: "SHL Co., Ltd.", role: "Logistics Systems", icon: Layers, current: false },
-              { year: "2023-24", company: "LG Electronics", role: "Sr. Research Engineer", icon: CircuitBoard, current: false },
-              { year: "2022", company: "Nordground", role: "Data Analysis", icon: Sparkles, current: false },
-            ].map((exp, idx) => {
-              const Icon = exp.icon;
-              return (
-                <AnimatedSection key={idx} delay={idx * 100}>
-                  <div className={`p-8 rounded-3xl border transition-all duration-500 hover:-translate-y-1 ${exp.current
-                      ? "bg-white border-blue-200 shadow-xl shadow-blue-500/10"
-                      : "bg-white border-slate-100 shadow-lg hover:shadow-xl hover:border-blue-100"
+              { year: "2025", company: "Coding Academy", role: "Coding Instructor", icon: GraduationCap, current: true, desc: "Teaching next-gen developers." },
+              { year: "2024", company: "SHL Co., Ltd.", role: "Logistics Systems Engineer", icon: Layers, current: false, desc: "Optimized large-scale logistics algorithms." },
+              { year: "2023", company: "LG Electronics", role: "Senior Research Engineer", icon: CircuitBoard, current: false, desc: "R&D for consumer electronics firmware." },
+              { year: "2022", company: "Nordground", role: "Data Analyst", icon: Sparkles, current: false, desc: "Big data processing and visualization." },
+            ].map((exp, idx) => (
+              <AnimatedSection key={idx} delay={idx * 50}>
+                <div className={`group flex flex-col md:flex-row items-center gap-8 p-8 md:p-12 rounded-[3rem] border transition-all duration-500 hover:scale-[1.01] cursor-default ${exp.current
+                    ? "bg-white border-blue-200 shadow-xl shadow-blue-900/5 ring-4 ring-blue-50"
+                    : "bg-white border-slate-100 hover:border-blue-100 hover:shadow-xl hover:shadow-blue-900/5"
+                  }`}>
+                  <div className={`w-24 h-24 md:w-32 md:h-32 rounded-3xl flex items-center justify-center flex-shrink-0 transition-transform duration-500 group-hover:rotate-6 ${exp.current ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30" : "bg-slate-100 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600"
                     }`}>
-                    <div className="flex items-start gap-6">
-                      <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-md flex-shrink-0 ${exp.current ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-500"
-                        }`}>
-                        <Icon className="w-8 h-8" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-3 mb-2">
-                          <span className={`text-sm font-bold font-mono ${exp.current ? "text-blue-600" : "text-slate-400"}`}>
-                            {exp.year}
-                          </span>
-                          {exp.current && (
-                            <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold">CURRENT</span>
-                          )}
-                        </div>
-                        <h3 className="text-xl font-black text-slate-800 mb-1">{exp.company}</h3>
-                        <p className="text-slate-500 font-medium">{exp.role}</p>
-                      </div>
-                    </div>
+                    <exp.icon className="w-10 h-10 md:w-14 md:h-14" />
                   </div>
-                </AnimatedSection>
-              );
-            })}
+
+                  <div className="flex-1 text-center md:text-left">
+                    <div className="flex flex-col md:flex-row md:items-center gap-3 mb-4 justify-center md:justify-start">
+                      <span className={`text-xl font-bold font-mono ${exp.current ? "text-blue-600" : "text-slate-400"}`}>
+                        {exp.year}
+                      </span>
+                      {exp.current && (
+                        <span className="inline-block px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold tracking-wide">CURRENTLY WORKING</span>
+                      )}
+                    </div>
+                    <h3 className="text-3xl md:text-5xl font-black text-slate-900 mb-2 group-hover:text-blue-600 transition-colors">
+                      {exp.company}
+                    </h3>
+                    <p className="text-xl md:text-2xl text-slate-500 font-medium mb-2">{exp.role}</p>
+                    <p className="text-base text-slate-400">{exp.desc}</p>
+                  </div>
+
+                  <div className="w-16 h-16 rounded-full border border-slate-200 flex items-center justify-center text-slate-300 opacity-0 group-hover:opacity-100 transition-all duration-500 group-hover:border-blue-200 group-hover:text-blue-500">
+                    <ArrowRight className="w-6 h-6 -rotate-45 group-hover:rotate-0 transition-transform duration-500" />
+                  </div>
+                </div>
+              </AnimatedSection>
+            ))}
           </div>
         </div>
       </section>
 
       {/* 
-        FEATURED WORK (Light Theme - 3D Cards)
-        Bg-White
+        FEATURED WORK (Enterprise Light - Fixed Contrast)
       */}
-      <section className="py-24 md:py-32 px-4 md:px-8 bg-white relative overflow-hidden">
-        <div className="max-w-7xl mx-auto relative z-10">
+      <section className="py-32 md:py-48 px-6 md:px-12 bg-white relative overflow-hidden">
+        <div className="max-w-[1800px] mx-auto relative z-10">
           <AnimatedSection>
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-6xl font-black text-slate-900 mb-6">
-                Featured Work
-              </h2>
-              <p className="text-lg text-slate-500 max-w-2xl mx-auto">
-                Swipe through my latest projects
-              </p>
+            <div className="flex flex-col md:flex-row items-end justify-between mb-24 gap-8">
+              <div>
+                <h2 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter text-slate-900 mb-6">
+                  Featured<br />Work
+                </h2>
+                <div className="h-2 w-32 bg-blue-600 rounded-full" />
+              </div>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setActiveIndex(Math.max(0, activeIndex - 1))}
+                  disabled={activeIndex === 0}
+                  className="w-16 h-16 rounded-full border-2 border-slate-200 flex items-center justify-center text-slate-900 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all disabled:opacity-30"
+                >
+                  <ChevronLeft className="w-8 h-8" />
+                </button>
+                <button
+                  onClick={() => setActiveIndex(Math.min((projects?.length || 1) - 1, activeIndex + 1))}
+                  disabled={activeIndex === (projects?.length || 1) - 1}
+                  className="w-16 h-16 rounded-full border-2 border-slate-200 flex items-center justify-center text-slate-900 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all disabled:opacity-30"
+                >
+                  <ChevronRight className="w-8 h-8" />
+                </button>
+              </div>
             </div>
           </AnimatedSection>
 
-          {/* 3D Stacked Cards Container */}
-          <div className="relative max-w-4xl mx-auto h-[500px] perspective-[2000px]">
+          {/* Large Card Slider */}
+          <div className="relative h-[600px] md:h-[700px] perspective-[2500px]">
             <div className="relative w-full h-full">
               {projects?.slice(0, 5).map((project, idx) => {
                 const position = idx - activeIndex;
@@ -208,80 +228,72 @@ export default function Home() {
                 return (
                   <div
                     key={project.id}
-                    className={`absolute inset-0 transition-all duration-700 cursor-pointer ${isPast ? "pointer-events-none opacity-0" : "pointer-events-auto"
+                    className={`absolute inset-0 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] ${isPast ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
                       }`}
                     style={{
                       transform: `
-                        translateX(${position * 40}px)
-                        translateY(${Math.abs(position) * 10}px)
+                        translateX(${position * 120}px)
+                        scale(${isActive ? 1 : 0.9})
                         translateZ(${-Math.abs(position) * 100}px)
-                        rotateY(${position * -5}deg)
-                        scale(${1 - Math.abs(position) * 0.05})
                       `,
                       zIndex: 50 - Math.abs(position),
-                      opacity: Math.max(0, 1 - Math.abs(position) * 0.2),
-                    }}
-                    onClick={() => {
-                      if (isFuture) setActiveIndex(idx);
+                      opacity: isActive ? 1 : 0.4,
                     }}
                   >
-                    <div className={`relative w-full h-full rounded-[2.5rem] overflow-hidden bg-white shadow-2xl border transition-all duration-500 ${isActive ? 'border-blue-200 shadow-blue-900/10' : 'border-slate-200'
-                      }`}>
-                      {project.imageUrl ? (
-                        <div className="absolute inset-0">
-                          <img src={project.imageUrl} alt={project.title} className="w-full h-full object-cover" />
-                          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
-                        </div>
-                      ) : (
-                        <div className="absolute inset-0 bg-slate-100" />
-                      )}
+                    {/* CARD CONTENT */}
+                    <div className={`relative w-full h-full rounded-[3rem] overflow-hidden bg-white border border-slate-200 shadow-2xl transition-all duration-500 ${isActive ? 'shadow-blue-900/20' : ''}`}>
 
-                      <div className="absolute inset-0 p-10 flex flex-col justify-end text-white">
-                        <div className={`transform transition-all duration-700 ${isActive ? "translate-y-0 opacity-100" : "translate-y-10 opacity-60"}`}>
-                          <div className="bg-blue-600 w-fit px-4 py-1 rounded-full text-xs font-bold mb-4">
-                            PROJECT #{idx + 1}
+                      <div className="grid md:grid-cols-2 h-full">
+                        {/* Left: Text Content (Dark Text on White) */}
+                        <div className="p-12 md:p-16 flex flex-col justify-center bg-white order-2 md:order-1">
+                          <div className="mb-6 inline-block">
+                            <span className="px-4 py-2 rounded-lg bg-blue-100 text-blue-800 text-sm font-black uppercase tracking-wider">
+                              Project 0{idx + 1}
+                            </span>
                           </div>
-                          <h3 className="text-4xl md:text-5xl font-black mb-4 leading-tight">
+                          <h3 className="text-4xl md:text-6xl font-black text-slate-900 mb-6 leading-tight">
                             {project.title}
                           </h3>
-                          <p className="text-lg text-slate-200 font-medium line-clamp-2 mb-8">
+                          <p className="text-xl text-slate-500 font-medium leading-relaxed mb-10 line-clamp-3">
                             {project.description}
                           </p>
-                          {isActive && (
-                            <Link href="/projects">
-                              <span className="inline-flex items-center gap-2 bg-white text-slate-900 px-6 py-3 rounded-full font-bold hover:bg-blue-50 transition-colors">
-                                View Details <ArrowRight className="w-4 h-4" />
+                          <Link href="/projects">
+                            <span className="inline-flex items-center gap-3 text-lg font-bold text-blue-600 hover:text-blue-800 transition-colors group cursor-pointer">
+                              View Case Study
+                              <span className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+                                <ArrowRight className="w-5 h-5" />
                               </span>
-                            </Link>
+                            </span>
+                          </Link>
+                        </div>
+
+                        {/* Right: Image */}
+                        <div className="relative h-full bg-slate-100 order-1 md:order-2 overflow-hidden">
+                          {project.imageUrl ? (
+                            <img
+                              src={project.imageUrl}
+                              alt={project.title}
+                              className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-1000"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-slate-300">
+                              <Code className="w-24 h-24" />
+                            </div>
                           )}
                         </div>
                       </div>
+
                     </div>
                   </div>
                 );
               })}
             </div>
-            {/* Buttons */}
-            <button
-              onClick={() => setActiveIndex(Math.max(0, activeIndex - 1))}
-              disabled={activeIndex === 0}
-              className="absolute left-[-20px] top-1/2 -translate-y-1/2 z-[60] p-4 rounded-full bg-white shadow-xl text-slate-900 hover:text-blue-600 disabled:opacity-30 transition-all"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </button>
-            <button
-              onClick={() => setActiveIndex(Math.min((projects?.length || 1) - 1, activeIndex + 1))}
-              disabled={activeIndex === (projects?.length || 1) - 1}
-              className="absolute right-[-20px] top-1/2 -translate-y-1/2 z-[60] p-4 rounded-full bg-white shadow-xl text-slate-900 hover:text-blue-600 disabled:opacity-30 transition-all"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </button>
           </div>
 
-          <div className="text-center mt-20">
+          <div className="text-center mt-24">
             <Link href="/projects">
-              <Button size="lg" className="rounded-full bg-slate-900 text-white px-10 py-6 text-lg hover:bg-slate-800 transition-all shadow-xl hover:shadow-2xl">
-                All Projects <ArrowRight className="ml-2 w-5 h-5" />
+              <Button size="lg" className="rounded-full bg-slate-900 text-white px-12 py-8 text-xl font-bold hover:bg-blue-600 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1">
+                View All Projects
               </Button>
             </Link>
           </div>
@@ -289,49 +301,36 @@ export default function Home() {
       </section>
 
       {/* 
-        FOOTER / COMMUNITY (Light Theme)
-        Bg-Slate-50
+        FOOTER (Enterprise Light)
       */}
-      <section className="py-24 md:py-32 px-4 md:px-8 bg-slate-50 border-t border-slate-200">
-        <div className="max-w-4xl mx-auto text-center">
+      <section className="py-32 md:py-40 px-6 md:px-12 bg-slate-50 border-t border-slate-200">
+        <div className="max-w-5xl mx-auto text-center">
           <AnimatedSection>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200 mb-8 shadow-sm">
-              <Sparkles className="w-4 h-4 text-purple-600" />
-              <span className="text-xs font-bold text-slate-600 tracking-wider uppercase">Join The Community</span>
-            </div>
-
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-8 tracking-tight text-slate-900 leading-tight">
-              A space created to<br />
-              <span className="text-blue-600">grow together</span>
+            <h2 className="text-5xl md:text-7xl lg:text-8xl font-black mb-12 tracking-tighter text-slate-900 leading-[0.9]">
+              Ready to create<br />
+              <span className="text-blue-600">something extraordinary?</span>
             </h2>
 
-            <p className="text-xl text-slate-500 mb-12 max-w-2xl mx-auto leading-relaxed">
-              I hope everyone can share, exchange, and nurture their dreams together here.
-              Let's build the future.
-            </p>
+            <div className="flex flex-col md:flex-row gap-6 justify-center items-center mb-24">
+              <Link href="/projects">
+                <Button className="rounded-full bg-blue-600 text-white px-10 py-6 text-lg font-bold hover:bg-blue-700 shadow-xl shadow-blue-600/20">
+                  Explore My Work
+                </Button>
+              </Link>
+              <Button variant="outline" className="rounded-full border-2 border-slate-200 text-slate-700 px-10 py-6 text-lg font-bold hover:bg-white hover:border-slate-300">
+                Contact Me
+              </Button>
+            </div>
 
-            {/* AI Tools Slider (Light Mode style) */}
-            <div className="relative overflow-hidden rounded-2xl bg-white border border-slate-200 py-8 shadow-lg">
-              <div className="flex gap-8 animate-scroll-left-fast">
-                {/* Simplified placeholder for AI tools loop */}
-                {[...Array(10)].map((_, i) => (
-                  <div key={i} className="flex-shrink-0 w-32 h-16 bg-slate-50 rounded-xl flex items-center justify-center border border-slate-100">
-                    <span className="font-bold text-slate-400">AI Tool {i + 1}</span>
-                  </div>
-                ))}
-              </div>
+            <div className="pt-12 border-t border-slate-200 text-slate-400 font-medium">
+              &copy; 2026 JAHYEON PORTFOLIO. All Rights Reserved.
             </div>
           </AnimatedSection>
         </div>
       </section>
 
       <style>{`
-        .animate-scroll-left-fast { animation: scroll-left 20s linear infinite; }
-        @keyframes scroll-left {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .perspective-2000 { perspective: 2000px; }
+        .perspective-2500 { perspective: 2500px; }
       `}</style>
     </div>
   );
