@@ -43,7 +43,7 @@ async function uploadToR2(fileName: string, fileContent: Buffer, contentType: st
     Key: key,
     Body: fileContent,
     ContentType: contentType,
-    ContentDisposition: `inline; filename*=UTF-8''${encodeURIComponent(safeFileName)}`
+    ContentDisposition: `attachment; filename*=UTF-8''${encodeURIComponent(safeFileName)}`
   }));
   return { url: `${R2_PUBLIC_URL}/${key}`, key };
 }
@@ -109,7 +109,7 @@ export const appRouter = t.router({
         Bucket: R2_BUCKET,
         Key: key,
         ContentType: input.contentType,
-        ContentDisposition: `inline; filename*=UTF-8''${encodeURIComponent(safeFileName)}`
+        ContentDisposition: `attachment; filename*=UTF-8''${encodeURIComponent(safeFileName)}`
       });
 
       const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
