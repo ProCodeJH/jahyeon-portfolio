@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "wouter";
-import { Loader2, Plus, Trash2, Eye, Heart, BarChart3, FileText, LogOut, ImageIcon, Video, X, FolderOpen, Award, Upload, TrendingUp, Presentation, Code, Cpu, Terminal, CheckCircle, Pencil, FolderInput, ChevronDown, ChevronRight } from "lucide-react";
+import { Loader2, Plus, Trash2, Eye, Heart, BarChart3, FileText, LogOut, ImageIcon, Video, X, FolderOpen, Award, Upload, TrendingUp, Presentation, Code, Cpu, Terminal, CheckCircle, Pencil, FolderInput, ChevronDown, ChevronRight, FileArchive } from "lucide-react";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 
@@ -96,7 +96,7 @@ export default function Admin() {
   // Upload mutations
   const uploadFile = trpc.upload.file.useMutation();
   const getPresignedUrl = trpc.upload.getPresignedUrl.useMutation();
-  const getPPTThumbnail = trpc.upload.getPPTThumbnail.useMutation();
+
 
   const [showProjectDialog, setShowProjectDialog] = useState(false);
   const [showCertDialog, setShowCertDialog] = useState(false);
@@ -105,7 +105,7 @@ export default function Admin() {
   const [showCreateFolderDialog, setShowCreateFolderDialog] = useState(false);
   const [showRenameFolderDialog, setShowRenameFolderDialog] = useState(false);
   const [editingResource, setEditingResource] = useState<any>(null);
-  const [renamingFolder, setRenamingFolder] = useState<{category: ResourceCategory, oldName: string, newName: string} | null>(null);
+  const [renamingFolder, setRenamingFolder] = useState<{ category: ResourceCategory, oldName: string, newName: string } | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
@@ -198,7 +198,7 @@ export default function Admin() {
         resourcesToMove.map(resource =>
           updateResource.mutateAsync({
             id: resource.id,
-            subcategory: null,
+            subcategory: "",
           })
         )
       );
@@ -258,28 +258,28 @@ export default function Admin() {
   // 🚀 Presigned URL 업로드 (대용량 파일 지원)
   // ============================================
   const handleFileUpload = useCallback(async (file: File, onComplete: (url: string, key: string, thumbUrl?: string, thumbKey?: string) => void) => {
-    if (file.size > MAX_FILE_SIZE) { 
-      toast.error(`Max ${MAX_FILE_SIZE / 1024 / 1024}MB allowed`); 
-      return; 
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error(`Max ${MAX_FILE_SIZE / 1024 / 1024}MB allowed`);
+      return;
     }
-    
-    setUploading(true); 
+
+    setUploading(true);
     setUploadProgress(0);
-    
+
     try {
       let result: { url: string; key: string };
-      
+
       // 작은 파일 (10MB 이하) - 기존 Base64 방식
       if (file.size <= SMALL_FILE_THRESHOLD) {
         const base64 = await fileToBase64(file);
         setUploadProgress(50);
-        result = await uploadFile.mutateAsync({ 
-          fileName: file.name, 
-          fileContent: base64, 
-          contentType: file.type || "application/octet-stream" 
+        result = await uploadFile.mutateAsync({
+          fileName: file.name,
+          fileContent: base64,
+          contentType: file.type || "application/octet-stream"
         });
         setUploadProgress(100);
-      } 
+      }
       // 큰 파일 - Presigned URL 방식 (R2 직접 업로드)
       else {
         // 1. Presigned URL 받기
@@ -289,13 +289,13 @@ export default function Admin() {
           contentType: file.type || "application/octet-stream",
           fileSize: file.size,
         });
-        
+
         // 2. R2에 직접 업로드 (진행률 추적)
         setUploadProgress(10);
         await uploadToPresignedUrl(presigned.presignedUrl, file, (progress) => {
           setUploadProgress(10 + Math.round(progress * 85));
         });
-        
+
         setUploadProgress(100);
         result = { url: presigned.publicUrl, key: presigned.key };
       }
@@ -313,7 +313,7 @@ export default function Admin() {
       // PPT 썸네일 자동 생성은 Office Online Viewer API가 R2 URL을 지원하지 않아 비활성화됨
       // 사용자가 수동으로 썸네일을 업로드할 수 있습니다
       if (file.type.includes('presentation') || file.type.includes('powerpoint') || file.name.endsWith('.ppt') || file.name.endsWith('.pptx')) {
-        console.log("📄 PPT 파일 감지 - 썸네일은 수동으로 업로드해주세요 (Office API는 R2 URL 미지원)");
+        console.log("📄 PPT 파일 감지 - 썸네일은 수동으로 업로드해주세요");
       }
 
       onComplete(result.url, result.key, thumbUrl, thumbKey);
@@ -339,13 +339,13 @@ export default function Admin() {
   const uploadToPresignedUrl = async (url: string, file: File, onProgress: (progress: number) => void): Promise<void> => {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
-      
+
       xhr.upload.addEventListener("progress", (e) => {
         if (e.lengthComputable) {
           onProgress(e.loaded / e.total);
         }
       });
-      
+
       xhr.addEventListener("load", () => {
         if (xhr.status >= 200 && xhr.status < 300) {
           resolve();
@@ -353,10 +353,10 @@ export default function Admin() {
           reject(new Error(`Upload failed with status ${xhr.status}`));
         }
       });
-      
+
       xhr.addEventListener("error", () => reject(new Error("Upload failed")));
       xhr.addEventListener("abort", () => reject(new Error("Upload aborted")));
-      
+
       xhr.open("PUT", url);
       xhr.setRequestHeader("Content-Type", file.type || "application/octet-stream");
       xhr.send(file);
@@ -385,28 +385,7 @@ export default function Admin() {
     });
   };
 
-  // PPT 썸네일 생성 (서버 사이드 Office Online Viewer API 사용 - CORS 우회)
-  const genPPTThumb = async (pptUrl: string): Promise<string | null> => {
-    try {
-      console.log("🎯 PPT 썸네일 생성 시작:", pptUrl);
 
-      // 서버 사이드에서 썸네일을 가져와서 CORS 문제 해결
-      const result = await getPPTThumbnail.mutateAsync({ pptUrl });
-
-      console.log("📊 PPT 썸네일 응답:", JSON.stringify(result, null, 2));
-
-      if (result.success && result.thumbnail) {
-        console.log("✅ PPT 썸네일 생성 성공 (길이:", result.thumbnail.length, "chars)");
-        return result.thumbnail;
-      }
-
-      console.warn("⚠️ PPT 썸네일 생성 실패 - Office API에서 썸네일을 가져올 수 없습니다", result);
-      return null;
-    } catch (error) {
-      console.error("❌ PPT thumbnail generation failed:", error);
-      return null;
-    }
-  };
 
   const getFileTypeIcon = (mimeType: string, fileName: string) => {
     if (mimeType?.includes('presentation') || mimeType?.includes('powerpoint') || fileName?.endsWith('.ppt') || fileName?.endsWith('.pptx')) {
@@ -420,6 +399,9 @@ export default function Admin() {
     }
     if (mimeType?.startsWith('image/')) {
       return <ImageIcon className="w-5 h-5 text-blue-400" />;
+    }
+    if (fileName?.endsWith('.zip') || fileName?.endsWith('.rar') || fileName?.endsWith('.7z') || fileName?.endsWith('.tar') || mimeType?.includes('zip') || mimeType?.includes('compressed') || mimeType?.includes('archive')) {
+      return <FileArchive className="w-5 h-5 text-yellow-400" />;
     }
     return <FileText className="w-5 h-5 text-gray-400" />;
   };
@@ -519,28 +501,28 @@ export default function Admin() {
                     </DialogHeader>
                     <div className="space-y-5 py-4">
                       <div className="grid grid-cols-2 gap-4">
-                        <div><Label className="text-white/70">Title *</Label><Input value={projectForm.title} onChange={e => setProjectForm({...projectForm, title: e.target.value})} className="mt-1.5 bg-white/5 border-white/10 text-white" placeholder="Project title" /></div>
+                        <div><Label className="text-white/70">Title *</Label><Input value={projectForm.title} onChange={e => setProjectForm({ ...projectForm, title: e.target.value })} className="mt-1.5 bg-white/5 border-white/10 text-white" placeholder="Project title" /></div>
                         <div><Label className="text-white/70">Category *</Label>
-                          <Select value={projectForm.category} onValueChange={(v: ProjectCategory) => setProjectForm({...projectForm, category: v})}>
+                          <Select value={projectForm.category} onValueChange={(v: ProjectCategory) => setProjectForm({ ...projectForm, category: v })}>
                             <SelectTrigger className="mt-1.5 bg-white/5 border-white/10 text-white"><SelectValue /></SelectTrigger>
                             <SelectContent className="bg-[#111] border-white/10">{PROJECT_CATEGORIES.map(c => (<SelectItem key={c.value} value={c.value} className="text-white hover:bg-white/10"><div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full" style={{ backgroundColor: c.color }} />{c.label}</div></SelectItem>))}</SelectContent>
                           </Select>
                         </div>
                       </div>
-                      <div><Label className="text-white/70">Description *</Label><Textarea value={projectForm.description} onChange={e => setProjectForm({...projectForm, description: e.target.value})} rows={3} className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
-                      <div><Label className="text-white/70">Technologies *</Label><Input value={projectForm.technologies} onChange={e => setProjectForm({...projectForm, technologies: e.target.value})} placeholder="C, Python, Arduino" className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
+                      <div><Label className="text-white/70">Description *</Label><Textarea value={projectForm.description} onChange={e => setProjectForm({ ...projectForm, description: e.target.value })} rows={3} className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
+                      <div><Label className="text-white/70">Technologies *</Label><Input value={projectForm.technologies} onChange={e => setProjectForm({ ...projectForm, technologies: e.target.value })} placeholder="C, Python, Arduino" className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
                       <div className="grid grid-cols-2 gap-4">
-                        <div><Label className="text-white/70">Project URL</Label><Input value={projectForm.projectUrl} onChange={e => setProjectForm({...projectForm, projectUrl: e.target.value})} className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
-                        <div><Label className="text-white/70">GitHub URL</Label><Input value={projectForm.githubUrl} onChange={e => setProjectForm({...projectForm, githubUrl: e.target.value})} className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
+                        <div><Label className="text-white/70">Project URL</Label><Input value={projectForm.projectUrl} onChange={e => setProjectForm({ ...projectForm, projectUrl: e.target.value })} className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
+                        <div><Label className="text-white/70">GitHub URL</Label><Input value={projectForm.githubUrl} onChange={e => setProjectForm({ ...projectForm, githubUrl: e.target.value })} className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
                       </div>
                       <div><Label className="text-white/70">Project Image</Label>
                         <div className="mt-1.5 border-2 border-dashed border-white/10 rounded-xl p-6 text-center hover:border-emerald-400/50">
-                          {projectForm.imageUrl ? (<div className="relative"><img src={projectForm.imageUrl} className="max-h-40 mx-auto rounded-lg" /><button onClick={() => setProjectForm({...projectForm, imageUrl: "", imageKey: ""})} className="absolute top-2 right-2 p-1 bg-black/50 rounded-full"><X className="w-4 h-4 text-white" /></button></div>) : (
-                            <label className="cursor-pointer"><ImageIcon className="w-8 h-8 mx-auto text-white/30 mb-2" /><span className="text-white/50 text-sm">Upload image</span><input type="file" accept={ACCEPTED_FILE_TYPES.image} className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleFileUpload(f, (url, key) => setProjectForm({...projectForm, imageUrl: url, imageKey: key})); }} /></label>
+                          {projectForm.imageUrl ? (<div className="relative"><img src={projectForm.imageUrl} className="max-h-40 mx-auto rounded-lg" /><button onClick={() => setProjectForm({ ...projectForm, imageUrl: "", imageKey: "" })} className="absolute top-2 right-2 p-1 bg-black/50 rounded-full"><X className="w-4 h-4 text-white" /></button></div>) : (
+                            <label className="cursor-pointer"><ImageIcon className="w-8 h-8 mx-auto text-white/30 mb-2" /><span className="text-white/50 text-sm">Upload image</span><input type="file" accept={ACCEPTED_FILE_TYPES.image} className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleFileUpload(f, (url, key) => setProjectForm({ ...projectForm, imageUrl: url, imageKey: key })); }} /></label>
                           )}
                         </div>
                       </div>
-                      <div><Label className="text-white/70">Video (YouTube URL)</Label><Input value={projectForm.videoUrl} onChange={e => setProjectForm({...projectForm, videoUrl: e.target.value})} className="mt-1.5 bg-white/5 border-white/10 text-white" placeholder="https://youtube.com/watch?v=..." /></div>
+                      <div><Label className="text-white/70">Video (YouTube URL)</Label><Input value={projectForm.videoUrl} onChange={e => setProjectForm({ ...projectForm, videoUrl: e.target.value })} className="mt-1.5 bg-white/5 border-white/10 text-white" placeholder="https://youtube.com/watch?v=..." /></div>
                       {uploading && (<div className="space-y-2"><Progress value={uploadProgress} className="h-2" /><p className="text-sm text-white/50 text-center">Uploading... {uploadProgress}%</p></div>)}
                       <Button onClick={() => createProject.mutate(projectForm)} disabled={!projectForm.title || !projectForm.description || !projectForm.technologies || uploading} className="w-full bg-emerald-500 hover:bg-emerald-600 text-black rounded-xl">{createProject.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Create Project</Button>
                     </div>
@@ -575,17 +557,17 @@ export default function Admin() {
                     </DialogHeader>
                     <div className="space-y-5 py-4">
                       <div className="grid grid-cols-2 gap-4">
-                        <div><Label className="text-white/70">Title *</Label><Input value={certForm.title} onChange={e => setCertForm({...certForm, title: e.target.value})} className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
-                        <div><Label className="text-white/70">Issuer *</Label><Input value={certForm.issuer} onChange={e => setCertForm({...certForm, issuer: e.target.value})} className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
+                        <div><Label className="text-white/70">Title *</Label><Input value={certForm.title} onChange={e => setCertForm({ ...certForm, title: e.target.value })} className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
+                        <div><Label className="text-white/70">Issuer *</Label><Input value={certForm.issuer} onChange={e => setCertForm({ ...certForm, issuer: e.target.value })} className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
                       </div>
                       <div className="grid grid-cols-2 gap-4">
-                        <div><Label className="text-white/70">Issue Date *</Label><Input type="date" value={certForm.issueDate} onChange={e => setCertForm({...certForm, issueDate: e.target.value})} className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
-                        <div><Label className="text-white/70">Expiry Date</Label><Input type="date" value={certForm.expiryDate} onChange={e => setCertForm({...certForm, expiryDate: e.target.value})} className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
+                        <div><Label className="text-white/70">Issue Date *</Label><Input type="date" value={certForm.issueDate} onChange={e => setCertForm({ ...certForm, issueDate: e.target.value })} className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
+                        <div><Label className="text-white/70">Expiry Date</Label><Input type="date" value={certForm.expiryDate} onChange={e => setCertForm({ ...certForm, expiryDate: e.target.value })} className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
                       </div>
                       <div><Label className="text-white/70">Certificate Image</Label>
                         <div className="mt-1.5 border-2 border-dashed border-white/10 rounded-xl p-6 text-center">
-                          {certForm.imageUrl ? (<div className="relative"><img src={certForm.imageUrl} className="max-h-40 mx-auto rounded-lg" /><button onClick={() => setCertForm({...certForm, imageUrl: "", imageKey: ""})} className="absolute top-2 right-2 p-1 bg-black/50 rounded-full"><X className="w-4 h-4 text-white" /></button></div>) : (
-                            <label className="cursor-pointer"><Award className="w-8 h-8 mx-auto text-white/30 mb-2" /><span className="text-white/50 text-sm">Upload</span><input type="file" accept={ACCEPTED_FILE_TYPES.image} className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleFileUpload(f, (url, key) => setCertForm({...certForm, imageUrl: url, imageKey: key})); }} /></label>
+                          {certForm.imageUrl ? (<div className="relative"><img src={certForm.imageUrl} className="max-h-40 mx-auto rounded-lg" /><button onClick={() => setCertForm({ ...certForm, imageUrl: "", imageKey: "" })} className="absolute top-2 right-2 p-1 bg-black/50 rounded-full"><X className="w-4 h-4 text-white" /></button></div>) : (
+                            <label className="cursor-pointer"><Award className="w-8 h-8 mx-auto text-white/30 mb-2" /><span className="text-white/50 text-sm">Upload</span><input type="file" accept={ACCEPTED_FILE_TYPES.image} className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleFileUpload(f, (url, key) => setCertForm({ ...certForm, imageUrl: url, imageKey: key })); }} /></label>
                           )}
                         </div>
                       </div>
@@ -746,9 +728,9 @@ export default function Admin() {
                     </DialogHeader>
                     <div className="space-y-5 py-4">
                       <div className="grid grid-cols-2 gap-4">
-                        <div><Label className="text-white/70">Title *</Label><Input value={resourceForm.title} onChange={e => setResourceForm({...resourceForm, title: e.target.value})} className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
+                        <div><Label className="text-white/70">Title *</Label><Input value={resourceForm.title} onChange={e => setResourceForm({ ...resourceForm, title: e.target.value })} className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
                         <div><Label className="text-white/70">Category *</Label>
-                          <Select value={resourceForm.category} onValueChange={(v: ResourceCategory) => setResourceForm({...resourceForm, category: v})}>
+                          <Select value={resourceForm.category} onValueChange={(v: ResourceCategory) => setResourceForm({ ...resourceForm, category: v })}>
                             <SelectTrigger className="mt-1.5 bg-white/5 border-white/10 text-white"><SelectValue /></SelectTrigger>
                             <SelectContent className="bg-[#111] border-white/10">{RESOURCE_CATEGORIES.map(c => (<SelectItem key={c.value} value={c.value} className="text-white hover:bg-white/10"><div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full" style={{ backgroundColor: c.color }} />{c.label}</div></SelectItem>))}</SelectContent>
                           </Select>
@@ -762,8 +744,8 @@ export default function Admin() {
 
                         {/* Get all unique folders from both DB and resources */}
                         {(() => {
-                          const dbFolders = folders?.filter(f => f.category === resourceForm.category).map(f => f.name) || [];
-                          const resourceFolders = resources?.filter(r => r.category === resourceForm.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i) || [];
+                          const dbFolders = (folders || []).filter(f => f.category === resourceForm.category).map(f => f.name);
+                          const resourceFolders = (resources || []).filter(r => r.category === resourceForm.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i);
                           const allFolders = [...new Set([...dbFolders, ...resourceFolders])];
 
                           return allFolders.length > 0 ? (
@@ -776,9 +758,9 @@ export default function Admin() {
                                 }
                                 onValueChange={(v) => {
                                   if (v === "custom") {
-                                    setResourceForm({...resourceForm, subcategory: ""});
+                                    setResourceForm({ ...resourceForm, subcategory: "" });
                                   } else {
-                                    setResourceForm({...resourceForm, subcategory: v});
+                                    setResourceForm({ ...resourceForm, subcategory: v });
                                   }
                                 }}
                               >
@@ -800,7 +782,7 @@ export default function Admin() {
                               {!allFolders.includes(resourceForm.subcategory) && (
                                 <Input
                                   value={resourceForm.subcategory}
-                                  onChange={e => setResourceForm({...resourceForm, subcategory: e.target.value})}
+                                  onChange={e => setResourceForm({ ...resourceForm, subcategory: e.target.value })}
                                   placeholder="Enter new folder name (e.g., Arduino, Chapter 1-5)"
                                   className="bg-white/5 border-white/10 text-white"
                                 />
@@ -809,7 +791,7 @@ export default function Admin() {
                           ) : (
                             <Input
                               value={resourceForm.subcategory}
-                              onChange={e => setResourceForm({...resourceForm, subcategory: e.target.value})}
+                              onChange={e => setResourceForm({ ...resourceForm, subcategory: e.target.value })}
                               placeholder="e.g., Arduino, Python Basics, Chapter 1-5"
                               className="mt-1.5 bg-white/5 border-white/10 text-white"
                             />
@@ -817,8 +799,8 @@ export default function Admin() {
                         })()}
                       </div>
 
-                      <div><Label className="text-white/70">Description</Label><Textarea value={resourceForm.description} onChange={e => setResourceForm({...resourceForm, description: e.target.value})} rows={2} className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
-                      
+                      <div><Label className="text-white/70">Description</Label><Textarea value={resourceForm.description} onChange={e => setResourceForm({ ...resourceForm, description: e.target.value })} rows={2} className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
+
                       {/* 파일 업로드 - 500MB 지원 */}
                       <div>
                         <Label className="text-white/70">File (up to 500MB)</Label>
@@ -830,7 +812,7 @@ export default function Admin() {
                                 <p className="text-white text-sm truncate max-w-[200px]">{resourceForm.fileName}</p>
                                 <p className="text-white/40 text-xs">{formatFileSize(resourceForm.fileSize)}</p>
                               </div>
-                              <button onClick={() => setResourceForm({...resourceForm, fileUrl: "", fileKey: "", fileName: "", fileSize: 0, mimeType: ""})} className="p-1 bg-white/10 rounded-full hover:bg-white/20"><X className="w-4 h-4 text-white" /></button>
+                              <button onClick={() => setResourceForm({ ...resourceForm, fileUrl: "", fileKey: "", fileName: "", fileSize: 0, mimeType: "" })} className="p-1 bg-white/10 rounded-full hover:bg-white/20"><X className="w-4 h-4 text-white" /></button>
                             </div>
                           ) : (
                             <label className="cursor-pointer">
@@ -844,7 +826,7 @@ export default function Admin() {
                               <input type="file" accept={ACCEPTED_FILE_TYPES.all} className="hidden" onChange={e => {
                                 const f = e.target.files?.[0];
                                 if (f) handleFileUpload(f, (url, key, thumbUrl, thumbKey) => {
-                                  setResourceForm({...resourceForm, fileUrl: url, fileKey: key, fileName: f.name, fileSize: f.size, mimeType: f.type, thumbnailUrl: thumbUrl || "", thumbnailKey: thumbKey || ""});
+                                  setResourceForm({ ...resourceForm, fileUrl: url, fileKey: key, fileName: f.name, fileSize: f.size, mimeType: f.type, thumbnailUrl: thumbUrl || "", thumbnailKey: thumbKey || "" });
                                 });
                               }} />
                             </label>
@@ -853,19 +835,19 @@ export default function Admin() {
                       </div>
 
                       {/* YouTube URL */}
-                      <div><Label className="text-white/70">Or YouTube URL</Label><Input value={resourceForm.fileUrl.includes('youtube') || resourceForm.fileUrl.includes('youtu.be') ? resourceForm.fileUrl : ''} onChange={e => setResourceForm({...resourceForm, fileUrl: e.target.value, mimeType: 'video/youtube'})} className="mt-1.5 bg-white/5 border-white/10 text-white" placeholder="https://youtube.com/watch?v=..." /></div>
+                      <div><Label className="text-white/70">Or YouTube URL</Label><Input value={resourceForm.fileUrl.includes('youtube') || resourceForm.fileUrl.includes('youtu.be') ? resourceForm.fileUrl : ''} onChange={e => setResourceForm({ ...resourceForm, fileUrl: e.target.value, mimeType: 'video/youtube' })} className="mt-1.5 bg-white/5 border-white/10 text-white" placeholder="https://youtube.com/watch?v=..." /></div>
 
                       {/* Thumbnail */}
                       <div><Label className="text-white/70">Thumbnail (optional)</Label>
                         <div className="mt-1.5 border-2 border-dashed border-white/10 rounded-xl p-4 text-center">
-                          {resourceForm.thumbnailUrl ? (<div className="relative inline-block"><img src={resourceForm.thumbnailUrl} className="max-h-24 rounded-lg" /><button onClick={() => setResourceForm({...resourceForm, thumbnailUrl: "", thumbnailKey: ""})} className="absolute -top-2 -right-2 p-1 bg-black/50 rounded-full"><X className="w-3 h-3 text-white" /></button></div>) : (
-                            <label className="cursor-pointer"><ImageIcon className="w-6 h-6 mx-auto text-white/30 mb-1" /><span className="text-white/50 text-xs">Upload thumbnail</span><input type="file" accept={ACCEPTED_FILE_TYPES.image} className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleFileUpload(f, (url, key) => setResourceForm({...resourceForm, thumbnailUrl: url, thumbnailKey: key})); }} /></label>
+                          {resourceForm.thumbnailUrl ? (<div className="relative inline-block"><img src={resourceForm.thumbnailUrl} className="max-h-24 rounded-lg" /><button onClick={() => setResourceForm({ ...resourceForm, thumbnailUrl: "", thumbnailKey: "" })} className="absolute -top-2 -right-2 p-1 bg-black/50 rounded-full"><X className="w-3 h-3 text-white" /></button></div>) : (
+                            <label className="cursor-pointer"><ImageIcon className="w-6 h-6 mx-auto text-white/30 mb-1" /><span className="text-white/50 text-xs">Upload thumbnail</span><input type="file" accept={ACCEPTED_FILE_TYPES.image} className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleFileUpload(f, (url, key) => setResourceForm({ ...resourceForm, thumbnailUrl: url, thumbnailKey: key })); }} /></label>
                           )}
                         </div>
                       </div>
 
                       {uploading && (<div className="space-y-2"><Progress value={uploadProgress} className="h-2" /><p className="text-sm text-white/50 text-center">{uploadProgress < 95 ? `Uploading... ${uploadProgress}%` : 'Finalizing...'}</p></div>)}
-                      
+
                       <Button onClick={() => createResource.mutate(resourceForm)} disabled={!resourceForm.title || !resourceForm.fileUrl || uploading} className="w-full bg-emerald-500 hover:bg-emerald-600 text-black rounded-xl">{createResource.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Add Resource</Button>
                     </div>
                   </DialogContent>
@@ -907,13 +889,13 @@ export default function Admin() {
                   <Label className="text-white/70">Title *</Label>
                   <Input
                     value={editingResource.title}
-                    onChange={e => setEditingResource({...editingResource, title: e.target.value})}
+                    onChange={e => setEditingResource({ ...editingResource, title: e.target.value })}
                     className="mt-1.5 bg-white/5 border-white/10 text-white"
                   />
                 </div>
                 <div>
                   <Label className="text-white/70">Category *</Label>
-                  <Select value={editingResource.category} onValueChange={(v: ResourceCategory) => setEditingResource({...editingResource, category: v})}>
+                  <Select value={editingResource.category} onValueChange={(v: ResourceCategory) => setEditingResource({ ...editingResource, category: v })}>
                     <SelectTrigger className="mt-1.5 bg-white/5 border-white/10 text-white"><SelectValue /></SelectTrigger>
                     <SelectContent className="bg-[#111] border-white/10">
                       {RESOURCE_CATEGORIES.map(c => (
@@ -939,8 +921,8 @@ export default function Admin() {
 
                 {/* Get all unique folders from both DB and resources */}
                 {(() => {
-                  const dbFolders = folders?.filter(f => f.category === editingResource.category).map(f => f.name) || [];
-                  const resourceFolders = resources?.filter(r => r.category === editingResource.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i) || [];
+                  const dbFolders = (folders || []).filter(f => f.category === editingResource.category).map(f => f.name);
+                  const resourceFolders = (resources || []).filter(r => r.category === editingResource.category && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i);
                   const allFolders = [...new Set([...dbFolders, ...resourceFolders])];
 
                   return allFolders.length > 0 ? (
@@ -950,16 +932,16 @@ export default function Admin() {
                           editingResource.subcategory === "" || editingResource.subcategory === null
                             ? "none"
                             : allFolders.includes(editingResource.subcategory)
-                            ? editingResource.subcategory
-                            : "custom"
+                              ? editingResource.subcategory
+                              : "custom"
                         }
                         onValueChange={(v) => {
                           if (v === "custom") {
-                            setEditingResource({...editingResource, subcategory: ""});
+                            setEditingResource({ ...editingResource, subcategory: "" });
                           } else if (v === "none") {
-                            setEditingResource({...editingResource, subcategory: null});
+                            setEditingResource({ ...editingResource, subcategory: null });
                           } else {
-                            setEditingResource({...editingResource, subcategory: v});
+                            setEditingResource({ ...editingResource, subcategory: v });
                           }
                         }}
                       >
@@ -984,7 +966,7 @@ export default function Admin() {
                       {editingResource.subcategory !== null && !allFolders.includes(editingResource.subcategory) && (
                         <Input
                           value={editingResource.subcategory || ""}
-                          onChange={e => setEditingResource({...editingResource, subcategory: e.target.value})}
+                          onChange={e => setEditingResource({ ...editingResource, subcategory: e.target.value })}
                           placeholder="Enter new folder name (e.g., Arduino, Chapter 1-5)"
                           className="bg-white/5 border-white/10 text-white"
                         />
@@ -993,7 +975,7 @@ export default function Admin() {
                   ) : (
                     <Input
                       value={editingResource.subcategory || ""}
-                      onChange={e => setEditingResource({...editingResource, subcategory: e.target.value})}
+                      onChange={e => setEditingResource({ ...editingResource, subcategory: e.target.value })}
                       placeholder="e.g., Arduino, Python Basics, Chapter 1-5"
                       className="mt-1.5 bg-white/5 border-white/10 text-white"
                     />
@@ -1005,7 +987,7 @@ export default function Admin() {
                 <Label className="text-white/70">Description</Label>
                 <Textarea
                   value={editingResource.description || ""}
-                  onChange={e => setEditingResource({...editingResource, description: e.target.value})}
+                  onChange={e => setEditingResource({ ...editingResource, description: e.target.value })}
                   rows={2}
                   className="mt-1.5 bg-white/5 border-white/10 text-white"
                 />
@@ -1098,11 +1080,11 @@ export default function Admin() {
             </div>
 
             {/* Existing folders in category */}
-            {resources?.filter(r => r.category === selectedCategory && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).length > 0 && (
+            {(resources || []).filter(r => r.category === selectedCategory && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).length > 0 && (
               <div>
                 <p className="text-white/50 text-xs mb-2">Existing folders:</p>
                 <div className="flex flex-wrap gap-1.5">
-                  {resources?.filter(r => r.category === selectedCategory && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).map(folder => (
+                  {(resources || []).filter(r => r.category === selectedCategory && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).map(folder => (
                     <span key={folder} className="px-2 py-1 bg-white/10 rounded-md text-xs text-white/50">
                       📁 {folder}
                     </span>
@@ -1166,7 +1148,7 @@ export default function Admin() {
               <Label className="text-white/70">New Name *</Label>
               <Input
                 value={renamingFolder?.newName || ""}
-                onChange={e => setRenamingFolder(renamingFolder ? {...renamingFolder, newName: e.target.value} : null)}
+                onChange={e => setRenamingFolder(renamingFolder ? { ...renamingFolder, newName: e.target.value } : null)}
                 placeholder="Enter new folder name"
                 className="mt-1.5 bg-white/5 border-white/10 text-white"
                 autoFocus

@@ -13,6 +13,9 @@ import { SerialMonitor } from './panels/SerialMonitor';
 import { ComponentLibrary } from './panels/ComponentLibrary';
 import { useCircuitStore, ComponentType } from './store';
 import { Arduino3D, Breadboard3D, LED3D, Resistor3D, Button3D, Wire3D } from './3d';
+import { InteractionManager } from './3d/InteractionManager';
+import { InteractiveWrapper } from './3d/InteractiveWrapper';
+import { getPinWorldPosition } from './3d/utils';
 
 import { NetlistManager } from '@/lib/circuit/kernel/NetlistManager';
 import { SimulationEngine } from '@/lib/circuit/sim/SimulationEngine';
@@ -35,15 +38,13 @@ import {
   Minimize2,
   Zap,
   Home,
-  Layers,
-  Eye,
-  EyeOff,
+  Trash2,
 } from 'lucide-react';
 import { Link } from 'wouter';
 
 // 3D Scene Component
 function CircuitScene() {
-  const { components, wires, selectedId, setSelectedId, updateComponent } = useCircuitStore();
+  const { components, wires, selectedId, setSelectedId, updateComponent, draftWire } = useCircuitStore();
 
   return (
     <>
@@ -84,92 +85,118 @@ function CircuitScene() {
         followCamera={false}
       />
 
+      <InteractionManager />
+
       {/* Components */}
       {components.map((component) => {
         const isSelected = selectedId === component.id;
 
-        switch (component.type) {
-          case 'arduino':
-            return (
-              <Arduino3D
-                key={component.id}
-                position={component.position}
-                rotation={component.rotation}
-                onClick={() => setSelectedId(component.id)}
-                isSelected={isSelected}
-              />
-            );
-          case 'breadboard':
-            return (
-              <Breadboard3D
-                key={component.id}
-                position={component.position}
-                rotation={component.rotation}
-                onClick={() => setSelectedId(component.id)}
-                isSelected={isSelected}
-              />
-            );
-          case 'led':
-            return (
-              <LED3D
-                key={component.id}
-                position={component.position}
-                color={component.properties?.color || '#ff0000'}
-                isOn={component.properties?.isOn || false}
-                brightness={component.properties?.brightness || 1}
-                onClick={() => setSelectedId(component.id)}
-                isSelected={isSelected}
-              />
-            );
-          case 'resistor':
-            return (
-              <Resistor3D
-                key={component.id}
-                position={component.position}
-                rotation={component.rotation}
-                value={component.properties?.value || 220}
-                onClick={() => setSelectedId(component.id)}
-                isSelected={isSelected}
-              />
-            );
-          case 'button':
-            return (
-              <Button3D
-                key={component.id}
-                position={component.position}
-                isPressed={component.properties?.isPressed || false}
-                onPress={() => updateComponent(component.id, {
-                  properties: { ...component.properties, isPressed: true }
-                })}
-                onRelease={() => updateComponent(component.id, {
-                  properties: { ...component.properties, isPressed: false }
-                })}
-                onClick={() => setSelectedId(component.id)}
-                isSelected={isSelected}
-              />
-            );
-          default:
-            return null;
-        }
+        const renderComponent = () => {
+          switch (component.type) {
+            case 'arduino':
+              return (
+                <Arduino3D
+                  id={component.id}
+                  position={component.position}
+                  rotation={component.rotation}
+                  isSelected={isSelected}
+                />
+              );
+            case 'breadboard':
+              return (
+                <Breadboard3D
+                  id={component.id}
+                  position={component.position}
+                  rotation={component.rotation}
+                  isSelected={isSelected}
+                />
+              );
+            case 'led':
+              return (
+                <LED3D
+                  id={component.id}
+                  position={component.position}
+                  color={component.properties?.color || '#ff0000'}
+                  isOn={component.properties?.isOn || false}
+                  brightness={component.properties?.brightness || 1}
+                  isSelected={isSelected}
+                />
+              );
+            case 'resistor':
+              return (
+                <Resistor3D
+                  id={component.id}
+                  position={component.position}
+                  rotation={component.rotation}
+                  value={component.properties?.value || 220}
+                  isSelected={isSelected}
+                />
+              );
+            case 'button':
+              return (
+                <Button3D
+                  id={component.id}
+                  position={component.position}
+                  isPressed={component.properties?.isPressed || false}
+                  onPress={() => updateComponent(component.id, {
+                    properties: { ...component.properties, isPressed: true }
+                  })}
+                  onRelease={() => updateComponent(component.id, {
+                    properties: { ...component.properties, isPressed: false }
+                  })}
+                  isSelected={isSelected}
+                />
+              );
+            default:
+              return null;
+          }
+        };
+
+        return (
+          <InteractiveWrapper key={component.id} id={component.id}>
+            {renderComponent()}
+          </InteractiveWrapper>
+        );
       })}
 
       {/* Wires */}
-      {wires.map((wire) => (
+      {wires.map((wire) => {
+        let start = wire.startPoint;
+        let end = wire.endPoint;
+
+        if (wire.startPinId && wire.endPinId) {
+          const sPos = getPinWorldPosition(wire.startPinId.split('_pin_')[0], wire.startPinId, components);
+          const ePos = getPinWorldPosition(wire.endPinId.split('_pin_')[0], wire.endPinId, components);
+          if (sPos) start = sPos;
+          if (ePos) end = ePos;
+        }
+
+        return (
+          <Wire3D
+            key={wire.id}
+            start={start}
+            end={end}
+            color={wire.color}
+            isSelected={selectedId === wire.id}
+            onClick={() => setSelectedId(wire.id)}
+          />
+        );
+      })}
+
+      {/* Draft Wire */}
+      {draftWire && (
         <Wire3D
-          key={wire.id}
-          start={wire.startPoint}
-          end={wire.endPoint}
-          color={wire.color}
-          isSelected={selectedId === wire.id}
-          onClick={() => setSelectedId(wire.id)}
+          start={getPinWorldPosition(draftWire.startPin.split('_pin_')[0], draftWire.startPin, components) || [0, 0, 0]}
+          end={draftWire.endPosition}
+          color="#888888"
         />
-      ))}
+      )}
     </>
   );
 }
 
 export function CircuitLabApp() {
-  const { components, addComponent, updateComponent, isSimulating, setSimulating, reset } = useCircuitStore();
+  const { components, addComponent, removeComponent, updateComponent, setSelectedId, isSimulating, setSimulating, reset } = useCircuitStore();
 
   // Refs
   const netlistRef = useRef<NetlistManager | null>(null);
@@ -301,174 +328,266 @@ export function CircuitLabApp() {
   }, []);
 
   return (
-    <div className="h-screen flex flex-col bg-[#1a1a2e] text-gray-200 overflow-hidden">
+    <div className="h-screen flex flex-col bg-slate-50 text-slate-900 overflow-hidden">
       {/* Header */}
-      <header className="h-12 flex items-center justify-between px-4 bg-[#16162a] border-b border-[#2a2a4a]">
+      <header className="h-14 flex items-center justify-between px-4 bg-white border-b border-slate-200 shadow-sm z-10">
         <div className="flex items-center gap-4">
           <Link href="/">
-            <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
-              <Home className="w-4 h-4 mr-2" />
-              Home
+            <Button variant="ghost" size="icon" className="text-slate-500 hover:text-slate-900">
+              <Home className="w-5 h-5" />
             </Button>
           </Link>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+          <div className="flex items-center gap-3 border-r border-slate-200 pr-4">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-md">
               <Cpu className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-sm font-bold text-white">Circuit Lab</h1>
-              <p className="text-[10px] text-gray-500">3D Arduino Simulator</p>
+              <h1 className="text-base font-bold text-slate-900 tracking-tight">Circuit Lab</h1>
+              <div className="flex items-center gap-2">
+                <p className="text-[10px] text-slate-500 font-medium">Arduino Interactive Simulator</p>
+                <Badge variant="outline" className="text-[10px] h-4 px-1 border-blue-200 text-blue-600 bg-blue-50">v2.0 Beta</Badge>
+              </div>
             </div>
+          </div>
+
+          {/* Action Toolbar (Tinkercad style) */}
+          <div className="flex items-center gap-1 ml-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-slate-500 hover:bg-slate-100 rounded-md"
+              title="Rotate Selected (R)"
+              onClick={() => {
+                const { selectedId, components, updateComponent } = useCircuitStore.getState();
+                if (selectedId && !selectedId.startsWith('wire_')) {
+                  const comp = components.find(c => c.id === selectedId);
+                  if (comp) {
+                    const newRotation: [number, number, number] = [
+                      comp.rotation[0],
+                      comp.rotation[1] + Math.PI / 2,
+                      comp.rotation[2]
+                    ];
+                    updateComponent(selectedId, { rotation: newRotation });
+                  }
+                }
+              }}
+            >
+              <RotateCcw className="w-4 h-4" />
+            </Button>
+            <div className="w-px h-4 bg-slate-200 mx-1" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-slate-500 hover:bg-red-50 hover:text-red-600 rounded-md"
+              title="Delete Selected"
+              onClick={() => {
+                const { selectedId, removeComponent, removeWire } = useCircuitStore.getState();
+                if (selectedId) {
+                  if (selectedId.startsWith('wire_')) {
+                    removeWire(selectedId);
+                  } else {
+                    removeComponent(selectedId);
+                  }
+                }
+              }}
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {/* Simulation controls */}
-          <div className="flex items-center gap-1 bg-[#252540] rounded-lg p-1">
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200">
             {isRunning ? (
               <Button
-                variant="ghost"
                 size="sm"
                 onClick={handleStop}
-                className="h-7 px-3 text-red-400 hover:text-red-300 hover:bg-red-500/20"
+                className="h-8 px-4 bg-red-500 hover:bg-red-600 text-white shadow-sm transition-all"
               >
-                <Square className="w-3.5 h-3.5 mr-1" />
-                Stop
+                <Square className="w-3.5 h-3.5 mr-2 fill-current" />
+                Stop Simulation
               </Button>
             ) : (
               <Button
-                variant="ghost"
                 size="sm"
-                onClick={() => {}}
-                className="h-7 px-3 text-green-400 hover:text-green-300 hover:bg-green-500/20"
+                onClick={() => handleRun(useCircuitStore.getState().code, 'arduino')}
+                className="h-8 px-4 bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm transition-all"
               >
-                <Play className="w-3.5 h-3.5 mr-1" />
-                Run
+                <Play className="w-3.5 h-3.5 mr-2 fill-current" />
+                Start Simulation
               </Button>
             )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleReset}
-              className="h-7 px-2 text-gray-400 hover:text-white"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-            </Button>
+
+            <div className="flex items-center gap-2 px-3 border-l border-slate-200 ml-1">
+              <code className="text-xs font-mono text-slate-500">00:00:00</code>
+            </div>
           </div>
 
-          {/* Status */}
-          <div className="flex items-center gap-2 px-3 py-1 bg-[#252540] rounded-lg">
-            <div className={`w-2 h-2 rounded-full ${isRunning ? 'bg-green-500 animate-pulse' : 'bg-gray-500'}`} />
-            <span className="text-xs text-gray-400">{isRunning ? 'Running' : 'Ready'}</span>
-          </div>
+          <Button
+            variant={activePanel === 'code' ? 'default' : 'outline'}
+            size="sm"
+            className={`gap-2 border-slate-200 transition-all ${activePanel === 'code' ? 'bg-blue-600 text-white border-blue-600' : 'text-slate-700 bg-white hover:bg-slate-50'}`}
+            onClick={() => setActivePanel(activePanel === 'code' ? 'components' : 'code')}
+          >
+            <Code2 className="w-4 h-4" />
+            Code
+          </Button>
 
-          {/* View controls */}
-          <div className="flex items-center gap-1 bg-[#252540] rounded-lg p-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowGrid(!showGrid)}
-              className={`h-7 w-7 p-0 ${showGrid ? 'text-blue-400' : 'text-gray-400'}`}
-            >
-              <Layers className="w-3.5 h-3.5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 w-7 p-0 text-gray-400 hover:text-white"
-            >
-              <Settings className="w-3.5 h-3.5" />
-            </Button>
-          </div>
+          <Button variant="ghost" size="icon" className="text-slate-500">
+            <Settings className="w-5 h-5" />
+          </Button>
         </div>
       </header>
 
       {/* Main content */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden relative">
         <PanelGroup direction="horizontal">
-          {/* Left panel - Component Library */}
-          <Panel defaultSize={18} minSize={15} maxSize={25}>
-            <ComponentLibrary onAddComponent={handleAddComponent} />
+
+          {/* Main Workspace (Center) */}
+          <Panel defaultSize={75} minSize={50} className="relative z-0">
+            {/* 3D Canvas */}
+            <div className="h-full relative bg-[#f5f5f5]">
+              <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:20px_20px] opacity-70 pointer-events-none" />
+
+              <Canvas
+                shadows
+                gl={{
+                  antialias: true,
+                  alpha: true,
+                  powerPreference: 'high-performance',
+                }}
+                dpr={[1, 2]}
+              >
+                <Environment preset="city" />
+                <color attach="background" args={['#f8fafc']} /> {/* Light Background */}
+
+                {/* Controls */}
+                <OrbitControls
+                  makeDefault
+                  enableDamping
+                  dampingFactor={0.05}
+                  minDistance={0.1}
+                  maxDistance={10}
+                  maxPolarAngle={Math.PI / 2.1} // Prevent going below ground
+                />
+
+                <Suspense fallback={null}>
+                  {/* Scene Content */}
+                  <directionalLight position={[10, 20, 10]} intensity={1.5} castShadow shadow-bias={-0.0001} />
+                  <ambientLight intensity={0.6} />
+
+                  {/* Grid Helper - Custom lighter grid */}
+                  <Grid
+                    position={[0, -0.001, 0]}
+                    args={[20, 20]}
+                    cellSize={0.01}
+                    cellThickness={0.5}
+                    cellColor="#e2e8f0"
+                    sectionSize={0.1}
+                    sectionThickness={1}
+                    sectionColor="#cbd5e1"
+                    fadeDistance={5}
+                    infiniteGrid
+                  />
+
+                  <CircuitScene />
+                </Suspense>
+              </Canvas>
+
+              {/* View Overlay Controls */}
+              <div className="absolute top-4 left-4 flex flex-col gap-2">
+                <div className="bg-white p-1 rounded-lg border border-slate-200 shadow-sm flex flex-col gap-1">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded text-slate-600 hover:bg-slate-100"><Maximize2 className="w-4 h-4" /></Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded text-slate-600 hover:bg-slate-100"><Minimize2 className="w-4 h-4" /></Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded text-slate-600 hover:bg-slate-100"><Home className="w-4 h-4" /></Button>
+                </div>
+              </div>
+            </div>
           </Panel>
 
-          <PanelResizeHandle className="w-1 bg-[#2a2a4a] hover:bg-[#4a4a6a] transition-colors" />
-
-          {/* Center panel - 3D View & Code Editor */}
-          <Panel defaultSize={50}>
-            <PanelGroup direction="vertical">
-              {/* 3D View */}
-              <Panel defaultSize={60} minSize={30}>
-                <div className="h-full relative bg-gradient-to-b from-[#1a1a2e] to-[#0f0f1a]">
-                  <Canvas
-                    shadows
-                    gl={{
-                      antialias: true,
-                      alpha: false,
-                      powerPreference: 'high-performance',
-                    }}
-                    dpr={[1, 2]}
-                  >
-                    <color attach="background" args={['#12121f']} />
-                    <fog attach="fog" args={['#12121f', 0.5, 3]} />
-                    <Suspense fallback={null}>
-                      <CircuitScene />
-                    </Suspense>
-                  </Canvas>
-
-                  {/* Overlay controls */}
-                  <div className="absolute bottom-4 left-4 flex items-center gap-2">
-                    <Badge variant="secondary" className="bg-black/50 text-gray-300 backdrop-blur-sm">
-                      <Zap className="w-3 h-3 mr-1 text-yellow-400" />
-                      {components.length} components
-                    </Badge>
-                  </div>
-
-                  <div className="absolute bottom-4 right-4 text-xs text-gray-500 bg-black/30 px-2 py-1 rounded backdrop-blur-sm">
-                    Drag to rotate • Scroll to zoom
+          {activePanel === 'code' && (
+            <>
+              <PanelResizeHandle className="w-1 bg-slate-200 hover:bg-blue-400 transition-colors shadow-sm z-10" />
+              <Panel defaultSize={35} minSize={25} className="bg-[#1e1e1e] border-l border-slate-700 flex flex-col z-20">
+                <div className="h-10 flex items-center justify-between px-4 bg-slate-800 border-b border-slate-700">
+                  <span className="text-xs font-medium text-slate-300 flex items-center gap-2">
+                    <Code2 className="w-3.5 h-3.5 text-blue-400" /> sketch.ino
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-[9px] h-4 border-slate-600 text-slate-400">Arduino Uno</Badge>
                   </div>
                 </div>
+                <div className="flex-1 relative overflow-hidden">
+                  <MonacoEditor
+                    initialCode={useCircuitStore.getState().code}
+                    language="arduino"
+                    onCodeChange={(val: string) => useCircuitStore.getState().setCode(val || '')}
+                    errors={compileErrors}
+                  />
+                </div>
+                <div className="h-40 border-t border-slate-700 bg-slate-900 overflow-hidden flex flex-col">
+                  <div className="h-8 flex items-center justify-between px-3 bg-slate-800 border-b border-slate-700">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Serial Monitor</span>
+                    <Button variant="ghost" size="icon" className="h-5 w-5 text-slate-500 hover:text-white" onClick={() => setSerialOutput('')}>
+                      <RotateCcw className="w-3 h-3" />
+                    </Button>
+                  </div>
+                  <SerialMonitor
+                    output={serialOutput}
+                    onSendInput={handleSerialInput}
+                  />
+                </div>
               </Panel>
+            </>
+          )}
 
-              <PanelResizeHandle className="h-1 bg-[#2a2a4a] hover:bg-[#4a4a6a] transition-colors" />
+          <PanelResizeHandle className="w-1 bg-slate-200 hover:bg-blue-400 transition-colors shadow-sm z-10" />
 
-              {/* Code Editor */}
-              <Panel defaultSize={40} minSize={20}>
-                <MonacoEditor
-                  onRun={handleRun}
-                  onStop={handleStop}
-                  isRunning={isRunning}
-                  errors={compileErrors}
-                />
-              </Panel>
-            </PanelGroup>
+          {/* Right Panel - Component Library (Move from Left) */}
+          <Panel defaultSize={25} minSize={15} maxSize={35} className="bg-white border-l border-slate-200 z-10 flex flex-col shadow-xl">
+            {useCircuitStore.getState().selectedId && !useCircuitStore.getState().selectedId?.startsWith('wire_') ? (
+              <div className="flex-1 flex flex-col">
+                <div className="px-4 py-3 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between text-slate-700">
+                  <span className="font-semibold text-sm capitalize">
+                    {useCircuitStore.getState().components.find(c => c.id === useCircuitStore.getState().selectedId)?.type} Properties
+                  </span>
+                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setSelectedId(null)}>
+                    <Home className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+                <div className="p-4 flex-1">
+                  {/* Simplified Property Editor */}
+                  <p className="text-xs text-slate-500 mb-4">Editing component: <span className="font-mono text-blue-600">{useCircuitStore.getState().selectedId}</span></p>
+                  <div className="space-y-4">
+                    {/* Property rows would go here */}
+                    <div className="text-[11px] text-slate-400 italic">Properties panel coming soon...</div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <Tabs defaultValue="components" className="flex-1 flex flex-col">
+                <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
+                  <span className="font-semibold text-sm text-slate-700">Components</span>
+                  <TabsList className="h-8 bg-slate-200/50">
+                    <TabsTrigger value="components" className="h-6 text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">Basic</TabsTrigger>
+                    <TabsTrigger value="library" className="h-6 text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">All</TabsTrigger>
+                  </TabsList>
+                </div>
+
+                <TabsContent value="components" className="flex-1 overflow-y-auto p-4 content-start">
+                  <ComponentLibrary onAddComponent={handleAddComponent} />
+                </TabsContent>
+                <TabsContent value="library" className="flex-1 p-8 text-center text-slate-400 text-xs">
+                  Advanced components library coming soon.
+                </TabsContent>
+              </Tabs>
+            )}
           </Panel>
 
-          <PanelResizeHandle className="w-1 bg-[#2a2a4a] hover:bg-[#4a4a6a] transition-colors" />
-
-          {/* Right panel - Serial Monitor */}
-          <Panel defaultSize={22} minSize={18} maxSize={35}>
-            <SerialMonitor
-              output={serialOutput}
-              onSendInput={handleSerialInput}
-              isConnected={isRunning}
-            />
-          </Panel>
         </PanelGroup>
       </div>
 
-      {/* Status bar */}
-      <footer className="h-6 flex items-center justify-between px-3 bg-[#16162a] border-t border-[#2a2a4a] text-xs text-gray-500">
-        <div className="flex items-center gap-4">
-          <span>Arduino UNO • ATmega328P</span>
-          <span>16 MHz</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <span>Simulation: {isSimulating ? 'Active' : 'Stopped'}</span>
-          <Badge variant="secondary" className="h-4 text-[10px] bg-purple-500/20 text-purple-400">
-            v1.0.0
-          </Badge>
-        </div>
-      </footer>
     </div>
   );
 }

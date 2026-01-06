@@ -1,22 +1,23 @@
 import { useRef, useState } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, ThreeEvent } from '@react-three/fiber';
 import * as THREE from 'three';
+import { Pin } from './Pin';
 
 interface Button3DProps {
+  id: string;
   position: [number, number, number];
   isPressed?: boolean;
   onPress?: () => void;
   onRelease?: () => void;
-  onClick?: () => void;
   isSelected?: boolean;
 }
 
 export function Button3D({
+  id,
   position,
   isPressed = false,
   onPress,
   onRelease,
-  onClick,
   isSelected
 }: Button3DProps) {
   const groupRef = useRef<THREE.Group>(null);
@@ -46,13 +47,13 @@ export function Button3D({
     }
   });
 
-  const handlePointerDown = (e: THREE.Event) => {
+  const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation();
     setLocalPressed(true);
     onPress?.();
   };
 
-  const handlePointerUp = (e: THREE.Event) => {
+  const handlePointerUp = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation();
     setLocalPressed(false);
     onRelease?.();
@@ -62,7 +63,6 @@ export function Button3D({
     <group
       ref={groupRef}
       position={position}
-      onClick={(e) => { e.stopPropagation(); onClick?.(); }}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       onPointerLeave={() => {
@@ -137,6 +137,32 @@ export function Button3D({
           <meshBasicMaterial color="#00ff00" transparent opacity={0.3} />
         </mesh>
       )}
+
+      {/* Pins */}
+      <Pin
+        id={`${id}_pin_p1a`}
+        position={[-bodyWidth / 2, 0, -bodyWidth / 3]}
+        radius={0.0005}
+        color="#ffcc00"
+      />
+      <Pin
+        id={`${id}_pin_p1b`}
+        position={[bodyWidth / 2, 0, -bodyWidth / 3]}
+        radius={0.0005}
+        color="#ffcc00"
+      />
+      <Pin
+        id={`${id}_pin_p2a`}
+        position={[-bodyWidth / 2, 0, bodyWidth / 3]}
+        radius={0.0005}
+        color="#ffcc00"
+      />
+      <Pin
+        id={`${id}_pin_p2b`}
+        position={[bodyWidth / 2, 0, bodyWidth / 3]}
+        radius={0.0005}
+        color="#ffcc00"
+      />
     </group>
   );
 }

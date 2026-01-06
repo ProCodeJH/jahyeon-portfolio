@@ -1,22 +1,23 @@
 import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { Pin } from './Pin';
 
 interface LED3DProps {
+  id: string;
   position: [number, number, number];
   color: string;
   isOn: boolean;
   brightness?: number;
-  onClick?: () => void;
   isSelected?: boolean;
 }
 
 export function LED3D({
+  id,
   position,
   color,
   isOn,
   brightness = 1,
-  onClick,
   isSelected
 }: LED3DProps) {
   const groupRef = useRef<THREE.Group>(null);
@@ -39,7 +40,7 @@ export function LED3D({
   });
 
   return (
-    <group ref={groupRef} position={position} onClick={(e) => { e.stopPropagation(); onClick?.(); }}>
+    <group ref={groupRef} position={position}>
       {/* LED dome (translucent) */}
       <mesh position={[0, bodyHeight / 2, 0]}>
         <sphereGeometry args={[bodyRadius, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2]} />
@@ -117,6 +118,20 @@ export function LED3D({
           <meshBasicMaterial color="#00ff00" side={THREE.DoubleSide} />
         </mesh>
       )}
+
+      {/* Pins */}
+      <Pin
+        id={`${id}_pin_anode`}
+        position={[0.0008, -bodyHeight / 2 - legLength, 0]}
+        radius={0.0005}
+        color="#ffcc00"
+      />
+      <Pin
+        id={`${id}_pin_cathode`}
+        position={[-0.0008, -bodyHeight / 2 - (legLength - 0.0005), 0]}
+        radius={0.0005}
+        color="#ffcc00"
+      />
     </group>
   );
 }

@@ -24,8 +24,10 @@ export interface CircuitComponent {
 
 export interface Wire {
   id: string;
-  startPoint: [number, number, number];
-  endPoint: [number, number, number];
+  startPoint: [number, number, number]; // Fallback or computed
+  endPoint: [number, number, number];   // Fallback or computed
+  startPinId?: string; // e.g. "arduino_1_pin_d13"
+  endPinId?: string;
   color: string;
 }
 
@@ -39,6 +41,14 @@ interface CircuitState {
   isWiring: boolean;
   wireColor: string;
 
+  // Interaction state
+  isDragging: boolean;
+  draftWire: {
+    startPin: string;
+    endPosition: [number, number, number];
+  } | null;
+  hoveredPin: string | null;
+
   // Simulation
   isSimulating: boolean;
   serialOutput: string;
@@ -50,7 +60,14 @@ interface CircuitState {
   addComponent: (component: Omit<CircuitComponent, 'id'>) => void;
   removeComponent: (id: string) => void;
   updateComponent: (id: string, updates: Partial<CircuitComponent>) => void;
+  updateComponentPosition: (id: string, position: [number, number, number]) => void;
   setSelectedId: (id: string | null) => void;
+  setDragging: (isDragging: boolean) => void;
+
+  // Wiring Actions
+  setDraftWire: (draft: { startPin: string; endPosition: [number, number, number] } | null) => void;
+  setHoveredPin: (pinId: string | null) => void;
+  setWiring: (isWiring: boolean) => void;
   addWire: (wire: Omit<Wire, 'id'>) => void;
   removeWire: (id: string) => void;
   setWireColor: (color: string) => void;
@@ -85,11 +102,15 @@ function generateId(): string {
 
 export const useCircuitStore = create<CircuitState>((set) => ({
   // Initial state
+  // Initial state
   components: [],
   wires: [],
   selectedId: null,
   isWiring: false,
   wireColor: '#ff0000',
+  isDragging: false,
+  draftWire: null,
+  hoveredPin: null,
   isSimulating: false,
   serialOutput: '',
   code: DEFAULT_CODE,
@@ -119,7 +140,23 @@ export const useCircuitStore = create<CircuitState>((set) => ({
     }));
   },
 
+  updateComponentPosition: (id, position) => {
+    set((state) => ({
+      components: state.components.map((c) =>
+        c.id === id ? { ...c, position } : c
+      ),
+    }));
+  },
+
   setSelectedId: (id) => set({ selectedId: id }),
+
+  setDragging: (isDragging) => set({ isDragging }),
+
+  setDraftWire: (draftWire) => set({ draftWire }),
+
+  setHoveredPin: (hoveredPin) => set({ hoveredPin }),
+
+  setWiring: (isWiring) => set({ isWiring }),
 
   addWire: (wire) => {
     set((state) => ({

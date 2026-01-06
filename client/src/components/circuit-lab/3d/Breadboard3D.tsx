@@ -4,12 +4,13 @@
 
 import { useMemo } from 'react';
 import * as THREE from 'three';
+import { Pin } from './Pin';
 
 interface Breadboard3DProps {
+  id: string;
   position: [number, number, number];
   rotation?: [number, number, number];
   isSelected?: boolean;
-  onClick?: () => void;
 }
 
 // Colors
@@ -25,19 +26,15 @@ const HEIGHT = 54.61 * SCALE;
 const THICKNESS = 8.5 * SCALE;
 
 export function Breadboard3D({
+  id,
   position,
   rotation = [0, 0, 0],
-  isSelected = false,
-  onClick
+  isSelected = false
 }: Breadboard3DProps) {
   return (
     <group
       position={position}
       rotation={rotation}
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick?.();
-      }}
     >
       {/* Main body */}
       <mesh>
@@ -83,6 +80,74 @@ export function Breadboard3D({
         <boxGeometry args={[WIDTH - 0.02, 0.0005, 0.012]} />
         <meshStandardMaterial color="#e8e8e0" />
       </mesh>
+
+      {/* Interactive Pins */}
+      {/* Terminal Strips */}
+      {Array.from({ length: 60 }).map((_, col) => {
+        const x = (col - 29.5) * 0.00254;
+        return (
+          <group key={`col_${col}`}>
+            {/* Top row (a-e) */}
+            {Array.from({ length: 5 }).map((_, row) => (
+              <Pin
+                key={`top_${col}_${row}`}
+                id={`${id}_pin_${row}_${col}_top`}
+                position={[x, THICKNESS / 2 + 0.001, -0.003 - (row + 1) * 0.00254]}
+                radius={0.0008}
+                color="#00aaff"
+              />
+            ))}
+            {/* Bottom row (f-j) */}
+            {Array.from({ length: 5 }).map((_, row) => (
+              <Pin
+                key={`bot_${col}_${row}`}
+                id={`${id}_pin_${row}_${col}_bottom`}
+                position={[x, THICKNESS / 2 + 0.001, 0.003 + (row + 1) * 0.00254]}
+                radius={0.0008}
+                color="#00aaff"
+              />
+            ))}
+          </group>
+        );
+      })}
+
+      {/* Power Rails */}
+      {Array.from({ length: 12 }).map((_, group) => {
+        const groupX = (group - 5.5) * 0.0127; // Groups of 5 holes
+        return Array.from({ length: 5 }).map((_, hole) => {
+          const x = groupX + (hole - 2) * 0.00254;
+          return (
+            <group key={`rail_${group}_${hole}`}>
+              {/* Top Rails */}
+              <Pin
+                id={`${id}_pin_${hole}_${group}_rail_top_pos`}
+                position={[x, THICKNESS / 2 + 0.001, -HEIGHT / 2 + 0.006]}
+                radius={0.0008}
+                color="#ff4444"
+              />
+              <Pin
+                id={`${id}_pin_${hole}_${group}_rail_top_neg`}
+                position={[x, THICKNESS / 2 + 0.001, -HEIGHT / 2 + 0.009]}
+                radius={0.0008}
+                color="#4444ff"
+              />
+              {/* Bottom Rails */}
+              <Pin
+                id={`${id}_pin_${hole}_${group}_rail_bot_pos`}
+                position={[x, THICKNESS / 2 + 0.001, HEIGHT / 2 - 0.006]}
+                radius={0.0008}
+                color="#ff4444"
+              />
+              <Pin
+                id={`${id}_pin_${hole}_${group}_rail_bot_neg`}
+                position={[x, THICKNESS / 2 + 0.001, HEIGHT / 2 - 0.009]}
+                radius={0.0008}
+                color="#4444ff"
+              />
+            </group>
+          );
+        });
+      })}
 
       {/* Selection highlight */}
       {isSelected && (

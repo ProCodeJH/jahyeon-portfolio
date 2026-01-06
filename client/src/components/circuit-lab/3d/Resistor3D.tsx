@@ -1,11 +1,12 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
+import { Pin } from './Pin';
 
 interface Resistor3DProps {
+  id: string;
   position: [number, number, number];
   rotation?: [number, number, number];
   value: number; // Ohms
-  onClick?: () => void;
   isSelected?: boolean;
 }
 
@@ -58,10 +59,10 @@ function getResistorBands(value: number): string[] {
 }
 
 export function Resistor3D({
+  id,
   position,
   rotation = [0, 0, 0],
   value,
-  onClick,
   isSelected
 }: Resistor3DProps) {
   // Resistor dimensions (1/4W through-hole scaled to scene units)
@@ -77,7 +78,6 @@ export function Resistor3D({
     <group
       position={position}
       rotation={rotation}
-      onClick={(e) => { e.stopPropagation(); onClick?.(); }}
     >
       {/* Main resistor body */}
       <mesh rotation={[0, 0, Math.PI / 2]}>
@@ -133,6 +133,20 @@ export function Resistor3D({
           <meshBasicMaterial color="#00ff00" transparent opacity={0.3} />
         </mesh>
       )}
+
+      {/* Pins */}
+      <Pin
+        id={`${id}_pin_p1`}
+        position={[-bodyLength / 2 - legLength, 0, 0]}
+        radius={0.0005}
+        color="#ffcc00"
+      />
+      <Pin
+        id={`${id}_pin_p2`}
+        position={[bodyLength / 2 + legLength, 0, 0]}
+        radius={0.0005}
+        color="#ffcc00"
+      />
     </group>
   );
 }

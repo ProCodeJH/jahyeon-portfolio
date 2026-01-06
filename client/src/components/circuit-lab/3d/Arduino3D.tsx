@@ -6,11 +6,14 @@ import { useRef } from 'react';
 import { Text } from '@react-three/drei';
 import * as THREE from 'three';
 
+import { Pin } from './Pin';
+import { ARDUINO_PINS } from './pin_definitions';
+
 interface Arduino3DProps {
+  id: string;
   position: [number, number, number];
   rotation?: [number, number, number];
   isSelected?: boolean;
-  onClick?: () => void;
 }
 
 // Colors
@@ -26,7 +29,7 @@ const WIDTH = 68.6 * SCALE;
 const HEIGHT = 53.4 * SCALE;
 const THICKNESS = 1.6 * SCALE;
 
-export function Arduino3D({ position, rotation = [0, 0, 0], isSelected = false, onClick }: Arduino3DProps) {
+export function Arduino3D({ id, position, rotation = [0, 0, 0], isSelected = false }: Arduino3DProps) {
   const groupRef = useRef<THREE.Group>(null);
 
   return (
@@ -34,11 +37,15 @@ export function Arduino3D({ position, rotation = [0, 0, 0], isSelected = false, 
       ref={groupRef}
       position={position}
       rotation={rotation}
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick?.();
-      }}
     >
+      {/* Pins */}
+      {Object.entries(ARDUINO_PINS).map(([pinName, offset]) => (
+        <Pin
+          key={pinName}
+          id={`${id}_pin_${pinName}`}
+          position={[offset.x, offset.y, offset.z]}
+        />
+      ))}
       {/* PCB Board */}
       <mesh>
         <boxGeometry args={[WIDTH, THICKNESS, HEIGHT]} />
