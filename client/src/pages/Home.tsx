@@ -8,6 +8,7 @@ import { SubtleDots } from "@/components/backgrounds/SubtleDots";
 import { TiltCard } from "@/components/effects/TiltCard";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
 import { Navigation } from "@/components/layout/Navigation";
+import { HeroScene } from "@/components/backgrounds/HeroScene";
 
 export default function Home() {
   const { data: projects } = trpc.projects.list.useQuery();
@@ -44,21 +45,21 @@ export default function Home() {
               </AnimatedSection>
 
               <AnimatedSection delay={150}>
-                <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-[1.1] tracking-tight">
+                <h1 className="text-5xl md:text-7xl lg:text-8xl font-black heading-tight tracking-tighter">
                   <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-purple-900 to-blue-900 animate-gradient-x drop-shadow-sm">
                     Thinking of ideas
                   </span>
                   <br />
-                  <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 animate-gradient-x mt-2 drop-shadow-lg">
+                  <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 animate-gradient-x mt-2 drop-shadow-lg p-1">
                     that help the world,
                   </span>
                   <br />
                   <span className="inline-block text-gray-900 mt-2 relative drop-shadow-sm">
                     creating, growing
-                    <svg className="absolute -bottom-2 md:-bottom-3 left-0 w-full" viewBox="0 0 300 12" fill="none">
-                      <path d="M0 6 Q150 12, 300 6" stroke="url(#gradient)" strokeWidth="3" strokeLinecap="round" className="animate-draw" />
+                    <svg className="absolute -bottom-2 md:-bottom-4 left-0 w-full" viewBox="0 0 300 12" fill="none">
+                      <path d="M0 6 Q150 12, 300 6" stroke="url(#gradient-hero)" strokeWidth="4" strokeLinecap="round" className="animate-draw" />
                       <defs>
-                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <linearGradient id="gradient-hero" x1="0%" y1="0%" x2="100%" y2="0%">
                           <stop offset="0%" stopColor="#9333ea" />
                           <stop offset="100%" stopColor="#3b82f6" />
                         </linearGradient>
@@ -94,31 +95,24 @@ export default function Home() {
               </AnimatedSection>
             </div>
 
-            {/* Right: Premium Video Container */}
-            <AnimatedSection delay={300}>
+            {/* Right: Premium 3D Core Container */}
+            <AnimatedSection delay={300} className="relative z-20">
               <TiltCard sensitivity={8}>
-                <div className="relative aspect-square rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-purple-100 via-pink-50 to-blue-100 p-1 shadow-2xl shadow-purple-500/20 group">
+                <div className="relative aspect-square rounded-[2.5rem] overflow-hidden bg-white/5 p-1 shadow-2xl shadow-purple-500/20 group border border-white/10">
                   {/* Premium Border Gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 rounded-[2.5rem] opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 rounded-[2.5rem] opacity-20 group-hover:opacity-60 transition-opacity duration-500" />
 
-                  {/* Video Container */}
-                  <div className="relative w-full h-full rounded-[2.4rem] overflow-hidden bg-gradient-to-br from-purple-900/10 to-blue-900/10 backdrop-blur-xl">
-                    {/* Hero Video */}
-                    <video autoPlay loop muted playsInline preload="auto" className="w-full h-full object-cover">
-                      <source src="/hero-video.mp4" type="video/mp4" />
-                    </video>
-
-                    {/* Premium Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-purple-900/20 via-transparent to-blue-900/20 opacity-60 group-hover:opacity-30 transition-opacity duration-500" />
+                  {/* 3D Scene Container */}
+                  <div className="relative w-full h-full rounded-[2.4rem] overflow-hidden bg-gray-900/40 backdrop-blur-3xl">
+                    <HeroScene />
 
                     {/* Animated Border Glow */}
-                    <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-[2.5rem] opacity-0 group-hover:opacity-20 blur-2xl transition-opacity duration-500" />
+                    <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-[2.5rem] opacity-0 group-hover:opacity-10 blur-2xl transition-opacity duration-500" />
                   </div>
 
-                  {/* Floating Particles */}
-                  <div className="absolute top-10 left-10 w-3 h-3 rounded-full bg-purple-400 animate-float" />
-                  <div className="absolute bottom-20 right-16 w-2 h-2 rounded-full bg-blue-400 animate-float delay-500" />
-                  <div className="absolute top-32 right-12 w-2 h-2 rounded-full bg-pink-400 animate-float delay-1000" />
+                  {/* Floating Particles - Refined */}
+                  <div className="absolute top-10 left-10 w-2 h-2 rounded-full bg-purple-400/50 animate-float" />
+                  <div className="absolute bottom-20 right-16 w-1.5 h-1.5 rounded-full bg-blue-400/50 animate-float-slow" />
                 </div>
               </TiltCard>
             </AnimatedSection>
@@ -149,111 +143,95 @@ export default function Home() {
             </div>
           </AnimatedSection>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8">
             {[
               {
                 icon: CircuitBoard,
                 title: "Embedded Systems",
-                desc: "MCU programming, RTOS, firmware optimization",
-                color: "from-blue-500 to-cyan-500",
+                desc: "High-performance MCU programming, RTOS integration, and firmware optimization for mission-critical hardware.",
+                color: "from-blue-600 to-cyan-500",
                 iconBg: "from-blue-500/30 to-cyan-500/30",
                 glowColor: "shadow-blue-500/50",
                 img: "/images/expertise/embedded-systems.jpg",
-                delay: '0s'
-              },
-              {
-                icon: Code,
-                title: "Software Development",
-                desc: "Python, Java, C/C++, Full-stack",
-                color: "from-purple-500 to-pink-500",
-                iconBg: "from-purple-500/30 to-pink-500/30",
-                glowColor: "shadow-purple-500/50",
-                img: "/images/expertise/software-development.jpg",
-                delay: '0.5s'
+                delay: '0s',
+                className: "md:col-span-7 h-[350px] md:h-[450px]"
               },
               {
                 icon: Zap,
                 title: "IoT Solutions",
-                desc: "Connected devices, sensors, automation",
+                desc: "End-to-end connected device ecosystems with real-time sensor processing and industrial automation.",
                 color: "from-orange-500 to-yellow-500",
                 iconBg: "from-orange-500/30 to-yellow-500/30",
                 glowColor: "shadow-orange-500/50",
                 img: "/images/expertise/iot-solutions.jpg",
-                delay: '1s'
+                delay: '0.4s',
+                className: "md:col-span-5 h-[350px] md:h-[450px]"
+              },
+              {
+                icon: Code,
+                title: "Software Dev",
+                desc: "Full-stack architecture and robust software engineering across Python, Java, and C++.",
+                color: "from-purple-500 to-pink-500",
+                iconBg: "from-purple-500/30 to-pink-500/30",
+                glowColor: "shadow-purple-500/50",
+                img: "/images/expertise/software-development.jpg",
+                delay: '0.2s',
+                className: "md:col-span-5 h-[350px] md:h-[400px]"
               },
               {
                 icon: GraduationCap,
                 title: "Coding Education",
-                desc: "Teaching programming, mentoring developers",
+                desc: "Empowering the next generation of developers through systematic mentoring and industrial-strength curriculum design.",
                 color: "from-emerald-500 to-teal-500",
                 iconBg: "from-emerald-500/30 to-teal-500/30",
                 glowColor: "shadow-emerald-500/50",
                 img: "/images/expertise/coding-education.jpg",
-                delay: '1.5s'
+                delay: '0.6s',
+                className: "md:col-span-7 h-[350px] md:h-[400px]"
               }
             ].map((item, idx) => (
-              <AnimatedSection key={idx} delay={idx * 100}>
+              <AnimatedSection key={idx} delay={idx * 100} className={item.className}>
                 <div
-                  className="group relative animate-float cursor-pointer"
-                  style={{ animationDelay: item.delay, animationDuration: '6s' }}
+                  className="group relative h-full w-full cursor-pointer transition-all duration-500"
                 >
                   {/* Rotating Border Animation */}
-                  <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-[2rem] opacity-0 group-hover:opacity-100 blur-lg transition-all duration-500 animate-gradient-x" style={{ backgroundSize: '200% 200%' }} />
+                  <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-[2rem] opacity-0 group-hover:opacity-100 blur-lg transition-all duration-700 animate-gradient-x" style={{ backgroundSize: '200% 200%' }} />
 
                   {/* Main Card */}
-                  <div className="relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] bg-white/80 backdrop-blur-2xl border-2 border-white/50 shadow-2xl hover:shadow-purple-500/30 transition-all duration-700 h-[400px] md:h-[450px] lg:h-[500px] group-hover:scale-[1.05] group-hover:-translate-y-3">
+                  <div className="relative h-full w-full overflow-hidden rounded-[2rem] bg-white/80 backdrop-blur-2xl border-2 border-white/50 shadow-2xl hover:shadow-purple-500/30 transition-all duration-700 group-hover:scale-[1.02] group-hover:-translate-y-2">
 
                     {/* Glassmorphism Background with Image */}
                     <div className="absolute inset-0 overflow-hidden">
                       <img
                         src={item.img}
                         alt={item.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-all duration-1000"
+                        className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-1000"
                       />
-
-                      {/* Only gradient at bottom for text readability */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/20 to-transparent" />
                     </div>
 
-                    {/* Floating Particles */}
-                    <div className="absolute top-10 right-10 w-2 h-2 rounded-full bg-white/60 animate-float" style={{ animationDelay: '0s', animationDuration: '3s' }} />
-                    <div className="absolute top-20 right-20 w-3 h-3 rounded-full bg-white/40 animate-float" style={{ animationDelay: '1s', animationDuration: '4s' }} />
-                    <div className="absolute bottom-20 left-10 w-2 h-2 rounded-full bg-white/50 animate-float" style={{ animationDelay: '2s', animationDuration: '5s' }} />
-
                     {/* Content Container */}
-                    <div className="relative h-full p-6 md:p-8 flex flex-col justify-between">
-
-                      {/* Icon with 3D Effect */}
+                    <div className="relative h-full p-8 flex flex-col justify-between">
                       <div className="relative">
-                        <div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-gradient-to-br ${item.iconBg} backdrop-blur-xl border-2 border-white/40 flex items-center justify-center shadow-2xl ${item.glowColor} group-hover:scale-125 group-hover:rotate-12 transition-all duration-700`}>
-                          <item.icon className="w-8 h-8 md:w-10 md:h-10 text-white drop-shadow-2xl group-hover:scale-110 transition-transform duration-500" />
-                          {/* Icon Glow */}
-                          <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-50 blur-xl rounded-2xl md:rounded-3xl transition-opacity duration-500`} />
+                        <div className={`w-16 h-16 md:w-20 md:h-20 rounded-3xl bg-gradient-to-br ${item.iconBg} backdrop-blur-xl border-2 border-white/40 flex items-center justify-center shadow-2xl ${item.glowColor} group-hover:scale-110 group-hover:rotate-6 transition-all duration-700`}>
+                          <item.icon className="w-8 h-8 md:w-10 md:h-10 text-white drop-shadow-2xl" />
                         </div>
-
-                        {/* Pulsing Ring */}
-                        <div className={`absolute inset-0 w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl border-2 border-white/30 group-hover:scale-150 group-hover:opacity-0 transition-all duration-700`} />
                       </div>
 
-                      {/* Text Content with Enhanced Typography */}
-                      <div className="space-y-2 md:space-y-3">
-                        <h3 className="text-2xl md:text-3xl font-black text-white mb-2 md:mb-3 drop-shadow-2xl group-hover:translate-x-3 group-hover:scale-105 transition-all duration-500 leading-tight">
+                      <div className="space-y-3">
+                        <h3 className="text-2xl md:text-3xl lg:text-4xl font-black text-white leading-none tracking-tight">
                           {item.title}
                         </h3>
-                        <p className="text-white/95 text-sm md:text-base leading-relaxed drop-shadow-lg font-medium group-hover:translate-x-2 transition-transform duration-500">
+                        <p className="text-white/80 text-sm md:text-base leading-relaxed font-medium line-clamp-2 md:line-clamp-none">
                           {item.desc}
                         </p>
 
-                        {/* Premium Indicator Bar */}
-                        <div className="flex items-center gap-2 pt-2 md:pt-3 opacity-0 group-hover:opacity-100 transition-all duration-700 delay-100">
-                          <div className={`h-1 w-0 group-hover:w-12 md:group-hover:w-16 bg-gradient-to-r ${item.color} rounded-full transition-all duration-700 shadow-lg`} />
-                          <Sparkles className="w-3 h-3 md:w-4 md:h-4 text-white/80 opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-200" />
+                        <div className="pt-2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-700">
+                          <div className={`h-1.5 w-16 bg-gradient-to-r ${item.color} rounded-full`} />
+                          <Sparkles className="w-4 h-4 text-white animate-pulse" />
                         </div>
                       </div>
                     </div>
-
-                    {/* Premium Glow Effect */}
-                    <div className={`absolute -inset-1 bg-gradient-to-r ${item.color} rounded-[2rem] opacity-0 group-hover:opacity-40 blur-2xl transition-all duration-700 -z-10`} />
                   </div>
                 </div>
               </AnimatedSection>
@@ -317,11 +295,10 @@ export default function Home() {
               return (
                 <AnimatedSection key={idx} delay={idx * 100}>
                   <TiltCard sensitivity={6}>
-                    <div className={`group relative p-5 md:p-8 rounded-2xl md:rounded-3xl bg-white border-2 ${
-                      exp.current
-                        ? 'border-purple-300 shadow-2xl shadow-purple-500/20'
-                        : 'border-gray-100 shadow-xl'
-                    } hover:border-purple-300 hover:shadow-2xl transition-all duration-500 overflow-hidden`}>
+                    <div className={`group relative p-5 md:p-8 rounded-2xl md:rounded-3xl bg-white border-2 ${exp.current
+                      ? 'border-purple-300 shadow-2xl shadow-purple-500/20'
+                      : 'border-gray-100 shadow-xl'
+                      } hover:border-purple-300 hover:shadow-2xl transition-all duration-500 overflow-hidden`}>
                       {/* Premium Background Effect */}
                       {exp.current && (
                         <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5" />
@@ -329,20 +306,18 @@ export default function Home() {
 
                       <div className="relative flex items-start gap-4 md:gap-6">
                         {/* Premium Icon */}
-                        <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gradient-to-br ${
-                          exp.current
-                            ? 'from-purple-500 to-blue-500'
-                            : 'from-gray-400 to-gray-500'
-                        } flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 flex-shrink-0`}>
+                        <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gradient-to-br ${exp.current
+                          ? 'from-purple-500 to-blue-500'
+                          : 'from-gray-400 to-gray-500'
+                          } flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 flex-shrink-0`}>
                           <Icon className="w-6 h-6 md:w-8 md:h-8 text-white" />
                         </div>
 
                         {/* Content */}
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-2 md:mb-3">
-                            <p className={`text-xs md:text-sm font-black font-mono tracking-wider ${
-                              exp.current ? 'text-purple-600' : 'text-gray-500'
-                            }`}>
+                            <p className={`text-xs md:text-sm font-black font-mono tracking-wider ${exp.current ? 'text-purple-600' : 'text-gray-500'
+                              }`}>
                               {exp.year}
                             </p>
                             {exp.current && (
@@ -409,9 +384,8 @@ export default function Home() {
                 return (
                   <div
                     key={project.id}
-                    className={`absolute inset-0 transition-all duration-700 cursor-pointer ${
-                      isPast ? 'pointer-events-none' : 'pointer-events-auto'
-                    }`}
+                    className={`absolute inset-0 transition-all duration-700 cursor-pointer ${isPast ? 'pointer-events-none' : 'pointer-events-auto'
+                      }`}
                     style={{
                       transform: `
                         translateX(${position * 30}px)
@@ -429,14 +403,12 @@ export default function Home() {
                     }}
                   >
                     {/* Card */}
-                    <div className={`relative w-full h-full rounded-[3rem] overflow-hidden shadow-2xl transition-all duration-700 ${
-                      isActive ? 'shadow-purple-500/30 scale-100' : 'shadow-black/20'
-                    }`}>
+                    <div className={`relative w-full h-full rounded-[3rem] overflow-hidden shadow-2xl transition-all duration-700 ${isActive ? 'shadow-purple-500/30 scale-100' : 'shadow-black/20'
+                      }`}>
 
                       {/* Premium Gradient Border */}
-                      <div className={`absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-[3rem] blur-xl transition-opacity duration-500 ${
-                        isActive ? 'opacity-60' : 'opacity-0'
-                      }`} />
+                      <div className={`absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-[3rem] blur-xl transition-opacity duration-500 ${isActive ? 'opacity-60' : 'opacity-0'
+                        }`} />
 
                       {/* Card Content */}
                       <div className="relative w-full h-full rounded-[3rem] bg-gray-900 overflow-hidden">
@@ -447,22 +419,19 @@ export default function Home() {
                             <img
                               src={project.imageUrl}
                               alt={project.title}
-                              className={`w-full h-full object-cover transition-transform duration-1000 ${
-                                isActive ? 'scale-110' : 'scale-100'
-                              }`}
+                              className={`w-full h-full object-cover transition-transform duration-1000 ${isActive ? 'scale-110' : 'scale-100'
+                                }`}
                             />
                             {/* Enhanced Gradient Overlay */}
-                            <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent transition-opacity duration-700 ${
-                              isActive ? 'opacity-90' : 'opacity-70'
-                            }`} />
+                            <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent transition-opacity duration-700 ${isActive ? 'opacity-90' : 'opacity-70'
+                              }`} />
                           </div>
                         )}
 
                         {/* Text Content - HIGHLY VISIBLE */}
                         <div className="absolute inset-0 p-6 md:p-12 flex flex-col justify-end">
-                          <div className={`transform transition-all duration-700 ${
-                            isActive ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-60'
-                          }`}>
+                          <div className={`transform transition-all duration-700 ${isActive ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-60'
+                            }`}>
 
                             {/* Project Number Badge */}
                             <div className="inline-flex items-center gap-2 px-4 py-1.5 md:px-5 md:py-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs md:text-sm font-black tracking-wider mb-4 md:mb-6 shadow-2xl">
@@ -526,11 +495,10 @@ export default function Home() {
                 <button
                   key={idx}
                   onClick={() => setActiveIndex(idx)}
-                  className={`rounded-full transition-all duration-300 ${
-                    idx === activeIndex
-                      ? 'w-12 h-3 bg-gradient-to-r from-purple-600 to-pink-600 shadow-lg shadow-purple-500/50'
-                      : 'w-3 h-3 bg-gray-300 hover:bg-gray-400'
-                  }`}
+                  className={`rounded-full transition-all duration-300 ${idx === activeIndex
+                    ? 'w-12 h-3 bg-gradient-to-r from-purple-600 to-pink-600 shadow-lg shadow-purple-500/50'
+                    : 'w-3 h-3 bg-gray-300 hover:bg-gray-400'
+                    }`}
                 />
               ))}
             </div>
