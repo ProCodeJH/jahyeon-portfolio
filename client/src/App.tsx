@@ -9,6 +9,7 @@ import Projects from "./pages/Projects";
 import Certifications from "./pages/Certifications";
 import Resources from "./pages/Resources";
 import Admin from "./pages/Admin";
+import CodeEditorPage from "./pages/CodeEditorPage";
 
 function Router() {
   return (
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/certifications" component={Certifications} />
       <Route path="/resources" component={Resources} />
       <Route path="/admin" component={Admin} />
+      <Route path="/circuit" component={CodeEditorPage} />
       <Route path="/404" component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
