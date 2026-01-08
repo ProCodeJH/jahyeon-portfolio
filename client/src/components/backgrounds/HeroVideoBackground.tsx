@@ -153,29 +153,29 @@ export function HeroVideoBackground({
                 </>
             )}
 
-            {/* Premium Gradient Overlays - Balanced opacity */}
-            <div className="absolute inset-0 bg-gradient-to-br from-gray-50/60 via-white/50 to-purple-50/60" />
-            <div className="absolute inset-0 bg-gradient-to-t from-white/70 via-white/20 to-transparent" />
+            {/* 🌙 Dark Neon Gradient Overlays */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a1a]/80 via-[#0d0d20]/60 to-[#0a0a1a]/80" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a1a] via-[#0a0a1a]/40 to-transparent" />
 
-            {/* Cinematic vignette effect - lighter */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_transparent_60%,_rgba(255,255,255,0.4)_100%)]" />
+            {/* Cinematic vignette effect - dark */}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_transparent_50%,_rgba(10,10,26,0.8)_100%)]" />
 
-            {/* Animated gradient orbs for premium feel - Enhanced */}
+            {/* ⚡ Neon Gradient Orbs */}
             <div
-                className="absolute top-1/4 -left-32 w-64 md:w-96 h-64 md:h-96 bg-gradient-to-r from-purple-500/25 to-pink-500/25 rounded-full blur-3xl animate-float"
+                className="absolute top-1/4 -left-32 w-64 md:w-96 h-64 md:h-96 bg-gradient-to-r from-purple-600/30 to-pink-600/30 rounded-full blur-3xl animate-float"
                 style={{ transform: `translate(${(mousePosition.x - 50) * 0.02}px, ${(mousePosition.y - 50) * 0.02}px)` }}
             />
             <div
-                className="absolute bottom-1/4 -right-32 w-48 md:w-72 h-48 md:h-72 bg-gradient-to-r from-blue-500/25 to-cyan-500/25 rounded-full blur-3xl animate-float"
+                className="absolute bottom-1/4 -right-32 w-48 md:w-72 h-48 md:h-72 bg-gradient-to-r from-cyan-500/30 to-blue-600/30 rounded-full blur-3xl animate-float"
                 style={{
                     animationDelay: '2s',
                     transform: `translate(${(mousePosition.x - 50) * -0.015}px, ${(mousePosition.y - 50) * -0.015}px)`
                 }}
             />
 
-            {/* Additional depth orb */}
+            {/* Central neon glow */}
             <div
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-radial from-white/10 to-transparent rounded-full blur-3xl animate-pulse"
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-radial from-purple-600/10 to-transparent rounded-full blur-3xl animate-pulse"
                 style={{ animationDuration: '6s' }}
             />
 

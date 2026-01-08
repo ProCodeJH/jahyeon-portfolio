@@ -18,7 +18,7 @@ export default function Home() {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 text-gray-900 overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0a1a] via-[#0d0d20] to-[#0a0a1a] text-white overflow-hidden">
       {/* 🌌 Premium Background with Particle Effects */}
       <div className="fixed inset-0">
         <GradientMeshBackground />
@@ -57,13 +57,13 @@ export default function Home() {
             {/* Main Headline - MASSIVE */}
             <AnimatedSection delay={150}>
               <h1 className="text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-black leading-[0.95] tracking-[-0.03em]">
-                <span className="block bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-purple-900 to-gray-900 animate-gradient-x mb-3 md:mb-4">
+                <span className="block bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-200 to-white animate-gradient-x mb-3 md:mb-4">
                   Thinking of ideas
                 </span>
                 <span className="block bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-500 to-blue-600 animate-gradient-x mb-3 md:mb-4">
                   that help the world,
                 </span>
-                <span className="block text-gray-900 relative inline-block">
+                <span className="block text-white relative inline-block">
                   creating, growing
                   {/* Animated underline */}
                   <svg className="absolute -bottom-4 md:-bottom-6 left-1/2 -translate-x-1/2 w-full max-w-2xl" viewBox="0 0 600 20" fill="none">
@@ -82,7 +82,7 @@ export default function Home() {
 
             {/* Subtitle */}
             <AnimatedSection delay={300}>
-              <p className="text-xl md:text-2xl lg:text-3xl xl:text-4xl text-gray-700 leading-relaxed font-light max-w-4xl mx-auto">
+              <p className="text-xl md:text-2xl lg:text-3xl xl:text-4xl text-gray-300 leading-relaxed font-light max-w-4xl mx-auto">
                 Walking the path toward{" "}
                 <span className="font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
                   bigger dreams
