@@ -33,11 +33,13 @@ export default function Home() {
       {/* Premium Navigation */}
       <Navigation />
 
-      {/* 🎬 CINEMATIC HERO SECTION with Video Background */}
-      <section className="min-h-screen flex items-center relative overflow-hidden">
-        {/* Premium Video Background */}
+      {/* 🎬 FIXED FULL-SCREEN VIDEO BACKGROUND */}
+      <div className="fixed inset-0 w-screen h-screen z-0">
         <HeroVideoBackground videoSrc="/hero_video.mp4" />
+      </div>
 
+      {/* 🎬 CINEMATIC HERO SECTION */}
+      <section className="min-h-screen flex items-center relative overflow-hidden z-10">
         <div className="max-w-7xl mx-auto w-full relative z-10 px-4 md:px-8 pt-24 md:pt-32">
           <div className="grid lg:grid-cols-2 gap-12 md:gap-16 lg:gap-24 items-center">
             {/* Left: Premium Typography */}
