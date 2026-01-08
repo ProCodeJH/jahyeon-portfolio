@@ -7,8 +7,8 @@ export function Navigation() {
 
   const menuItems = [
     { name: "Work", path: "/projects" },
-    { name: "Certifications", path: "/certifications" },
-    { name: "Resources", path: "/resources" }
+    { name: "Resources", path: "/resources" },
+    { name: "Code Editor", path: "/code-editor" }
   ];
 
   return (
@@ -57,11 +57,10 @@ export function Navigation() {
 
       {/* Mobile Menu Panel */}
       <div
-        className={`fixed top-[73px] left-0 right-0 z-40 md:hidden bg-white/95 backdrop-blur-2xl border-b border-gray-200/50 shadow-2xl transition-all duration-300 ease-in-out ${
-          mobileMenuOpen
+        className={`fixed top-[73px] left-0 right-0 z-40 md:hidden bg-white/95 backdrop-blur-2xl border-b border-gray-200/50 shadow-2xl transition-all duration-300 ease-in-out ${mobileMenuOpen
             ? "translate-y-0 opacity-100"
             : "-translate-y-full opacity-0 pointer-events-none"
-        }`}
+          }`}
       >
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex flex-col gap-2">

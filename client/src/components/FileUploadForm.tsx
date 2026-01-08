@@ -15,31 +15,28 @@ interface FileUploadFormProps {
   category?: "video" | "image" | "document" | "code" | "other";
 }
 
-// Chunk size: 10MB
-const CHUNK_SIZE = 10 * 1024 * 1024;
-
-export function FileUploadForm({ 
-  onUploadComplete, 
+/**
+ * 🚀 Enterprise Grade File Upload Form
+ * Uses presigned URLs for files up to 2GB
+ */
+export function FileUploadForm({
+  onUploadComplete,
   acceptedFileTypes = "*",
-  maxSizeMB = 500,
+  maxSizeMB = 2048, // 2GB default
   label = "Upload File",
   category = "other"
 }: FileUploadFormProps) {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [estimatedTimeRemaining, setEstimatedTimeRemaining] = useState<string>("");
-  const [uploadStartTime, setUploadStartTime] = useState<number | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // tRPC chunk upload mutation
-  const uploadChunkMutation = trpc.upload.uploadChunk.useMutation();
+  const getPresignedUrl = trpc.upload.getPresignedUrl.useMutation();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
-    // Check file size
     const fileSizeMB = selectedFile.size / (1024 * 1024);
     if (fileSizeMB > maxSizeMB) {
       toast.error(`File size must be less than ${maxSizeMB}MB`);
@@ -47,23 +44,6 @@ export function FileUploadForm({
     }
 
     setFile(selectedFile);
-  };
-
-  // Read file chunk as Base64
-  const readChunkAsBase64 = (file: File, start: number, end: number): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      const chunk = file.slice(start, end);
-      
-      reader.onload = () => {
-        const result = reader.result as string;
-        const base64 = result.split(',')[1];
-        resolve(base64);
-      };
-      
-      reader.onerror = () => reject(new Error("Failed to read chunk"));
-      reader.readAsDataURL(chunk);
-    });
   };
 
   const handleUpload = async () => {
@@ -74,78 +54,66 @@ export function FileUploadForm({
 
     setUploading(true);
     setUploadProgress(0);
-    setUploadStartTime(Date.now());
-    setEstimatedTimeRemaining("Calculating...");
     abortControllerRef.current = new AbortController();
 
     try {
-      const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-      let uploadId: string | undefined;
-      let result: { fileKey: string; publicUrl: string } | null = null;
+      // 1. Get presigned URL from server
+      const { presignedUrl, key, publicUrl } = await getPresignedUrl.mutateAsync({
+        fileName: file.name,
+        contentType: file.type || 'application/octet-stream',
+        fileSize: file.size,
+      });
 
-      console.log(`Upload started: ${file.name}, ${totalChunks} chunks total`);
+      setUploadProgress(10);
 
-      for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
-        if (abortControllerRef.current?.signal.aborted) {
-          throw new Error("Upload cancelled");
+      // 2. Upload directly to R2 using presigned URL with progress tracking
+      const xhr = new XMLHttpRequest();
+
+      await new Promise<void>((resolve, reject) => {
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const progress = Math.round((event.loaded / event.total) * 85) + 10;
+            setUploadProgress(progress);
+          }
+        };
+
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve();
+          } else {
+            reject(new Error(`Upload failed with status ${xhr.status}`));
+          }
+        };
+
+        xhr.onerror = () => reject(new Error("Network error during upload"));
+        xhr.onabort = () => reject(new Error("Upload cancelled"));
+
+        // Handle abort
+        if (abortControllerRef.current) {
+          abortControllerRef.current.signal.addEventListener('abort', () => {
+            xhr.abort();
+          });
         }
 
-        const start = chunkIndex * CHUNK_SIZE;
-        const end = Math.min(start + CHUNK_SIZE, file.size);
-        const base64Content = await readChunkAsBase64(file, start, end);
+        xhr.open('PUT', presignedUrl);
+        xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+        xhr.send(file);
+      });
 
-        const chunkResult = await uploadChunkMutation.mutateAsync({
-          fileName: file.name,
-          fileContent: base64Content,
-          chunkIndex,
-          totalChunks,
-          uploadId,
-          contentType: file.type || 'application/octet-stream',
-        });
+      setUploadProgress(100);
+      toast.success("File uploaded successfully!");
 
-        if (!uploadId) {
-          uploadId = chunkResult.uploadId;
-        }
+      onUploadComplete(
+        publicUrl,
+        key,
+        file.name,
+        file.size,
+        file.type || 'application/octet-stream'
+      );
 
-        const progress = Math.round(((chunkIndex + 1) / totalChunks) * 95);
-        setUploadProgress(progress);
+      setFile(null);
+      setUploadProgress(0);
 
-        if (uploadStartTime) {
-          const elapsed = Date.now() - uploadStartTime;
-          const rate = (chunkIndex + 1) / elapsed;
-          const remaining = (totalChunks - chunkIndex - 1) / rate;
-          const minutes = Math.floor(remaining / 60000);
-          const seconds = Math.floor((remaining % 60000) / 1000);
-          setEstimatedTimeRemaining(`${minutes}m ${seconds}s`);
-        }
-
-        console.log(`Chunk ${chunkIndex + 1}/${totalChunks} completed (${progress}%)`);
-
-        if (chunkResult.complete) {
-          result = {
-            fileKey: chunkResult.fileKey,
-            publicUrl: chunkResult.publicUrl,
-          };
-        }
-      }
-
-      if (result && result.publicUrl) {
-        setUploadProgress(100);
-        toast.success("File uploaded successfully!");
-        onUploadComplete(
-          result.publicUrl, 
-          result.fileKey, 
-          file.name, 
-          file.size, 
-          file.type || 'application/octet-stream'
-        );
-        
-        setFile(null);
-        setUploadProgress(0);
-        setEstimatedTimeRemaining("");
-      } else {
-        throw new Error("Upload failed: no result from server");
-      }
     } catch (error) {
       console.error("Upload error:", error);
       if (error instanceof Error && error.message === "Upload cancelled") {
@@ -156,7 +124,6 @@ export function FileUploadForm({
       }
     } finally {
       setUploading(false);
-      setUploadStartTime(null);
       abortControllerRef.current = null;
     }
   };
@@ -170,12 +137,11 @@ export function FileUploadForm({
   const handleRemoveFile = () => {
     setFile(null);
     setUploadProgress(0);
-    setEstimatedTimeRemaining("");
   };
 
   const getFileIcon = () => {
     if (!file) return <Upload className="h-4 w-4 text-primary flex-shrink-0" />;
-    
+
     if (file.type.startsWith('video/')) {
       return <FileVideo className="h-4 w-4 text-primary flex-shrink-0" />;
     } else if (file.type.startsWith('image/')) {
@@ -200,7 +166,7 @@ export function FileUploadForm({
               className="cursor-pointer"
             />
             <p className="text-xs text-muted-foreground mt-1">
-              Maximum file size: {maxSizeMB}MB
+              Maximum file size: {maxSizeMB >= 1024 ? `${(maxSizeMB / 1024).toFixed(0)}GB` : `${maxSizeMB}MB`}
               {category === "video" && " • Supports mp4, mov, avi, webm"}
             </p>
           </div>
@@ -232,26 +198,25 @@ export function FileUploadForm({
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">
-                Uploading... {uploadProgress < 100 ? `(${Math.ceil(file!.size / CHUNK_SIZE)} chunks)` : 'Complete!'}
+                Uploading... {uploadProgress < 100 ? '' : 'Complete!'}
               </span>
               <span className="font-medium">{uploadProgress}%</span>
             </div>
             <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden">
-              <div 
+              <div
                 className="bg-primary h-full transition-all duration-300 ease-out"
                 style={{ width: `${uploadProgress}%` }}
               />
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>{(file!.size * uploadProgress / 100 / (1024 * 1024)).toFixed(2)} MB / {(file!.size / (1024 * 1024)).toFixed(2)} MB</span>
-              {estimatedTimeRemaining && <span>Est. {estimatedTimeRemaining} remaining</span>}
             </div>
           </div>
         )}
 
         <div className="flex gap-2">
-          <Button 
-            onClick={handleUpload} 
+          <Button
+            onClick={handleUpload}
             disabled={!file || uploading}
             className="flex-1"
           >
@@ -267,10 +232,10 @@ export function FileUploadForm({
               </>
             )}
           </Button>
-          
+
           {uploading && (
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={handleCancelUpload}
             >
               Cancel

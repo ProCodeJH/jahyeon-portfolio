@@ -10,8 +10,8 @@ import { useEffect, useRef, useState } from "react";
  * - Performance optimized with requestAnimationFrame
  */
 export function GradientMeshBackground() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationFrameRef = useRef<number>();
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const animationFrameRef = useRef<number | undefined>(undefined);
   const isVisibleRef = useRef(true);
 
   useEffect(() => {
@@ -28,7 +28,10 @@ export function GradientMeshBackground() {
     };
     setCanvasSize();
 
-    // Blob class for gradient animation
+    // Blob class for gradient animation - Capture canvas and ctx as non-null
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
+
     class Blob {
       x: number;
       y: number;
@@ -36,40 +39,46 @@ export function GradientMeshBackground() {
       vx: number;
       vy: number;
       hue: number;
+      private canvasW: number;
+      private canvasH: number;
 
-      constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
+      constructor(w: number, h: number) {
+        this.canvasW = w;
+        this.canvasH = h;
+        this.x = Math.random() * w;
+        this.y = Math.random() * h;
         this.radius = Math.random() * 200 + 150;
         this.vx = (Math.random() - 0.5) * 0.5;
         this.vy = (Math.random() - 0.5) * 0.5;
         this.hue = Math.random() * 60 + 200; // Blue to purple range
       }
 
-      update() {
+      update(w: number, h: number) {
+        this.canvasW = w;
+        this.canvasH = h;
         this.x += this.vx;
         this.y += this.vy;
 
         // Bounce off edges
-        if (this.x < -this.radius || this.x > canvas.width + this.radius) this.vx *= -1;
-        if (this.y < -this.radius || this.y > canvas.height + this.radius) this.vy *= -1;
+        if (this.x < -this.radius || this.x > this.canvasW + this.radius) this.vx *= -1;
+        if (this.y < -this.radius || this.y > this.canvasH + this.radius) this.vy *= -1;
 
         // Cycle hue
         this.hue += 0.1;
         if (this.hue > 260) this.hue = 200;
       }
 
-      draw() {
-        const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+      draw(context: CanvasRenderingContext2D, w: number, h: number) {
+        const gradient = context.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
         gradient.addColorStop(0, `hsla(${this.hue}, 70%, 60%, 0.15)`);
         gradient.addColorStop(1, `hsla(${this.hue}, 70%, 60%, 0)`);
 
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        context.fillStyle = gradient;
+        context.fillRect(0, 0, w, h);
       }
     }
 
-    const blobs = Array.from({ length: 5 }, () => new Blob());
+    const blobs = Array.from({ length: 5 }, () => new Blob(canvas.width, canvas.height));
 
     // Animation loop
     const animate = () => {
@@ -85,8 +94,8 @@ export function GradientMeshBackground() {
 
       // Update and draw blobs
       blobs.forEach(blob => {
-        blob.update();
-        blob.draw();
+        blob.update(canvas.width, canvas.height);
+        blob.draw(ctx, canvas.width, canvas.height);
       });
 
       animationFrameRef.current = requestAnimationFrame(animate);

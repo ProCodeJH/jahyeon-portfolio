@@ -2,8 +2,9 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { ArrowRight, Code, Zap, Sparkles, CircuitBoard, Layers, GraduationCap, Play, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, Code, Zap, Sparkles, CircuitBoard, Layers, GraduationCap, Play, ChevronLeft, ChevronRight, Award, Loader2, ShieldCheck, Building } from "lucide-react";
 import { GradientMeshBackground } from "@/components/backgrounds/GradientMeshBackground";
+import { HeroVideoBackground } from "@/components/backgrounds/HeroVideoBackground";
 import { SubtleDots } from "@/components/backgrounds/SubtleDots";
 import { TiltCard } from "@/components/effects/TiltCard";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
@@ -11,6 +12,7 @@ import { Navigation } from "@/components/layout/Navigation";
 
 export default function Home() {
   const { data: projects } = trpc.projects.list.useQuery();
+  const { data: certifications, isLoading: certificationsLoading } = trpc.certifications.list.useQuery();
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
@@ -28,9 +30,12 @@ export default function Home() {
       {/* Premium Navigation */}
       <Navigation />
 
-      {/* GOD-TIER Hero Section */}
-      <section className="min-h-screen flex items-center relative pt-24 md:pt-32 px-4 md:px-8">
-        <div className="max-w-7xl mx-auto w-full relative z-10">
+      {/* 🎬 CINEMATIC HERO SECTION with Video Background */}
+      <section className="min-h-screen flex items-center relative overflow-hidden">
+        {/* Premium Video Background */}
+        <HeroVideoBackground videoSrc="/hero_video.mp4" />
+
+        <div className="max-w-7xl mx-auto w-full relative z-10 px-4 md:px-8 pt-24 md:pt-32">
           <div className="grid lg:grid-cols-2 gap-12 md:gap-16 lg:gap-24 items-center">
             {/* Left: Premium Typography */}
             <div className="space-y-6 md:space-y-8">
@@ -44,22 +49,23 @@ export default function Home() {
               </AnimatedSection>
 
               <AnimatedSection delay={150}>
-                <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-[1.1] tracking-tight">
-                  <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-purple-900 to-blue-900 animate-gradient-x drop-shadow-sm">
+                <h1 className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-black leading-[1.05] tracking-[-0.02em]">
+                  <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-purple-900 to-gray-900 animate-gradient-x">
                     Thinking of ideas
                   </span>
                   <br />
-                  <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 animate-gradient-x mt-2 drop-shadow-lg">
+                  <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-500 to-blue-600 animate-gradient-x mt-1 md:mt-2">
                     that help the world,
                   </span>
                   <br />
-                  <span className="inline-block text-gray-900 mt-2 relative drop-shadow-sm">
+                  <span className="inline-block text-gray-900 mt-1 md:mt-2 relative">
                     creating, growing
-                    <svg className="absolute -bottom-2 md:-bottom-3 left-0 w-full" viewBox="0 0 300 12" fill="none">
-                      <path d="M0 6 Q150 12, 300 6" stroke="url(#gradient)" strokeWidth="3" strokeLinecap="round" className="animate-draw" />
+                    <svg className="absolute -bottom-2 md:-bottom-4 left-0 w-full" viewBox="0 0 300 12" fill="none">
+                      <path d="M0 6 Q150 12, 300 6" stroke="url(#hero-gradient)" strokeWidth="4" strokeLinecap="round" className="animate-draw" />
                       <defs>
-                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <linearGradient id="hero-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
                           <stop offset="0%" stopColor="#9333ea" />
+                          <stop offset="50%" stopColor="#ec4899" />
                           <stop offset="100%" stopColor="#3b82f6" />
                         </linearGradient>
                       </defs>
@@ -317,11 +323,10 @@ export default function Home() {
               return (
                 <AnimatedSection key={idx} delay={idx * 100}>
                   <TiltCard sensitivity={6}>
-                    <div className={`group relative p-5 md:p-8 rounded-2xl md:rounded-3xl bg-white border-2 ${
-                      exp.current
-                        ? 'border-purple-300 shadow-2xl shadow-purple-500/20'
-                        : 'border-gray-100 shadow-xl'
-                    } hover:border-purple-300 hover:shadow-2xl transition-all duration-500 overflow-hidden`}>
+                    <div className={`group relative p-5 md:p-8 rounded-2xl md:rounded-3xl bg-white border-2 ${exp.current
+                      ? 'border-purple-300 shadow-2xl shadow-purple-500/20'
+                      : 'border-gray-100 shadow-xl'
+                      } hover:border-purple-300 hover:shadow-2xl transition-all duration-500 overflow-hidden`}>
                       {/* Premium Background Effect */}
                       {exp.current && (
                         <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5" />
@@ -329,20 +334,18 @@ export default function Home() {
 
                       <div className="relative flex items-start gap-4 md:gap-6">
                         {/* Premium Icon */}
-                        <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gradient-to-br ${
-                          exp.current
-                            ? 'from-purple-500 to-blue-500'
-                            : 'from-gray-400 to-gray-500'
-                        } flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 flex-shrink-0`}>
+                        <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gradient-to-br ${exp.current
+                          ? 'from-purple-500 to-blue-500'
+                          : 'from-gray-400 to-gray-500'
+                          } flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 flex-shrink-0`}>
                           <Icon className="w-6 h-6 md:w-8 md:h-8 text-white" />
                         </div>
 
                         {/* Content */}
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-2 md:mb-3">
-                            <p className={`text-xs md:text-sm font-black font-mono tracking-wider ${
-                              exp.current ? 'text-purple-600' : 'text-gray-500'
-                            }`}>
+                            <p className={`text-xs md:text-sm font-black font-mono tracking-wider ${exp.current ? 'text-purple-600' : 'text-gray-500'
+                              }`}>
                               {exp.year}
                             </p>
                             {exp.current && (
@@ -375,178 +378,242 @@ export default function Home() {
         </div>
       </section>
 
-      {/* GOD-TIER 3D STACKED CARDS - Featured Work */}
+      {/* 🏆 CERTIFICATIONS & CREDENTIALS */}
       <section className="py-20 md:py-32 lg:py-40 px-4 md:px-8 relative overflow-hidden">
-        {/* Animated Background Orbs */}
-        <div className="absolute top-0 left-1/4 w-64 md:w-96 h-64 md:h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-64 md:w-96 h-64 md:h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+        {/* Background Effects */}
+        <div className="absolute top-20 left-10 w-48 md:w-72 h-48 md:h-72 bg-gradient-to-r from-purple-400/10 to-pink-400/10 rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-20 right-10 w-64 md:w-96 h-64 md:h-96 bg-gradient-to-r from-blue-400/10 to-cyan-400/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
 
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto relative z-10">
           <AnimatedSection>
-            {/* Premium Header - NO "Portfolio" */}
             <div className="text-center mb-12 md:mb-16 lg:mb-20">
-              <h2 className="text-4xl md:text-6xl lg:text-8xl font-black tracking-tight mb-4 md:mb-6">
+              <div className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-3 rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-200/50 backdrop-blur-xl mb-4 md:mb-6 shadow-lg">
+                <Award className="w-4 md:w-5 h-4 md:h-5 text-purple-600" />
+                <span className="text-xs md:text-sm font-bold text-purple-600 tracking-wider uppercase">Credentials</span>
+              </div>
+              <h2 className="text-4xl md:text-6xl lg:text-7xl font-black mb-4 md:mb-6 tracking-tight">
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 animate-gradient-x">
+                  Certifications
+                </span>
+              </h2>
+              <div className="w-24 md:w-32 h-1.5 md:h-2 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full mx-auto shadow-lg shadow-purple-500/50" />
+            </div>
+          </AnimatedSection>
+
+          {/* Certifications Grid */}
+          {certificationsLoading ? (
+            <div className="flex flex-col items-center justify-center py-16">
+              <Loader2 className="w-10 h-10 animate-spin text-purple-500 mb-4" />
+              <p className="text-gray-500">Loading credentials...</p>
+            </div>
+          ) : !certifications?.length ? (
+            <div className="text-center py-16">
+              <Award className="w-16 h-16 text-gray-200 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-400">No certifications yet</h3>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 lg:gap-8">
+              {certifications.slice(0, 6).map((cert, index) => (
+                <AnimatedSection key={cert.id} delay={index * 100}>
+                  <TiltCard>
+                    <div className="group rounded-2xl md:rounded-3xl overflow-hidden bg-white border border-gray-200 hover:border-purple-300 transition-all duration-500 hover:shadow-2xl">
+                      <div className="aspect-[4/3] overflow-hidden relative">
+                        {cert.imageUrl ? (
+                          <img src={cert.imageUrl} alt={cert.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-purple-100 via-blue-50 to-pink-100 flex items-center justify-center">
+                            <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shadow-2xl shadow-purple-500/50">
+                              <Award className="w-10 h-10 md:w-12 md:h-12 text-white" />
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Verified Badge */}
+                        <div className="absolute top-3 md:top-4 right-3 md:right-4">
+                          <span className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1 md:py-1.5 rounded-full bg-white backdrop-blur-xl text-purple-600 text-[10px] md:text-xs font-medium border border-gray-200 shadow-lg">
+                            <ShieldCheck className="w-2.5 h-2.5 md:w-3 md:h-3" />Verified
+                          </span>
+                        </div>
+
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+
+                      <div className="p-5 md:p-6 lg:p-7 relative bg-gradient-to-br from-white via-gray-50/30 to-purple-50/20">
+                        {/* Certified Badge */}
+                        <div className="absolute -top-3 left-5 md:left-6">
+                          <div className="relative">
+                            <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 blur-lg opacity-60"></div>
+                            <div className="relative px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-gradient-to-r from-purple-600 via-purple-500 to-blue-600 text-white text-[10px] md:text-xs font-bold tracking-wider uppercase shadow-2xl border-2 border-white">
+                              🏆 Certified
+                            </div>
+                          </div>
+                        </div>
+
+                        <h3 className="text-lg md:text-xl lg:text-2xl font-bold mb-3 md:mb-4 mt-2 group-hover:text-purple-600 transition-colors line-clamp-2 text-gray-900 leading-tight">
+                          {cert.title}
+                        </h3>
+
+                        <div className="flex items-center gap-2 mb-4 md:mb-5">
+                          <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-gradient-to-br from-purple-100 to-blue-100 flex items-center justify-center flex-shrink-0 border border-purple-200">
+                            <Building className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs md:text-sm text-gray-500 font-medium">Issued by</p>
+                            <p className="text-sm md:text-base font-semibold text-gray-900 line-clamp-1">{cert.issuer}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between pt-3 md:pt-4 border-t border-gray-200">
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                            <span className="text-xs md:text-sm text-emerald-600 font-semibold">Active</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <svg key={star} className="w-3 h-3 md:w-4 md:h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                                <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                              </svg>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </TiltCard>
+                </AnimatedSection>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* 🎬 FULL-WIDTH CINEMATIC FEATURED WORK */}
+      <section className="py-20 md:py-32 lg:py-40 relative overflow-hidden">
+        {/* Premium Background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-gray-50 via-white to-purple-50/30" />
+        <div className="absolute top-0 left-1/4 w-64 md:w-96 h-64 md:h-96 bg-purple-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-64 md:w-96 h-64 md:h-96 bg-blue-500/10 rounded-full blur-3xl" />
+
+        {/* Header */}
+        <div className="max-w-7xl mx-auto px-4 md:px-8 mb-12 md:mb-16 lg:mb-20 relative z-10">
+          <AnimatedSection>
+            <div className="text-center">
+              <h2 className="text-4xl md:text-6xl lg:text-8xl font-black tracking-[-0.02em] mb-4 md:mb-6">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-500 to-blue-600 animate-gradient-x">
                   Featured Work
                 </span>
               </h2>
               <p className="text-base md:text-xl text-gray-600 max-w-2xl mx-auto font-medium">
-                Swipe through my latest projects
+                Scroll horizontally to explore my latest projects
               </p>
             </div>
           </AnimatedSection>
+        </div>
 
-          {/* 3D Stacked Cards Container */}
-          <div className="relative max-w-4xl mx-auto h-[500px] md:h-[600px] perspective-[2000px]">
-            {/* Cards Stack */}
-            <div className="relative w-full h-full">
-              {projects?.slice(0, 5).map((project, idx) => {
-                const position = idx - activeIndex;
-                const isActive = idx === activeIndex;
-                const isPast = idx < activeIndex;
-                const isFuture = idx > activeIndex;
+        {/* Full-Width Horizontal Scroll Container */}
+        <div className="relative">
+          <div
+            className="flex gap-6 md:gap-8 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-4 md:px-8 lg:px-16 pb-8"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {projects?.slice(0, 8).map((project, idx) => (
+              <AnimatedSection key={project.id} delay={idx * 100}>
+                <div
+                  className="group relative flex-shrink-0 w-[85vw] md:w-[70vw] lg:w-[50vw] xl:w-[40vw] snap-center"
+                >
+                  <TiltCard sensitivity={4}>
+                    <div className="relative aspect-[16/10] rounded-2xl md:rounded-3xl overflow-hidden bg-gray-900 shadow-2xl hover:shadow-purple-500/30 transition-all duration-700">
+                      {/* Project Image */}
+                      {project.imageUrl && (
+                        <img
+                          src={project.imageUrl}
+                          alt={project.title}
+                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
+                        />
+                      )}
 
-                return (
-                  <div
-                    key={project.id}
-                    className={`absolute inset-0 transition-all duration-700 cursor-pointer ${
-                      isPast ? 'pointer-events-none' : 'pointer-events-auto'
-                    }`}
-                    style={{
-                      transform: `
-                        translateX(${position * 30}px)
-                        translateY(${Math.abs(position) * 20}px)
-                        translateZ(${-Math.abs(position) * 100}px)
-                        rotateY(${position * -15}deg)
-                        scale(${1 - Math.abs(position) * 0.1})
-                      `,
-                      zIndex: 50 - Math.abs(position),
-                      opacity: Math.max(0, 1 - Math.abs(position) * 0.3),
-                      transformStyle: 'preserve-3d'
-                    }}
-                    onClick={() => {
-                      if (isFuture) setActiveIndex(idx);
-                    }}
-                  >
-                    {/* Card */}
-                    <div className={`relative w-full h-full rounded-[3rem] overflow-hidden shadow-2xl transition-all duration-700 ${
-                      isActive ? 'shadow-purple-500/30 scale-100' : 'shadow-black/20'
-                    }`}>
+                      {/* Gradient Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
 
-                      {/* Premium Gradient Border */}
-                      <div className={`absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-[3rem] blur-xl transition-opacity duration-500 ${
-                        isActive ? 'opacity-60' : 'opacity-0'
-                      }`} />
-
-                      {/* Card Content */}
-                      <div className="relative w-full h-full rounded-[3rem] bg-gray-900 overflow-hidden">
-
-                        {/* Image Background */}
-                        {project.imageUrl && (
-                          <div className="absolute inset-0">
-                            <img
-                              src={project.imageUrl}
-                              alt={project.title}
-                              className={`w-full h-full object-cover transition-transform duration-1000 ${
-                                isActive ? 'scale-110' : 'scale-100'
-                              }`}
-                            />
-                            {/* Enhanced Gradient Overlay */}
-                            <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent transition-opacity duration-700 ${
-                              isActive ? 'opacity-90' : 'opacity-70'
-                            }`} />
-                          </div>
-                        )}
-
-                        {/* Text Content - HIGHLY VISIBLE */}
-                        <div className="absolute inset-0 p-6 md:p-12 flex flex-col justify-end">
-                          <div className={`transform transition-all duration-700 ${
-                            isActive ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-60'
-                          }`}>
-
-                            {/* Project Number Badge */}
-                            <div className="inline-flex items-center gap-2 px-4 py-1.5 md:px-5 md:py-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs md:text-sm font-black tracking-wider mb-4 md:mb-6 shadow-2xl">
-                              <Code className="w-3 h-3 md:w-4 md:h-4" />
-                              PROJECT #{idx + 1}
-                            </div>
-
-                            {/* Title - SUPER VISIBLE */}
-                            <h3 className="text-3xl md:text-5xl lg:text-6xl font-black text-white mb-3 md:mb-6 drop-shadow-2xl leading-tight">
-                              {project.title}
-                            </h3>
-
-                            {/* Description - ENHANCED VISIBILITY */}
-                            <p className="text-base md:text-xl lg:text-2xl text-white font-semibold leading-relaxed drop-shadow-2xl mb-4 md:mb-8 line-clamp-2 md:line-clamp-3">
-                              {project.description}
-                            </p>
-
-                            {/* CTA Button - Only on Active Card */}
-                            {isActive && (
-                              <Link href="/projects">
-                                <div className="inline-flex items-center gap-2 md:gap-3 px-6 py-3 md:px-8 md:py-4 rounded-full bg-white text-purple-600 font-black text-base md:text-lg shadow-2xl hover:scale-110 hover:shadow-purple-500/50 transition-all duration-300 group">
-                                  View Project
-                                  <ArrowRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-2 transition-transform" />
-                                </div>
-                              </Link>
-                            )}
-                          </div>
+                      {/* Content */}
+                      <div className="absolute inset-0 p-6 md:p-8 lg:p-10 flex flex-col justify-end">
+                        {/* Category Badge */}
+                        <div className="flex items-center gap-2 mb-3 md:mb-4">
+                          <span className="px-3 md:px-4 py-1 md:py-1.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs md:text-sm font-bold tracking-wider uppercase shadow-lg">
+                            <Code className="w-3 h-3 md:w-4 md:h-4 inline mr-1.5" />
+                            {project.category}
+                          </span>
+                          <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-xl text-white text-xs md:text-sm font-medium">
+                            #{idx + 1}
+                          </span>
                         </div>
 
-                        {/* Shimmer Effect on Active Card */}
-                        {isActive && (
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-shimmer" />
+                        {/* Title */}
+                        <h3 className="text-2xl md:text-4xl lg:text-5xl font-black text-white mb-2 md:mb-4 leading-tight group-hover:text-purple-200 transition-colors">
+                          {project.title}
+                        </h3>
+
+                        {/* Description */}
+                        <p className="text-sm md:text-lg text-white/80 font-medium leading-relaxed line-clamp-2 md:line-clamp-3 mb-4 md:mb-6">
+                          {project.description}
+                        </p>
+
+                        {/* Technologies */}
+                        {project.technologies && (
+                          <div className="flex flex-wrap gap-2 mb-4 md:mb-6">
+                            {project.technologies.split(',').slice(0, 4).map((tech, i) => (
+                              <span
+                                key={i}
+                                className="px-2 md:px-3 py-1 rounded-lg bg-white/10 backdrop-blur-xl text-white/90 text-xs md:text-sm font-medium border border-white/20"
+                              >
+                                {tech.trim()}
+                              </span>
+                            ))}
+                          </div>
                         )}
+
+                        {/* CTA Button */}
+                        <Link href="/projects">
+                          <div className="inline-flex items-center gap-2 md:gap-3 px-5 md:px-6 py-2.5 md:py-3 rounded-full bg-white text-purple-600 font-bold text-sm md:text-base shadow-2xl hover:scale-105 hover:shadow-purple-500/50 transition-all duration-300 group/btn w-fit">
+                            View Details
+                            <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover/btn:translate-x-1 transition-transform" />
+                          </div>
+                        </Link>
                       </div>
+
+                      {/* Hover Shimmer */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                     </div>
+                  </TiltCard>
+                </div>
+              </AnimatedSection>
+            ))}
+
+            {/* View All Card */}
+            <div className="flex-shrink-0 w-[85vw] md:w-[70vw] lg:w-[50vw] xl:w-[40vw] snap-center">
+              <Link href="/projects">
+                <div className="relative aspect-[16/10] rounded-2xl md:rounded-3xl overflow-hidden bg-gradient-to-br from-purple-600 via-pink-600 to-blue-600 shadow-2xl hover:shadow-purple-500/50 transition-all duration-500 group cursor-pointer">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center p-8">
+                    <div className="w-20 h-20 md:w-28 md:h-28 rounded-full bg-white/20 backdrop-blur-xl flex items-center justify-center mb-6 md:mb-8 group-hover:scale-110 transition-transform">
+                      <ArrowRight className="w-10 h-10 md:w-14 md:h-14 text-white group-hover:translate-x-2 transition-transform" />
+                    </div>
+                    <h3 className="text-3xl md:text-5xl font-black text-white mb-3 md:mb-4">View All</h3>
+                    <p className="text-lg md:text-xl text-white/80 font-medium">Explore the full portfolio</p>
                   </div>
-                );
-              })}
-            </div>
 
-            {/* Navigation Buttons */}
-            <button
-              onClick={() => setActiveIndex(Math.max(0, activeIndex - 1))}
-              disabled={activeIndex === 0}
-              className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-[100] w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/90 backdrop-blur-xl border-2 border-purple-500 text-purple-600 shadow-2xl hover:scale-110 hover:bg-purple-500 hover:text-white transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
-            >
-              <ChevronLeft className="w-6 h-6 md:w-8 md:h-8 mx-auto" />
-            </button>
-
-            <button
-              onClick={() => setActiveIndex(Math.min((projects?.length || 1) - 1, activeIndex + 1))}
-              disabled={activeIndex === (projects?.length || 1) - 1}
-              className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-[100] w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/90 backdrop-blur-xl border-2 border-purple-500 text-purple-600 shadow-2xl hover:scale-110 hover:bg-purple-500 hover:text-white transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
-            >
-              <ChevronRight className="w-6 h-6 md:w-8 md:h-8 mx-auto" />
-            </button>
-
-            {/* Dot Indicators */}
-            <div className="absolute -bottom-20 left-1/2 -translate-x-1/2 flex items-center gap-3 z-[100]">
-              {projects?.slice(0, 5).map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setActiveIndex(idx)}
-                  className={`rounded-full transition-all duration-300 ${
-                    idx === activeIndex
-                      ? 'w-12 h-3 bg-gradient-to-r from-purple-600 to-pink-600 shadow-lg shadow-purple-500/50'
-                      : 'w-3 h-3 bg-gray-300 hover:bg-gray-400'
-                  }`}
-                />
-              ))}
+                  {/* Animated Background */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                </div>
+              </Link>
             </div>
           </div>
 
-          {/* View All Projects Button */}
-          <div className="text-center mt-20 md:mt-24 lg:mt-32">
-            <Link href="/projects">
-              <Button
-                size="lg"
-                className="group rounded-full bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white text-base md:text-xl px-8 md:px-12 py-6 md:py-8 h-auto font-black shadow-2xl hover:shadow-purple-500/50 hover:scale-110 transition-all duration-300"
-              >
-                View All Projects
-                <ArrowRight className="ml-2 md:ml-3 h-5 w-5 md:h-6 md:w-6 group-hover:translate-x-2 transition-transform" />
-              </Button>
-            </Link>
+          {/* Scroll Indicators */}
+          <div className="flex items-center justify-center gap-2 mt-8 md:mt-12">
+            <div className="flex items-center gap-1 text-gray-500 text-sm md:text-base">
+              <ChevronLeft className="w-4 h-4" />
+              <span className="font-medium">Scroll</span>
+              <ChevronRight className="w-4 h-4" />
+            </div>
           </div>
         </div>
       </section>

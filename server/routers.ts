@@ -12,6 +12,12 @@ import { eq, sql, and, gte } from "drizzle-orm";
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
+// ============================================
+// 🔒 Category Enums (matches drizzle/schema.ts)
+// ============================================
+const projectCategoryEnum = z.enum(["c_lang", "arduino", "python", "embedded", "iot", "firmware", "hardware", "software"]);
+const resourceCategoryEnum = z.enum(["presentation", "daily_life", "lecture_c", "lecture_arduino", "lecture_python", "lecture_materials", "arduino_projects", "c_projects", "python_projects"]);
+
 const t = initTRPC.context<{ userId?: string }>().create();
 
 const s3Client = new S3Client({
@@ -79,6 +85,12 @@ export const appRouter = t.router({
       const [session] = await db.select().from(sessions).where(and(eq(sessions.token, input.token), gte(sessions.expiresAt, new Date()))).limit(1);
       return { valid: !!session, userId: session?.userId?.toString() };
     }),
+    me: protectedProcedure.query(async ({ ctx }) => {
+      const db = await getDb();
+      if (!db) return null;
+      const [user] = await db.select().from(users).where(eq(users.id, parseInt(ctx.userId))).limit(1);
+      return user || null;
+    }),
   }),
 
   upload: t.router({
@@ -89,16 +101,16 @@ export const appRouter = t.router({
     }),
 
     // ============================================
-    // 🚀 Presigned URL (500MB까지 지원)
+    // 🚀 Presigned URL (2GB까지 지원 - Enterprise Grade)
     // ============================================
     getPresignedUrl: protectedProcedure.input(z.object({
       fileName: z.string(),
       contentType: z.string(),
       fileSize: z.number(),
     })).mutation(async ({ input }) => {
-      const MAX_SIZE = 500 * 1024 * 1024; // 500MB
+      const MAX_SIZE = 2 * 1024 * 1024 * 1024; // 2GB - Enterprise Grade
       if (input.fileSize > MAX_SIZE) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "File too large. Max 500MB allowed." });
+        throw new TRPCError({ code: "BAD_REQUEST", message: "File too large. Max 2GB allowed." });
       }
 
       // Preserve UTF-8 characters (Korean, etc.) in filename
@@ -120,6 +132,24 @@ export const appRouter = t.router({
         publicUrl: `${R2_PUBLIC_URL}/${key}`,
       };
     }),
+
+    // Stub for chunked uploads (client compatibility)
+    uploadChunk: protectedProcedure.input(z.object({
+      uploadId: z.string(),
+      chunkIndex: z.number(),
+      chunkData: z.string(),
+    })).mutation(async () => {
+      // Stub - chunked upload not implemented yet
+      return { success: true };
+    }),
+
+    // Stub for PPT thumbnail generation
+    getPPTThumbnail: protectedProcedure.input(z.object({
+      fileUrl: z.string(),
+    })).mutation(async () => {
+      // Stub - PPT thumbnail generation not implemented yet
+      return { thumbnailUrl: null };
+    }),
   }),
 
   projects: t.router({
@@ -131,14 +161,26 @@ export const appRouter = t.router({
     }),
     create: protectedProcedure.input(z.object({
       title: z.string().min(1), description: z.string().optional().default(""), technologies: z.string().optional().default(""),
-      category: z.string(), imageUrl: z.string().optional().default(""), imageKey: z.string().optional().default(""),
+      category: projectCategoryEnum, imageUrl: z.string().optional().default(""), imageKey: z.string().optional().default(""),
       videoUrl: z.string().optional().default(""), videoKey: z.string().optional().default(""),
       thumbnailUrl: z.string().optional().default(""), thumbnailKey: z.string().optional().default(""),
       projectUrl: z.string().optional().default(""), githubUrl: z.string().optional().default(""),
-    })).mutation(async ({ input }) => createProject(input)),
+    })).mutation(async ({ input }) => {
+      try {
+        const result = await createProject(input);
+        console.log(`[Projects] Created: "${input.title}"`);
+        return result;
+      } catch (error) {
+        console.error("[Projects] Create error:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: error instanceof Error ? error.message : "Failed to create project"
+        });
+      }
+    }),
     update: protectedProcedure.input(z.object({
       id: z.number(), title: z.string().min(1).optional(), description: z.string().optional(), technologies: z.string().optional(),
-      category: z.string().optional(), imageUrl: z.string().optional(), imageKey: z.string().optional(),
+      category: projectCategoryEnum.optional(), imageUrl: z.string().optional(), imageKey: z.string().optional(),
       videoUrl: z.string().optional(), videoKey: z.string().optional(), thumbnailUrl: z.string().optional(), thumbnailKey: z.string().optional(),
       projectUrl: z.string().optional(), githubUrl: z.string().optional(),
     })).mutation(async ({ input }) => { const { id, ...data } = input; await updateProject(id, data); return { success: true }; }),
@@ -190,13 +232,13 @@ export const appRouter = t.router({
       return resource;
     }),
     create: protectedProcedure.input(z.object({
-      title: z.string().min(1), description: z.string().optional().default(""), category: z.string(),
+      title: z.string().min(1), description: z.string().optional().default(""), category: resourceCategoryEnum,
       subcategory: z.string().optional().default(""), fileUrl: z.string(), fileKey: z.string().optional().default(""),
       fileName: z.string().optional().default(""), fileSize: z.number().optional().default(0),
       mimeType: z.string().optional().default(""), thumbnailUrl: z.string().optional().default(""), thumbnailKey: z.string().optional().default(""),
     })).mutation(async ({ input }) => createResource(input)),
     update: protectedProcedure.input(z.object({
-      id: z.number(), title: z.string().min(1).optional(), description: z.string().optional(), category: z.string().optional(),
+      id: z.number(), title: z.string().min(1).optional(), description: z.string().optional(), category: resourceCategoryEnum.optional(),
       subcategory: z.string().optional(), fileUrl: z.string().optional(), fileKey: z.string().optional(),
       fileName: z.string().optional(), fileSize: z.number().optional(), mimeType: z.string().optional(),
       thumbnailUrl: z.string().optional(), thumbnailKey: z.string().optional(),
@@ -237,9 +279,34 @@ export const appRouter = t.router({
     }),
     create: protectedProcedure.input(z.object({
       name: z.string().min(1),
-      category: z.string(),
+      category: resourceCategoryEnum,
       description: z.string().optional().default(""),
-    })).mutation(async ({ input }) => createFolder(input)),
+    })).mutation(async ({ input }) => {
+      try {
+        // Check for duplicate folder in same category
+        const existingFolders = await getAllFolders();
+        const duplicate = existingFolders.find(f =>
+          f.name.toLowerCase() === input.name.toLowerCase() &&
+          f.category === input.category
+        );
+
+        if (duplicate) {
+          // Return existing folder instead of throwing error
+          console.log(`[Folders] Folder "${input.name}" already exists in ${input.category}, returning existing`);
+          return duplicate;
+        }
+
+        const newFolder = await createFolder(input);
+        console.log(`[Folders] Created new folder: "${input.name}" in ${input.category}`);
+        return newFolder;
+      } catch (error) {
+        console.error("[Folders] Create error:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: error instanceof Error ? error.message : "Failed to create folder"
+        });
+      }
+    }),
     update: protectedProcedure.input(z.object({
       id: z.number(),
       name: z.string().min(1).optional(),
@@ -251,6 +318,31 @@ export const appRouter = t.router({
     }),
     delete: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
       await deleteFolder(input.id);
+      return { success: true };
+    }),
+  }),
+
+  // ============================================
+  // 👍 Likes & Comments (Stub for client compatibility)
+  // ============================================
+  likes: t.router({
+    get: publicProcedure.input(z.object({ resourceId: z.number() })).query(async () => {
+      // Stub: returns empty state for now
+      return { count: 0, userLiked: false };
+    }),
+    toggle: protectedProcedure.input(z.object({ resourceId: z.number() })).mutation(async () => {
+      return { success: true, liked: false };
+    }),
+  }),
+
+  comments: t.router({
+    list: publicProcedure.input(z.object({ resourceId: z.number() })).query(async () => {
+      return [];
+    }),
+    create: protectedProcedure.input(z.object({ resourceId: z.number(), content: z.string() })).mutation(async () => {
+      return { success: true, id: 0 };
+    }),
+    delete: protectedProcedure.input(z.object({ id: z.number() })).mutation(async () => {
       return { success: true };
     }),
   }),

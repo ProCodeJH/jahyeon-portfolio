@@ -6,8 +6,9 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import Projects from "./pages/Projects";
-import Certifications from "./pages/Certifications";
+// Certifications page removed - merged into Home
 import Resources from "./pages/Resources";
+import CodeEditor from "./pages/CodeEditor";
 import Admin from "./pages/Admin";
 
 function Router() {
@@ -15,8 +16,9 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/projects" component={Projects} />
-      <Route path="/certifications" component={Certifications} />
+      {/* Certifications route removed - content merged into Home */}
       <Route path="/resources" component={Resources} />
+      <Route path="/code-editor" component={CodeEditor} />
       <Route path="/admin" component={Admin} />
       <Route path="/404" component={NotFound} />
       {/* Final fallback route */}
