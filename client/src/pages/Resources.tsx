@@ -10,6 +10,7 @@ import { SubtleDots } from "@/components/backgrounds/SubtleDots";
 import { TiltCard } from "@/components/effects/TiltCard";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
 import { Navigation } from "@/components/layout/Navigation";
+import { ResourceCardSkeleton } from "@/components/ui/skeleton";
 
 const CATEGORIES = [
   { value: "all", label: "All", icon: Sparkles, color: "#8B5CF6", gradient: "from-purple-500 to-pink-500" },
@@ -184,8 +185,8 @@ function LikeButton({ resourceId }: { resourceId: number }) {
       onClick={handleLike}
       disabled={toggleLike.isPending}
       className={`flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1.5 md:py-2 rounded-full transition-all ${likeStatus?.userLiked
-          ? "bg-pink-100 text-pink-600 hover:bg-pink-200"
-          : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+        ? "bg-pink-100 text-pink-600 hover:bg-pink-200"
+        : "bg-gray-100 text-gray-500 hover:bg-gray-200"
         }`}
     >
       <Heart className={`w-3 h-3 md:w-4 md:h-4 ${likeStatus?.userLiked ? "fill-current" : ""}`} />
@@ -417,9 +418,11 @@ export default function Resources() {
       <section className="py-8 md:py-10 lg:py-12 pb-20 md:pb-24 lg:pb-32 px-4 md:px-8 relative z-10">
         <div className="max-w-7xl mx-auto">
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-32">
-              <Loader2 className="w-12 h-12 animate-spin text-purple-500 mb-4" />
-              <p className="text-gray-500">Loading resources...</p>
+            // 🎭 SKELETON UI - Premium loading experience
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+              {[...Array(6)].map((_, i) => (
+                <ResourceCardSkeleton key={i} />
+              ))}
             </div>
           ) : !filteredResources?.length ? (
             <div className="text-center py-32">
