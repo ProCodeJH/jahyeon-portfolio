@@ -38,100 +38,73 @@ export default function Home() {
         <HeroVideoBackground videoSrc="/hero-video.mp4" />
       </div>
 
-      {/* 🎬 CINEMATIC HERO SECTION */}
-      <section className="min-h-screen flex items-center relative overflow-hidden z-10">
-        <div className="max-w-7xl mx-auto w-full relative z-10 px-4 md:px-8 pt-24 md:pt-32">
-          <div className="grid lg:grid-cols-2 gap-12 md:gap-16 lg:gap-24 items-center">
-            {/* Left: Premium Typography */}
-            <div className="space-y-6 md:space-y-8">
-              <AnimatedSection>
-                <div className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-3 rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-200/50 backdrop-blur-xl shadow-lg">
-                  <div className="w-2 h-2 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 animate-pulse" />
-                  <p className="text-sm md:text-base font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600 tracking-wide">
-                    Embedded Engineer & Coding Instructor
-                  </p>
-                </div>
-              </AnimatedSection>
+      {/* 🎬 CINEMATIC HERO SECTION - Ultra Premium Centered Layout */}
+      <section className="min-h-screen flex items-center justify-center relative overflow-hidden z-10">
+        {/* Center-aligned Typography Container */}
+        <div className="w-full px-6 md:px-12 lg:px-16 text-center">
+          <div className="max-w-6xl mx-auto space-y-8 md:space-y-12">
 
-              <AnimatedSection delay={150}>
-                <h1 className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-black leading-[1.05] tracking-[-0.02em]">
-                  <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-purple-900 to-gray-900 animate-gradient-x">
-                    Thinking of ideas
-                  </span>
-                  <br />
-                  <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-500 to-blue-600 animate-gradient-x mt-1 md:mt-2">
-                    that help the world,
-                  </span>
-                  <br />
-                  <span className="inline-block text-gray-900 mt-1 md:mt-2 relative">
-                    creating, growing
-                    <svg className="absolute -bottom-2 md:-bottom-4 left-0 w-full" viewBox="0 0 300 12" fill="none">
-                      <path d="M0 6 Q150 12, 300 6" stroke="url(#hero-gradient)" strokeWidth="4" strokeLinecap="round" className="animate-draw" />
-                      <defs>
-                        <linearGradient id="hero-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                          <stop offset="0%" stopColor="#9333ea" />
-                          <stop offset="50%" stopColor="#ec4899" />
-                          <stop offset="100%" stopColor="#3b82f6" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
-                  </span>
-                </h1>
-              </AnimatedSection>
-
-              <AnimatedSection delay={300}>
-                <p className="text-lg md:text-xl lg:text-2xl text-gray-600 leading-relaxed max-w-xl font-light">
-                  Walking the path toward{" "}
-                  <span className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
-                    bigger dreams
-                  </span>
+            {/* Badge */}
+            <AnimatedSection>
+              <div className="inline-flex items-center gap-3 px-6 md:px-8 py-3 md:py-4 rounded-full bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-300/50 backdrop-blur-2xl shadow-2xl">
+                <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 animate-pulse shadow-lg shadow-purple-500/50" />
+                <p className="text-sm md:text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600 tracking-wide">
+                  Embedded Engineer & Coding Instructor
                 </p>
-              </AnimatedSection>
+              </div>
+            </AnimatedSection>
 
-              <AnimatedSection delay={450}>
-                <Link href="/projects">
-                  <Button
-                    size="lg"
-                    className="group relative rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white px-8 md:px-10 h-14 md:h-16 text-base md:text-lg font-bold overflow-hidden shadow-2xl shadow-purple-500/50 hover:shadow-purple-500/70 hover:scale-105 transition-all duration-500"
-                  >
-                    <span className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <span className="relative flex items-center gap-2 md:gap-3">
-                      View Work
-                      <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-2 transition-transform duration-300" />
-                    </span>
-                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                  </Button>
-                </Link>
-              </AnimatedSection>
-            </div>
+            {/* Main Headline - MASSIVE */}
+            <AnimatedSection delay={150}>
+              <h1 className="text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-black leading-[0.95] tracking-[-0.03em]">
+                <span className="block bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-purple-900 to-gray-900 animate-gradient-x mb-3 md:mb-4">
+                  Thinking of ideas
+                </span>
+                <span className="block bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-500 to-blue-600 animate-gradient-x mb-3 md:mb-4">
+                  that help the world,
+                </span>
+                <span className="block text-gray-900 relative inline-block">
+                  creating, growing
+                  {/* Animated underline */}
+                  <svg className="absolute -bottom-4 md:-bottom-6 left-1/2 -translate-x-1/2 w-full max-w-2xl" viewBox="0 0 600 20" fill="none">
+                    <path d="M0 10 Q300 20, 600 10" stroke="url(#hero-gradient-center)" strokeWidth="6" strokeLinecap="round" className="animate-draw" />
+                    <defs>
+                      <linearGradient id="hero-gradient-center" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#9333ea" />
+                        <stop offset="50%" stopColor="#ec4899" />
+                        <stop offset="100%" stopColor="#3b82f6" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                </span>
+              </h1>
+            </AnimatedSection>
 
-            {/* Right: Premium Video Container */}
+            {/* Subtitle */}
             <AnimatedSection delay={300}>
-              <TiltCard sensitivity={8}>
-                <div className="relative aspect-square rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-purple-100 via-pink-50 to-blue-100 p-1 shadow-2xl shadow-purple-500/20 group">
-                  {/* Premium Border Gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 rounded-[2.5rem] opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
+              <p className="text-xl md:text-2xl lg:text-3xl xl:text-4xl text-gray-700 leading-relaxed font-light max-w-4xl mx-auto">
+                Walking the path toward{" "}
+                <span className="font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
+                  bigger dreams
+                </span>
+              </p>
+            </AnimatedSection>
 
-                  {/* Video Container */}
-                  <div className="relative w-full h-full rounded-[2.4rem] overflow-hidden bg-gradient-to-br from-purple-900/10 to-blue-900/10 backdrop-blur-xl">
-                    {/* Hero Video */}
-                    <video autoPlay loop muted playsInline preload="auto" className="w-full h-full object-cover">
-                      <source src="/hero-video.mp4" type="video/mp4" />
-                    </video>
-
-                    {/* Premium Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-purple-900/20 via-transparent to-blue-900/20 opacity-60 group-hover:opacity-30 transition-opacity duration-500" />
-
-                    {/* Animated Border Glow */}
-                    <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-[2.5rem] opacity-0 group-hover:opacity-20 blur-2xl transition-opacity duration-500" />
-                  </div>
-
-                  {/* Floating Particles */}
-                  <div className="absolute top-10 left-10 w-3 h-3 rounded-full bg-purple-400 animate-float" />
-                  <div className="absolute bottom-20 right-16 w-2 h-2 rounded-full bg-blue-400 animate-float delay-500" />
-                  <div className="absolute top-32 right-12 w-2 h-2 rounded-full bg-pink-400 animate-float delay-1000" />
-                </div>
-              </TiltCard>
+            {/* CTA Buttons */}
+            <AnimatedSection delay={450}>
+              <Link href="/projects">
+                <Button
+                  size="lg"
+                  className="group relative rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white px-8 md:px-10 h-14 md:h-16 text-base md:text-lg font-bold overflow-hidden shadow-2xl shadow-purple-500/50 hover:shadow-purple-500/70 hover:scale-105 transition-all duration-500"
+                >
+                  <span className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <span className="relative flex items-center gap-2 md:gap-3">
+                    View Work
+                    <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-2 transition-transform duration-300" />
+                  </span>
+                  <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                </Button>
+              </Link>
             </AnimatedSection>
           </div>
         </div>
@@ -144,7 +117,7 @@ export default function Home() {
         <div className="absolute bottom-20 right-10 w-64 md:w-96 h-64 md:h-96 bg-gradient-to-r from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
         <div className="absolute top-1/2 left-1/2 w-48 md:w-64 h-48 md:h-64 bg-gradient-to-r from-pink-400/10 to-orange-400/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '4s' }} />
 
-        <div className="max-w-7xl mx-auto relative z-10">
+        < div className="max-w-7xl mx-auto relative z-10" >
           <AnimatedSection>
             <div className="text-center mb-12 md:mb-16 lg:mb-20">
               <div className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-3 rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-200/50 backdrop-blur-xl mb-4 md:mb-6 shadow-lg">
@@ -270,11 +243,11 @@ export default function Home() {
               </AnimatedSection>
             ))}
           </div>
-        </div>
-      </section>
+        </div >
+      </section >
 
       {/* PREMIUM Professional Journey */}
-      <section className="py-20 md:py-32 lg:py-40 px-4 md:px-8 bg-gradient-to-br from-purple-50/50 to-blue-50/50 relative">
+      < section className="py-20 md:py-32 lg:py-40 px-4 md:px-8 bg-gradient-to-br from-purple-50/50 to-blue-50/50 relative" >
         <div className="max-w-7xl mx-auto">
           <AnimatedSection>
             <div className="text-center mb-12 md:mb-16 lg:mb-20">
@@ -381,15 +354,15 @@ export default function Home() {
             })}
           </div>
         </div>
-      </section>
+      </section >
 
       {/* 💼 PROFESSIONAL SERVICES (Migration) */}
-      <Services />
+      < Services />
 
       {/* 🏆 CERTIFICATIONS & CREDENTIALS */}
-      <section className="py-20 md:py-32 lg:py-40 px-4 md:px-8 relative overflow-hidden">
+      < section className="py-20 md:py-32 lg:py-40 px-4 md:px-8 relative overflow-hidden" >
         {/* Background Effects */}
-        <div className="absolute top-20 left-10 w-48 md:w-72 h-48 md:h-72 bg-gradient-to-r from-purple-400/10 to-pink-400/10 rounded-full blur-3xl animate-float" />
+        < div className="absolute top-20 left-10 w-48 md:w-72 h-48 md:h-72 bg-gradient-to-r from-purple-400/10 to-pink-400/10 rounded-full blur-3xl animate-float" />
         <div className="absolute bottom-20 right-10 w-64 md:w-96 h-64 md:h-96 bg-gradient-to-r from-blue-400/10 to-cyan-400/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
 
         <div className="max-w-7xl mx-auto relative z-10">
@@ -492,12 +465,12 @@ export default function Home() {
             </div>
           )}
         </div>
-      </section>
+      </section >
 
       {/* 🎬 FULL-WIDTH CINEMATIC FEATURED WORK */}
-      <section className="py-20 md:py-32 lg:py-40 relative overflow-hidden">
+      < section className="py-20 md:py-32 lg:py-40 relative overflow-hidden" >
         {/* Premium Background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-gray-50 via-white to-purple-50/30" />
+        < div className="absolute inset-0 bg-gradient-to-b from-gray-50 via-white to-purple-50/30" />
         <div className="absolute top-0 left-1/4 w-64 md:w-96 h-64 md:h-96 bg-purple-500/10 rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-1/4 w-64 md:w-96 h-64 md:h-96 bg-blue-500/10 rounded-full blur-3xl" />
 
@@ -624,15 +597,15 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* PREMIUM Footer CTA */}
-      <section className="py-20 md:py-32 lg:py-40 px-4 md:px-8 bg-gradient-to-br from-purple-50/50 to-blue-50/50 relative overflow-hidden">
+      < section className="py-20 md:py-32 lg:py-40 px-4 md:px-8 bg-gradient-to-br from-purple-50/50 to-blue-50/50 relative overflow-hidden" >
         {/* Premium Background Effects */}
-        <div className="absolute inset-0">
+        < div className="absolute inset-0" >
           <div className="absolute top-1/4 left-1/4 w-64 md:w-96 h-64 md:h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" />
           <div className="absolute bottom-1/4 right-1/4 w-64 md:w-96 h-64 md:h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
-        </div>
+        </div >
 
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <AnimatedSection>
@@ -754,10 +727,10 @@ export default function Home() {
             </div>
           </AnimatedSection>
         </div>
-      </section>
+      </section >
 
       {/* Premium Animations */}
-      <style>{`
+      < style > {`
         @keyframes gradient-x {
           0%, 100% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
@@ -813,7 +786,7 @@ export default function Home() {
         .delay-1000 {
           animation-delay: 1s;
         }
-      `}</style>
-    </div>
+      `}</style >
+    </div >
   );
 }
