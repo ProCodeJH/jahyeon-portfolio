@@ -44,7 +44,7 @@ const ACCEPTED_FILE_TYPES = {
 // 🚀 파일 용량: 2GB까지 지원! (Enterprise Grade)
 // ============================================
 const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2GB - Enterprise Grade
-const SMALL_FILE_THRESHOLD = 4 * 1024 * 1024; // 4MB 이하는 기존 방식 (Vercel body limit = 4.5MB)
+const SMALL_FILE_THRESHOLD = 0; // 0MB - Always use Presigned URL (Vercel body limit 4.5MB issue)
 
 export default function Admin() {
   const { isAuthenticated, loading, logout } = useAuth();
