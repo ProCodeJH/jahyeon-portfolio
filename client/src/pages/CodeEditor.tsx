@@ -1,4 +1,5 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
+import Editor from "@monaco-editor/react";
 import { Button } from "@/components/ui/button";
 import {
     Play,
@@ -10,72 +11,190 @@ import {
     FileCode,
     ChevronDown,
     Loader2,
-    Download,
-    Trash2
+    Trash2,
+    Settings,
+    Maximize2,
+    Minimize2
 } from "lucide-react";
 import { Navigation } from "@/components/layout/Navigation";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
 import { toast } from "sonner";
 
-// Language configurations
+// 🚀 ENTERPRISE-GRADE LANGUAGE CONFIGURATIONS
 const LANGUAGES = [
-    { id: "c", name: "C", extension: ".c", icon: "🔧" },
-    { id: "cpp", name: "C++", extension: ".cpp", icon: "⚡" },
-    { id: "python", name: "Python", extension: ".py", icon: "🐍" },
-    { id: "javascript", name: "JavaScript", extension: ".js", icon: "💛" },
-    { id: "typescript", name: "TypeScript", extension: ".ts", icon: "💙" },
-    { id: "java", name: "Java", extension: ".java", icon: "☕" },
-    { id: "rust", name: "Rust", extension: ".rs", icon: "🦀" },
-    { id: "go", name: "Go", extension: ".go", icon: "🐹" },
+    { id: "c", name: "C", extension: ".c", monaco: "c" },
+    { id: "cpp", name: "C++", extension: ".cpp", monaco: "cpp" },
+    { id: "python", name: "Python", extension: ".py", monaco: "python" },
+    { id: "javascript", name: "JavaScript", extension: ".js", monaco: "javascript" },
+    { id: "typescript", name: "TypeScript", extension: ".ts", monaco: "typescript" },
+    { id: "java", name: "Java", extension: ".java", monaco: "java" },
+    { id: "rust", name: "Rust", extension: ".rs", monaco: "rust" },
+    { id: "go", name: "Go", extension: ".go", monaco: "go" },
 ];
 
-// Code templates
+// 🎯 CODE TEMPLATES
 const CODE_TEMPLATES: Record<string, string> = {
     c: `#include <stdio.h>
 
 int main() {
     printf("Hello, World!\\n");
+    
+    // Variables
+    int count = 42;
+    float pi = 3.14159f;
+    
+    printf("Count: %d\\n", count);
+    printf("Pi: %.2f\\n", pi);
+    
     return 0;
 }`,
     cpp: `#include <iostream>
+#include <vector>
+#include <string>
 using namespace std;
 
 int main() {
     cout << "Hello, World!" << endl;
+    
+    // Modern C++ features
+    vector<string> languages = {"C++", "Python", "JavaScript"};
+    
+    for (const auto& lang : languages) {
+        cout << "Language: " << lang << endl;
+    }
+    
     return 0;
 }`,
-    python: `# Python Code Editor
-def greet(name):
+    python: `# 🐍 Python Enterprise Code Editor
+def greet(name: str) -> str:
+    """Generate a greeting message."""
     return f"Hello, {name}!"
 
+def fibonacci(n: int) -> list[int]:
+    """Generate Fibonacci sequence."""
+    if n <= 0:
+        return []
+    elif n == 1:
+        return [0]
+    
+    fib = [0, 1]
+    for i in range(2, n):
+        fib.append(fib[i-1] + fib[i-2])
+    return fib
+
 if __name__ == "__main__":
-    print(greet("World"))`,
-    javascript: `// JavaScript Code Editor
-function greet(name) {
-    return \`Hello, \${name}!\`;
+    print(greet("World"))
+    print(f"Fibonacci(10): {fibonacci(10)}")`,
+    javascript: `// ⚡ JavaScript Enterprise Code Editor
+const greet = (name) => \`Hello, \${name}!\`;
+
+// Async/Await Pattern
+const fetchData = async (url) => {
+    try {
+        const response = await fetch(url);
+        return await response.json();
+    } catch (error) {
+        console.error('Error:', error);
+    }
+};
+
+// Array Methods
+const numbers = [1, 2, 3, 4, 5];
+const doubled = numbers.map(n => n * 2);
+const evens = numbers.filter(n => n % 2 === 0);
+
+console.log(greet("World"));
+console.log("Doubled:", doubled);
+console.log("Evens:", evens);`,
+    typescript: `// 💙 TypeScript Enterprise Code Editor
+interface User {
+    id: number;
+    name: string;
+    email: string;
 }
 
-console.log(greet("World"));`,
-    typescript: `// TypeScript Code Editor
-function greet(name: string): string {
-    return \`Hello, \${name}!\`;
-}
+type ApiResponse<T> = {
+    data: T;
+    status: number;
+    message: string;
+};
 
-console.log(greet("World"));`,
+const greet = (name: string): string => \`Hello, \${name}!\`;
+
+const createUser = (name: string, email: string): User => ({
+    id: Date.now(),
+    name,
+    email,
+});
+
+const user = createUser("John Doe", "john@example.com");
+console.log(greet(user.name));
+console.log("User:", user);`,
     java: `public class Main {
     public static void main(String[] args) {
         System.out.println("Hello, World!");
+        
+        // Object-Oriented Example
+        Calculator calc = new Calculator();
+        System.out.println("5 + 3 = " + calc.add(5, 3));
+        System.out.println("5 * 3 = " + calc.multiply(5, 3));
+    }
+}
+
+class Calculator {
+    public int add(int a, int b) {
+        return a + b;
+    }
+    
+    public int multiply(int a, int b) {
+        return a * b;
     }
 }`,
-    rust: `fn main() {
+    rust: `// 🦀 Rust Enterprise Code Editor
+fn main() {
     println!("Hello, World!");
+    
+    // Ownership & Borrowing
+    let s1 = String::from("hello");
+    let len = calculate_length(&s1);
+    println!("The length of '{}' is {}.", s1, len);
+    
+    // Pattern Matching
+    let number = 13;
+    match number {
+        1 => println!("One!"),
+        2..=12 => println!("Small number"),
+        13 => println!("Lucky thirteen!"),
+        _ => println!("Other number"),
+    }
+}
+
+fn calculate_length(s: &String) -> usize {
+    s.len()
 }`,
     go: `package main
 
-import "fmt"
+import (
+    "fmt"
+    "strings"
+)
 
 func main() {
     fmt.Println("Hello, World!")
+    
+    // Slices and Maps
+    languages := []string{"Go", "Rust", "Python"}
+    for i, lang := range languages {
+        fmt.Printf("%d: %s\\n", i, lang)
+    }
+    
+    // Goroutines concept
+    message := greet("Gopher")
+    fmt.Println(message)
+}
+
+func greet(name string) string {
+    return fmt.Sprintf("Hello, %s!", strings.Title(name))
 }`,
 };
 
@@ -86,6 +205,9 @@ export default function CodeEditor() {
     const [isRunning, setIsRunning] = useState(false);
     const [copied, setCopied] = useState(false);
     const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+    const [isFullscreen, setIsFullscreen] = useState(false);
+    const [fontSize, setFontSize] = useState(14);
+    const editorRef = useRef<any>(null);
 
     // Update code when language changes
     useEffect(() => {
@@ -95,23 +217,71 @@ export default function CodeEditor() {
 
     const currentLang = LANGUAGES.find(l => l.id === language);
 
+    // 🎯 Monaco Editor mount handler
+    const handleEditorDidMount = (editor: any) => {
+        editorRef.current = editor;
+        editor.focus();
+    };
+
+    // 🚀 Execute code (simulation)
     const handleRun = useCallback(async () => {
         setIsRunning(true);
-        setOutput("⏳ Compiling and running...\n");
+        setOutput("⏳ Compiling and executing...\n\n");
 
-        // Simulate execution delay
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // Simulate compilation delay
+        await new Promise(resolve => setTimeout(resolve, 1200));
 
-        // Simulated output based on language
+        // Simulated outputs
         const outputs: Record<string, string> = {
-            c: "Hello, World!\n\n✅ Program exited with code 0",
-            cpp: "Hello, World!\n\n✅ Program exited with code 0",
-            python: "Hello, World!\n\n✅ Execution completed successfully",
-            javascript: "Hello, World!\n\n✅ Execution completed successfully",
-            typescript: "Hello, World!\n\n✅ Execution completed successfully",
-            java: "Hello, World!\n\n✅ Program exited with code 0",
-            rust: "Hello, World!\n\n✅ Program exited with code 0",
-            go: "Hello, World!\n\n✅ Program exited with code 0",
+            c: `Hello, World!
+Count: 42
+Pi: 3.14
+
+✅ Program exited with code 0
+⏱️ Execution time: 0.003s`,
+            cpp: `Hello, World!
+Language: C++
+Language: Python
+Language: JavaScript
+
+✅ Program exited with code 0
+⏱️ Execution time: 0.005s`,
+            python: `Hello, World!
+Fibonacci(10): [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
+
+✅ Execution completed successfully
+⏱️ Execution time: 0.012s`,
+            javascript: `Hello, World!
+Doubled: [ 2, 4, 6, 8, 10 ]
+Evens: [ 2, 4 ]
+
+✅ Execution completed successfully
+⏱️ Execution time: 0.008s`,
+            typescript: `Hello, John Doe!
+User: { id: 1704729600000, name: 'John Doe', email: 'john@example.com' }
+
+✅ Execution completed successfully
+⏱️ Execution time: 0.015s`,
+            java: `Hello, World!
+5 + 3 = 8
+5 * 3 = 15
+
+✅ Program exited with code 0
+⏱️ Execution time: 0.045s`,
+            rust: `Hello, World!
+The length of 'hello' is 5.
+Lucky thirteen!
+
+✅ Program exited with code 0
+⏱️ Execution time: 0.002s`,
+            go: `Hello, World!
+0: Go
+1: Rust
+2: Python
+Hello, Gopher!
+
+✅ Program exited with code 0
+⏱️ Execution time: 0.006s`,
         };
 
         setOutput(outputs[language] || "Execution completed");
@@ -126,62 +296,62 @@ export default function CodeEditor() {
         setTimeout(() => setCopied(false), 2000);
     }, [code]);
 
-    const handleClear = useCallback(() => {
-        setCode("");
-        setOutput("");
-    }, []);
-
     const handleReset = useCallback(() => {
         setCode(CODE_TEMPLATES[language] || "");
         setOutput("");
+        toast.info("Code reset to template");
     }, [language]);
 
     return (
-        <div className="min-h-screen bg-[#0d1117] text-white">
-            {/* Navigation */}
-            <Navigation />
+        <div className={`min-h-screen bg-[#0d1117] text-white ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}>
+            {/* Navigation - hidden in fullscreen */}
+            {!isFullscreen && <Navigation />}
 
             {/* Main Content */}
-            <main className="pt-20 md:pt-24 pb-12 px-4 md:px-8">
-                <div className="max-w-7xl mx-auto">
-                    {/* Header */}
-                    <AnimatedSection>
-                        <div className="text-center mb-8 md:mb-12">
-                            <div className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-3 rounded-full bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30 backdrop-blur-xl mb-4 md:mb-6">
-                                <Code2 className="w-4 md:w-5 h-4 md:h-5 text-purple-400" />
-                                <span className="text-xs md:text-sm font-bold text-purple-400 tracking-wider uppercase">Enterprise Web IDE</span>
+            <main className={`${isFullscreen ? 'p-4' : 'pt-20 md:pt-24 pb-12 px-4 md:px-8'}`}>
+                <div className={`${isFullscreen ? '' : 'max-w-7xl mx-auto'}`}>
+                    {/* Header - hidden in fullscreen */}
+                    {!isFullscreen && (
+                        <AnimatedSection>
+                            <div className="text-center mb-8 md:mb-12">
+                                <div className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-3 rounded-full bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30 backdrop-blur-xl mb-4 md:mb-6">
+                                    <Code2 className="w-4 md:w-5 h-4 md:h-5 text-purple-400" />
+                                    <span className="text-xs md:text-sm font-bold text-purple-400 tracking-wider uppercase">
+                                        Enterprise Web IDE • Monaco Editor
+                                    </span>
+                                </div>
+                                <h1 className="text-3xl md:text-5xl lg:text-6xl font-black mb-3 md:mb-4 tracking-tight">
+                                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 animate-gradient-x">
+                                        Code Editor
+                                    </span>
+                                </h1>
+                                <p className="text-base md:text-lg text-gray-400 max-w-2xl mx-auto">
+                                    Professional VS Code-powered editor with syntax highlighting and IntelliSense
+                                </p>
                             </div>
-                            <h1 className="text-3xl md:text-5xl lg:text-6xl font-black mb-3 md:mb-4 tracking-tight">
-                                <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 animate-gradient-x">
-                                    Code Editor
-                                </span>
-                            </h1>
-                            <p className="text-base md:text-lg text-gray-400 max-w-2xl mx-auto">
-                                Write, compile, and run code in multiple languages directly in your browser
-                            </p>
-                        </div>
-                    </AnimatedSection>
+                        </AnimatedSection>
+                    )}
 
                     {/* Editor Container */}
-                    <div className="grid lg:grid-cols-2 gap-4 md:gap-6">
-                        {/* Code Editor Panel */}
-                        <div className="bg-[#161b22] rounded-2xl border border-gray-800 overflow-hidden shadow-2xl">
+                    <div className={`grid ${isFullscreen ? 'lg:grid-cols-[1fr_400px] h-[calc(100vh-2rem)]' : 'lg:grid-cols-2'} gap-4 md:gap-6`}>
+                        {/* Monaco Code Editor Panel */}
+                        <div className="bg-[#1e1e1e] rounded-2xl border border-gray-800 overflow-hidden shadow-2xl flex flex-col">
                             {/* Editor Header */}
-                            <div className="flex items-center justify-between px-4 py-3 bg-[#21262d] border-b border-gray-800">
+                            <div className="flex items-center justify-between px-4 py-3 bg-[#252526] border-b border-gray-800">
                                 <div className="flex items-center gap-3">
                                     {/* Language Selector */}
                                     <div className="relative">
                                         <button
                                             onClick={() => setShowLanguageMenu(!showLanguageMenu)}
-                                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#161b22] border border-gray-700 hover:border-purple-500 transition-colors text-sm font-medium"
+                                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#3c3c3c] border border-gray-600 hover:border-purple-500 transition-colors text-sm font-medium"
                                         >
-                                            <span>{currentLang?.icon}</span>
+                                            <FileCode className="w-4 h-4 text-purple-400" />
                                             <span>{currentLang?.name}</span>
                                             <ChevronDown className="w-4 h-4 text-gray-400" />
                                         </button>
 
                                         {showLanguageMenu && (
-                                            <div className="absolute top-full mt-2 left-0 bg-[#21262d] border border-gray-700 rounded-xl shadow-2xl z-50 min-w-[180px] py-2 overflow-hidden">
+                                            <div className="absolute top-full mt-2 left-0 bg-[#252526] border border-gray-700 rounded-xl shadow-2xl z-50 min-w-[180px] py-2 overflow-hidden">
                                                 {LANGUAGES.map(lang => (
                                                     <button
                                                         key={lang.id}
@@ -192,7 +362,7 @@ export default function CodeEditor() {
                                                         className={`w-full flex items-center gap-3 px-4 py-2.5 hover:bg-purple-500/20 transition-colors ${language === lang.id ? 'bg-purple-500/10 text-purple-400' : 'text-gray-300'
                                                             }`}
                                                     >
-                                                        <span className="text-lg">{lang.icon}</span>
+                                                        <FileCode className="w-4 h-4" />
                                                         <span className="font-medium">{lang.name}</span>
                                                     </button>
                                                 ))}
@@ -201,7 +371,6 @@ export default function CodeEditor() {
                                     </div>
 
                                     <div className="flex items-center gap-2 text-gray-500 text-sm">
-                                        <FileCode className="w-4 h-4" />
                                         <span>main{currentLang?.extension}</span>
                                     </div>
                                 </div>
@@ -209,15 +378,25 @@ export default function CodeEditor() {
                                 {/* Editor Actions */}
                                 <div className="flex items-center gap-2">
                                     <button
+                                        onClick={() => setFontSize(prev => Math.min(24, prev + 2))}
+                                        className="p-2 rounded-lg hover:bg-gray-700 transition-colors text-xs"
+                                        title="Increase font size"
+                                    >
+                                        A+
+                                    </button>
+                                    <button
+                                        onClick={() => setFontSize(prev => Math.max(10, prev - 2))}
+                                        className="p-2 rounded-lg hover:bg-gray-700 transition-colors text-xs"
+                                        title="Decrease font size"
+                                    >
+                                        A-
+                                    </button>
+                                    <button
                                         onClick={handleCopy}
                                         className="p-2 rounded-lg hover:bg-gray-700 transition-colors"
                                         title="Copy code"
                                     >
-                                        {copied ? (
-                                            <Check className="w-4 h-4 text-green-400" />
-                                        ) : (
-                                            <Copy className="w-4 h-4 text-gray-400" />
-                                        )}
+                                        {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4 text-gray-400" />}
                                     </button>
                                     <button
                                         onClick={handleReset}
@@ -227,33 +406,47 @@ export default function CodeEditor() {
                                         <RefreshCw className="w-4 h-4 text-gray-400" />
                                     </button>
                                     <button
-                                        onClick={handleClear}
+                                        onClick={() => setIsFullscreen(!isFullscreen)}
                                         className="p-2 rounded-lg hover:bg-gray-700 transition-colors"
-                                        title="Clear code"
+                                        title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
                                     >
-                                        <Trash2 className="w-4 h-4 text-gray-400" />
+                                        {isFullscreen ? <Minimize2 className="w-4 h-4 text-gray-400" /> : <Maximize2 className="w-4 h-4 text-gray-400" />}
                                     </button>
                                 </div>
                             </div>
 
-                            {/* Code Input */}
-                            <div className="relative">
-                                <textarea
+                            {/* 🎯 MONACO EDITOR - VS Code Engine */}
+                            <div className={`flex-1 ${isFullscreen ? '' : 'h-[400px] md:h-[500px]'}`}>
+                                <Editor
+                                    height="100%"
+                                    language={currentLang?.monaco || "plaintext"}
                                     value={code}
-                                    onChange={(e) => setCode(e.target.value)}
-                                    className="w-full h-[400px] md:h-[500px] bg-[#0d1117] text-gray-100 font-mono text-sm md:text-base p-4 resize-none focus:outline-none leading-relaxed"
-                                    placeholder="Write your code here..."
-                                    spellCheck={false}
+                                    onChange={(value) => setCode(value || "")}
+                                    onMount={handleEditorDidMount}
+                                    theme="vs-dark"
+                                    options={{
+                                        fontSize,
+                                        fontFamily: "'JetBrains Mono', 'Fira Code', Consolas, monospace",
+                                        fontLigatures: true,
+                                        minimap: { enabled: !isFullscreen ? false : true },
+                                        scrollBeyondLastLine: false,
+                                        automaticLayout: true,
+                                        tabSize: 4,
+                                        insertSpaces: true,
+                                        wordWrap: "on",
+                                        lineNumbers: "on",
+                                        renderLineHighlight: "all",
+                                        padding: { top: 16, bottom: 16 },
+                                        cursorBlinking: "smooth",
+                                        cursorSmoothCaretAnimation: "on",
+                                        smoothScrolling: true,
+                                        bracketPairColorization: { enabled: true },
+                                    }}
                                 />
-
-                                {/* Line numbers overlay indicator */}
-                                <div className="absolute top-4 left-4 text-gray-600 font-mono text-sm pointer-events-none select-none">
-                                    {/* Line indicators would go here in a full implementation */}
-                                </div>
                             </div>
 
                             {/* Run Button */}
-                            <div className="px-4 py-3 bg-[#21262d] border-t border-gray-800">
+                            <div className="px-4 py-3 bg-[#252526] border-t border-gray-800">
                                 <Button
                                     onClick={handleRun}
                                     disabled={isRunning || !code.trim()}
@@ -262,7 +455,7 @@ export default function CodeEditor() {
                                     {isRunning ? (
                                         <>
                                             <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                                            Running...
+                                            Executing...
                                         </>
                                     ) : (
                                         <>
@@ -275,12 +468,13 @@ export default function CodeEditor() {
                         </div>
 
                         {/* Output Panel */}
-                        <div className="bg-[#161b22] rounded-2xl border border-gray-800 overflow-hidden shadow-2xl">
+                        <div className="bg-[#1e1e1e] rounded-2xl border border-gray-800 overflow-hidden shadow-2xl flex flex-col">
                             {/* Output Header */}
-                            <div className="flex items-center justify-between px-4 py-3 bg-[#21262d] border-b border-gray-800">
+                            <div className="flex items-center justify-between px-4 py-3 bg-[#252526] border-b border-gray-800">
                                 <div className="flex items-center gap-2">
                                     <Terminal className="w-4 h-4 text-green-400" />
                                     <span className="text-sm font-medium text-gray-300">Output</span>
+                                    <span className="text-xs text-gray-500">• Terminal</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <button
@@ -290,67 +484,63 @@ export default function CodeEditor() {
                                     >
                                         <Trash2 className="w-4 h-4 text-gray-400" />
                                     </button>
-                                    <button
-                                        onClick={() => {
-                                            if (output) {
-                                                navigator.clipboard.writeText(output);
-                                                toast.success("Output copied!");
-                                            }
-                                        }}
-                                        className="p-2 rounded-lg hover:bg-gray-700 transition-colors"
-                                        title="Copy output"
-                                    >
-                                        <Copy className="w-4 h-4 text-gray-400" />
-                                    </button>
                                 </div>
                             </div>
 
                             {/* Output Content */}
-                            <div className="h-[400px] md:h-[500px] bg-[#0d1117] p-4 overflow-auto">
+                            <div className={`flex-1 ${isFullscreen ? '' : 'h-[400px] md:h-[500px]'} bg-[#1e1e1e] p-4 overflow-auto font-mono`}>
                                 {output ? (
-                                    <pre className="font-mono text-sm md:text-base text-green-400 whitespace-pre-wrap leading-relaxed">
+                                    <pre className="text-sm md:text-base text-green-400 whitespace-pre-wrap leading-relaxed">
                                         {output}
                                     </pre>
                                 ) : (
                                     <div className="flex flex-col items-center justify-center h-full text-gray-600">
-                                        <Terminal className="w-12 h-12 mb-4 opacity-50" />
-                                        <p className="text-center">
-                                            Output will appear here after running your code
-                                        </p>
+                                        <Terminal className="w-16 h-16 mb-4 opacity-30" />
+                                        <p className="text-center text-lg">Output will appear here</p>
+                                        <p className="text-sm text-gray-700 mt-2">Press "Run Code" to execute</p>
                                     </div>
                                 )}
                             </div>
 
                             {/* Status Bar */}
-                            <div className="px-4 py-2 bg-[#21262d] border-t border-gray-800 flex items-center justify-between text-xs text-gray-500">
-                                <span>{currentLang?.name} ready</span>
-                                <span>{code.split('\n').length} lines</span>
+                            <div className="px-4 py-2 bg-[#007acc] flex items-center justify-between text-xs text-white">
+                                <div className="flex items-center gap-4">
+                                    <span>{currentLang?.name}</span>
+                                    <span>UTF-8</span>
+                                    <span>LF</span>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <span>{code.split('\n').length} lines</span>
+                                    <span>Ln 1, Col 1</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Features Section */}
-                    <AnimatedSection delay={200}>
-                        <div className="mt-12 md:mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                            {[
-                                { icon: "⚡", title: "Fast Execution", desc: "Compile & run instantly" },
-                                { icon: "🔒", title: "Secure", desc: "Sandboxed environment" },
-                                { icon: "🌐", title: "8 Languages", desc: "C, C++, Python & more" },
-                                { icon: "💾", title: "Auto-Save", desc: "Never lose your work" },
-                            ].map((feature, idx) => (
-                                <div
-                                    key={idx}
-                                    className="p-4 md:p-6 rounded-2xl bg-[#161b22] border border-gray-800 hover:border-purple-500/50 transition-colors group"
-                                >
-                                    <span className="text-2xl md:text-3xl mb-3 block">{feature.icon}</span>
-                                    <h3 className="font-bold text-white mb-1 group-hover:text-purple-400 transition-colors">
-                                        {feature.title}
-                                    </h3>
-                                    <p className="text-sm text-gray-500">{feature.desc}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </AnimatedSection>
+                    {/* Features Section - hidden in fullscreen */}
+                    {!isFullscreen && (
+                        <AnimatedSection delay={200}>
+                            <div className="mt-12 md:mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                                {[
+                                    { icon: "⚡", title: "Monaco Editor", desc: "VS Code's powerful engine" },
+                                    { icon: "🎨", title: "Syntax Highlighting", desc: "Full language support" },
+                                    { icon: "🔧", title: "IntelliSense", desc: "Auto-completion & hints" },
+                                    { icon: "🌐", title: "8 Languages", desc: "C, C++, Python & more" },
+                                ].map((feature, idx) => (
+                                    <div
+                                        key={idx}
+                                        className="p-4 md:p-6 rounded-2xl bg-[#161b22] border border-gray-800 hover:border-purple-500/50 transition-colors group"
+                                    >
+                                        <span className="text-2xl md:text-3xl mb-3 block">{feature.icon}</span>
+                                        <h3 className="font-bold text-white mb-1 group-hover:text-purple-400 transition-colors">
+                                            {feature.title}
+                                        </h3>
+                                        <p className="text-sm text-gray-500">{feature.desc}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </AnimatedSection>
+                    )}
                 </div>
             </main>
         </div>
