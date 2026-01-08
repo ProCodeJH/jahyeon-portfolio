@@ -153,12 +153,12 @@ export function HeroVideoBackground({
                 </>
             )}
 
-            {/* Premium Gradient Overlays - Glassmorphism Depth */}
-            <div className="absolute inset-0 bg-gradient-to-br from-gray-50/85 via-white/75 to-purple-50/85 backdrop-blur-[0.5px]" />
-            <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent" />
+            {/* Premium Gradient Overlays - Reduced opacity for video visibility */}
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-50/40 via-white/30 to-purple-50/40" />
+            <div className="absolute inset-0 bg-gradient-to-t from-white/60 via-transparent to-transparent" />
 
-            {/* Cinematic vignette effect - enhanced */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_transparent_40%,_rgba(255,255,255,0.6)_100%)]" />
+            {/* Cinematic vignette effect - lighter */}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_transparent_60%,_rgba(255,255,255,0.4)_100%)]" />
 
             {/* Animated gradient orbs for premium feel - Enhanced */}
             <div
