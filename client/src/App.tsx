@@ -11,6 +11,7 @@ import Resources from "./pages/Resources";
 import CodeEditor from "./pages/CodeEditor";
 import Admin from "./pages/Admin";
 import { useSmoothScroll } from "./hooks/useSmoothScroll";
+import { CustomCursor, HideDefaultCursor } from "./components/effects/CustomCursor";
 
 function Router() {
   return (
@@ -34,8 +35,12 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="light">
+      <ThemeProvider defaultTheme="dark">
         <TooltipProvider>
+          {/* 🎯 Custom Neon Cursor */}
+          <CustomCursor />
+          <HideDefaultCursor />
+
           <Toaster />
           <Router />
         </TooltipProvider>
@@ -45,3 +50,4 @@ function App() {
 }
 
 export default App;
+
