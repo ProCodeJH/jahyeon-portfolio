@@ -674,18 +674,18 @@ export default function Home() {
 
                 {/* Scrolling Track */}
                 <div className="flex gap-6 md:gap-8 animate-scroll-left-fast">
-                  {/* First Set */}
+                  {/* First Set - PROFESSIONAL AI LOGOS */}
                   {[
-                    { name: 'ChatGPT', logo: '🤖', bg: 'from-emerald-500 to-green-600', shadow: 'shadow-emerald-500/50' },
-                    { name: 'Gemini', logo: '✨', bg: 'from-blue-500 to-indigo-600', shadow: 'shadow-blue-500/50' },
-                    { name: 'Claude', logo: '🎯', bg: 'from-orange-500 to-red-600', shadow: 'shadow-orange-500/50' },
-                    { name: 'Cursor', logo: '⚡', bg: 'from-cyan-500 to-blue-600', shadow: 'shadow-cyan-500/50' },
-                    { name: 'Copilot', logo: '🚀', bg: 'from-indigo-500 to-purple-600', shadow: 'shadow-indigo-500/50' },
-                    { name: 'BlackBox', logo: '⬛', bg: 'from-gray-800 to-black', shadow: 'shadow-gray-800/50' },
-                    { name: 'CodeGPT', logo: '💻', bg: 'from-teal-500 to-cyan-600', shadow: 'shadow-teal-500/50' },
-                    { name: 'GLM', logo: '🌟', bg: 'from-pink-500 to-rose-600', shadow: 'shadow-pink-500/50' },
-                    { name: 'Manus', logo: '🎨', bg: 'from-purple-500 to-pink-600', shadow: 'shadow-purple-500/50' },
-                    { name: 'nanobananaPro', logo: '🍌', bg: 'from-yellow-500 to-orange-600', shadow: 'shadow-yellow-500/50' },
+                    { name: 'OpenAI', logo: '◯', bg: 'from-[#10a37f] to-[#0d8c6d]', shadow: 'shadow-emerald-500/50' },
+                    { name: 'Google', logo: 'G', bg: 'from-[#4285f4] to-[#34a853]', shadow: 'shadow-blue-500/50' },
+                    { name: 'Anthropic', logo: 'A', bg: 'from-[#d4a373] to-[#bc8a5f]', shadow: 'shadow-orange-500/50' },
+                    { name: 'Cursor', logo: '⌘', bg: 'from-[#7c3aed] to-[#5b21b6]', shadow: 'shadow-purple-500/50' },
+                    { name: 'GitHub', logo: '⬡', bg: 'from-[#24292e] to-[#1b1f23]', shadow: 'shadow-gray-800/50' },
+                    { name: 'Microsoft', logo: '⊞', bg: 'from-[#00a4ef] to-[#7fba00]', shadow: 'shadow-blue-500/50' },
+                    { name: 'Meta', logo: '∞', bg: 'from-[#0668e1] to-[#0052bf]', shadow: 'shadow-blue-600/50' },
+                    { name: 'Mistral', logo: 'M', bg: 'from-[#ff7000] to-[#ff5500]', shadow: 'shadow-orange-500/50' },
+                    { name: 'Cohere', logo: 'C', bg: 'from-[#39594d] to-[#2a4239]', shadow: 'shadow-green-800/50' },
+                    { name: 'Vercel', logo: '▲', bg: 'from-[#000] to-[#333]', shadow: 'shadow-gray-800/50' },
                   ].map((ai, i) => (
                     <div key={`ai-1-${i}`} className="flex-shrink-0 group">
                       <div className={`relative w-36 md:w-44 lg:w-48 h-20 md:h-24 lg:h-28 rounded-2xl md:rounded-3xl bg-gradient-to-br ${ai.bg} flex flex-col items-center justify-center shadow-xl ${ai.shadow} hover:shadow-2xl transition-all duration-500 hover:scale-110 hover:-translate-y-2 border-2 border-white/20 overflow-hidden`}>
@@ -708,18 +708,18 @@ export default function Home() {
                     </div>
                   ))}
 
-                  {/* Duplicate for Seamless Loop */}
+                  {/* Duplicate for Seamless Loop - PROFESSIONAL AI LOGOS */}
                   {[
-                    { name: 'ChatGPT', logo: '🤖', bg: 'from-emerald-500 to-green-600', shadow: 'shadow-emerald-500/50' },
-                    { name: 'Gemini', logo: '✨', bg: 'from-blue-500 to-indigo-600', shadow: 'shadow-blue-500/50' },
-                    { name: 'Claude', logo: '🎯', bg: 'from-orange-500 to-red-600', shadow: 'shadow-orange-500/50' },
-                    { name: 'Cursor', logo: '⚡', bg: 'from-cyan-500 to-blue-600', shadow: 'shadow-cyan-500/50' },
-                    { name: 'Copilot', logo: '🚀', bg: 'from-indigo-500 to-purple-600', shadow: 'shadow-indigo-500/50' },
-                    { name: 'BlackBox', logo: '⬛', bg: 'from-gray-800 to-black', shadow: 'shadow-gray-800/50' },
-                    { name: 'CodeGPT', logo: '💻', bg: 'from-teal-500 to-cyan-600', shadow: 'shadow-teal-500/50' },
-                    { name: 'GLM', logo: '🌟', bg: 'from-pink-500 to-rose-600', shadow: 'shadow-pink-500/50' },
-                    { name: 'Manus', logo: '🎨', bg: 'from-purple-500 to-pink-600', shadow: 'shadow-purple-500/50' },
-                    { name: 'nanobananaPro', logo: '🍌', bg: 'from-yellow-500 to-orange-600', shadow: 'shadow-yellow-500/50' },
+                    { name: 'OpenAI', logo: '◯', bg: 'from-[#10a37f] to-[#0d8c6d]', shadow: 'shadow-emerald-500/50' },
+                    { name: 'Google', logo: 'G', bg: 'from-[#4285f4] to-[#34a853]', shadow: 'shadow-blue-500/50' },
+                    { name: 'Anthropic', logo: 'A', bg: 'from-[#d4a373] to-[#bc8a5f]', shadow: 'shadow-orange-500/50' },
+                    { name: 'Cursor', logo: '⌘', bg: 'from-[#7c3aed] to-[#5b21b6]', shadow: 'shadow-purple-500/50' },
+                    { name: 'GitHub', logo: '⬡', bg: 'from-[#24292e] to-[#1b1f23]', shadow: 'shadow-gray-800/50' },
+                    { name: 'Microsoft', logo: '⊞', bg: 'from-[#00a4ef] to-[#7fba00]', shadow: 'shadow-blue-500/50' },
+                    { name: 'Meta', logo: '∞', bg: 'from-[#0668e1] to-[#0052bf]', shadow: 'shadow-blue-600/50' },
+                    { name: 'Mistral', logo: 'M', bg: 'from-[#ff7000] to-[#ff5500]', shadow: 'shadow-orange-500/50' },
+                    { name: 'Cohere', logo: 'C', bg: 'from-[#39594d] to-[#2a4239]', shadow: 'shadow-green-800/50' },
+                    { name: 'Vercel', logo: '▲', bg: 'from-[#000] to-[#333]', shadow: 'shadow-gray-800/50' },
                   ].map((ai, i) => (
                     <div key={`ai-2-${i}`} className="flex-shrink-0 group">
                       <div className={`relative w-36 md:w-44 lg:w-48 h-20 md:h-24 lg:h-28 rounded-2xl md:rounded-3xl bg-gradient-to-br ${ai.bg} flex flex-col items-center justify-center shadow-xl ${ai.shadow} hover:shadow-2xl transition-all duration-500 hover:scale-110 hover:-translate-y-2 border-2 border-white/20 overflow-hidden`}>
