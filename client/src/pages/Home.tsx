@@ -35,7 +35,7 @@ export default function Home() {
 
       {/* 🎬 FIXED FULL-SCREEN VIDEO BACKGROUND */}
       <div className="fixed inset-0 w-screen h-screen z-0">
-        <HeroVideoBackground videoSrc="/hero_video.mp4" />
+        <HeroVideoBackground videoSrc="/hero-video.mp4" />
       </div>
 
       {/* 🎬 CINEMATIC HERO SECTION */}
