@@ -10,6 +10,7 @@ import { SubtleDots } from "@/components/backgrounds/SubtleDots";
 import { TiltCard } from "@/components/effects/TiltCard";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
 import { Navigation } from "@/components/layout/Navigation";
+import { Services } from "@/components/sections/Services";
 
 export default function Home() {
   const { data: projects } = trpc.projects.list.useQuery();
@@ -379,6 +380,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* 💼 PROFESSIONAL SERVICES (Migration) */}
+      <Services />
 
       {/* 🏆 CERTIFICATIONS & CREDENTIALS */}
       <section className="py-20 md:py-32 lg:py-40 px-4 md:px-8 relative overflow-hidden">
