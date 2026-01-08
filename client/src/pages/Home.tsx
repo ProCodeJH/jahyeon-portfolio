@@ -5,6 +5,7 @@ import { Link } from "wouter";
 import { ArrowRight, Code, Zap, Sparkles, CircuitBoard, Layers, GraduationCap, Play, ChevronLeft, ChevronRight, Award, Loader2, ShieldCheck, Building } from "lucide-react";
 import { GradientMeshBackground } from "@/components/backgrounds/GradientMeshBackground";
 import { HeroVideoBackground } from "@/components/backgrounds/HeroVideoBackground";
+import { ParticleBackground } from "@/components/backgrounds/ParticleBackground";
 import { SubtleDots } from "@/components/backgrounds/SubtleDots";
 import { TiltCard } from "@/components/effects/TiltCard";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
@@ -17,9 +18,10 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 text-gray-900 overflow-hidden">
-      {/* Premium Background */}
+      {/* 🌌 Premium Background with Particle Effects */}
       <div className="fixed inset-0">
         <GradientMeshBackground />
+        <ParticleBackground />
         <SubtleDots />
 
         {/* Ambient Light Effects */}
