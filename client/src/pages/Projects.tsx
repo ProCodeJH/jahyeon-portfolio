@@ -6,6 +6,7 @@ import { ExternalLink, Github, Loader2, Eye, Code, Play, X, ArrowUpRight, ArrowL
 import { TiltCard } from "@/components/effects/TiltCard";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
 import { Navigation } from "@/components/layout/Navigation";
+import { ProjectCardSkeleton } from "@/components/ui/skeleton";
 
 export default function Projects() {
   const { data: projects, isLoading } = trpc.projects.list.useQuery();
@@ -75,8 +76,8 @@ export default function Projects() {
               <button
                 onClick={() => setActiveTag("all")}
                 className={`group flex items-center gap-1.5 md:gap-2 px-3 md:px-5 lg:px-6 py-2 md:py-2.5 lg:py-3 rounded-full text-xs md:text-sm lg:text-base font-medium transition-all border-2 ${activeTag === "all"
-                    ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white border-transparent shadow-lg shadow-purple-500/30"
-                    : "bg-white text-gray-600 border-gray-200 hover:border-purple-400 hover:text-purple-600 hover:shadow-md"
+                  ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white border-transparent shadow-lg shadow-purple-500/30"
+                  : "bg-white text-gray-600 border-gray-200 hover:border-purple-400 hover:text-purple-600 hover:shadow-md"
                   }`}
               >
                 <Code className="w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5" />
@@ -92,8 +93,8 @@ export default function Projects() {
                   key={tag}
                   onClick={() => setActiveTag(tag)}
                   className={`group flex items-center gap-1.5 md:gap-2 px-3 md:px-5 lg:px-6 py-2 md:py-2.5 lg:py-3 rounded-full text-xs md:text-sm lg:text-base font-medium transition-all border-2 ${activeTag === tag
-                      ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white border-transparent shadow-lg shadow-purple-500/30"
-                      : "bg-white text-gray-600 border-gray-200 hover:border-purple-400 hover:text-purple-600 hover:shadow-md"
+                    ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white border-transparent shadow-lg shadow-purple-500/30"
+                    : "bg-white text-gray-600 border-gray-200 hover:border-purple-400 hover:text-purple-600 hover:shadow-md"
                     }`}
                 >
                   <span>{tag}</span>
@@ -111,9 +112,11 @@ export default function Projects() {
       <section className="py-12 md:py-16 lg:py-20 pb-20 md:pb-24 lg:pb-32 px-4 md:px-8 relative z-10">
         <div className="max-w-7xl mx-auto">
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-32">
-              <Loader2 className="w-12 h-12 animate-spin text-purple-500 mb-4" />
-              <p className="text-gray-500 text-lg">Loading projects...</p>
+            // 🎭 SKELETON UI - Premium loading experience
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 lg:gap-8">
+              {[...Array(6)].map((_, i) => (
+                <ProjectCardSkeleton key={i} />
+              ))}
             </div>
           ) : !filteredProjects?.length ? (
             <div className="text-center py-32">
