@@ -16,10 +16,12 @@ import {
     ChevronDown,
     Loader2,
     Trash2,
-    Settings,
     Maximize2,
     Minimize2,
-    Cpu
+    Cpu,
+    Sparkles,
+    Zap,
+    Box
 } from "lucide-react";
 import { Navigation } from "@/components/layout/Navigation";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
@@ -28,10 +30,10 @@ import { toast } from "sonner";
 // 🚀 ENTERPRISE-GRADE LANGUAGE CONFIGURATIONS
 const LANGUAGES = [
     { id: "javascript", name: "JavaScript (Node.js)", extension: ".js", monaco: "javascript", type: "webcontainer" },
+    { id: "typescript", name: "TypeScript", extension: ".ts", monaco: "typescript", type: "simulation" },
+    { id: "python", name: "Python", extension: ".py", monaco: "python", type: "simulation" },
     { id: "c", name: "C", extension: ".c", monaco: "c", type: "simulation" },
     { id: "cpp", name: "C++", extension: ".cpp", monaco: "cpp", type: "simulation" },
-    { id: "python", name: "Python", extension: ".py", monaco: "python", type: "simulation" },
-    { id: "typescript", name: "TypeScript", extension: ".ts", monaco: "typescript", type: "simulation" },
     { id: "java", name: "Java", extension: ".java", monaco: "java", type: "simulation" },
     { id: "rust", name: "Rust", extension: ".rs", monaco: "rust", type: "simulation" },
     { id: "go", name: "Go", extension: ".go", monaco: "go", type: "simulation" },
@@ -251,14 +253,24 @@ export default function CodeEditor() {
             const term = new XTerminal({
                 convertEol: true,
                 theme: {
-                    background: '#1e1e1e',
-                    foreground: '#4ade80', // Green-400
+                    background: '#09090b', // Zinc-950
+                    foreground: '#a1a1aa', // Zinc-400
                     cursor: '#ffffff',
-                    selectionBackground: 'rgba(255, 255, 255, 0.3)',
+                    selectionBackground: 'rgba(255, 255, 255, 0.1)',
+                    black: '#09090b',
+                    red: '#ef4444',
+                    green: '#22c55e',
+                    yellow: '#eab308',
+                    blue: '#3b82f6',
+                    magenta: '#a855f7',
+                    cyan: '#06b6d4',
+                    white: '#fafafa',
                 },
                 fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
                 fontSize: 14,
-                rows: 24,
+                lineHeight: 1.5,
+                cursorBlink: true,
+                rows: 20,
             });
 
             const fitAddon = new FitAddon();
@@ -274,7 +286,9 @@ export default function CodeEditor() {
             });
             resizeObserver.observe(terminalContainerRef.current);
 
-            term.write('\x1b[2mInitialized terminal...\r\n\x1b[0m');
+            term.writeln('\x1b[2m$ Initializing Development Environment...\x1b[0m');
+            term.writeln('\x1b[32m✔ System Ready\x1b[0m');
+            term.write('\r\n$ ');
 
             return () => {
                 resizeObserver.disconnect();
@@ -303,7 +317,7 @@ export default function CodeEditor() {
         // ==========================================
         if (langConfig?.type === 'webcontainer' && webContainerInstance) {
             try {
-                terminalRef.current?.write(`\x1b[34m> Running ${langConfig.name} in WebContainer...\x1b[0m\r\n`);
+                terminalRef.current?.writeln(`\x1b[34m➜  Running ${langConfig.name}...\x1b[0m\r\n`);
 
                 // Write file
                 await webContainerInstance.mount({
@@ -327,14 +341,14 @@ export default function CodeEditor() {
                 const exitCode = await process.exit;
 
                 if (exitCode === 0) {
-                    terminalRef.current?.write(`\r\n\x1b[32m✅ Execution completed (Exit Code: ${exitCode})\x1b[0m\r\n`);
+                    terminalRef.current?.write(`\r\n\x1b[32m✔ Process finished with exit code ${exitCode}\x1b[0m\r\n$ `);
                 } else {
-                    terminalRef.current?.write(`\r\n\x1b[31m❌ Execution failed (Exit Code: ${exitCode})\x1b[0m\r\n`);
+                    terminalRef.current?.write(`\r\n\x1b[31m✖ Process finished with exit code ${exitCode}\x1b[0m\r\n$ `);
                 }
 
             } catch (error) {
                 console.error("WebContainer Error:", error);
-                terminalRef.current?.write(`\r\n\x1b[31mError: ${error}\x1b[0m\r\n`);
+                terminalRef.current?.write(`\r\n\x1b[31mError: ${error}\x1b[0m\r\n$ `);
                 toast.error("Execution failed");
             } finally {
                 setIsRunning(false);
@@ -345,7 +359,7 @@ export default function CodeEditor() {
         // ==========================================
         // 🎮 Legacy Simulation (Other Languages)
         // ==========================================
-        terminalRef.current?.write(`\x1b[33m> Running ${langConfig?.name} (Simulation Mode)...\x1b[0m\r\n\r\n`);
+        terminalRef.current?.writeln(`\x1b[33m➜  Running ${langConfig?.name} (Simulation Mode)...\x1b[0m\r\n`);
 
         // Simulate compilation delay
         await new Promise(resolve => setTimeout(resolve, 800));
@@ -405,6 +419,7 @@ Hello, Gopher!
             terminalRef.current?.writeln(line);
             await new Promise(r => setTimeout(r, 50));
         }
+        terminalRef.current?.write('\r\n$ ');
 
         setOutput(simulatedOutput); // Keep state for fallback/history if needed
         setIsRunning(false);
@@ -422,60 +437,108 @@ Hello, Gopher!
         setCode(CODE_TEMPLATES[language] || "");
         setOutput("");
         terminalRef.current?.clear();
-        terminalRef.current?.write('\x1b[2mConsole cleared & reset\r\n\x1b[0m');
+        terminalRef.current?.writeln('\x1b[2m$ Console cleared & reset\x1b[0m\r\n$ ');
         toast.info("Code reset to template");
     }, [language]);
 
     return (
-        <div className={`min-h-screen bg-[#0d1117] text-white ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}>
+        <div className={`min-h-screen bg-[#000000] text-white selection:bg-purple-500/30 selection:text-purple-200 ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}>
+            {/* Background Effects */}
+            <div className="fixed inset-0 pointer-events-none">
+                <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-purple-900/10 rounded-full blur-[120px]" />
+                <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-blue-900/10 rounded-full blur-[120px]" />
+            </div>
+
             {/* Navigation - hidden in fullscreen */}
             {!isFullscreen && <Navigation />}
 
             {/* Main Content */}
-            <main className={`${isFullscreen ? 'p-4' : 'pt-20 md:pt-24 pb-12 px-4 md:px-8'}`}>
-                <div className={`${isFullscreen ? '' : 'max-w-7xl mx-auto'}`}>
+            <main className={`${isFullscreen ? 'p-0 h-screen' : 'pt-24 md:pt-32 pb-12 px-4 md:px-8'} relative z-10`}>
+                <div className={`${isFullscreen ? 'h-full' : 'max-w-[1600px] mx-auto'}`}>
                     {/* Header - hidden in fullscreen */}
                     {!isFullscreen && (
                         <AnimatedSection>
-                            <div className="text-center mb-8 md:mb-12">
-                                <div className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-3 rounded-full bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30 backdrop-blur-xl mb-4 md:mb-6">
-                                    <Code2 className="w-4 md:w-5 h-4 md:h-5 text-purple-400" />
-                                    <span className="text-xs md:text-sm font-bold text-purple-400 tracking-wider uppercase">
-                                        Enterprise Web IDE • Monaco Editor
-                                    </span>
+                            <div className="flex flex-col md:flex-row justify-between items-end mb-8 md:mb-12 gap-6">
+                                <div>
+                                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-4 shadow-lg shadow-purple-500/10">
+                                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                                        <span className="text-xs font-mono font-medium text-gray-400">
+                                            IDE v2.0 • {isWebContainerReady ? 'Online' : 'Initializing...'}
+                                        </span>
+                                    </div>
+                                    <h1 className="text-4xl md:text-6xl font-black tracking-tight leading-tight">
+                                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-500">
+                                            Dev
+                                        </span>
+                                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
+                                            Environment
+                                        </span>
+                                    </h1>
+                                    <p className="text-gray-500 mt-2 text-lg font-light max-w-xl">
+                                        Powered by WebContainer™ technology. Execute Node.js directly in your browser with zero latency.
+                                    </p>
                                 </div>
-                                <h1 className="text-3xl md:text-5xl lg:text-6xl font-black mb-3 md:mb-4 tracking-tight">
-                                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 animate-gradient-x">
-                                        Code Editor
-                                    </span>
-                                </h1>
-                                <p className="text-base md:text-lg text-gray-400 max-w-2xl mx-auto">
-                                    Professional VS Code-powered editor with <span className="text-purple-400 font-bold">WebContainer™</span> Runtime
-                                </p>
+                                <div className="flex items-center gap-3">
+                                    <div className="flex -space-x-3">
+                                        {[1,2,3].map(i => (
+                                            <div key={i} className="w-10 h-10 rounded-full border-2 border-black bg-gray-800 flex items-center justify-center text-xs font-bold text-gray-400">
+                                                U{i}
+                                            </div>
+                                        ))}
+                                        <div className="w-10 h-10 rounded-full border-2 border-black bg-purple-600 flex items-center justify-center text-xs font-bold text-white">
+                                            +42
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-sm font-bold text-white">Live Session</p>
+                                        <p className="text-xs text-gray-500">45 Active Developers</p>
+                                    </div>
+                                </div>
                             </div>
                         </AnimatedSection>
                     )}
 
-                    {/* Editor Container */}
-                    <div className={`grid ${isFullscreen ? 'lg:grid-cols-[1fr_400px] h-[calc(100vh-2rem)]' : 'lg:grid-cols-2'} gap-4 md:gap-6`}>
-                        {/* Monaco Code Editor Panel */}
-                        <div className="bg-[#1e1e1e] rounded-2xl border border-gray-800 overflow-hidden shadow-2xl flex flex-col">
+                    {/* Editor Container - SUPER ENTERPRISE LAYOUT */}
+                    <div className={`${isFullscreen ? 'h-full' : 'h-[800px]'} grid ${isFullscreen ? 'grid-cols-[1fr_450px]' : 'lg:grid-cols-[1.5fr_1fr]'} gap-4 md:gap-6`}>
+
+                        {/* LEFT: Monaco Code Editor Panel */}
+                        <div className="relative group flex flex-col rounded-2xl md:rounded-3xl border border-white/10 bg-[#0c0c0c]/80 backdrop-blur-xl shadow-2xl overflow-hidden">
                             {/* Editor Header */}
-                            <div className="flex items-center justify-between px-4 py-3 bg-[#252526] border-b border-gray-800">
-                                <div className="flex items-center gap-3">
+                            <div className="flex items-center justify-between px-5 py-4 border-b border-white/5 bg-white/[0.02]">
+                                <div className="flex items-center gap-4">
+                                    {/* Mac-style window controls */}
+                                    <div className="flex gap-2 group/controls">
+                                        <div className="w-3 h-3 rounded-full bg-red-500/80 group-hover/controls:bg-red-500 transition-colors" />
+                                        <div className="w-3 h-3 rounded-full bg-yellow-500/80 group-hover/controls:bg-yellow-500 transition-colors" />
+                                        <div className="w-3 h-3 rounded-full bg-green-500/80 group-hover/controls:bg-green-500 transition-colors" />
+                                    </div>
+
+                                    <div className="h-6 w-px bg-white/10 mx-2" />
+
+                                    {/* Tabs */}
+                                    <div className="flex items-center gap-1 bg-black/40 p-1 rounded-lg border border-white/5">
+                                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-white/10 text-xs font-medium text-white shadow-sm border border-white/5">
+                                            <FileCode className="w-3.5 h-3.5 text-blue-400" />
+                                            main{currentLang?.extension}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Actions */}
+                                <div className="flex items-center gap-2">
                                     {/* Language Selector */}
                                     <div className="relative">
                                         <button
                                             onClick={() => setShowLanguageMenu(!showLanguageMenu)}
-                                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#3c3c3c] border border-gray-600 hover:border-purple-500 transition-colors text-sm font-medium"
+                                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-xs font-medium text-gray-300"
                                         >
-                                            <FileCode className="w-4 h-4 text-purple-400" />
+                                            <Box className="w-3.5 h-3.5 text-purple-400" />
                                             <span>{currentLang?.name}</span>
-                                            <ChevronDown className="w-4 h-4 text-gray-400" />
+                                            <ChevronDown className="w-3 h-3 text-gray-500" />
                                         </button>
 
                                         {showLanguageMenu && (
-                                            <div className="absolute top-full mt-2 left-0 bg-[#252526] border border-gray-700 rounded-xl shadow-2xl z-50 min-w-[180px] py-2 overflow-hidden">
+                                            <div className="absolute top-full mt-2 right-0 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl z-50 min-w-[200px] py-1.5 overflow-hidden ring-1 ring-black/50">
                                                 {LANGUAGES.map(lang => (
                                                     <button
                                                         key={lang.id}
@@ -483,73 +546,34 @@ Hello, Gopher!
                                                             setLanguage(lang.id);
                                                             setShowLanguageMenu(false);
                                                         }}
-                                                        className={`w-full flex items-center gap-3 px-4 py-2.5 hover:bg-purple-500/20 transition-colors ${language === lang.id ? 'bg-purple-500/10 text-purple-400' : 'text-gray-300'
+                                                        className={`w-full flex items-center gap-3 px-4 py-2 hover:bg-white/5 transition-colors text-xs ${language === lang.id ? 'text-purple-400 bg-purple-500/10' : 'text-gray-400'
                                                             }`}
                                                     >
-                                                        <FileCode className="w-4 h-4" />
+                                                        <FileCode className="w-3.5 h-3.5" />
                                                         <span className="font-medium">{lang.name}</span>
-                                                        {lang.type === 'webcontainer' && <span className="ml-auto text-[10px] bg-purple-500/20 text-purple-400 px-1 rounded">WEB</span>}
+                                                        {lang.type === 'webcontainer' && <Zap className="w-3 h-3 ml-auto text-yellow-400" />}
                                                     </button>
                                                 ))}
                                             </div>
                                         )}
                                     </div>
 
-                                    <div className="flex items-center gap-2 text-gray-500 text-sm">
-                                        <span>main{currentLang?.extension}</span>
-                                        {currentLang?.type === 'webcontainer' ? (
-                                            <span className={`flex items-center gap-1.5 text-[10px] px-2 py-0.5 rounded-full ${isWebContainerReady ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
-                                                <div className={`w-1.5 h-1.5 rounded-full ${isWebContainerReady ? 'bg-green-400 animate-pulse' : 'bg-yellow-400'}`} />
-                                                {isWebContainerReady ? 'Runtime Ready' : 'Booting...'}
-                                            </span>
-                                        ) : (
-                                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-500/20 text-gray-400">Simulation</span>
-                                        )}
-                                    </div>
-                                </div>
+                                    <div className="h-4 w-px bg-white/10 mx-1" />
 
-                                {/* Editor Actions */}
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        onClick={() => setFontSize(prev => Math.min(24, prev + 2))}
-                                        className="p-2 rounded-lg hover:bg-gray-700 transition-colors text-xs"
-                                        title="Increase font size"
-                                    >
-                                        A+
+                                    <button onClick={handleCopy} className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors">
+                                        {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
                                     </button>
-                                    <button
-                                        onClick={() => setFontSize(prev => Math.max(10, prev - 2))}
-                                        className="p-2 rounded-lg hover:bg-gray-700 transition-colors text-xs"
-                                        title="Decrease font size"
-                                    >
-                                        A-
+                                    <button onClick={handleReset} className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors">
+                                        <RefreshCw className="w-4 h-4" />
                                     </button>
-                                    <button
-                                        onClick={handleCopy}
-                                        className="p-2 rounded-lg hover:bg-gray-700 transition-colors"
-                                        title="Copy code"
-                                    >
-                                        {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4 text-gray-400" />}
-                                    </button>
-                                    <button
-                                        onClick={handleReset}
-                                        className="p-2 rounded-lg hover:bg-gray-700 transition-colors"
-                                        title="Reset code"
-                                    >
-                                        <RefreshCw className="w-4 h-4 text-gray-400" />
-                                    </button>
-                                    <button
-                                        onClick={() => setIsFullscreen(!isFullscreen)}
-                                        className="p-2 rounded-lg hover:bg-gray-700 transition-colors"
-                                        title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
-                                    >
-                                        {isFullscreen ? <Minimize2 className="w-4 h-4 text-gray-400" /> : <Maximize2 className="w-4 h-4 text-gray-400" />}
+                                    <button onClick={() => setIsFullscreen(!isFullscreen)} className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors">
+                                        {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
                                     </button>
                                 </div>
                             </div>
 
-                            {/* 🎯 MONACO EDITOR - VS Code Engine */}
-                            <div className={`flex-1 ${isFullscreen ? '' : 'h-[400px] md:h-[500px]'}`}>
+                            {/* Code Editor Area */}
+                            <div className="flex-1 relative bg-[#0c0c0c] min-h-[500px]">
                                 <Editor
                                     height="100%"
                                     language={currentLang?.monaco || "plaintext"}
@@ -561,116 +585,92 @@ Hello, Gopher!
                                         fontSize,
                                         fontFamily: "'JetBrains Mono', 'Fira Code', Consolas, monospace",
                                         fontLigatures: true,
-                                        minimap: { enabled: !isFullscreen ? false : true },
+                                        minimap: { enabled: false },
                                         scrollBeyondLastLine: false,
                                         automaticLayout: true,
                                         tabSize: 4,
                                         insertSpaces: true,
                                         wordWrap: "on",
                                         lineNumbers: "on",
-                                        renderLineHighlight: "all",
-                                        padding: { top: 16, bottom: 16 },
+                                        renderLineHighlight: "line",
+                                        padding: { top: 20, bottom: 20 },
                                         cursorBlinking: "smooth",
                                         cursorSmoothCaretAnimation: "on",
                                         smoothScrolling: true,
                                         bracketPairColorization: { enabled: true },
+                                        guides: { indentation: true },
                                     }}
                                 />
                             </div>
 
-                            {/* Run Button */}
-                            <div className="px-4 py-3 bg-[#252526] border-t border-gray-800">
+                            {/* Footer Actions */}
+                            <div className="p-4 border-t border-white/5 bg-white/[0.02] flex justify-between items-center">
+                                <div className="flex items-center gap-4 text-xs text-gray-500 font-mono">
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-gray-500" />
+                                        UTF-8
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-gray-500" />
+                                        {code.split('\n').length} Lines
+                                    </div>
+                                </div>
+
                                 <Button
                                     onClick={handleRun}
                                     disabled={isRunning || !code.trim() || (currentLang?.type === 'webcontainer' && !isWebContainerReady)}
-                                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className={`px-6 py-5 rounded-xl font-bold transition-all duration-300 shadow-lg ${
+                                        isRunning
+                                        ? 'bg-gray-800 text-gray-400 cursor-not-allowed'
+                                        : 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-purple-500/20 hover:shadow-purple-500/40 hover:scale-[1.02]'
+                                    }`}
                                 >
                                     {isRunning ? (
-                                        <>
-                                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                                            Executing...
-                                        </>
+                                        <span className="flex items-center gap-2">
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                            Processing...
+                                        </span>
                                     ) : (
-                                        <>
-                                            <Play className="w-5 h-5 mr-2" />
-                                            {currentLang?.type === 'webcontainer' ? 'Run in WebContainer' : 'Run Simulation'}
-                                        </>
+                                        <span className="flex items-center gap-2">
+                                            <Play className="w-4 h-4 fill-current" />
+                                            Run Code
+                                        </span>
                                     )}
                                 </Button>
                             </div>
                         </div>
 
-                        {/* Output Panel - now with XTerm */}
-                        <div className="bg-[#1e1e1e] rounded-2xl border border-gray-800 overflow-hidden shadow-2xl flex flex-col">
-                            {/* Output Header */}
-                            <div className="flex items-center justify-between px-4 py-3 bg-[#252526] border-b border-gray-800">
-                                <div className="flex items-center gap-2">
-                                    <Terminal className="w-4 h-4 text-green-400" />
-                                    <span className="text-sm font-medium text-gray-300">Terminal</span>
-                                    <span className="text-xs text-gray-500">• bash</span>
+                        {/* RIGHT: Terminal Panel */}
+                        <div className="flex flex-col rounded-2xl md:rounded-3xl border border-white/10 bg-[#09090b] shadow-2xl overflow-hidden min-h-[400px]">
+                            {/* Terminal Header */}
+                            <div className="flex items-center justify-between px-5 py-4 border-b border-white/5 bg-white/[0.02]">
+                                <div className="flex items-center gap-2 text-sm font-medium text-gray-300">
+                                    <Terminal className="w-4 h-4 text-purple-400" />
+                                    Terminal
+                                    <span className="px-1.5 py-0.5 rounded-md bg-white/5 text-[10px] text-gray-500 font-mono">bash</span>
                                 </div>
-                                <div className="flex items-center gap-2">
+                                <div className="flex gap-2">
                                     <button
                                         onClick={() => {
                                             terminalRef.current?.clear();
-                                            setOutput("");
+                                            terminalRef.current?.writeln('\x1b[2m$ Console cleared\x1b[0m\r\n$ ');
                                         }}
-                                        className="p-2 rounded-lg hover:bg-gray-700 transition-colors"
-                                        title="Clear output"
+                                        className="p-1.5 rounded-md hover:bg-white/10 text-gray-500 hover:text-white transition-colors"
+                                        title="Clear Console"
                                     >
-                                        <Trash2 className="w-4 h-4 text-gray-400" />
+                                        <Trash2 className="w-3.5 h-3.5" />
                                     </button>
                                 </div>
                             </div>
 
-                            {/* Terminal Container */}
-                            <div className={`flex-1 ${isFullscreen ? '' : 'h-[400px] md:h-[500px]'} bg-[#1e1e1e] relative group`}>
-                                <div ref={terminalContainerRef} className="absolute inset-0 p-4" />
-                            </div>
-
-                            {/* Status Bar */}
-                            <div className="px-4 py-2 bg-[#007acc] flex items-center justify-between text-xs text-white">
-                                <div className="flex items-center gap-4">
-                                    <span>{currentLang?.name}</span>
-                                    <span>UTF-8</span>
-                                    <span>LF</span>
-                                    <span className="flex items-center gap-1">
-                                        <Cpu className="w-3 h-3" />
-                                        {currentLang?.type === 'webcontainer' ? 'WebAssembly Runtime' : 'Simulation Engine'}
-                                    </span>
-                                </div>
-                                <div className="flex items-center gap-4">
-                                    <span>{code.split('\n').length} lines</span>
-                                    <span>Ln 1, Col 1</span>
-                                </div>
+                            {/* XTerm Container */}
+                            <div className="flex-1 relative bg-[#09090b] p-2">
+                                {/* Scanline Effect */}
+                                <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-10 pointer-events-none opacity-20 bg-[length:100%_4px,3px_100%]" />
+                                <div ref={terminalContainerRef} className="h-full w-full" />
                             </div>
                         </div>
                     </div>
-
-                    {/* Features Section - hidden in fullscreen */}
-                    {!isFullscreen && (
-                        <AnimatedSection delay={200}>
-                            <div className="mt-12 md:mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                                {[
-                                    { icon: "⚡", title: "WebContainer™", desc: "In-browser Node.js runtime" },
-                                    { icon: "🎨", title: "Monaco Editor", desc: "VS Code experience" },
-                                    { icon: "🛡️", title: "Secure Sandbox", desc: "Isolated execution env" },
-                                    { icon: "🚀", title: "Instant Run", desc: "Zero server latency" },
-                                ].map((feature, idx) => (
-                                    <div
-                                        key={idx}
-                                        className="p-4 md:p-6 rounded-2xl bg-[#161b22] border border-gray-800 hover:border-purple-500/50 transition-colors group"
-                                    >
-                                        <span className="text-2xl md:text-3xl mb-3 block">{feature.icon}</span>
-                                        <h3 className="font-bold text-white mb-1 group-hover:text-purple-400 transition-colors">
-                                            {feature.title}
-                                        </h3>
-                                        <p className="text-sm text-gray-500">{feature.desc}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </AnimatedSection>
-                    )}
                 </div>
             </main>
         </div>

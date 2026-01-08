@@ -11,11 +11,6 @@ import { TiltCard } from "@/components/effects/TiltCard";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
 import { Navigation } from "@/components/layout/Navigation";
 import { Services } from "@/components/sections/Services";
-import {
-  OpenAILogo, GoogleLogo, AnthropicLogo, GitHubLogo,
-  MicrosoftLogo, MetaLogo, MistralLogo, VercelLogo,
-  CursorLogo, CohereLogo
-} from "@/components/icons/AILogos";
 
 export default function Home() {
   const { data: projects } = trpc.projects.list.useQuery();
@@ -685,26 +680,28 @@ export default function Home() {
 
                 {/* Scrolling Track */}
                 <div className="flex gap-6 md:gap-8 animate-scroll-left-fast">
-                  {/* First Set - PROFESSIONAL AI LOGOS with Official SVGs */}
+                  {/* First Set - PROFESSIONAL AI LOGOS */}
                   {[
-                    { name: 'OpenAI', Logo: OpenAILogo, bg: 'from-[#10a37f] to-[#0d8c6d]', shadow: 'shadow-emerald-500/50' },
-                    { name: 'Google', Logo: GoogleLogo, bg: 'from-[#4285f4] to-[#34a853]', shadow: 'shadow-blue-500/50' },
-                    { name: 'Anthropic', Logo: AnthropicLogo, bg: 'from-[#d4a373] to-[#bc8a5f]', shadow: 'shadow-orange-500/50' },
-                    { name: 'Cursor', Logo: CursorLogo, bg: 'from-[#7c3aed] to-[#5b21b6]', shadow: 'shadow-purple-500/50' },
-                    { name: 'GitHub', Logo: GitHubLogo, bg: 'from-[#24292e] to-[#1b1f23]', shadow: 'shadow-gray-800/50' },
-                    { name: 'Microsoft', Logo: MicrosoftLogo, bg: 'from-[#00a4ef] to-[#7fba00]', shadow: 'shadow-blue-500/50' },
-                    { name: 'Meta', Logo: MetaLogo, bg: 'from-[#0668e1] to-[#0052bf]', shadow: 'shadow-blue-600/50' },
-                    { name: 'Mistral', Logo: MistralLogo, bg: 'from-[#ff7000] to-[#ff5500]', shadow: 'shadow-orange-500/50' },
-                    { name: 'Cohere', Logo: CohereLogo, bg: 'from-[#39594d] to-[#2a4239]', shadow: 'shadow-green-800/50' },
-                    { name: 'Vercel', Logo: VercelLogo, bg: 'from-[#000] to-[#333]', shadow: 'shadow-gray-800/50' },
+                    { name: 'OpenAI', logo: '◯', bg: 'from-[#10a37f] to-[#0d8c6d]', shadow: 'shadow-emerald-500/50' },
+                    { name: 'Google', logo: 'G', bg: 'from-[#4285f4] to-[#34a853]', shadow: 'shadow-blue-500/50' },
+                    { name: 'Anthropic', logo: 'A', bg: 'from-[#d4a373] to-[#bc8a5f]', shadow: 'shadow-orange-500/50' },
+                    { name: 'Cursor', logo: '⌘', bg: 'from-[#7c3aed] to-[#5b21b6]', shadow: 'shadow-purple-500/50' },
+                    { name: 'GitHub', logo: '⬡', bg: 'from-[#24292e] to-[#1b1f23]', shadow: 'shadow-gray-800/50' },
+                    { name: 'Microsoft', logo: '⊞', bg: 'from-[#00a4ef] to-[#7fba00]', shadow: 'shadow-blue-500/50' },
+                    { name: 'Meta', logo: '∞', bg: 'from-[#0668e1] to-[#0052bf]', shadow: 'shadow-blue-600/50' },
+                    { name: 'Mistral', logo: 'M', bg: 'from-[#ff7000] to-[#ff5500]', shadow: 'shadow-orange-500/50' },
+                    { name: 'Cohere', logo: 'C', bg: 'from-[#39594d] to-[#2a4239]', shadow: 'shadow-green-800/50' },
+                    { name: 'Vercel', logo: '▲', bg: 'from-[#000] to-[#333]', shadow: 'shadow-gray-800/50' },
                   ].map((ai, i) => (
                     <div key={`ai-1-${i}`} className="flex-shrink-0 group">
                       <div className={`relative w-36 md:w-44 lg:w-48 h-20 md:h-24 lg:h-28 rounded-2xl md:rounded-3xl bg-gradient-to-br ${ai.bg} flex flex-col items-center justify-center shadow-xl ${ai.shadow} hover:shadow-2xl transition-all duration-500 hover:scale-110 hover:-translate-y-2 border-2 border-white/20 overflow-hidden`}>
                         {/* Shimmer Effect */}
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
 
-                        {/* Official SVG Logo */}
-                        <ai.Logo className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 mb-1 md:mb-2 text-white filter drop-shadow-lg relative z-10" />
+                        {/* Logo */}
+                        <div className="text-3xl md:text-4xl lg:text-5xl mb-1 md:mb-2 filter drop-shadow-lg relative z-10">
+                          {ai.logo}
+                        </div>
 
                         {/* Name */}
                         <span className="text-white font-black text-xs md:text-sm lg:text-base tracking-wide relative z-10 drop-shadow-lg">
@@ -717,26 +714,28 @@ export default function Home() {
                     </div>
                   ))}
 
-                  {/* Duplicate for Seamless Loop - PROFESSIONAL AI LOGOS with Official SVGs */}
+                  {/* Duplicate for Seamless Loop - PROFESSIONAL AI LOGOS */}
                   {[
-                    { name: 'OpenAI', Logo: OpenAILogo, bg: 'from-[#10a37f] to-[#0d8c6d]', shadow: 'shadow-emerald-500/50' },
-                    { name: 'Google', Logo: GoogleLogo, bg: 'from-[#4285f4] to-[#34a853]', shadow: 'shadow-blue-500/50' },
-                    { name: 'Anthropic', Logo: AnthropicLogo, bg: 'from-[#d4a373] to-[#bc8a5f]', shadow: 'shadow-orange-500/50' },
-                    { name: 'Cursor', Logo: CursorLogo, bg: 'from-[#7c3aed] to-[#5b21b6]', shadow: 'shadow-purple-500/50' },
-                    { name: 'GitHub', Logo: GitHubLogo, bg: 'from-[#24292e] to-[#1b1f23]', shadow: 'shadow-gray-800/50' },
-                    { name: 'Microsoft', Logo: MicrosoftLogo, bg: 'from-[#00a4ef] to-[#7fba00]', shadow: 'shadow-blue-500/50' },
-                    { name: 'Meta', Logo: MetaLogo, bg: 'from-[#0668e1] to-[#0052bf]', shadow: 'shadow-blue-600/50' },
-                    { name: 'Mistral', Logo: MistralLogo, bg: 'from-[#ff7000] to-[#ff5500]', shadow: 'shadow-orange-500/50' },
-                    { name: 'Cohere', Logo: CohereLogo, bg: 'from-[#39594d] to-[#2a4239]', shadow: 'shadow-green-800/50' },
-                    { name: 'Vercel', Logo: VercelLogo, bg: 'from-[#000] to-[#333]', shadow: 'shadow-gray-800/50' },
+                    { name: 'OpenAI', logo: '◯', bg: 'from-[#10a37f] to-[#0d8c6d]', shadow: 'shadow-emerald-500/50' },
+                    { name: 'Google', logo: 'G', bg: 'from-[#4285f4] to-[#34a853]', shadow: 'shadow-blue-500/50' },
+                    { name: 'Anthropic', logo: 'A', bg: 'from-[#d4a373] to-[#bc8a5f]', shadow: 'shadow-orange-500/50' },
+                    { name: 'Cursor', logo: '⌘', bg: 'from-[#7c3aed] to-[#5b21b6]', shadow: 'shadow-purple-500/50' },
+                    { name: 'GitHub', logo: '⬡', bg: 'from-[#24292e] to-[#1b1f23]', shadow: 'shadow-gray-800/50' },
+                    { name: 'Microsoft', logo: '⊞', bg: 'from-[#00a4ef] to-[#7fba00]', shadow: 'shadow-blue-500/50' },
+                    { name: 'Meta', logo: '∞', bg: 'from-[#0668e1] to-[#0052bf]', shadow: 'shadow-blue-600/50' },
+                    { name: 'Mistral', logo: 'M', bg: 'from-[#ff7000] to-[#ff5500]', shadow: 'shadow-orange-500/50' },
+                    { name: 'Cohere', logo: 'C', bg: 'from-[#39594d] to-[#2a4239]', shadow: 'shadow-green-800/50' },
+                    { name: 'Vercel', logo: '▲', bg: 'from-[#000] to-[#333]', shadow: 'shadow-gray-800/50' },
                   ].map((ai, i) => (
                     <div key={`ai-2-${i}`} className="flex-shrink-0 group">
                       <div className={`relative w-36 md:w-44 lg:w-48 h-20 md:h-24 lg:h-28 rounded-2xl md:rounded-3xl bg-gradient-to-br ${ai.bg} flex flex-col items-center justify-center shadow-xl ${ai.shadow} hover:shadow-2xl transition-all duration-500 hover:scale-110 hover:-translate-y-2 border-2 border-white/20 overflow-hidden`}>
                         {/* Shimmer Effect */}
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
 
-                        {/* Official SVG Logo */}
-                        <ai.Logo className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 mb-1 md:mb-2 text-white filter drop-shadow-lg relative z-10" />
+                        {/* Logo */}
+                        <div className="text-3xl md:text-4xl lg:text-5xl mb-1 md:mb-2 filter drop-shadow-lg relative z-10">
+                          {ai.logo}
+                        </div>
 
                         {/* Name */}
                         <span className="text-white font-black text-xs md:text-sm lg:text-base tracking-wide relative z-10 drop-shadow-lg">
