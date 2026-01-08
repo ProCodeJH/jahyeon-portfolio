@@ -98,7 +98,7 @@ export function HeroVideoBackground({
             {hasVideo && (
                 <video
                     ref={videoRef}
-                    className={`absolute inset-0 w-full h-full object-fill transition-opacity duration-1000 ${isLoaded ? "opacity-100" : "opacity-0"
+                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${isLoaded ? "opacity-100" : "opacity-0"
                         }`}
                     src={videoSrc}
                     poster={posterSrc}
@@ -153,9 +153,9 @@ export function HeroVideoBackground({
                 </>
             )}
 
-            {/* Premium Gradient Overlays - Reduced opacity for video visibility */}
-            <div className="absolute inset-0 bg-gradient-to-br from-gray-50/40 via-white/30 to-purple-50/40" />
-            <div className="absolute inset-0 bg-gradient-to-t from-white/60 via-transparent to-transparent" />
+            {/* Premium Gradient Overlays - Balanced opacity */}
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-50/60 via-white/50 to-purple-50/60" />
+            <div className="absolute inset-0 bg-gradient-to-t from-white/70 via-white/20 to-transparent" />
 
             {/* Cinematic vignette effect - lighter */}
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_transparent_60%,_rgba(255,255,255,0.4)_100%)]" />
