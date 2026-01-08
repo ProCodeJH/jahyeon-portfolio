@@ -1,5 +1,9 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
+import { WebContainer } from '@webcontainer/api';
+import { Terminal as XTerminal } from 'xterm';
+import { FitAddon } from 'xterm-addon-fit';
+import 'xterm/css/xterm.css';
 import { Button } from "@/components/ui/button";
 import {
     Play,
@@ -14,7 +18,8 @@ import {
     Trash2,
     Settings,
     Maximize2,
-    Minimize2
+    Minimize2,
+    Cpu
 } from "lucide-react";
 import { Navigation } from "@/components/layout/Navigation";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
@@ -22,14 +27,14 @@ import { toast } from "sonner";
 
 // 🚀 ENTERPRISE-GRADE LANGUAGE CONFIGURATIONS
 const LANGUAGES = [
-    { id: "c", name: "C", extension: ".c", monaco: "c" },
-    { id: "cpp", name: "C++", extension: ".cpp", monaco: "cpp" },
-    { id: "python", name: "Python", extension: ".py", monaco: "python" },
-    { id: "javascript", name: "JavaScript", extension: ".js", monaco: "javascript" },
-    { id: "typescript", name: "TypeScript", extension: ".ts", monaco: "typescript" },
-    { id: "java", name: "Java", extension: ".java", monaco: "java" },
-    { id: "rust", name: "Rust", extension: ".rs", monaco: "rust" },
-    { id: "go", name: "Go", extension: ".go", monaco: "go" },
+    { id: "javascript", name: "JavaScript (Node.js)", extension: ".js", monaco: "javascript", type: "webcontainer" },
+    { id: "c", name: "C", extension: ".c", monaco: "c", type: "simulation" },
+    { id: "cpp", name: "C++", extension: ".cpp", monaco: "cpp", type: "simulation" },
+    { id: "python", name: "Python", extension: ".py", monaco: "python", type: "simulation" },
+    { id: "typescript", name: "TypeScript", extension: ".ts", monaco: "typescript", type: "simulation" },
+    { id: "java", name: "Java", extension: ".java", monaco: "java", type: "simulation" },
+    { id: "rust", name: "Rust", extension: ".rs", monaco: "rust", type: "simulation" },
+    { id: "go", name: "Go", extension: ".go", monaco: "go", type: "simulation" },
 ];
 
 // 🎯 CODE TEMPLATES
@@ -85,27 +90,24 @@ def fibonacci(n: int) -> list[int]:
 if __name__ == "__main__":
     print(greet("World"))
     print(f"Fibonacci(10): {fibonacci(10)}")`,
-    javascript: `// ⚡ JavaScript Enterprise Code Editor
+    javascript: `// ⚡ JavaScript Enterprise Code Editor (Running in WebContainer)
 const greet = (name) => \`Hello, \${name}!\`;
 
 // Async/Await Pattern
-const fetchData = async (url) => {
-    try {
-        const response = await fetch(url);
-        return await response.json();
-    } catch (error) {
-        console.error('Error:', error);
-    }
+const fetchData = async () => {
+    console.log("Fetching data...");
+    await new Promise(r => setTimeout(r, 500)); // Simulate delay
+    return { status: 200, data: "Fetched!" };
 };
 
 // Array Methods
 const numbers = [1, 2, 3, 4, 5];
 const doubled = numbers.map(n => n * 2);
-const evens = numbers.filter(n => n % 2 === 0);
 
-console.log(greet("World"));
-console.log("Doubled:", doubled);
-console.log("Evens:", evens);`,
+console.log(greet("WebContainer"));
+console.log("Doubled numbers:", doubled);
+
+fetchData().then(res => console.log(res));`,
     typescript: `// 💙 TypeScript Enterprise Code Editor
 interface User {
     id: number;
@@ -198,24 +200,89 @@ func greet(name string) string {
 }`,
 };
 
+// Global WebContainer instance
+let webContainerInstance: WebContainer | null = null;
+
 export default function CodeEditor() {
-    const [code, setCode] = useState(CODE_TEMPLATES.python);
-    const [language, setLanguage] = useState("python");
-    const [output, setOutput] = useState("");
+    const [code, setCode] = useState(CODE_TEMPLATES.javascript);
+    const [language, setLanguage] = useState("javascript");
+    const [output, setOutput] = useState(""); // For legacy simulation output
     const [isRunning, setIsRunning] = useState(false);
     const [copied, setCopied] = useState(false);
     const [showLanguageMenu, setShowLanguageMenu] = useState(false);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [fontSize, setFontSize] = useState(14);
+    const [isWebContainerReady, setIsWebContainerReady] = useState(false);
+
     const editorRef = useRef<any>(null);
+    const terminalRef = useRef<XTerminal | null>(null);
+    const terminalContainerRef = useRef<HTMLDivElement>(null);
 
     // Update code when language changes
     useEffect(() => {
-        setCode(CODE_TEMPLATES[language] || "");
+        if (CODE_TEMPLATES[language]) {
+            setCode(CODE_TEMPLATES[language]);
+        }
         setOutput("");
+        terminalRef.current?.clear();
     }, [language]);
 
     const currentLang = LANGUAGES.find(l => l.id === language);
+
+    // 🎯 Initialize WebContainer
+    useEffect(() => {
+        async function bootWebContainer() {
+            try {
+                if (!webContainerInstance) {
+                    webContainerInstance = await WebContainer.boot();
+                }
+                setIsWebContainerReady(true);
+            } catch (error) {
+                console.error("Failed to boot WebContainer:", error);
+                toast.error("Failed to initialize WebContainer environment");
+            }
+        }
+        bootWebContainer();
+    }, []);
+
+    // 🎯 Initialize Terminal
+    useEffect(() => {
+        if (terminalContainerRef.current && !terminalRef.current) {
+            const term = new XTerminal({
+                convertEol: true,
+                theme: {
+                    background: '#1e1e1e',
+                    foreground: '#4ade80', // Green-400
+                    cursor: '#ffffff',
+                    selectionBackground: 'rgba(255, 255, 255, 0.3)',
+                },
+                fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+                fontSize: 14,
+                rows: 24,
+            });
+
+            const fitAddon = new FitAddon();
+            term.loadAddon(fitAddon);
+            term.open(terminalContainerRef.current);
+            fitAddon.fit();
+
+            terminalRef.current = term;
+
+            // Resize observer to refit terminal
+            const resizeObserver = new ResizeObserver(() => {
+                fitAddon.fit();
+            });
+            resizeObserver.observe(terminalContainerRef.current);
+
+            term.write('\x1b[2mInitialized terminal...\r\n\x1b[0m');
+
+            return () => {
+                resizeObserver.disconnect();
+                term.dispose();
+                terminalRef.current = null;
+            };
+        }
+    }, []);
 
     // 🎯 Monaco Editor mount handler
     const handleEditorDidMount = (editor: any) => {
@@ -223,13 +290,65 @@ export default function CodeEditor() {
         editor.focus();
     };
 
-    // 🚀 Execute code (simulation)
+    // 🚀 Execute code
     const handleRun = useCallback(async () => {
         setIsRunning(true);
-        setOutput("⏳ Compiling and executing...\n\n");
+        terminalRef.current?.clear();
+        setOutput("");
+
+        const langConfig = LANGUAGES.find(l => l.id === language);
+
+        // ==========================================
+        // 🌐 WebContainer Execution (Node.js)
+        // ==========================================
+        if (langConfig?.type === 'webcontainer' && webContainerInstance) {
+            try {
+                terminalRef.current?.write(`\x1b[34m> Running ${langConfig.name} in WebContainer...\x1b[0m\r\n`);
+
+                // Write file
+                await webContainerInstance.mount({
+                    'index.js': {
+                        file: {
+                            contents: code
+                        }
+                    }
+                });
+
+                // Spawn process
+                const process = await webContainerInstance.spawn('node', ['index.js']);
+
+                // Stream output
+                process.output.pipeTo(new WritableStream({
+                    write(data) {
+                        terminalRef.current?.write(data);
+                    }
+                }));
+
+                const exitCode = await process.exit;
+
+                if (exitCode === 0) {
+                    terminalRef.current?.write(`\r\n\x1b[32m✅ Execution completed (Exit Code: ${exitCode})\x1b[0m\r\n`);
+                } else {
+                    terminalRef.current?.write(`\r\n\x1b[31m❌ Execution failed (Exit Code: ${exitCode})\x1b[0m\r\n`);
+                }
+
+            } catch (error) {
+                console.error("WebContainer Error:", error);
+                terminalRef.current?.write(`\r\n\x1b[31mError: ${error}\x1b[0m\r\n`);
+                toast.error("Execution failed");
+            } finally {
+                setIsRunning(false);
+            }
+            return;
+        }
+
+        // ==========================================
+        // 🎮 Legacy Simulation (Other Languages)
+        // ==========================================
+        terminalRef.current?.write(`\x1b[33m> Running ${langConfig?.name} (Simulation Mode)...\x1b[0m\r\n\r\n`);
 
         // Simulate compilation delay
-        await new Promise(resolve => setTimeout(resolve, 1200));
+        await new Promise(resolve => setTimeout(resolve, 800));
 
         // Simulated outputs
         const outputs: Record<string, string> = {
@@ -251,12 +370,6 @@ Fibonacci(10): [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
 
 ✅ Execution completed successfully
 ⏱️ Execution time: 0.012s`,
-            javascript: `Hello, World!
-Doubled: [ 2, 4, 6, 8, 10 ]
-Evens: [ 2, 4 ]
-
-✅ Execution completed successfully
-⏱️ Execution time: 0.008s`,
             typescript: `Hello, John Doe!
 User: { id: 1704729600000, name: 'John Doe', email: 'john@example.com' }
 
@@ -284,10 +397,19 @@ Hello, Gopher!
 ⏱️ Execution time: 0.006s`,
         };
 
-        setOutput(outputs[language] || "Execution completed");
+        const simulatedOutput = outputs[language] || "Execution completed";
+
+        // Stream simulated output to terminal
+        const lines = simulatedOutput.split('\n');
+        for (const line of lines) {
+            terminalRef.current?.writeln(line);
+            await new Promise(r => setTimeout(r, 50));
+        }
+
+        setOutput(simulatedOutput); // Keep state for fallback/history if needed
         setIsRunning(false);
         toast.success("Code executed successfully!");
-    }, [language]);
+    }, [language, code]);
 
     const handleCopy = useCallback(async () => {
         await navigator.clipboard.writeText(code);
@@ -299,6 +421,8 @@ Hello, Gopher!
     const handleReset = useCallback(() => {
         setCode(CODE_TEMPLATES[language] || "");
         setOutput("");
+        terminalRef.current?.clear();
+        terminalRef.current?.write('\x1b[2mConsole cleared & reset\r\n\x1b[0m');
         toast.info("Code reset to template");
     }, [language]);
 
@@ -326,7 +450,7 @@ Hello, Gopher!
                                     </span>
                                 </h1>
                                 <p className="text-base md:text-lg text-gray-400 max-w-2xl mx-auto">
-                                    Professional VS Code-powered editor with syntax highlighting and IntelliSense
+                                    Professional VS Code-powered editor with <span className="text-purple-400 font-bold">WebContainer™</span> Runtime
                                 </p>
                             </div>
                         </AnimatedSection>
@@ -364,6 +488,7 @@ Hello, Gopher!
                                                     >
                                                         <FileCode className="w-4 h-4" />
                                                         <span className="font-medium">{lang.name}</span>
+                                                        {lang.type === 'webcontainer' && <span className="ml-auto text-[10px] bg-purple-500/20 text-purple-400 px-1 rounded">WEB</span>}
                                                     </button>
                                                 ))}
                                             </div>
@@ -372,6 +497,14 @@ Hello, Gopher!
 
                                     <div className="flex items-center gap-2 text-gray-500 text-sm">
                                         <span>main{currentLang?.extension}</span>
+                                        {currentLang?.type === 'webcontainer' ? (
+                                            <span className={`flex items-center gap-1.5 text-[10px] px-2 py-0.5 rounded-full ${isWebContainerReady ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
+                                                <div className={`w-1.5 h-1.5 rounded-full ${isWebContainerReady ? 'bg-green-400 animate-pulse' : 'bg-yellow-400'}`} />
+                                                {isWebContainerReady ? 'Runtime Ready' : 'Booting...'}
+                                            </span>
+                                        ) : (
+                                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-500/20 text-gray-400">Simulation</span>
+                                        )}
                                     </div>
                                 </div>
 
@@ -449,7 +582,7 @@ Hello, Gopher!
                             <div className="px-4 py-3 bg-[#252526] border-t border-gray-800">
                                 <Button
                                     onClick={handleRun}
-                                    disabled={isRunning || !code.trim()}
+                                    disabled={isRunning || !code.trim() || (currentLang?.type === 'webcontainer' && !isWebContainerReady)}
                                     className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isRunning ? (
@@ -460,25 +593,28 @@ Hello, Gopher!
                                     ) : (
                                         <>
                                             <Play className="w-5 h-5 mr-2" />
-                                            Run Code
+                                            {currentLang?.type === 'webcontainer' ? 'Run in WebContainer' : 'Run Simulation'}
                                         </>
                                     )}
                                 </Button>
                             </div>
                         </div>
 
-                        {/* Output Panel */}
+                        {/* Output Panel - now with XTerm */}
                         <div className="bg-[#1e1e1e] rounded-2xl border border-gray-800 overflow-hidden shadow-2xl flex flex-col">
                             {/* Output Header */}
                             <div className="flex items-center justify-between px-4 py-3 bg-[#252526] border-b border-gray-800">
                                 <div className="flex items-center gap-2">
                                     <Terminal className="w-4 h-4 text-green-400" />
-                                    <span className="text-sm font-medium text-gray-300">Output</span>
-                                    <span className="text-xs text-gray-500">• Terminal</span>
+                                    <span className="text-sm font-medium text-gray-300">Terminal</span>
+                                    <span className="text-xs text-gray-500">• bash</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <button
-                                        onClick={() => setOutput("")}
+                                        onClick={() => {
+                                            terminalRef.current?.clear();
+                                            setOutput("");
+                                        }}
                                         className="p-2 rounded-lg hover:bg-gray-700 transition-colors"
                                         title="Clear output"
                                     >
@@ -487,19 +623,9 @@ Hello, Gopher!
                                 </div>
                             </div>
 
-                            {/* Output Content */}
-                            <div className={`flex-1 ${isFullscreen ? '' : 'h-[400px] md:h-[500px]'} bg-[#1e1e1e] p-4 overflow-auto font-mono`}>
-                                {output ? (
-                                    <pre className="text-sm md:text-base text-green-400 whitespace-pre-wrap leading-relaxed">
-                                        {output}
-                                    </pre>
-                                ) : (
-                                    <div className="flex flex-col items-center justify-center h-full text-gray-600">
-                                        <Terminal className="w-16 h-16 mb-4 opacity-30" />
-                                        <p className="text-center text-lg">Output will appear here</p>
-                                        <p className="text-sm text-gray-700 mt-2">Press "Run Code" to execute</p>
-                                    </div>
-                                )}
+                            {/* Terminal Container */}
+                            <div className={`flex-1 ${isFullscreen ? '' : 'h-[400px] md:h-[500px]'} bg-[#1e1e1e] relative group`}>
+                                <div ref={terminalContainerRef} className="absolute inset-0 p-4" />
                             </div>
 
                             {/* Status Bar */}
@@ -508,6 +634,10 @@ Hello, Gopher!
                                     <span>{currentLang?.name}</span>
                                     <span>UTF-8</span>
                                     <span>LF</span>
+                                    <span className="flex items-center gap-1">
+                                        <Cpu className="w-3 h-3" />
+                                        {currentLang?.type === 'webcontainer' ? 'WebAssembly Runtime' : 'Simulation Engine'}
+                                    </span>
                                 </div>
                                 <div className="flex items-center gap-4">
                                     <span>{code.split('\n').length} lines</span>
@@ -522,10 +652,10 @@ Hello, Gopher!
                         <AnimatedSection delay={200}>
                             <div className="mt-12 md:mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                                 {[
-                                    { icon: "⚡", title: "Monaco Editor", desc: "VS Code's powerful engine" },
-                                    { icon: "🎨", title: "Syntax Highlighting", desc: "Full language support" },
-                                    { icon: "🔧", title: "IntelliSense", desc: "Auto-completion & hints" },
-                                    { icon: "🌐", title: "8 Languages", desc: "C, C++, Python & more" },
+                                    { icon: "⚡", title: "WebContainer™", desc: "In-browser Node.js runtime" },
+                                    { icon: "🎨", title: "Monaco Editor", desc: "VS Code experience" },
+                                    { icon: "🛡️", title: "Secure Sandbox", desc: "Isolated execution env" },
+                                    { icon: "🚀", title: "Instant Run", desc: "Zero server latency" },
                                 ].map((feature, idx) => (
                                     <div
                                         key={idx}
