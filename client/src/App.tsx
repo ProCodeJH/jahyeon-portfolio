@@ -10,6 +10,7 @@ import Projects from "./pages/Projects";
 import Resources from "./pages/Resources";
 import CodeEditor from "./pages/CodeEditor";
 import Admin from "./pages/Admin";
+import { useSmoothScroll } from "./hooks/useSmoothScroll";
 
 function Router() {
   return (
@@ -28,6 +29,9 @@ function Router() {
 }
 
 function App() {
+  // 🚀 ENTERPRISE-GRADE SMOOTH SCROLL (Lenis + GSAP)
+  useSmoothScroll();
+
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
