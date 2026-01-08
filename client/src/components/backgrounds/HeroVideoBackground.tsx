@@ -98,7 +98,7 @@ export function HeroVideoBackground({
             {hasVideo && (
                 <video
                     ref={videoRef}
-                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${isLoaded ? "opacity-100" : "opacity-0"
+                    className={`absolute inset-0 w-full h-full object-fill transition-opacity duration-1000 ${isLoaded ? "opacity-100" : "opacity-0"
                         }`}
                     src={videoSrc}
                     poster={posterSrc}
