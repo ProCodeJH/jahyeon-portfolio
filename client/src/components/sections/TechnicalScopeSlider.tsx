@@ -329,7 +329,7 @@ export function TechnicalScopeSlider() {
                         <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto mb-4">
                             <span className="text-purple-400 font-bold text-3xl md:text-4xl">{TOTAL_ITEMS}+</span> 가지 기술 스택을 활용한
                             <br className="hidden md:block" />
-                            <span className="text-cyan-400 font-semibold">엔터프라이즈급 개발 역량</span>
+                            <span className="text-cyan-400 font-semibold">풀스택 개발 역량</span>
                         </p>
                         <div className="w-32 md:w-48 h-2 md:h-3 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full mx-auto" style={{ boxShadow: '0 0 30px rgba(168, 85, 247, 0.6)' }} />
                     </div>
@@ -346,8 +346,8 @@ export function TechnicalScopeSlider() {
                                     key={cat.id}
                                     onClick={() => setActiveCategory(cat.id)}
                                     className={`group flex items-center gap-2 md:gap-3 px-4 md:px-6 py-3 md:py-4 rounded-2xl text-sm md:text-base font-bold transition-all duration-500 ${isActive
-                                            ? `bg-gradient-to-r ${cat.color} text-white shadow-xl`
-                                            : "bg-white/5 text-gray-400 border border-white/10 hover:border-purple-500/50 hover:text-white"
+                                        ? `bg-gradient-to-r ${cat.color} text-white shadow-xl`
+                                        : "bg-white/5 text-gray-400 border border-white/10 hover:border-purple-500/50 hover:text-white"
                                         }`}
                                     style={isActive ? { boxShadow: '0 0 30px rgba(168, 85, 247, 0.4)' } : {}}
                                 >
@@ -429,28 +429,7 @@ export function TechnicalScopeSlider() {
                     </div>
                 </AnimatedSection>
 
-                {/* All Categories Summary */}
-                <AnimatedSection delay={300}>
-                    <div className="mt-16 md:mt-24 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-4">
-                        {TECHNICAL_CATEGORIES.map((cat) => {
-                            const Icon = cat.icon;
-                            return (
-                                <button
-                                    key={cat.id}
-                                    onClick={() => setActiveCategory(cat.id)}
-                                    className={`group p-4 md:p-5 rounded-2xl bg-[#12121a] border border-white/10 hover:border-purple-500/30 transition-all text-center ${activeCategory === cat.id ? 'ring-2 ring-purple-500' : ''
-                                        }`}
-                                >
-                                    <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br ${cat.color}/20 flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform`}>
-                                        <Icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                                    </div>
-                                    <p className="text-xs md:text-sm text-gray-400 mb-1">{cat.name}</p>
-                                    <p className="text-lg md:text-xl font-bold text-purple-400">{cat.items.length}</p>
-                                </button>
-                            );
-                        })}
-                    </div>
-                </AnimatedSection>
+
             </div>
         </section>
     );
