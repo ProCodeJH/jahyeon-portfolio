@@ -31,11 +31,51 @@ export const GoogleGeminiLogo: React.FC<LogoProps> = ({ className = "w-8 h-8" })
     </svg>
 );
 
-// Anthropic/Claude Logo (Stylized A - official from Bootstrap Icons)
+// Anthropic Logo (Stylized A - BLACK version from user image)
 export const AnthropicLogo: React.FC<LogoProps> = ({ className = "w-8 h-8" }) => (
-    <svg className={className} viewBox="0 0 16 16" fill="currentColor">
-        <path d="M10.8 3.5H12l-4 9H6.8l-.6-1.5h-3L2.6 12.5H1.4l4-9zm-1.2 6l-1.6-4-1.6 4zm-6.2 0L5 5.9 3.4 9.5z" />
-        <path d="M10.8 3.5l-4 9H8l.6-1.5h3l.6 1.5h1.2l-4-9z" />
+    <svg className={className} viewBox="0 0 100 80" fill="currentColor">
+        {/* Main A shape */}
+        <path d="M40 0L0 80H18L40 36L62 80H80L40 0Z" />
+        {/* Right vertical bar */}
+        <path d="M65 0H83V80H65V0Z" />
+    </svg>
+);
+
+// Claude AI Logo (Rainbow Gradient A - from user image)
+export const ClaudeLogo: React.FC<LogoProps> = ({ className = "w-8 h-8" }) => (
+    <svg className={className} viewBox="0 0 100 90" fill="none">
+        <defs>
+            <linearGradient id="claude-rainbow" x1="50%" y1="0%" x2="50%" y2="100%">
+                <stop offset="0%" stopColor="#FF6B6B" />
+                <stop offset="25%" stopColor="#FFB347" />
+                <stop offset="50%" stopColor="#7ED957" />
+                <stop offset="75%" stopColor="#4ECDC4" />
+                <stop offset="100%" stopColor="#3B82F6" />
+            </linearGradient>
+        </defs>
+        {/* Curved A mountain shape with rounded bottom */}
+        <path
+            d="M50 5C50 5 25 45 15 70C10 82 20 88 30 85C38 83 42 78 50 78C58 78 62 83 70 85C80 88 90 82 85 70C75 45 50 5 50 5Z"
+            fill="url(#claude-rainbow)"
+        />
+    </svg>
+);
+
+// Cursor Logo (Text logo "CURSOR" from user image)
+export const CursorLogo: React.FC<LogoProps> = ({ className = "w-8 h-8" }) => (
+    <svg className={className} viewBox="0 0 120 30" fill="currentColor">
+        <text
+            x="50%"
+            y="50%"
+            dominantBaseline="middle"
+            textAnchor="middle"
+            fontFamily="system-ui, -apple-system, sans-serif"
+            fontWeight="900"
+            fontSize="22"
+            letterSpacing="1"
+        >
+            CURSOR
+        </text>
     </svg>
 );
 
@@ -58,8 +98,9 @@ export const MicrosoftLogo: React.FC<LogoProps> = ({ className = "w-8 h-8" }) =>
 
 // Meta Infinity Logo
 export const MetaLogo: React.FC<LogoProps> = ({ className = "w-8 h-8" }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M6.915 4.03c-1.968 0-3.683 1.28-4.871 3.113C.704 9.208 0 11.883 0 14.449c0 .706.07 1.369.21 1.973a4.892 4.892 0 0 0 1.036 1.98c.482.527 1.098.934 1.846 1.008.804.074 1.51-.253 2.153-.67.61-.411 1.19-.945 1.807-1.533a42.472 42.472 0 0 0 1.756-1.848c1.073-1.172 2.19-2.483 3.196-3.832.975-1.306 1.873-2.658 2.456-3.893.388-.792.622-1.505.622-2.131 0-1.056-.508-2.063-1.37-2.782-.86-.718-2.033-1.082-3.339-.96l-.127.015a6.382 6.382 0 0 0-1.735.585c-.536.261-1.037.6-1.503 1.01A9.143 9.143 0 0 0 6.915 4.03zM17.085 4.03c1.027 0 1.812.448 2.366 1.091.503.583.808 1.359.808 2.12 0 .507-.148 1.087-.455 1.768-.481.977-1.32 2.29-2.302 3.502a42.472 42.472 0 0 1-2.33 2.676c-.574.579-1.114 1.103-1.582 1.397-.501.314-.93.376-1.363.342a2.061 2.061 0 0 1-.779-.368 2.707 2.707 0 0 1-.577-1.13 6.49 6.49 0 0 1-.147-1.335c0-2.209.589-4.504 1.607-6.14.955-1.538 2.185-2.468 3.597-2.468 1.032 0 1.821.451 2.377 1.097.504.583.808 1.355.808 2.115 0 .508-.148 1.088-.456 1.77-.48.977-1.32 2.288-2.302 3.5a42.077 42.077 0 0 1-2.29 2.633l-.04.042" />
+    <svg className={className} viewBox="0 0 100 60" fill="currentColor">
+        <path d="M25 10C15 10 8 20 5 30C2 40 5 50 15 50C22 50 28 45 35 35C42 25 48 15 55 15C62 15 65 20 65 30C65 40 62 45 55 45C48 45 42 35 35 25C28 15 22 10 15 10" fill="none" stroke="currentColor" strokeWidth="8" strokeLinecap="round" />
+        <path d="M75 10C65 10 58 20 55 30C52 40 55 50 65 50C72 50 78 45 85 35C92 25 98 15 95 30C92 45 85 50 75 50" fill="none" stroke="currentColor" strokeWidth="8" strokeLinecap="round" />
     </svg>
 );
 
@@ -93,13 +134,6 @@ export const VercelLogo: React.FC<LogoProps> = ({ className = "w-8 h-8" }) => (
     </svg>
 );
 
-// Cursor Logo (Stylized cursor/pointer)
-export const CursorLogo: React.FC<LogoProps> = ({ className = "w-8 h-8" }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M4 2L20 12L12 14L9 22L4 2Z" />
-    </svg>
-);
-
 // Cohere Logo (Connected circles)
 export const CohereLogo: React.FC<LogoProps> = ({ className = "w-8 h-8" }) => (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -127,7 +161,7 @@ export const PerplexityLogo: React.FC<LogoProps> = ({ className = "w-8 h-8" }) =
     </svg>
 );
 
-// xAI Grok Logo (Stylized X)
+// xAI Grok Logo (X logo style)
 export const GrokLogo: React.FC<LogoProps> = ({ className = "w-8 h-8" }) => (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
         <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
@@ -168,12 +202,13 @@ export default {
     OpenAILogo,
     GoogleGeminiLogo,
     AnthropicLogo,
+    ClaudeLogo,
+    CursorLogo,
     GitHubLogo,
     MicrosoftLogo,
     MetaLogo,
     MistralLogo,
     VercelLogo,
-    CursorLogo,
     CohereLogo,
     HuggingFaceLogo,
     PerplexityLogo,
