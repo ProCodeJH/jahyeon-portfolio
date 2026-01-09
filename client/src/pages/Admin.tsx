@@ -1107,17 +1107,17 @@ export default function Admin() {
                   <div>
                     <Label className="text-white/70">Parent Folder (Optional)</Label>
                     <Select
-                      value={newFolderName.includes('/') ? newFolderName.split('/').slice(0, -1).join('/') : ''}
+                      value={newFolderName.includes('/') ? newFolderName.split('/').slice(0, -1).join('/') : '__root__'}
                       onValueChange={(v) => {
                         const baseName = newFolderName.split('/').pop() || '';
-                        setNewFolderName(v ? `${v}/${baseName}` : baseName);
+                        setNewFolderName(v === '__root__' ? baseName : `${v}/${baseName}`);
                       }}
                     >
                       <SelectTrigger className="mt-1.5 bg-white/5 border-white/10 text-white">
                         <SelectValue placeholder="📁 Root (No parent folder)" />
                       </SelectTrigger>
                       <SelectContent className="bg-[#111] border-white/10">
-                        <SelectItem value="" className="text-white hover:bg-white/10">
+                        <SelectItem value="__root__" className="text-white hover:bg-white/10">
                           📁 Root (No parent folder)
                         </SelectItem>
                         {existingFolders.map(folder => (
