@@ -630,7 +630,7 @@ export default function Admin() {
                     </p>
                   </div>
                   <div className="flex gap-2">
-                    <Button onClick={() => setShowCreateFolderDialog(true)} className="bg-purple-500 hover:bg-purple-600 text-white rounded-xl">
+                    <Button onClick={() => { setParentFolderName("__root__"); setNewFolderName(""); setShowCreateFolderDialog(true); }} className="bg-purple-500 hover:bg-purple-600 text-white rounded-xl">
                       <FolderOpen className="h-4 w-4 mr-2" />New Folder
                     </Button>
                   </div>
