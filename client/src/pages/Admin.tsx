@@ -82,7 +82,13 @@ export default function Admin() {
     onSuccess: () => { utils.resources.list.invalidate(); toast.success("Deleted"); },
   });
   const createFolder = trpc.folders.create.useMutation({
-    onSuccess: () => { utils.folders.list.invalidate(); toast.success("Folder created"); setShowCreateFolderDialog(false); setNewFolderName(""); },
+    onSuccess: () => {
+      utils.folders.list.invalidate();
+      toast.success("Folder created");
+      setShowCreateFolderDialog(false);
+      setNewFolderName("");
+      setParentFolderName("__root__");
+    },
     onError: (e) => toast.error(e.message),
   });
   const updateFolder = trpc.folders.update.useMutation({
