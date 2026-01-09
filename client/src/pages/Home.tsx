@@ -10,7 +10,12 @@ import { SubtleDots } from "@/components/backgrounds/SubtleDots";
 import { TiltCard } from "@/components/effects/TiltCard";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
 import { Navigation } from "@/components/layout/Navigation";
-import { DevelopmentScope } from "@/components/sections/DevelopmentScope";
+import { TechnicalScopeSlider } from "@/components/sections/TechnicalScopeSlider";
+import {
+  OpenAILogo, GoogleGeminiLogo, AnthropicLogo, GitHubLogo, MicrosoftLogo,
+  MetaLogo, MistralLogo, VercelLogo, CursorLogo, CohereLogo, HuggingFaceLogo,
+  PerplexityLogo, GrokLogo, AntigravityLogo, JulesLogo
+} from "@/components/icons/AILogos";
 
 export default function Home() {
   const { data: projects } = trpc.projects.list.useQuery();
@@ -329,8 +334,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 💰 DEVELOPMENT SCOPE - 3-Stage Hybrid Pricing */}
-      <DevelopmentScope />
+      {/* 🔧 TECHNICAL EXPERTISE - 800+ Tech Stack Showcase */}
+      <TechnicalScopeSlider />
 
       {/* 🏆 CERTIFICATIONS & CREDENTIALS */}
       <section className="py-24 md:py-40 lg:py-48 px-4 md:px-8 relative overflow-hidden">
@@ -354,7 +359,7 @@ export default function Home() {
             </div>
           </AnimatedSection>
 
-          {/* Certifications Horizontal Scroll - ALL VISIBLE */}
+          {/* Certifications Auto-Scroll Animation - ALL VISIBLE */}
           {certificationsLoading ? (
             <div className="flex flex-col items-center justify-center py-16">
               <Loader2 className="w-12 h-12 animate-spin text-purple-400 mb-4" />
@@ -366,94 +371,152 @@ export default function Home() {
               <h3 className="text-2xl font-semibold text-gray-400">No certifications yet</h3>
             </div>
           ) : (
-            <div className="relative">
+            <div className="relative overflow-hidden">
               {/* Gradient Overlays */}
-              <div className="absolute left-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-r from-[#0a0a1a] to-transparent z-10 pointer-events-none" />
-              <div className="absolute right-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-l from-[#0a0a1a] to-transparent z-10 pointer-events-none" />
+              <div className="absolute left-0 top-0 bottom-0 w-24 md:w-40 lg:w-60 bg-gradient-to-r from-[#0a0a1a] to-transparent z-10 pointer-events-none" />
+              <div className="absolute right-0 top-0 bottom-0 w-24 md:w-40 lg:w-60 bg-gradient-to-l from-[#0a0a1a] to-transparent z-10 pointer-events-none" />
 
-              {/* Horizontal Scroll Container - ALL CERTIFICATIONS */}
-              <div
-                className="flex gap-6 md:gap-8 overflow-x-auto snap-x snap-mandatory pb-6 scrollbar-hide"
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-              >
-                {certifications.map((cert, index) => (
-                  <AnimatedSection key={cert.id} delay={index * 50}>
-                    <div className="group flex-shrink-0 w-[320px] md:w-[400px] lg:w-[450px] snap-center">
-                      <TiltCard>
-                        <div className="rounded-3xl overflow-hidden bg-[#12121a] border border-white/10 hover:border-purple-500/50 transition-all duration-500 shadow-xl hover:shadow-purple-500/20">
-                          <div className="aspect-[4/3] overflow-hidden relative">
-                            {cert.imageUrl ? (
-                              <img src={cert.imageUrl} alt={cert.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                            ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-purple-900/50 via-blue-900/50 to-pink-900/50 flex items-center justify-center">
-                                <div className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center" style={{ boxShadow: '0 0 40px rgba(168, 85, 247, 0.5)' }}>
-                                  <Award className="w-12 h-12 md:w-14 md:h-14 text-white" />
-                                </div>
+              {/* Infinite Auto-Scroll Track */}
+              <div className="flex gap-8 md:gap-10 lg:gap-12 animate-scroll-left-certifications">
+                {/* First Set */}
+                {certifications.map((cert) => (
+                  <div key={`cert-1-${cert.id}`} className="group flex-shrink-0 w-[380px] md:w-[480px] lg:w-[550px]">
+                    <TiltCard sensitivity={6}>
+                      <div className="rounded-3xl overflow-hidden bg-[#12121a] border border-white/10 hover:border-purple-500/50 transition-all duration-500 shadow-2xl hover:shadow-purple-500/30">
+                        <div className="aspect-[16/10] overflow-hidden relative">
+                          {cert.imageUrl ? (
+                            <img src={cert.imageUrl} alt={cert.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-purple-900/60 via-blue-900/60 to-pink-900/60 flex items-center justify-center">
+                              <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center" style={{ boxShadow: '0 0 60px rgba(168, 85, 247, 0.6)' }}>
+                                <Award className="w-14 h-14 md:w-18 md:h-18 text-white" />
                               </div>
-                            )}
-
-                            {/* Verified Badge */}
-                            <div className="absolute top-4 right-4">
-                              <span className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-xl text-purple-300 text-sm font-semibold border border-white/20">
-                                <ShieldCheck className="w-4 h-4" />Verified
-                              </span>
                             </div>
+                          )}
 
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#12121a] via-transparent to-transparent opacity-60" />
+                          {/* Verified Badge */}
+                          <div className="absolute top-5 right-5">
+                            <span className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-xl text-purple-300 text-base font-bold border border-white/20" style={{ boxShadow: '0 0 20px rgba(168, 85, 247, 0.3)' }}>
+                              <ShieldCheck className="w-5 h-5" />Verified
+                            </span>
                           </div>
 
-                          <div className="p-6 md:p-8 relative">
-                            {/* Certified Badge */}
-                            <div className="absolute -top-4 left-6 md:left-8">
-                              <div className="relative">
-                                <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-cyan-500 blur-lg opacity-60"></div>
-                                <div className="relative px-4 py-2 rounded-full bg-gradient-to-r from-purple-600 to-cyan-600 text-white text-sm font-bold tracking-wider uppercase" style={{ boxShadow: '0 0 20px rgba(168, 85, 247, 0.5)' }}>
-                                  🏆 Certified
-                                </div>
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#12121a] via-transparent to-transparent opacity-70" />
+                        </div>
+
+                        <div className="p-8 md:p-10 relative">
+                          {/* Certified Badge */}
+                          <div className="absolute -top-5 left-8 md:left-10">
+                            <div className="relative">
+                              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-cyan-500 blur-lg opacity-70"></div>
+                              <div className="relative px-5 py-2.5 rounded-full bg-gradient-to-r from-purple-600 to-cyan-600 text-white text-base font-black tracking-wider uppercase" style={{ boxShadow: '0 0 30px rgba(168, 85, 247, 0.6)' }}>
+                                🏆 Certified
                               </div>
                             </div>
+                          </div>
 
-                            <h3 className="text-xl md:text-2xl font-bold mb-4 mt-4 group-hover:text-purple-300 transition-colors line-clamp-2 text-white leading-tight">
-                              {cert.title}
-                            </h3>
+                          <h3 className="text-2xl md:text-3xl font-black mb-5 mt-5 group-hover:text-purple-300 transition-colors line-clamp-2 text-white leading-tight">
+                            {cert.title}
+                          </h3>
 
-                            <div className="flex items-center gap-3 mb-6">
-                              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-purple-500/30 to-cyan-500/30 flex items-center justify-center flex-shrink-0 border border-white/10">
-                                <Building className="w-5 h-5 md:w-6 md:h-6 text-purple-400" />
-                              </div>
-                              <div className="min-w-0">
-                                <p className="text-sm text-gray-500 font-medium">Issued by</p>
-                                <p className="text-base md:text-lg font-semibold text-gray-300 line-clamp-1">{cert.issuer}</p>
-                              </div>
+                          <div className="flex items-center gap-4 mb-6">
+                            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500/30 to-cyan-500/30 flex items-center justify-center flex-shrink-0 border border-white/10">
+                              <Building className="w-7 h-7 text-purple-400" />
                             </div>
+                            <div className="min-w-0">
+                              <p className="text-base text-gray-500 font-medium">Issued by</p>
+                              <p className="text-lg md:text-xl font-bold text-gray-300 line-clamp-1">{cert.issuer}</p>
+                            </div>
+                          </div>
 
-                            <div className="flex items-center justify-between pt-4 border-t border-white/10">
-                              <div className="flex items-center gap-2">
-                                <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
-                                <span className="text-sm text-emerald-400 font-semibold">Active</span>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                {[1, 2, 3, 4, 5].map((star) => (
-                                  <svg key={star} className="w-4 h-4 md:w-5 md:h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                                    <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                                  </svg>
-                                ))}
-                              </div>
+                          <div className="flex items-center justify-between pt-5 border-t border-white/10">
+                            <div className="flex items-center gap-2">
+                              <div className="w-4 h-4 rounded-full bg-emerald-500 animate-pulse"></div>
+                              <span className="text-base text-emerald-400 font-bold">Active</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <svg key={star} className="w-6 h-6 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                                  <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                                </svg>
+                              ))}
                             </div>
                           </div>
                         </div>
-                      </TiltCard>
-                    </div>
-                  </AnimatedSection>
+                      </div>
+                    </TiltCard>
+                  </div>
+                ))}
+
+                {/* Duplicate Set for Seamless Loop */}
+                {certifications.map((cert) => (
+                  <div key={`cert-2-${cert.id}`} className="group flex-shrink-0 w-[380px] md:w-[480px] lg:w-[550px]">
+                    <TiltCard sensitivity={6}>
+                      <div className="rounded-3xl overflow-hidden bg-[#12121a] border border-white/10 hover:border-purple-500/50 transition-all duration-500 shadow-2xl hover:shadow-purple-500/30">
+                        <div className="aspect-[16/10] overflow-hidden relative">
+                          {cert.imageUrl ? (
+                            <img src={cert.imageUrl} alt={cert.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-purple-900/60 via-blue-900/60 to-pink-900/60 flex items-center justify-center">
+                              <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center" style={{ boxShadow: '0 0 60px rgba(168, 85, 247, 0.6)' }}>
+                                <Award className="w-14 h-14 md:w-18 md:h-18 text-white" />
+                              </div>
+                            </div>
+                          )}
+                          <div className="absolute top-5 right-5">
+                            <span className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-xl text-purple-300 text-base font-bold border border-white/20" style={{ boxShadow: '0 0 20px rgba(168, 85, 247, 0.3)' }}>
+                              <ShieldCheck className="w-5 h-5" />Verified
+                            </span>
+                          </div>
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#12121a] via-transparent to-transparent opacity-70" />
+                        </div>
+                        <div className="p-8 md:p-10 relative">
+                          <div className="absolute -top-5 left-8 md:left-10">
+                            <div className="relative">
+                              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-cyan-500 blur-lg opacity-70"></div>
+                              <div className="relative px-5 py-2.5 rounded-full bg-gradient-to-r from-purple-600 to-cyan-600 text-white text-base font-black tracking-wider uppercase" style={{ boxShadow: '0 0 30px rgba(168, 85, 247, 0.6)' }}>
+                                🏆 Certified
+                              </div>
+                            </div>
+                          </div>
+                          <h3 className="text-2xl md:text-3xl font-black mb-5 mt-5 group-hover:text-purple-300 transition-colors line-clamp-2 text-white leading-tight">
+                            {cert.title}
+                          </h3>
+                          <div className="flex items-center gap-4 mb-6">
+                            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500/30 to-cyan-500/30 flex items-center justify-center flex-shrink-0 border border-white/10">
+                              <Building className="w-7 h-7 text-purple-400" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-base text-gray-500 font-medium">Issued by</p>
+                              <p className="text-lg md:text-xl font-bold text-gray-300 line-clamp-1">{cert.issuer}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between pt-5 border-t border-white/10">
+                            <div className="flex items-center gap-2">
+                              <div className="w-4 h-4 rounded-full bg-emerald-500 animate-pulse"></div>
+                              <span className="text-base text-emerald-400 font-bold">Active</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <svg key={star} className="w-6 h-6 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                                  <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                                </svg>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </TiltCard>
+                  </div>
                 ))}
               </div>
 
-              {/* Scroll Hint */}
-              <div className="flex items-center justify-center gap-2 mt-6">
-                <div className="flex items-center gap-2 text-gray-500 text-base">
-                  <ChevronLeft className="w-5 h-5" />
-                  <span className="font-medium">Scroll to see all {certifications.length} certifications</span>
-                  <ChevronRight className="w-5 h-5" />
+              {/* Count Indicator */}
+              <div className="flex items-center justify-center gap-3 mt-10">
+                <div className="flex items-center gap-2 px-6 py-3 rounded-full bg-purple-500/10 border border-purple-500/30">
+                  <Award className="w-5 h-5 text-purple-400" />
+                  <span className="text-purple-400 font-bold text-lg">{certifications.length}</span>
+                  <span className="text-gray-400">Professional Certifications</span>
                 </div>
               </div>
             </div>
@@ -649,29 +712,32 @@ export default function Home() {
 
                 {/* Scrolling Track */}
                 <div className="flex gap-6 md:gap-8 animate-scroll-left-fast">
-                  {/* First Set - PROFESSIONAL AI LOGOS with Antigravity and Jules */}
+                  {/* First Set - OFFICIAL AI LOGOS with SVG Components */}
                   {[
-                    { name: 'OpenAI', logo: '◯', bg: 'from-[#10a37f] to-[#0d8c6d]', shadow: 'shadow-emerald-500/50' },
-                    { name: 'Anthropic', logo: 'A', bg: 'from-[#d4a373] to-[#bc8a5f]', shadow: 'shadow-orange-500/50' },
-                    { name: 'Google', logo: 'G', bg: 'from-[#4285f4] to-[#34a853]', shadow: 'shadow-blue-500/50' },
-                    { name: 'Antigravity', logo: '🚀', bg: 'from-[#8b5cf6] to-[#ec4899]', shadow: 'shadow-purple-500/50' },
-                    { name: 'Jules', logo: '🤖', bg: 'from-[#06b6d4] to-[#3b82f6]', shadow: 'shadow-cyan-500/50' },
-                    { name: 'Cursor', logo: '⌘', bg: 'from-[#7c3aed] to-[#5b21b6]', shadow: 'shadow-purple-500/50' },
-                    { name: 'GitHub', logo: '⬡', bg: 'from-[#24292e] to-[#1b1f23]', shadow: 'shadow-gray-800/50' },
-                    { name: 'Microsoft', logo: '⊞', bg: 'from-[#00a4ef] to-[#7fba00]', shadow: 'shadow-blue-500/50' },
-                    { name: 'Meta', logo: '∞', bg: 'from-[#0668e1] to-[#0052bf]', shadow: 'shadow-blue-600/50' },
-                    { name: 'Mistral', logo: 'M', bg: 'from-[#ff7000] to-[#ff5500]', shadow: 'shadow-orange-500/50' },
-                    { name: 'Cohere', logo: 'C', bg: 'from-[#39594d] to-[#2a4239]', shadow: 'shadow-green-800/50' },
-                    { name: 'Vercel', logo: '▲', bg: 'from-[#000] to-[#333]', shadow: 'shadow-gray-800/50' },
+                    { name: 'OpenAI', Logo: OpenAILogo, bg: 'from-[#10a37f] to-[#0d8c6d]', shadow: 'shadow-emerald-500/50' },
+                    { name: 'Anthropic', Logo: AnthropicLogo, bg: 'from-[#d4a373] to-[#bc8a5f]', shadow: 'shadow-orange-500/50' },
+                    { name: 'Gemini', Logo: GoogleGeminiLogo, bg: 'from-[#4285f4] to-[#34a853]', shadow: 'shadow-blue-500/50' },
+                    { name: 'Antigravity', Logo: AntigravityLogo, bg: 'from-[#8b5cf6] to-[#06b6d4]', shadow: 'shadow-purple-500/50' },
+                    { name: 'Jules', Logo: JulesLogo, bg: 'from-[#06b6d4] to-[#3b82f6]', shadow: 'shadow-cyan-500/50' },
+                    { name: 'Cursor', Logo: CursorLogo, bg: 'from-[#7c3aed] to-[#5b21b6]', shadow: 'shadow-purple-500/50' },
+                    { name: 'GitHub', Logo: GitHubLogo, bg: 'from-[#24292e] to-[#1b1f23]', shadow: 'shadow-gray-800/50' },
+                    { name: 'Microsoft', Logo: MicrosoftLogo, bg: 'from-[#00a4ef] to-[#0078d4]', shadow: 'shadow-blue-500/50' },
+                    { name: 'Meta', Logo: MetaLogo, bg: 'from-[#0668e1] to-[#0052bf]', shadow: 'shadow-blue-600/50' },
+                    { name: 'Mistral', Logo: MistralLogo, bg: 'from-[#ff7000] to-[#ff5500]', shadow: 'shadow-orange-500/50' },
+                    { name: 'Cohere', Logo: CohereLogo, bg: 'from-[#39594d] to-[#2a4239]', shadow: 'shadow-green-800/50' },
+                    { name: 'Vercel', Logo: VercelLogo, bg: 'from-[#000] to-[#333]', shadow: 'shadow-gray-800/50' },
+                    { name: 'Hugging Face', Logo: HuggingFaceLogo, bg: 'from-[#FFD21E] to-[#FFB800]', shadow: 'shadow-yellow-500/50' },
+                    { name: 'Perplexity', Logo: PerplexityLogo, bg: 'from-[#20B2AA] to-[#008B8B]', shadow: 'shadow-teal-500/50' },
+                    { name: 'Grok', Logo: GrokLogo, bg: 'from-[#1DA1F2] to-[#0d8ecf]', shadow: 'shadow-sky-500/50' },
                   ].map((ai, i) => (
                     <div key={`ai-1-${i}`} className="flex-shrink-0 group">
                       <div className={`relative w-40 md:w-48 lg:w-56 h-24 md:h-28 lg:h-32 rounded-2xl md:rounded-3xl bg-gradient-to-br ${ai.bg} flex flex-col items-center justify-center shadow-xl ${ai.shadow} hover:shadow-2xl transition-all duration-500 hover:scale-110 hover:-translate-y-2 border-2 border-white/20 overflow-hidden`}>
                         {/* Shimmer Effect */}
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
 
-                        {/* Logo */}
-                        <div className="text-4xl md:text-5xl lg:text-6xl mb-1 md:mb-2 filter drop-shadow-lg relative z-10">
-                          {ai.logo}
+                        {/* SVG Logo */}
+                        <div className="mb-1 md:mb-2 filter drop-shadow-lg relative z-10 text-white">
+                          <ai.Logo className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14" />
                         </div>
 
                         {/* Name */}
@@ -687,35 +753,31 @@ export default function Home() {
 
                   {/* Duplicate for Seamless Loop */}
                   {[
-                    { name: 'OpenAI', logo: '◯', bg: 'from-[#10a37f] to-[#0d8c6d]', shadow: 'shadow-emerald-500/50' },
-                    { name: 'Anthropic', logo: 'A', bg: 'from-[#d4a373] to-[#bc8a5f]', shadow: 'shadow-orange-500/50' },
-                    { name: 'Google', logo: 'G', bg: 'from-[#4285f4] to-[#34a853]', shadow: 'shadow-blue-500/50' },
-                    { name: 'Antigravity', logo: '🚀', bg: 'from-[#8b5cf6] to-[#ec4899]', shadow: 'shadow-purple-500/50' },
-                    { name: 'Jules', logo: '🤖', bg: 'from-[#06b6d4] to-[#3b82f6]', shadow: 'shadow-cyan-500/50' },
-                    { name: 'Cursor', logo: '⌘', bg: 'from-[#7c3aed] to-[#5b21b6]', shadow: 'shadow-purple-500/50' },
-                    { name: 'GitHub', logo: '⬡', bg: 'from-[#24292e] to-[#1b1f23]', shadow: 'shadow-gray-800/50' },
-                    { name: 'Microsoft', logo: '⊞', bg: 'from-[#00a4ef] to-[#7fba00]', shadow: 'shadow-blue-500/50' },
-                    { name: 'Meta', logo: '∞', bg: 'from-[#0668e1] to-[#0052bf]', shadow: 'shadow-blue-600/50' },
-                    { name: 'Mistral', logo: 'M', bg: 'from-[#ff7000] to-[#ff5500]', shadow: 'shadow-orange-500/50' },
-                    { name: 'Cohere', logo: 'C', bg: 'from-[#39594d] to-[#2a4239]', shadow: 'shadow-green-800/50' },
-                    { name: 'Vercel', logo: '▲', bg: 'from-[#000] to-[#333]', shadow: 'shadow-gray-800/50' },
+                    { name: 'OpenAI', Logo: OpenAILogo, bg: 'from-[#10a37f] to-[#0d8c6d]', shadow: 'shadow-emerald-500/50' },
+                    { name: 'Anthropic', Logo: AnthropicLogo, bg: 'from-[#d4a373] to-[#bc8a5f]', shadow: 'shadow-orange-500/50' },
+                    { name: 'Gemini', Logo: GoogleGeminiLogo, bg: 'from-[#4285f4] to-[#34a853]', shadow: 'shadow-blue-500/50' },
+                    { name: 'Antigravity', Logo: AntigravityLogo, bg: 'from-[#8b5cf6] to-[#06b6d4]', shadow: 'shadow-purple-500/50' },
+                    { name: 'Jules', Logo: JulesLogo, bg: 'from-[#06b6d4] to-[#3b82f6]', shadow: 'shadow-cyan-500/50' },
+                    { name: 'Cursor', Logo: CursorLogo, bg: 'from-[#7c3aed] to-[#5b21b6]', shadow: 'shadow-purple-500/50' },
+                    { name: 'GitHub', Logo: GitHubLogo, bg: 'from-[#24292e] to-[#1b1f23]', shadow: 'shadow-gray-800/50' },
+                    { name: 'Microsoft', Logo: MicrosoftLogo, bg: 'from-[#00a4ef] to-[#0078d4]', shadow: 'shadow-blue-500/50' },
+                    { name: 'Meta', Logo: MetaLogo, bg: 'from-[#0668e1] to-[#0052bf]', shadow: 'shadow-blue-600/50' },
+                    { name: 'Mistral', Logo: MistralLogo, bg: 'from-[#ff7000] to-[#ff5500]', shadow: 'shadow-orange-500/50' },
+                    { name: 'Cohere', Logo: CohereLogo, bg: 'from-[#39594d] to-[#2a4239]', shadow: 'shadow-green-800/50' },
+                    { name: 'Vercel', Logo: VercelLogo, bg: 'from-[#000] to-[#333]', shadow: 'shadow-gray-800/50' },
+                    { name: 'Hugging Face', Logo: HuggingFaceLogo, bg: 'from-[#FFD21E] to-[#FFB800]', shadow: 'shadow-yellow-500/50' },
+                    { name: 'Perplexity', Logo: PerplexityLogo, bg: 'from-[#20B2AA] to-[#008B8B]', shadow: 'shadow-teal-500/50' },
+                    { name: 'Grok', Logo: GrokLogo, bg: 'from-[#1DA1F2] to-[#0d8ecf]', shadow: 'shadow-sky-500/50' },
                   ].map((ai, i) => (
                     <div key={`ai-2-${i}`} className="flex-shrink-0 group">
                       <div className={`relative w-40 md:w-48 lg:w-56 h-24 md:h-28 lg:h-32 rounded-2xl md:rounded-3xl bg-gradient-to-br ${ai.bg} flex flex-col items-center justify-center shadow-xl ${ai.shadow} hover:shadow-2xl transition-all duration-500 hover:scale-110 hover:-translate-y-2 border-2 border-white/20 overflow-hidden`}>
-                        {/* Shimmer Effect */}
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-
-                        {/* Logo */}
-                        <div className="text-4xl md:text-5xl lg:text-6xl mb-1 md:mb-2 filter drop-shadow-lg relative z-10">
-                          {ai.logo}
+                        <div className="mb-1 md:mb-2 filter drop-shadow-lg relative z-10 text-white">
+                          <ai.Logo className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14" />
                         </div>
-
-                        {/* Name */}
                         <span className="text-white font-black text-sm md:text-base lg:text-lg tracking-wide relative z-10 drop-shadow-lg">
                           {ai.name}
                         </span>
-
-                        {/* Glow Effect */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                       </div>
                     </div>
@@ -773,6 +835,12 @@ export default function Home() {
           animation: scroll-left 20s linear infinite;
         }
         .animate-scroll-left-fast:hover {
+          animation-play-state: paused;
+        }
+        .animate-scroll-left-certifications {
+          animation: scroll-left 60s linear infinite;
+        }
+        .animate-scroll-left-certifications:hover {
           animation-play-state: paused;
         }
         .perspective-2000 {
