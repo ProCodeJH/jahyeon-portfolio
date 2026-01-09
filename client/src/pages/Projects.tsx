@@ -32,13 +32,13 @@ export default function Projects() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 text-gray-900 overflow-hidden">
-      {/* 🌊 SEAMLESS BACKGROUND - 끊김 없는 배경 */}
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0a1a] via-[#12121a] to-[#0a0a1a] text-white overflow-hidden">
+      {/* 🌊 DARK NEON BACKGROUND */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 via-white to-blue-50/50" />
-        <div className="absolute top-0 left-0 w-[800px] h-[800px] bg-purple-200/30 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2" />
-        <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-blue-200/30 rounded-full blur-[100px] translate-x-1/3 translate-y-1/3" />
-        <div className="absolute top-1/2 left-1/2 w-[500px] h-[500px] bg-pink-200/20 rounded-full blur-[80px] -translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-cyan-900/20" />
+        <div className="absolute top-0 left-0 w-[800px] h-[800px] bg-purple-600/15 rounded-full blur-[150px] -translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-cyan-600/15 rounded-full blur-[120px] translate-x-1/3 translate-y-1/3" />
+        <div className="absolute top-1/2 left-1/2 w-[500px] h-[500px] bg-pink-600/10 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2" />
       </div>
 
       {/* Navigation */}
@@ -49,16 +49,15 @@ export default function Projects() {
         <div className="max-w-7xl mx-auto">
           <AnimatedSection>
             <Link href="/">
-              <button className="flex items-center gap-2 text-gray-500 hover:text-purple-600 transition-colors mb-6 md:mb-8 group">
+              <button className="flex items-center gap-2 text-gray-400 hover:text-purple-400 transition-colors mb-6 md:mb-8 group">
                 <ArrowLeft className="w-4 h-4 md:w-5 md:h-5 group-hover:-translate-x-1 transition-transform" />
                 <span className="text-base md:text-lg">Back to Home</span>
               </button>
             </Link>
-            {/* 🚫 "Portfolio" 소제목 제거됨 */}
-            <h1 className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold leading-[0.95] mb-6 md:mb-8 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-purple-900 to-blue-900">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold leading-[0.95] mb-6 md:mb-8 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400">
               Work.
             </h1>
-            <p className="text-lg md:text-xl lg:text-2xl text-gray-600 max-w-3xl leading-relaxed">
+            <p className="text-lg md:text-xl lg:text-2xl text-gray-400 max-w-3xl leading-relaxed">
               Embedded systems, IoT solutions, and software development projects
               that push the boundaries of innovation.
             </p>
@@ -67,7 +66,7 @@ export default function Projects() {
       </section>
 
       {/* 🏷️ DYNAMIC TAG FILTER - 태그 기반 필터링 */}
-      <section className="py-4 md:py-6 lg:py-8 sticky top-16 md:top-20 lg:top-24 z-40 bg-white/60 backdrop-blur-xl border-y border-gray-200/50">
+      <section className="py-4 md:py-6 lg:py-8 sticky top-16 md:top-20 lg:top-24 z-40 bg-[#12121a]/80 backdrop-blur-xl border-y border-white/10">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <AnimatedSection delay={100}>
             <div className="flex flex-wrap gap-2 md:gap-3">
@@ -75,8 +74,8 @@ export default function Projects() {
               <button
                 onClick={() => setActiveTag("all")}
                 className={`group flex items-center gap-1.5 md:gap-2 px-3 md:px-5 lg:px-6 py-2 md:py-2.5 lg:py-3 rounded-full text-xs md:text-sm lg:text-base font-medium transition-all border-2 ${activeTag === "all"
-                    ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white border-transparent shadow-lg shadow-purple-500/30"
-                    : "bg-white text-gray-600 border-gray-200 hover:border-purple-400 hover:text-purple-600 hover:shadow-md"
+                  ? "bg-gradient-to-r from-purple-600 to-cyan-600 text-white border-transparent shadow-lg shadow-purple-500/30"
+                  : "bg-white/5 text-gray-400 border-white/10 hover:border-purple-500/50 hover:text-purple-400"
                   }`}
               >
                 <Code className="w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5" />
@@ -92,8 +91,8 @@ export default function Projects() {
                   key={tag}
                   onClick={() => setActiveTag(tag)}
                   className={`group flex items-center gap-1.5 md:gap-2 px-3 md:px-5 lg:px-6 py-2 md:py-2.5 lg:py-3 rounded-full text-xs md:text-sm lg:text-base font-medium transition-all border-2 ${activeTag === tag
-                      ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white border-transparent shadow-lg shadow-purple-500/30"
-                      : "bg-white text-gray-600 border-gray-200 hover:border-purple-400 hover:text-purple-600 hover:shadow-md"
+                    ? "bg-gradient-to-r from-purple-600 to-cyan-600 text-white border-transparent shadow-lg shadow-purple-500/30"
+                    : "bg-white/5 text-gray-400 border-white/10 hover:border-purple-500/50 hover:text-purple-400"
                     }`}
                 >
                   <span>{tag}</span>

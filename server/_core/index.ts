@@ -4,6 +4,7 @@ import { createServer } from "http";
 import net from "net";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
+import { registerQuoteRoutes } from "./quote-routes";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
@@ -35,6 +36,8 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "2gb", extended: true }));
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
+  // Quote request API with SMS notification
+  registerQuoteRoutes(app);
   // tRPC API
   app.use(
     "/api/trpc",

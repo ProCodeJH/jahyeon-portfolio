@@ -357,11 +357,12 @@ export default function Resources() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 text-gray-900 overflow-hidden">
-      {/* Clean Background */}
-      <div className="fixed inset-0">
-        <GradientMeshBackground />
-        <SubtleDots />
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0a1a] via-[#12121a] to-[#0a0a1a] text-white overflow-hidden">
+      {/* Dark Neon Background */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-cyan-900/20" />
+        <div className="absolute top-0 left-0 w-[800px] h-[800px] bg-purple-600/15 rounded-full blur-[150px] -translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-cyan-600/15 rounded-full blur-[120px] translate-x-1/3 translate-y-1/3" />
       </div>
 
       {/* Navigation */}
@@ -372,24 +373,24 @@ export default function Resources() {
         <div className="max-w-7xl mx-auto">
           <AnimatedSection>
             <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center" style={{ boxShadow: '0 0 30px rgba(168, 85, 247, 0.4)' }}>
                 <BookOpen className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
-              <p className="text-purple-600 font-medium text-xs md:text-sm tracking-wider uppercase">Learning Materials</p>
+              <p className="text-purple-400 font-medium text-xs md:text-sm tracking-wider uppercase">Learning Materials</p>
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 md:mb-6 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-purple-900 to-blue-900">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 md:mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400">
               Resources
             </h1>
-            <p className="text-gray-600 text-base md:text-lg lg:text-xl max-w-2xl">
+            <p className="text-gray-400 text-base md:text-lg lg:text-xl max-w-2xl">
               Access lecture materials, code samples, presentations, and video tutorials.
-              <span className="flex items-center gap-2 text-purple-600 mt-2 md:mt-3 text-sm md:text-base font-medium"><Eye className="w-3 h-3 md:w-4 md:h-4" />Click to preview PPT/PDF files!</span>
+              <span className="flex items-center gap-2 text-purple-400 mt-2 md:mt-3 text-sm md:text-base font-medium"><Eye className="w-3 h-3 md:w-4 md:h-4" />Click to preview PPT/PDF files!</span>
             </p>
           </AnimatedSection>
         </div>
       </section>
 
       {/* Filter */}
-      <section className="py-4 md:py-6 lg:py-8 sticky top-16 md:top-20 lg:top-24 z-40 bg-white/60 backdrop-blur-xl border-y border-gray-200/50">
+      <section className="py-4 md:py-6 lg:py-8 sticky top-16 md:top-20 lg:top-24 z-40 bg-[#12121a]/80 backdrop-blur-xl border-y border-white/10">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <AnimatedSection delay={100}>
             <div className="flex flex-wrap gap-2 md:gap-3">
@@ -401,8 +402,8 @@ export default function Resources() {
                     key={category.value}
                     onClick={() => setActiveCategory(category.value)}
                     className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 lg:px-5 py-2 md:py-2.5 lg:py-3 rounded-full text-xs md:text-sm font-medium transition-all border-2 ${isActive
-                      ? `bg-gradient-to-r ${category.gradient} text-white shadow-lg shadow-${category.color}/30 border-transparent`
-                      : "bg-white text-gray-600 border-gray-200 hover:border-purple-400 hover:text-purple-600 hover:shadow-md"
+                      ? `bg-gradient-to-r ${category.gradient} text-white shadow-lg border-transparent`
+                      : "bg-white/5 text-gray-400 border-white/10 hover:border-purple-500/50 hover:text-purple-400"
                       }`}
                   >
                     <Icon className="w-3 h-3 md:w-4 md:h-4" /><span className="hidden sm:inline">{category.label}</span><span className="sm:hidden">{category.label.split(' ')[0]}</span>

@@ -10,6 +10,7 @@ import { SubtleDots } from "@/components/backgrounds/SubtleDots";
 import { TiltCard } from "@/components/effects/TiltCard";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
 import { Navigation } from "@/components/layout/Navigation";
+import { DevelopmentScope } from "@/components/sections/DevelopmentScope";
 
 export default function Home() {
   const { data: projects } = trpc.projects.list.useQuery();
@@ -327,6 +328,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* 💰 DEVELOPMENT SCOPE - 3-Stage Hybrid Pricing */}
+      <DevelopmentScope />
 
       {/* 🏆 CERTIFICATIONS & CREDENTIALS */}
       <section className="py-24 md:py-40 lg:py-48 px-4 md:px-8 relative overflow-hidden">
