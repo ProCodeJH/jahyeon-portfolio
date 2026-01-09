@@ -110,157 +110,167 @@ export default function Home() {
         </div>
       </section>
 
-      {/* GOD-TIER TRENDY Expertise Section */}
+      {/* 🎯 BENTO GRID Expertise Section */}
       <section className="py-20 md:py-32 lg:py-40 px-4 md:px-8 relative overflow-hidden">
-        {/* Animated Background Orbs */}
-        <div className="absolute top-20 left-10 w-48 md:w-72 h-48 md:h-72 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '0s' }} />
-        <div className="absolute bottom-20 right-10 w-64 md:w-96 h-64 md:h-96 bg-gradient-to-r from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
-        <div className="absolute top-1/2 left-1/2 w-48 md:w-64 h-48 md:h-64 bg-gradient-to-r from-pink-400/10 to-orange-400/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '4s' }} />
+        {/* Neon Background Orbs */}
+        <div className="absolute top-20 left-10 w-48 md:w-72 h-48 md:h-72 bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-20 right-10 w-64 md:w-96 h-64 md:h-96 bg-gradient-to-r from-cyan-500/20 to-blue-600/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
 
-        < div className="max-w-7xl mx-auto relative z-10" >
+        <div className="max-w-7xl mx-auto relative z-10">
+          {/* Section Header */}
           <AnimatedSection>
             <div className="text-center mb-12 md:mb-16 lg:mb-20">
-              <div className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-3 rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-200/50 backdrop-blur-xl mb-4 md:mb-6 shadow-lg">
-                <Sparkles className="w-4 md:w-5 h-4 md:h-5 text-purple-600 animate-spin" style={{ animationDuration: '3s' }} />
-                <span className="text-xs md:text-sm font-bold text-purple-600 tracking-wider uppercase">Core Expertise</span>
+              <div className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-3 rounded-full bg-purple-500/10 border border-purple-500/30 backdrop-blur-xl mb-4 md:mb-6">
+                <Sparkles className="w-4 md:w-5 h-4 md:h-5 text-purple-400 animate-spin" style={{ animationDuration: '3s' }} />
+                <span className="text-xs md:text-sm font-bold text-purple-400 tracking-wider uppercase">Core Expertise</span>
               </div>
               <h2 className="text-4xl md:text-6xl lg:text-7xl font-black mb-4 md:mb-6 tracking-tight">
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 animate-gradient-x">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 animate-gradient-x">
                   Expertise
                 </span>
               </h2>
-              <div className="w-24 md:w-32 h-1.5 md:h-2 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full mx-auto shadow-lg shadow-purple-500/50" />
+              <div className="w-24 md:w-32 h-1.5 md:h-2 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full mx-auto" style={{ boxShadow: '0 0 20px rgba(168, 85, 247, 0.5)' }} />
             </div>
           </AnimatedSection>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-            {[
-              {
-                icon: CircuitBoard,
-                title: "Embedded Systems",
-                desc: "MCU programming, RTOS, firmware optimization",
-                color: "from-blue-500 to-cyan-500",
-                iconBg: "from-blue-500/30 to-cyan-500/30",
-                glowColor: "shadow-blue-500/50",
-                img: "/images/expertise/embedded-systems.jpg",
-                delay: '0s'
-              },
-              {
-                icon: Code,
-                title: "Software Development",
-                desc: "Python, Java, C/C++, Full-stack",
-                color: "from-purple-500 to-pink-500",
-                iconBg: "from-purple-500/30 to-pink-500/30",
-                glowColor: "shadow-purple-500/50",
-                img: "/images/expertise/software-development.jpg",
-                delay: '0.5s'
-              },
-              {
-                icon: Zap,
-                title: "IoT Solutions",
-                desc: "Connected devices, sensors, automation",
-                color: "from-orange-500 to-yellow-500",
-                iconBg: "from-orange-500/30 to-yellow-500/30",
-                glowColor: "shadow-orange-500/50",
-                img: "/images/expertise/iot-solutions.jpg",
-                delay: '1s'
-              },
-              {
-                icon: GraduationCap,
-                title: "Coding Education",
-                desc: "Teaching programming, mentoring developers",
-                color: "from-emerald-500 to-teal-500",
-                iconBg: "from-emerald-500/30 to-teal-500/30",
-                glowColor: "shadow-emerald-500/50",
-                img: "/images/expertise/coding-education.jpg",
-                delay: '1.5s'
-              }
-            ].map((item, idx) => (
-              <AnimatedSection key={idx} delay={idx * 100}>
-                <div
-                  className="group relative animate-float cursor-pointer"
-                  style={{ animationDelay: item.delay, animationDuration: '6s' }}
-                >
-                  {/* Rotating Border Animation */}
-                  <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-[2rem] opacity-0 group-hover:opacity-100 blur-lg transition-all duration-500 animate-gradient-x" style={{ backgroundSize: '200% 200%' }} />
+          {/* 🎨 BENTO GRID LAYOUT */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 auto-rows-[180px] md:auto-rows-[200px]">
 
-                  {/* Main Card */}
-                  <div className="relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] bg-white/80 backdrop-blur-2xl border-2 border-white/50 shadow-2xl hover:shadow-purple-500/30 transition-all duration-700 h-[400px] md:h-[450px] lg:h-[500px] group-hover:scale-[1.05] group-hover:-translate-y-3">
+            {/* Large Card - Embedded Systems (spans 2 cols, 2 rows) */}
+            <AnimatedSection delay={0}>
+              <div className="group relative md:col-span-2 md:row-span-2 rounded-3xl overflow-hidden cursor-pointer h-full">
+                {/* Glow Border */}
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 rounded-3xl opacity-0 group-hover:opacity-100 blur transition-all duration-500" />
 
-                    {/* Glassmorphism Background with Image */}
-                    <div className="absolute inset-0 overflow-hidden">
-                      <img
-                        src={item.img}
-                        alt={item.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-all duration-1000"
-                      />
+                <div className="relative h-full bg-[#12121a] rounded-3xl border border-white/10 overflow-hidden group-hover:border-cyan-500/50 transition-all duration-500">
+                  {/* Background Image */}
+                  <img src="/images/expertise/embedded-systems.jpg" alt="Embedded Systems" className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-60 group-hover:scale-110 transition-all duration-700" />
 
-                      {/* Only gradient at bottom for text readability */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#12121a] via-[#12121a]/60 to-transparent" />
+
+                  {/* Content */}
+                  <div className="relative h-full p-6 md:p-8 flex flex-col justify-between">
+                    <div className="flex items-start justify-between">
+                      <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-cyan-500/30 to-blue-500/30 backdrop-blur-xl border border-white/20 flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-500" style={{ boxShadow: '0 0 30px rgba(34, 211, 238, 0.3)' }}>
+                        <CircuitBoard className="w-7 h-7 md:w-8 md:h-8 text-cyan-400" />
+                      </div>
+                      <span className="px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-400 text-xs font-bold tracking-wide">FEATURED</span>
                     </div>
 
-                    {/* Floating Particles */}
-                    <div className="absolute top-10 right-10 w-2 h-2 rounded-full bg-white/60 animate-float" style={{ animationDelay: '0s', animationDuration: '3s' }} />
-                    <div className="absolute top-20 right-20 w-3 h-3 rounded-full bg-white/40 animate-float" style={{ animationDelay: '1s', animationDuration: '4s' }} />
-                    <div className="absolute bottom-20 left-10 w-2 h-2 rounded-full bg-white/50 animate-float" style={{ animationDelay: '2s', animationDuration: '5s' }} />
+                    <div>
+                      <h3 className="text-2xl md:text-3xl lg:text-4xl font-black text-white mb-2 group-hover:translate-x-2 transition-transform duration-500">
+                        Embedded Systems
+                      </h3>
+                      <p className="text-gray-400 text-sm md:text-base max-w-md group-hover:text-gray-300 transition-colors">
+                        MCU programming, RTOS development, firmware optimization, and hardware-software integration for IoT devices.
+                      </p>
 
-                    {/* Content Container */}
-                    <div className="relative h-full p-6 md:p-8 flex flex-col justify-between">
-
-                      {/* Icon with 3D Effect */}
-                      <div className="relative">
-                        <div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-gradient-to-br ${item.iconBg} backdrop-blur-xl border-2 border-white/40 flex items-center justify-center shadow-2xl ${item.glowColor} group-hover:scale-125 group-hover:rotate-12 transition-all duration-700`}>
-                          <item.icon className="w-8 h-8 md:w-10 md:h-10 text-white drop-shadow-2xl group-hover:scale-110 transition-transform duration-500" />
-                          {/* Icon Glow */}
-                          <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-50 blur-xl rounded-2xl md:rounded-3xl transition-opacity duration-500`} />
-                        </div>
-
-                        {/* Pulsing Ring */}
-                        <div className={`absolute inset-0 w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl border-2 border-white/30 group-hover:scale-150 group-hover:opacity-0 transition-all duration-700`} />
-                      </div>
-
-                      {/* Text Content with Enhanced Typography */}
-                      <div className="space-y-2 md:space-y-3">
-                        <h3 className="text-2xl md:text-3xl font-black text-white mb-2 md:mb-3 drop-shadow-2xl group-hover:translate-x-3 group-hover:scale-105 transition-all duration-500 leading-tight">
-                          {item.title}
-                        </h3>
-                        <p className="text-white/95 text-sm md:text-base leading-relaxed drop-shadow-lg font-medium group-hover:translate-x-2 transition-transform duration-500">
-                          {item.desc}
-                        </p>
-
-                        {/* Premium Indicator Bar */}
-                        <div className="flex items-center gap-2 pt-2 md:pt-3 opacity-0 group-hover:opacity-100 transition-all duration-700 delay-100">
-                          <div className={`h-1 w-0 group-hover:w-12 md:group-hover:w-16 bg-gradient-to-r ${item.color} rounded-full transition-all duration-700 shadow-lg`} />
-                          <Sparkles className="w-3 h-3 md:w-4 md:h-4 text-white/80 opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-200" />
-                        </div>
+                      {/* Tech Tags */}
+                      <div className="flex flex-wrap gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        {['Arduino', 'STM32', 'ESP32', 'RTOS'].map(tag => (
+                          <span key={tag} className="px-2 py-1 rounded-lg bg-white/5 text-gray-400 text-xs border border-white/10">{tag}</span>
+                        ))}
                       </div>
                     </div>
-
-                    {/* Premium Glow Effect */}
-                    <div className={`absolute -inset-1 bg-gradient-to-r ${item.color} rounded-[2rem] opacity-0 group-hover:opacity-40 blur-2xl transition-all duration-700 -z-10`} />
                   </div>
                 </div>
-              </AnimatedSection>
-            ))}
+              </div>
+            </AnimatedSection>
+
+            {/* Medium Card - Software Development */}
+            <AnimatedSection delay={100}>
+              <div className="group relative md:col-span-2 lg:col-span-1 lg:row-span-1 rounded-3xl overflow-hidden cursor-pointer h-full">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl opacity-0 group-hover:opacity-100 blur transition-all duration-500" />
+
+                <div className="relative h-full bg-[#12121a] rounded-3xl border border-white/10 overflow-hidden group-hover:border-purple-500/50 transition-all duration-500 p-5 md:p-6">
+                  <div className="flex items-center gap-4 h-full">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500/30 to-pink-500/30 backdrop-blur-xl border border-white/20 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-500" style={{ boxShadow: '0 0 20px rgba(168, 85, 247, 0.3)' }}>
+                      <Code className="w-6 h-6 text-purple-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg md:text-xl font-bold text-white group-hover:text-purple-300 transition-colors">Software Development</h3>
+                      <p className="text-gray-500 text-sm mt-1">Python, Java, C/C++, Full-stack</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </AnimatedSection>
+
+            {/* Medium Card - IoT Solutions */}
+            <AnimatedSection delay={200}>
+              <div className="group relative md:col-span-1 lg:row-span-1 rounded-3xl overflow-hidden cursor-pointer h-full">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-3xl opacity-0 group-hover:opacity-100 blur transition-all duration-500" />
+
+                <div className="relative h-full bg-[#12121a] rounded-3xl border border-white/10 overflow-hidden group-hover:border-orange-500/50 transition-all duration-500 p-5 md:p-6">
+                  <div className="flex items-center gap-4 h-full">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/30 to-yellow-500/30 backdrop-blur-xl border border-white/20 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-500" style={{ boxShadow: '0 0 20px rgba(249, 115, 22, 0.3)' }}>
+                      <Zap className="w-6 h-6 text-orange-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg md:text-xl font-bold text-white group-hover:text-orange-300 transition-colors">IoT Solutions</h3>
+                      <p className="text-gray-500 text-sm mt-1">Connected devices & automation</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </AnimatedSection>
+
+            {/* Tall Card - Coding Education (spans 1 col, 2 rows on lg) */}
+            <AnimatedSection delay={300}>
+              <div className="group relative md:col-span-1 lg:row-span-2 rounded-3xl overflow-hidden cursor-pointer h-full">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-3xl opacity-0 group-hover:opacity-100 blur transition-all duration-500" />
+
+                <div className="relative h-full bg-[#12121a] rounded-3xl border border-white/10 overflow-hidden group-hover:border-emerald-500/50 transition-all duration-500">
+                  {/* Background Image */}
+                  <img src="/images/expertise/coding-education.jpg" alt="Coding Education" className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-50 group-hover:scale-110 transition-all duration-700" />
+
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#12121a] via-[#12121a]/80 to-transparent" />
+
+                  <div className="relative h-full p-5 md:p-6 flex flex-col justify-between">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500/30 to-teal-500/30 backdrop-blur-xl border border-white/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-500" style={{ boxShadow: '0 0 20px rgba(16, 185, 129, 0.3)' }}>
+                      <GraduationCap className="w-6 h-6 text-emerald-400" />
+                    </div>
+
+                    <div>
+                      <h3 className="text-xl md:text-2xl font-bold text-white mb-2 group-hover:translate-x-1 transition-transform duration-500">Coding Education</h3>
+                      <p className="text-gray-400 text-sm">Teaching programming and mentoring next-gen developers</p>
+
+                      {/* Stats */}
+                      <div className="flex gap-4 mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        <div className="text-center">
+                          <div className="text-2xl font-black text-emerald-400">500+</div>
+                          <div className="text-xs text-gray-500">Students</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-black text-teal-400">50+</div>
+                          <div className="text-xs text-gray-500">Courses</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </AnimatedSection>
           </div>
-        </div >
-      </section >
+        </div>
+      </section>
 
       {/* PREMIUM Professional Journey */}
-      < section className="py-20 md:py-32 lg:py-40 px-4 md:px-8 bg-gradient-to-br from-purple-50/50 to-blue-50/50 relative" >
+      <section className="py-20 md:py-32 lg:py-40 px-4 md:px-8 relative">
         <div className="max-w-7xl mx-auto">
           <AnimatedSection>
             <div className="text-center mb-12 md:mb-16 lg:mb-20">
-              <div className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-3 rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-200/50 backdrop-blur-xl mb-4 md:mb-6">
-                <Layers className="w-4 md:w-5 h-4 md:h-5 text-purple-600" />
-                <span className="text-xs md:text-sm font-bold text-purple-600 tracking-wider uppercase">Career Path</span>
+              <div className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-3 rounded-full bg-purple-500/10 border border-purple-500/30 backdrop-blur-xl mb-4 md:mb-6">
+                <Layers className="w-4 md:w-5 h-4 md:h-5 text-purple-400" />
+                <span className="text-xs md:text-sm font-bold text-purple-400 tracking-wider uppercase">Career Path</span>
               </div>
               <h2 className="text-4xl md:text-6xl lg:text-7xl font-black mb-4 md:mb-6 tracking-tight">
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 animate-gradient-x">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 animate-gradient-x">
                   Professional Journey
                 </span>
               </h2>
-              <div className="w-24 md:w-32 h-1.5 md:h-2 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full mx-auto" />
+              <div className="w-24 md:w-32 h-1.5 md:h-2 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full mx-auto" style={{ boxShadow: '0 0 20px rgba(168, 85, 247, 0.5)' }} />
             </div>
           </AnimatedSection>
 
@@ -301,43 +311,43 @@ export default function Home() {
               return (
                 <AnimatedSection key={idx} delay={idx * 100}>
                   <TiltCard sensitivity={6}>
-                    <div className={`group relative p-5 md:p-8 rounded-2xl md:rounded-3xl bg-white border-2 ${exp.current
-                      ? 'border-purple-300 shadow-2xl shadow-purple-500/20'
-                      : 'border-gray-100 shadow-xl'
-                      } hover:border-purple-300 hover:shadow-2xl transition-all duration-500 overflow-hidden`}>
+                    <div className={`group relative p-5 md:p-8 rounded-2xl md:rounded-3xl bg-[#12121a] border ${exp.current
+                      ? 'border-purple-500/50 shadow-[0_0_30px_rgba(168,85,247,0.2)]'
+                      : 'border-white/10'
+                      } hover:border-purple-500/50 transition-all duration-500 overflow-hidden`}>
                       {/* Premium Background Effect */}
                       {exp.current && (
-                        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 to-cyan-600/10" />
                       )}
 
                       <div className="relative flex items-start gap-4 md:gap-6">
                         {/* Premium Icon */}
                         <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gradient-to-br ${exp.current
-                          ? 'from-purple-500 to-blue-500'
-                          : 'from-gray-400 to-gray-500'
-                          } flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 flex-shrink-0`}>
+                          ? 'from-purple-500 to-cyan-500'
+                          : 'from-gray-600 to-gray-700'
+                          } flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 flex-shrink-0`} style={{ boxShadow: exp.current ? '0 0 30px rgba(168, 85, 247, 0.4)' : 'none' }}>
                           <Icon className="w-6 h-6 md:w-8 md:h-8 text-white" />
                         </div>
 
                         {/* Content */}
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-2 md:mb-3">
-                            <p className={`text-xs md:text-sm font-black font-mono tracking-wider ${exp.current ? 'text-purple-600' : 'text-gray-500'
+                            <p className={`text-xs md:text-sm font-black font-mono tracking-wider ${exp.current ? 'text-purple-400' : 'text-gray-500'
                               }`}>
                               {exp.year}
                             </p>
                             {exp.current && (
-                              <span className="px-2 md:px-3 py-0.5 md:py-1 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 text-white text-[10px] md:text-xs font-black tracking-wider shadow-lg">
+                              <span className="px-2 md:px-3 py-0.5 md:py-1 rounded-full bg-gradient-to-r from-purple-500 to-cyan-500 text-white text-[10px] md:text-xs font-black tracking-wider" style={{ boxShadow: '0 0 15px rgba(168, 85, 247, 0.5)' }}>
                                 CURRENT
                               </span>
                             )}
                           </div>
-                          <h3 className="text-lg md:text-2xl font-black text-gray-900 mb-1 md:mb-2 group-hover:text-purple-600 transition-colors">
+                          <h3 className="text-lg md:text-2xl font-black text-white mb-1 md:mb-2 group-hover:text-purple-300 transition-colors">
                             {exp.company}
                           </h3>
-                          <p className="text-sm md:text-base text-gray-600 font-medium mb-1">{exp.role}</p>
+                          <p className="text-sm md:text-base text-gray-400 font-medium mb-1">{exp.role}</p>
                           {exp.subtitle && (
-                            <p className="text-xs md:text-sm text-purple-600 font-semibold mb-1">{exp.subtitle}</p>
+                            <p className="text-xs md:text-sm text-purple-400 font-semibold mb-1">{exp.subtitle}</p>
                           )}
                           {exp.position && (
                             <p className="text-xs md:text-sm text-gray-500 italic">Position: {exp.position}</p>
@@ -346,7 +356,7 @@ export default function Home() {
                       </div>
 
                       {/* Premium Border Glow */}
-                      <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl md:rounded-3xl opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500 -z-10" />
+                      <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-2xl md:rounded-3xl opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500 -z-10" />
                     </div>
                   </TiltCard>
                 </AnimatedSection>
