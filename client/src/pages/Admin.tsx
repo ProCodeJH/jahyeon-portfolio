@@ -110,6 +110,7 @@ export default function Admin() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [newFolderName, setNewFolderName] = useState("");
+  const [parentFolderName, setParentFolderName] = useState("__root__");
   const [selectedCategory, setSelectedCategory] = useState<ResourceCategory>("presentation");
 
   const [projectForm, setProjectForm] = useState({
@@ -1090,7 +1091,7 @@ export default function Admin() {
               <Input
                 value={newFolderName}
                 onChange={e => setNewFolderName(e.target.value)}
-                placeholder="e.g., Chapter1 or Basics"
+                placeholder="e.g., Chapter1"
                 className="mt-1.5 bg-white/5 border-white/10 text-white"
               />
             </div>
@@ -1100,19 +1101,13 @@ export default function Admin() {
               const existingFolders = Array.from(new Set([
                 ...(resources?.filter(r => r.category === selectedCategory && r.subcategory).map(r => r.subcategory) || []),
                 ...(folders?.filter(f => f.category === selectedCategory).map(f => f.name) || [])
-              ])).filter(Boolean).sort();
+              ])).filter(Boolean).sort() as string[];
 
               if (existingFolders.length > 0) {
                 return (
                   <div>
                     <Label className="text-white/70">Parent Folder (Optional)</Label>
-                    <Select
-                      value={newFolderName.includes('/') ? newFolderName.split('/').slice(0, -1).join('/') : '__root__'}
-                      onValueChange={(v) => {
-                        const baseName = newFolderName.split('/').pop() || '';
-                        setNewFolderName(v === '__root__' ? baseName : `${v}/${baseName}`);
-                      }}
-                    >
+                    <Select value={parentFolderName} onValueChange={setParentFolderName}>
                       <SelectTrigger className="mt-1.5 bg-white/5 border-white/10 text-white">
                         <SelectValue placeholder="📁 Root (No parent folder)" />
                       </SelectTrigger>
@@ -1121,11 +1116,8 @@ export default function Admin() {
                           📁 Root (No parent folder)
                         </SelectItem>
                         {existingFolders.map(folder => (
-                          <SelectItem key={folder} value={folder!} className="text-white hover:bg-white/10">
-                            <div className="flex items-center gap-2">
-                              <span className="text-purple-400">📂</span>
-                              {folder}
-                            </div>
+                          <SelectItem key={folder} value={folder} className="text-white hover:bg-white/10">
+                            📂 {folder}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -1144,42 +1136,10 @@ export default function Admin() {
               <div className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
                 <p className="text-white/50 text-xs mb-1">📍 Folder will be created as:</p>
                 <p className="text-purple-400 font-mono text-sm">
-                  {selectedCategory} / {newFolderName}
+                  {selectedCategory} / {parentFolderName !== '__root__' ? `${parentFolderName}/` : ''}{newFolderName}
                 </p>
               </div>
             )}
-
-            {/* Existing folders reference */}
-            {(() => {
-              const existingFolders = Array.from(new Set([
-                ...(resources?.filter(r => r.category === selectedCategory && r.subcategory).map(r => r.subcategory) || []),
-                ...(folders?.filter(f => f.category === selectedCategory).map(f => f.name) || [])
-              ])).filter(Boolean).sort();
-
-              if (existingFolders.length > 0) {
-                return (
-                  <div>
-                    <p className="text-white/50 text-xs mb-2">📁 Existing folders in {selectedCategory}:</p>
-                    <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
-                      {existingFolders.map(folder => (
-                        <button
-                          type="button"
-                          key={folder}
-                          onClick={() => {
-                            const baseName = newFolderName.split('/').pop() || '';
-                            setNewFolderName(`${folder}/${baseName}`);
-                          }}
-                          className="px-2 py-1 bg-white/10 rounded-md text-xs text-white/70 hover:bg-white/20 hover:text-white transition-colors cursor-pointer"
-                        >
-                          📁 {folder}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                );
-              }
-              return null;
-            })()}
 
             <div className="flex gap-3">
               <Button
@@ -1188,8 +1148,11 @@ export default function Admin() {
                     toast.error("Please enter a folder name");
                     return;
                   }
+                  const finalFolderName = parentFolderName !== '__root__'
+                    ? `${parentFolderName}/${newFolderName.trim()}`
+                    : newFolderName.trim();
                   createFolder.mutate({
-                    name: newFolderName,
+                    name: finalFolderName,
                     category: selectedCategory,
                     description: "",
                   });
@@ -1205,6 +1168,7 @@ export default function Admin() {
                 onClick={() => {
                   setShowCreateFolderDialog(false);
                   setNewFolderName("");
+                  setParentFolderName("__root__");
                 }}
                 className="border-white/20 bg-transparent text-white hover:bg-white/10"
               >
