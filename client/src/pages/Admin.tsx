@@ -1090,27 +1090,96 @@ export default function Admin() {
               <Input
                 value={newFolderName}
                 onChange={e => setNewFolderName(e.target.value)}
-                placeholder="e.g., Arduino or Arduino/Chapter1"
+                placeholder="e.g., Chapter1 or Basics"
                 className="mt-1.5 bg-white/5 border-white/10 text-white"
               />
-              <p className="text-white/40 text-xs mt-1">
-                💡 Use "/" to create nested folders (e.g., "Arduino/Chapter1/Basics")
-              </p>
             </div>
 
-            {/* Existing folders in category */}
-            {(resources?.filter(r => r.category === selectedCategory && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i)?.length ?? 0) > 0 && (
-              <div>
-                <p className="text-white/50 text-xs mb-2">Existing folders:</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {resources?.filter(r => r.category === selectedCategory && r.subcategory).map(r => r.subcategory).filter((v, i, a) => a.indexOf(v) === i).map(folder => (
-                    <span key={folder} className="px-2 py-1 bg-white/10 rounded-md text-xs text-white/50">
-                      📁 {folder}
-                    </span>
-                  ))}
-                </div>
+            {/* Parent Folder Selector for Nested Folders */}
+            {(() => {
+              const existingFolders = Array.from(new Set([
+                ...(resources?.filter(r => r.category === selectedCategory && r.subcategory).map(r => r.subcategory) || []),
+                ...(folders?.filter(f => f.category === selectedCategory).map(f => f.name) || [])
+              ])).filter(Boolean).sort();
+
+              if (existingFolders.length > 0) {
+                return (
+                  <div>
+                    <Label className="text-white/70">Parent Folder (Optional)</Label>
+                    <Select
+                      value={newFolderName.includes('/') ? newFolderName.split('/').slice(0, -1).join('/') : ''}
+                      onValueChange={(v) => {
+                        const baseName = newFolderName.split('/').pop() || '';
+                        setNewFolderName(v ? `${v}/${baseName}` : baseName);
+                      }}
+                    >
+                      <SelectTrigger className="mt-1.5 bg-white/5 border-white/10 text-white">
+                        <SelectValue placeholder="📁 Root (No parent folder)" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#111] border-white/10">
+                        <SelectItem value="" className="text-white hover:bg-white/10">
+                          📁 Root (No parent folder)
+                        </SelectItem>
+                        {existingFolders.map(folder => (
+                          <SelectItem key={folder} value={folder!} className="text-white hover:bg-white/10">
+                            <div className="flex items-center gap-2">
+                              <span className="text-purple-400">📂</span>
+                              {folder}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-white/40 text-xs mt-1">
+                      💡 Select a parent folder to create a subfolder inside it
+                    </p>
+                  </div>
+                );
+              }
+              return null;
+            })()}
+
+            {/* Preview of final folder path */}
+            {newFolderName.trim() && (
+              <div className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                <p className="text-white/50 text-xs mb-1">📍 Folder will be created as:</p>
+                <p className="text-purple-400 font-mono text-sm">
+                  {selectedCategory} / {newFolderName}
+                </p>
               </div>
             )}
+
+            {/* Existing folders reference */}
+            {(() => {
+              const existingFolders = Array.from(new Set([
+                ...(resources?.filter(r => r.category === selectedCategory && r.subcategory).map(r => r.subcategory) || []),
+                ...(folders?.filter(f => f.category === selectedCategory).map(f => f.name) || [])
+              ])).filter(Boolean).sort();
+
+              if (existingFolders.length > 0) {
+                return (
+                  <div>
+                    <p className="text-white/50 text-xs mb-2">📁 Existing folders in {selectedCategory}:</p>
+                    <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
+                      {existingFolders.map(folder => (
+                        <button
+                          type="button"
+                          key={folder}
+                          onClick={() => {
+                            const baseName = newFolderName.split('/').pop() || '';
+                            setNewFolderName(`${folder}/${baseName}`);
+                          }}
+                          className="px-2 py-1 bg-white/10 rounded-md text-xs text-white/70 hover:bg-white/20 hover:text-white transition-colors cursor-pointer"
+                        >
+                          📁 {folder}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })()}
 
             <div className="flex gap-3">
               <Button

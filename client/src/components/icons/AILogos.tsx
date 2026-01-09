@@ -41,25 +41,7 @@ export const AnthropicLogo: React.FC<LogoProps> = ({ className = "w-8 h-8" }) =>
     </svg>
 );
 
-// Claude AI Logo (Rainbow Gradient A - from user image)
-export const ClaudeLogo: React.FC<LogoProps> = ({ className = "w-8 h-8" }) => (
-    <svg className={className} viewBox="0 0 100 90" fill="none">
-        <defs>
-            <linearGradient id="claude-rainbow" x1="50%" y1="0%" x2="50%" y2="100%">
-                <stop offset="0%" stopColor="#FF6B6B" />
-                <stop offset="25%" stopColor="#FFB347" />
-                <stop offset="50%" stopColor="#7ED957" />
-                <stop offset="75%" stopColor="#4ECDC4" />
-                <stop offset="100%" stopColor="#3B82F6" />
-            </linearGradient>
-        </defs>
-        {/* Curved A mountain shape with rounded bottom */}
-        <path
-            d="M50 5C50 5 25 45 15 70C10 82 20 88 30 85C38 83 42 78 50 78C58 78 62 83 70 85C80 88 90 82 85 70C75 45 50 5 50 5Z"
-            fill="url(#claude-rainbow)"
-        />
-    </svg>
-);
+
 
 // Cursor Logo (Text logo "CURSOR" from user image)
 export const CursorLogo: React.FC<LogoProps> = ({ className = "w-8 h-8" }) => (
@@ -168,18 +150,23 @@ export const GrokLogo: React.FC<LogoProps> = ({ className = "w-8 h-8" }) => (
     </svg>
 );
 
-// Antigravity Logo (Custom gradient rocket/triangle)
+// Antigravity Logo (Rainbow Gradient A - from user image)
 export const AntigravityLogo: React.FC<LogoProps> = ({ className = "w-8 h-8" }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none">
+    <svg className={className} viewBox="0 0 100 90" fill="none">
         <defs>
-            <linearGradient id="ag-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#a855f7" />
-                <stop offset="100%" stopColor="#06b6d4" />
+            <linearGradient id="antigravity-rainbow" x1="50%" y1="0%" x2="50%" y2="100%">
+                <stop offset="0%" stopColor="#FF6B6B" />
+                <stop offset="25%" stopColor="#FFB347" />
+                <stop offset="50%" stopColor="#7ED957" />
+                <stop offset="75%" stopColor="#4ECDC4" />
+                <stop offset="100%" stopColor="#3B82F6" />
             </linearGradient>
         </defs>
-        <circle cx="12" cy="12" r="10" stroke="url(#ag-grad)" strokeWidth="2" fill="none" />
-        <path d="M12 5L17 17H7L12 5Z" fill="url(#ag-grad)" />
-        <circle cx="12" cy="19" r="1.5" fill="url(#ag-grad)" />
+        {/* Curved A mountain shape with rounded bottom */}
+        <path
+            d="M50 5C50 5 25 45 15 70C10 82 20 88 30 85C38 83 42 78 50 78C58 78 62 83 70 85C80 88 90 82 85 70C75 45 50 5 50 5Z"
+            fill="url(#antigravity-rainbow)"
+        />
     </svg>
 );
 
@@ -202,7 +189,6 @@ export default {
     OpenAILogo,
     GoogleGeminiLogo,
     AnthropicLogo,
-    ClaudeLogo,
     CursorLogo,
     GitHubLogo,
     MicrosoftLogo,

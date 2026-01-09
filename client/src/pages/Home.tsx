@@ -12,7 +12,7 @@ import { AnimatedSection } from "@/components/animations/AnimatedSection";
 import { Navigation } from "@/components/layout/Navigation";
 import { TechnicalScopeSlider } from "@/components/sections/TechnicalScopeSlider";
 import {
-  OpenAILogo, GoogleGeminiLogo, AnthropicLogo, ClaudeLogo, GitHubLogo, MicrosoftLogo,
+  OpenAILogo, GoogleGeminiLogo, AnthropicLogo, GitHubLogo, MicrosoftLogo,
   MetaLogo, MistralLogo, VercelLogo, CursorLogo, CohereLogo, HuggingFaceLogo,
   PerplexityLogo, GrokLogo, AntigravityLogo, JulesLogo
 } from "@/components/icons/AILogos";
@@ -716,9 +716,8 @@ export default function Home() {
                   {[
                     { name: 'OpenAI', Logo: OpenAILogo, bg: 'from-[#10a37f] to-[#0d8c6d]', shadow: 'shadow-emerald-500/50' },
                     { name: 'Anthropic', Logo: AnthropicLogo, bg: 'from-[#1a1a1a] to-[#333333]', shadow: 'shadow-gray-800/50' },
-                    { name: 'Claude', Logo: ClaudeLogo, bg: 'from-[#FF6B6B] to-[#3B82F6]', shadow: 'shadow-pink-500/50' },
                     { name: 'Gemini', Logo: GoogleGeminiLogo, bg: 'from-[#4285f4] to-[#34a853]', shadow: 'shadow-blue-500/50' },
-                    { name: 'Antigravity', Logo: AntigravityLogo, bg: 'from-[#8b5cf6] to-[#06b6d4]', shadow: 'shadow-purple-500/50' },
+                    { name: 'Antigravity', Logo: AntigravityLogo, bg: 'from-[#FF6B6B] to-[#3B82F6]', shadow: 'shadow-pink-500/50' },
                     { name: 'Jules', Logo: JulesLogo, bg: 'from-[#06b6d4] to-[#3b82f6]', shadow: 'shadow-cyan-500/50' },
                     { name: 'Cursor', Logo: CursorLogo, bg: 'from-[#7c3aed] to-[#5b21b6]', shadow: 'shadow-purple-500/50' },
                     { name: 'GitHub', Logo: GitHubLogo, bg: 'from-[#24292e] to-[#1b1f23]', shadow: 'shadow-gray-800/50' },
@@ -756,9 +755,8 @@ export default function Home() {
                   {[
                     { name: 'OpenAI', Logo: OpenAILogo, bg: 'from-[#10a37f] to-[#0d8c6d]', shadow: 'shadow-emerald-500/50' },
                     { name: 'Anthropic', Logo: AnthropicLogo, bg: 'from-[#1a1a1a] to-[#333333]', shadow: 'shadow-gray-800/50' },
-                    { name: 'Claude', Logo: ClaudeLogo, bg: 'from-[#FF6B6B] to-[#3B82F6]', shadow: 'shadow-pink-500/50' },
                     { name: 'Gemini', Logo: GoogleGeminiLogo, bg: 'from-[#4285f4] to-[#34a853]', shadow: 'shadow-blue-500/50' },
-                    { name: 'Antigravity', Logo: AntigravityLogo, bg: 'from-[#8b5cf6] to-[#06b6d4]', shadow: 'shadow-purple-500/50' },
+                    { name: 'Antigravity', Logo: AntigravityLogo, bg: 'from-[#FF6B6B] to-[#3B82F6]', shadow: 'shadow-pink-500/50' },
                     { name: 'Jules', Logo: JulesLogo, bg: 'from-[#06b6d4] to-[#3b82f6]', shadow: 'shadow-cyan-500/50' },
                     { name: 'Cursor', Logo: CursorLogo, bg: 'from-[#7c3aed] to-[#5b21b6]', shadow: 'shadow-purple-500/50' },
                     { name: 'GitHub', Logo: GitHubLogo, bg: 'from-[#24292e] to-[#1b1f23]', shadow: 'shadow-gray-800/50' },
