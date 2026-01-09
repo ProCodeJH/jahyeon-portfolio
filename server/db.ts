@@ -6,7 +6,8 @@ import {
   projects, InsertProject,
   certifications, InsertCertification,
   resources, InsertResource,
-  folders, InsertFolder
+  folders, InsertFolder,
+  youtubeVideos, InsertYoutubeVideo
 } from "../drizzle/schema";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -39,19 +40,19 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   try {
     // Check if user exists
     const existing = await db.select().from(users).where(eq(users.openId, user.openId)).limit(1);
-    
+
     if (existing.length > 0) {
       // Update existing user
       const updateSet: Record<string, unknown> = {};
-      
+
       if (user.name !== undefined) updateSet.name = user.name;
       if (user.email !== undefined) updateSet.email = user.email;
       if (user.loginMethod !== undefined) updateSet.loginMethod = user.loginMethod;
       if (user.lastSignedIn !== undefined) updateSet.lastSignedIn = user.lastSignedIn;
       if (user.role !== undefined) updateSet.role = user.role;
-      
+
       updateSet.updatedAt = new Date();
-      
+
       if (Object.keys(updateSet).length > 0) {
         await db.update(users).set(updateSet).where(eq(users.openId, user.openId));
       }
@@ -65,7 +66,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
         role: user.role ?? "user",
         lastSignedIn: user.lastSignedIn ?? new Date(),
       };
-      
+
       await db.insert(users).values(values);
     }
   } catch (error) {
@@ -227,4 +228,37 @@ export async function deleteFolder(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.delete(folders).where(eq(folders.id, id));
+}
+
+// YouTube Videos queries
+export async function getAllYoutubeVideos() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(youtubeVideos).orderBy(desc(youtubeVideos.displayOrder), desc(youtubeVideos.createdAt));
+}
+
+export async function getYoutubeVideoById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(youtubeVideos).where(eq(youtubeVideos.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createYoutubeVideo(video: InsertYoutubeVideo) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(youtubeVideos).values(video).returning();
+  return result[0];
+}
+
+export async function updateYoutubeVideo(id: number, video: Partial<InsertYoutubeVideo>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(youtubeVideos).set({ ...video, updatedAt: new Date() }).where(eq(youtubeVideos.id, id));
+}
+
+export async function deleteYoutubeVideo(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(youtubeVideos).where(eq(youtubeVideos.id, id));
 }

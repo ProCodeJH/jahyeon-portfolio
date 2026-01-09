@@ -20,7 +20,23 @@ import {
 export default function Home() {
   const { data: projects } = trpc.projects.list.useQuery();
   const { data: certifications, isLoading: certificationsLoading } = trpc.certifications.list.useQuery();
+  const { data: youtubeVideosData, isLoading: youtubeLoading } = trpc.youtubeVideos.list.useQuery();
   const [activeIndex, setActiveIndex] = useState(0);
+
+  // 🎬 YouTube Videos - fetched from database via Admin panel
+  const youtubeVideos = youtubeVideosData?.map(v => ({
+    id: v.videoId,
+    title: v.title,
+  })) || [];
+
+  // State for currently selected video
+  const [selectedVideoId, setSelectedVideoId] = useState("");
+
+  // Update selected video when data loads
+  if (!selectedVideoId && youtubeVideos.length > 0) {
+    setSelectedVideoId(youtubeVideos[0].id);
+  }
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a0a1a] via-[#0d0d20] to-[#0a0a1a] text-white overflow-hidden">
@@ -337,192 +353,131 @@ export default function Home() {
       {/* 🔧 TECHNICAL EXPERTISE - 800+ Tech Stack Showcase */}
       <TechnicalScopeSlider />
 
-      {/* 🏆 CERTIFICATIONS & CREDENTIALS */}
-      <section className="py-24 md:py-40 lg:py-48 px-4 md:px-8 relative overflow-hidden">
-        {/* Background Effects */}
-        <div className="absolute top-20 left-10 w-64 md:w-96 h-64 md:h-96 bg-gradient-to-r from-purple-600/15 to-pink-600/15 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-20 right-10 w-80 md:w-[500px] h-80 md:h-[500px] bg-gradient-to-r from-cyan-500/15 to-blue-600/15 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+      {/* 🎬 YOUTUBE VIDEO SHOWCASE - Only show if videos exist */}
+      {youtubeVideos.length > 0 && (
+        <section className="py-24 md:py-40 lg:py-48 px-4 md:px-8 relative overflow-hidden">
+          {/* Background Effects */}
+          <div className="absolute top-20 left-10 w-64 md:w-96 h-64 md:h-96 bg-gradient-to-r from-red-600/15 to-pink-600/15 rounded-full blur-3xl animate-float" />
+          <div className="absolute bottom-20 right-10 w-80 md:w-[500px] h-80 md:h-[500px] bg-gradient-to-r from-purple-500/15 to-blue-600/15 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
 
-        <div className="max-w-7xl mx-auto relative z-10">
-          <AnimatedSection>
-            <div className="text-center mb-16 md:mb-24">
-              <div className="inline-flex items-center gap-2 md:gap-3 px-5 md:px-8 py-3 md:py-4 rounded-full bg-purple-500/10 border border-purple-500/30 backdrop-blur-xl mb-6 md:mb-8">
-                <Award className="w-5 md:w-6 h-5 md:h-6 text-purple-400" />
-                <span className="text-sm md:text-base font-bold text-purple-400 tracking-wider uppercase">Credentials</span>
+          <div className="max-w-7xl mx-auto relative z-10">
+            <AnimatedSection>
+              <div className="text-center mb-16 md:mb-24">
+                <div className="inline-flex items-center gap-2 md:gap-3 px-5 md:px-8 py-3 md:py-4 rounded-full bg-red-500/10 border border-red-500/30 backdrop-blur-xl mb-6 md:mb-8">
+                  <Play className="w-5 md:w-6 h-5 md:h-6 text-red-400" />
+                  <span className="text-sm md:text-base font-bold text-red-400 tracking-wider uppercase">Video Content</span>
+                </div>
+                <h2 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 md:mb-8 tracking-tight">
+                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-red-400 via-pink-400 to-purple-400 animate-gradient-x">
+                    YouTube Channel
+                  </span>
+                </h2>
+                <div className="w-32 md:w-48 h-2 md:h-3 bg-gradient-to-r from-red-500 to-purple-500 rounded-full mx-auto" style={{ boxShadow: '0 0 30px rgba(239, 68, 68, 0.6)' }} />
               </div>
-              <h2 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 md:mb-8 tracking-tight">
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 animate-gradient-x">
-                  Certifications
-                </span>
-              </h2>
-              <div className="w-32 md:w-48 h-2 md:h-3 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full mx-auto" style={{ boxShadow: '0 0 30px rgba(168, 85, 247, 0.6)' }} />
-            </div>
-          </AnimatedSection>
+            </AnimatedSection>
 
-          {/* Certifications Auto-Scroll Animation - ALL VISIBLE */}
-          {certificationsLoading ? (
-            <div className="flex flex-col items-center justify-center py-16">
-              <Loader2 className="w-12 h-12 animate-spin text-purple-400 mb-4" />
-              <p className="text-gray-400 text-lg">Loading credentials...</p>
-            </div>
-          ) : !certifications?.length ? (
-            <div className="text-center py-16">
-              <Award className="w-20 h-20 text-gray-600 mx-auto mb-4" />
-              <h3 className="text-2xl font-semibold text-gray-400">No certifications yet</h3>
-            </div>
-          ) : (
-            <div className="relative overflow-hidden">
-              {/* Gradient Overlays */}
-              <div className="absolute left-0 top-0 bottom-0 w-24 md:w-40 lg:w-60 bg-gradient-to-r from-[#0a0a1a] to-transparent z-10 pointer-events-none" />
-              <div className="absolute right-0 top-0 bottom-0 w-24 md:w-40 lg:w-60 bg-gradient-to-l from-[#0a0a1a] to-transparent z-10 pointer-events-none" />
+            {/* Main Video Player - LARGE SIZE */}
+            <AnimatedSection delay={100}>
+              <div className="mb-12 md:mb-16">
+                <div className="group relative rounded-3xl overflow-hidden bg-[#12121a] border-2 border-white/10 hover:border-red-500/50 transition-all duration-500 shadow-2xl hover:shadow-red-500/30">
+                  {/* Premium Glow Effect */}
+                  <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-purple-600 rounded-3xl opacity-0 group-hover:opacity-30 blur-xl transition-opacity duration-500 -z-10" />
 
-              {/* Infinite Auto-Scroll Track */}
-              <div className="flex gap-8 md:gap-10 lg:gap-12 animate-scroll-left-certifications">
-                {/* First Set */}
-                {certifications.map((cert) => (
-                  <div key={`cert-1-${cert.id}`} className="group flex-shrink-0 w-[380px] md:w-[480px] lg:w-[550px]">
-                    <TiltCard sensitivity={6}>
-                      <div className="rounded-3xl overflow-hidden bg-[#12121a] border border-white/10 hover:border-purple-500/50 transition-all duration-500 shadow-2xl hover:shadow-purple-500/30">
-                        <div className="aspect-[16/10] overflow-hidden relative">
-                          {cert.imageUrl ? (
-                            <img src={cert.imageUrl} alt={cert.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-purple-900/60 via-blue-900/60 to-pink-900/60 flex items-center justify-center">
-                              <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center" style={{ boxShadow: '0 0 60px rgba(168, 85, 247, 0.6)' }}>
-                                <Award className="w-14 h-14 md:w-18 md:h-18 text-white" />
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Verified Badge */}
-                          <div className="absolute top-5 right-5">
-                            <span className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-xl text-purple-300 text-base font-bold border border-white/20" style={{ boxShadow: '0 0 20px rgba(168, 85, 247, 0.3)' }}>
-                              <ShieldCheck className="w-5 h-5" />Verified
-                            </span>
-                          </div>
-
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#12121a] via-transparent to-transparent opacity-70" />
-                        </div>
-
-                        <div className="p-8 md:p-10 relative">
-                          {/* Certified Badge */}
-                          <div className="absolute -top-5 left-8 md:left-10">
-                            <div className="relative">
-                              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-cyan-500 blur-lg opacity-70"></div>
-                              <div className="relative px-5 py-2.5 rounded-full bg-gradient-to-r from-purple-600 to-cyan-600 text-white text-base font-black tracking-wider uppercase" style={{ boxShadow: '0 0 30px rgba(168, 85, 247, 0.6)' }}>
-                                🏆 Certified
-                              </div>
-                            </div>
-                          </div>
-
-                          <h3 className="text-2xl md:text-3xl font-black mb-5 mt-5 group-hover:text-purple-300 transition-colors line-clamp-2 text-white leading-tight">
-                            {cert.title}
-                          </h3>
-
-                          <div className="flex items-center gap-4 mb-6">
-                            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500/30 to-cyan-500/30 flex items-center justify-center flex-shrink-0 border border-white/10">
-                              <Building className="w-7 h-7 text-purple-400" />
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-base text-gray-500 font-medium">Issued by</p>
-                              <p className="text-lg md:text-xl font-bold text-gray-300 line-clamp-1">{cert.issuer}</p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center justify-between pt-5 border-t border-white/10">
-                            <div className="flex items-center gap-2">
-                              <div className="w-4 h-4 rounded-full bg-emerald-500 animate-pulse"></div>
-                              <span className="text-base text-emerald-400 font-bold">Active</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              {[1, 2, 3, 4, 5].map((star) => (
-                                <svg key={star} className="w-6 h-6 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                                  <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                                </svg>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </TiltCard>
+                  {/* Video Container - 16:9 Aspect Ratio, Maximum Size */}
+                  <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                    <iframe
+                      className="absolute inset-0 w-full h-full"
+                      src={`https://www.youtube.com/embed/${selectedVideoId}?rel=0&modestbranding=1&autoplay=0`}
+                      title="YouTube Video Player"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                    />
                   </div>
-                ))}
-
-                {/* Duplicate Set for Seamless Loop */}
-                {certifications.map((cert) => (
-                  <div key={`cert-2-${cert.id}`} className="group flex-shrink-0 w-[380px] md:w-[480px] lg:w-[550px]">
-                    <TiltCard sensitivity={6}>
-                      <div className="rounded-3xl overflow-hidden bg-[#12121a] border border-white/10 hover:border-purple-500/50 transition-all duration-500 shadow-2xl hover:shadow-purple-500/30">
-                        <div className="aspect-[16/10] overflow-hidden relative">
-                          {cert.imageUrl ? (
-                            <img src={cert.imageUrl} alt={cert.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-purple-900/60 via-blue-900/60 to-pink-900/60 flex items-center justify-center">
-                              <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center" style={{ boxShadow: '0 0 60px rgba(168, 85, 247, 0.6)' }}>
-                                <Award className="w-14 h-14 md:w-18 md:h-18 text-white" />
-                              </div>
-                            </div>
-                          )}
-                          <div className="absolute top-5 right-5">
-                            <span className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-xl text-purple-300 text-base font-bold border border-white/20" style={{ boxShadow: '0 0 20px rgba(168, 85, 247, 0.3)' }}>
-                              <ShieldCheck className="w-5 h-5" />Verified
-                            </span>
-                          </div>
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#12121a] via-transparent to-transparent opacity-70" />
-                        </div>
-                        <div className="p-8 md:p-10 relative">
-                          <div className="absolute -top-5 left-8 md:left-10">
-                            <div className="relative">
-                              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-cyan-500 blur-lg opacity-70"></div>
-                              <div className="relative px-5 py-2.5 rounded-full bg-gradient-to-r from-purple-600 to-cyan-600 text-white text-base font-black tracking-wider uppercase" style={{ boxShadow: '0 0 30px rgba(168, 85, 247, 0.6)' }}>
-                                🏆 Certified
-                              </div>
-                            </div>
-                          </div>
-                          <h3 className="text-2xl md:text-3xl font-black mb-5 mt-5 group-hover:text-purple-300 transition-colors line-clamp-2 text-white leading-tight">
-                            {cert.title}
-                          </h3>
-                          <div className="flex items-center gap-4 mb-6">
-                            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500/30 to-cyan-500/30 flex items-center justify-center flex-shrink-0 border border-white/10">
-                              <Building className="w-7 h-7 text-purple-400" />
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-base text-gray-500 font-medium">Issued by</p>
-                              <p className="text-lg md:text-xl font-bold text-gray-300 line-clamp-1">{cert.issuer}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between pt-5 border-t border-white/10">
-                            <div className="flex items-center gap-2">
-                              <div className="w-4 h-4 rounded-full bg-emerald-500 animate-pulse"></div>
-                              <span className="text-base text-emerald-400 font-bold">Active</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              {[1, 2, 3, 4, 5].map((star) => (
-                                <svg key={star} className="w-6 h-6 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                                  <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                                </svg>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </TiltCard>
-                  </div>
-                ))}
-              </div>
-
-              {/* Count Indicator */}
-              <div className="flex items-center justify-center gap-3 mt-10">
-                <div className="flex items-center gap-2 px-6 py-3 rounded-full bg-purple-500/10 border border-purple-500/30">
-                  <Award className="w-5 h-5 text-purple-400" />
-                  <span className="text-purple-400 font-bold text-lg">{certifications.length}</span>
-                  <span className="text-gray-400">Professional Certifications</span>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
-      </section>
+            </AnimatedSection>
+
+            {/* Video Gallery - Thumbnail Selection */}
+            <AnimatedSection delay={200}>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                {youtubeVideos.map((video, idx) => (
+                  <div
+                    key={video.id}
+                    onClick={() => setSelectedVideoId(video.id)}
+                    className={`group cursor-pointer rounded-2xl overflow-hidden bg-[#12121a] border-2 transition-all duration-500 shadow-xl hover:shadow-red-500/30 ${selectedVideoId === video.id
+                      ? 'border-red-500 shadow-red-500/40 scale-[1.02]'
+                      : 'border-white/10 hover:border-red-500/50'
+                      }`}
+                  >
+                    {/* Thumbnail */}
+                    <div className="relative aspect-video overflow-hidden">
+                      <img
+                        src={`https://img.youtube.com/vi/${video.id}/maxresdefault.jpg`}
+                        alt={video.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        onError={(e) => {
+                          // Fallback to hqdefault if maxresdefault doesn't exist
+                          (e.target as HTMLImageElement).src = `https://img.youtube.com/vi/${video.id}/hqdefault.jpg`;
+                        }}
+                      />
+
+                      {/* Play Overlay */}
+                      <div className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${selectedVideoId === video.id
+                        ? 'bg-red-500/30'
+                        : 'bg-black/40 group-hover:bg-black/20'
+                        }`}>
+                        <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center transition-all duration-300 ${selectedVideoId === video.id
+                          ? 'bg-red-500 scale-110'
+                          : 'bg-white/20 backdrop-blur-sm group-hover:bg-red-500 group-hover:scale-110'
+                          }`}>
+                          <Play className={`w-5 h-5 md:w-7 md:h-7 ${selectedVideoId === video.id ? 'text-white' : 'text-white'}`} fill={selectedVideoId === video.id ? 'white' : 'transparent'} />
+                        </div>
+                      </div>
+
+                      {/* Currently Playing Badge */}
+                      {selectedVideoId === video.id && (
+                        <div className="absolute top-3 left-3">
+                          <span className="px-3 py-1.5 rounded-full bg-red-500 text-white text-xs font-bold tracking-wider uppercase flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                            Now Playing
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Video Number */}
+                      <div className="absolute bottom-3 right-3">
+                        <span className="px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-sm text-white text-sm font-bold">
+                          #{idx + 1}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Video Info */}
+                    <div className="p-4 md:p-5">
+                      <h3 className={`text-sm md:text-base font-bold line-clamp-2 transition-colors ${selectedVideoId === video.id ? 'text-red-400' : 'text-white group-hover:text-red-300'
+                        }`}>
+                        {video.title}
+                      </h3>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </AnimatedSection>
+
+            {/* Video Count Indicator */}
+            <AnimatedSection delay={300}>
+              <div className="flex items-center justify-center gap-3 mt-10 md:mt-16">
+                <div className="flex items-center gap-2 px-6 py-3 rounded-full bg-red-500/10 border border-red-500/30">
+                  <Play className="w-5 h-5 text-red-400" />
+                  <span className="text-red-400 font-bold text-lg">{youtubeVideos.length}</span>
+                  <span className="text-gray-400">Featured Videos</span>
+                </div>
+              </div>
+            </AnimatedSection>
+          </div>
+        </section>
+      )}
 
       {/* 🎬 FULL-WIDTH CINEMATIC FEATURED WORK */}
       < section className="py-20 md:py-32 lg:py-40 relative overflow-hidden" >

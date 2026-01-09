@@ -5,7 +5,8 @@ import {
   getAllProjects, getProjectById, createProject, updateProject, deleteProject,
   getAllCertifications, getCertificationById, createCertification, updateCertification, deleteCertification,
   getAllResources, getResourceById, createResource, updateResource, deleteResource, incrementResourceDownload,
-  getAllFolders, getFolderById, createFolder, updateFolder, deleteFolder
+  getAllFolders, getFolderById, createFolder, updateFolder, deleteFolder,
+  getAllYoutubeVideos, getYoutubeVideoById, createYoutubeVideo, updateYoutubeVideo, deleteYoutubeVideo
 } from "./db";
 import { projects, certifications, resources, users, sessions } from "../drizzle/schema";
 import { eq, sql, and, gte } from "drizzle-orm";
@@ -56,7 +57,39 @@ async function uploadToR2(fileName: string, fileContent: Buffer, contentType: st
 
 async function deleteFromR2(key: string): Promise<void> {
   if (!key) return;
-  try { await s3Client.send(new DeleteObjectCommand({ Bucket: R2_BUCKET, Key: key })); } catch (e) { console.error("R2 delete error:", e); }
+}
+
+// ============================================
+// 🎬 YouTube URL Parser - Extract Video ID
+// ============================================
+function extractYoutubeVideoId(url: string): string | null {
+  // Handle various YouTube URL formats:
+  // - https://www.youtube.com/watch?v=VIDEO_ID
+  // - https://youtu.be/VIDEO_ID
+  // - https://www.youtube.com/embed/VIDEO_ID
+  // - https://www.youtube.com/shorts/VIDEO_ID
+  // - https://youtube.com/watch?v=VIDEO_ID&list=...
+
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtube\.com\/watch\?.+&v=)([a-zA-Z0-9_-]{11})/,
+    /(?:youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+    /(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    /(?:youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+  ];
+
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match && match[1]) {
+      return match[1];
+    }
+  }
+
+  // If URL looks like just a video ID (11 chars)
+  if (/^[a-zA-Z0-9_-]{11}$/.test(url.trim())) {
+    return url.trim();
+  }
+
+  return null;
 }
 
 export const appRouter = t.router({
@@ -343,6 +376,69 @@ export const appRouter = t.router({
       return { success: true, id: 0 };
     }),
     delete: protectedProcedure.input(z.object({ id: z.number() })).mutation(async () => {
+      return { success: true };
+    }),
+  }),
+
+  // ============================================
+  // 🎬 YouTube Videos - Homepage Video Showcase
+  // ============================================
+  youtubeVideos: t.router({
+    list: publicProcedure.query(async () => getAllYoutubeVideos()),
+    get: publicProcedure.input(z.object({ id: z.number() })).query(async ({ input }) => {
+      const video = await getYoutubeVideoById(input.id);
+      if (!video) throw new TRPCError({ code: "NOT_FOUND" });
+      return video;
+    }),
+    create: protectedProcedure.input(z.object({
+      title: z.string().min(1),
+      videoUrl: z.string().min(1), // Full YouTube URL - we extract videoId from it
+      description: z.string().optional().default(""),
+    })).mutation(async ({ input }) => {
+      // Extract video ID from YouTube URL
+      const videoId = extractYoutubeVideoId(input.videoUrl);
+      if (!videoId) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Invalid YouTube URL. Please provide a valid YouTube video link."
+        });
+      }
+
+      const result = await createYoutubeVideo({
+        title: input.title,
+        videoId,
+        description: input.description,
+      });
+      console.log(`[YouTube] Added video: "${input.title}" (${videoId})`);
+      return result;
+    }),
+    update: protectedProcedure.input(z.object({
+      id: z.number(),
+      title: z.string().min(1).optional(),
+      videoUrl: z.string().optional(), // If provided, re-extract videoId
+      description: z.string().optional(),
+      displayOrder: z.number().optional(),
+    })).mutation(async ({ input }) => {
+      const { id, videoUrl, ...data } = input;
+
+      // If videoUrl is provided, extract new videoId
+      if (videoUrl) {
+        const videoId = extractYoutubeVideoId(videoUrl);
+        if (!videoId) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Invalid YouTube URL."
+          });
+        }
+        (data as any).videoId = videoId;
+      }
+
+      await updateYoutubeVideo(id, data);
+      return { success: true };
+    }),
+    delete: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
+      await deleteYoutubeVideo(input.id);
+      console.log(`[YouTube] Deleted video ID: ${input.id}`);
       return { success: true };
     }),
   }),

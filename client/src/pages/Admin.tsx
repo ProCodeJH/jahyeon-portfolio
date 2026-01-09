@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "wouter";
-import { Loader2, Plus, Trash2, Eye, Heart, BarChart3, FileText, LogOut, ImageIcon, Video, X, FolderOpen, Award, Upload, TrendingUp, Presentation, Code, Cpu, Terminal, CheckCircle, Pencil, FolderInput, ChevronDown, ChevronRight } from "lucide-react";
+import { Loader2, Plus, Trash2, Eye, Heart, BarChart3, FileText, LogOut, ImageIcon, Video, X, FolderOpen, Award, Upload, TrendingUp, Presentation, Code, Cpu, Terminal, CheckCircle, Pencil, FolderInput, ChevronDown, ChevronRight, Youtube, Play } from "lucide-react";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 
@@ -54,6 +54,7 @@ export default function Admin() {
   const { data: certifications, isLoading: certsLoading } = trpc.certifications.list.useQuery();
   const { data: resources, isLoading: resourcesLoading } = trpc.resources.list.useQuery();
   const { data: folders, isLoading: foldersLoading } = trpc.folders.list.useQuery();
+  const { data: youtubeVideos, isLoading: youtubeLoading } = trpc.youtubeVideos.list.useQuery();
   const { data: analytics } = trpc.analytics.adminStats.useQuery(undefined, { enabled: isAuthenticated });
 
   const createProject = trpc.projects.create.useMutation({
@@ -99,6 +100,16 @@ export default function Admin() {
     onSuccess: () => { utils.folders.list.invalidate(); toast.success("Folder deleted"); },
   });
 
+  // YouTube Video mutations
+  const createYoutubeVideo = trpc.youtubeVideos.create.useMutation({
+    onSuccess: () => { utils.youtubeVideos.list.invalidate(); toast.success("YouTube video added!"); setShowYoutubeDialog(false); resetYoutubeForm(); },
+    onError: (e) => toast.error(e.message),
+  });
+  const deleteYoutubeVideo = trpc.youtubeVideos.delete.useMutation({
+    onSuccess: () => { utils.youtubeVideos.list.invalidate(); toast.success("Video deleted"); },
+    onError: (e) => toast.error(e.message),
+  });
+
   // Upload mutations
   const uploadFile = trpc.upload.file.useMutation();
   const getPresignedUrl = trpc.upload.getPresignedUrl.useMutation();
@@ -117,6 +128,8 @@ export default function Admin() {
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [newFolderName, setNewFolderName] = useState("");
   const [parentFolderName, setParentFolderName] = useState("__root__");
+  const [showYoutubeDialog, setShowYoutubeDialog] = useState(false);
+  const [youtubeForm, setYoutubeForm] = useState({ title: "", videoUrl: "", description: "" });
   const [selectedCategory, setSelectedCategory] = useState<ResourceCategory>("presentation");
 
   const [projectForm, setProjectForm] = useState({
@@ -136,6 +149,7 @@ export default function Admin() {
   const resetProjectForm = () => setProjectForm({ title: "", description: "", technologies: "", category: "c_lang", imageUrl: "", imageKey: "", videoUrl: "", videoKey: "", thumbnailUrl: "", thumbnailKey: "", projectUrl: "", githubUrl: "" });
   const resetCertForm = () => setCertForm({ title: "", issuer: "", issueDate: "", expiryDate: "", credentialId: "", credentialUrl: "", imageUrl: "", imageKey: "", description: "" });
   const resetResourceForm = () => setResourceForm({ title: "", description: "", category: "daily_life", subcategory: "", fileUrl: "", fileKey: "", fileName: "", fileSize: 0, mimeType: "", thumbnailUrl: "", thumbnailKey: "" });
+  const resetYoutubeForm = () => setYoutubeForm({ title: "", videoUrl: "", description: "" });
 
   const handleEditResource = (resource: any) => {
     setEditingResource(resource);
@@ -510,6 +524,7 @@ export default function Admin() {
             <TabsTrigger value="projects" className="rounded-lg px-6 py-2.5 text-white/60 data-[state=active]:bg-emerald-500 data-[state=active]:text-black"><FolderOpen className="h-4 w-4 mr-2" />Projects ({projects?.length || 0})</TabsTrigger>
             <TabsTrigger value="certifications" className="rounded-lg px-6 py-2.5 text-white/60 data-[state=active]:bg-emerald-500 data-[state=active]:text-black"><Award className="h-4 w-4 mr-2" />Certs ({certifications?.length || 0})</TabsTrigger>
             <TabsTrigger value="resources" className="rounded-lg px-6 py-2.5 text-white/60 data-[state=active]:bg-emerald-500 data-[state=active]:text-black"><Upload className="h-4 w-4 mr-2" />Resources ({resources?.length || 0})</TabsTrigger>
+            <TabsTrigger value="youtube" className="rounded-lg px-6 py-2.5 text-white/60 data-[state=active]:bg-red-500 data-[state=active]:text-white"><Youtube className="h-4 w-4 mr-2" />YouTube ({youtubeVideos?.length || 0})</TabsTrigger>
             <TabsTrigger value="analytics" className="rounded-lg px-6 py-2.5 text-white/60 data-[state=active]:bg-emerald-500 data-[state=active]:text-black"><BarChart3 className="h-4 w-4 mr-2" />Analytics</TabsTrigger>
           </TabsList>
 
@@ -878,6 +893,144 @@ export default function Admin() {
                     </div>
                   </DialogContent>
                 </Dialog>
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* YOUTUBE TAB */}
+          <TabsContent value="youtube">
+            <div className="bg-white/[0.02] border border-white/5 rounded-2xl">
+              <div className="p-6 border-b border-white/5 flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-light text-white flex items-center gap-2">
+                    <Youtube className="h-5 w-5 text-red-500" />
+                    YouTube Videos
+                  </h2>
+                  <p className="text-white/50 mt-1">Add YouTube videos to display on homepage</p>
+                </div>
+                <Dialog open={showYoutubeDialog} onOpenChange={setShowYoutubeDialog}>
+                  <DialogTrigger asChild>
+                    <Button className="bg-red-500 hover:bg-red-600 text-white rounded-xl">
+                      <Plus className="h-4 w-4 mr-2" />Add Video
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-lg bg-[#111] border-white/10 text-white">
+                    <DialogHeader>
+                      <DialogTitle className="text-xl font-light flex items-center gap-2">
+                        <Youtube className="h-5 w-5 text-red-500" />
+                        Add YouTube Video
+                      </DialogTitle>
+                      <DialogDescription className="text-white/50">
+                        Paste a YouTube video URL to add it to your homepage
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-5 py-4">
+                      <div>
+                        <Label className="text-white/70">Video Title *</Label>
+                        <Input
+                          value={youtubeForm.title}
+                          onChange={e => setYoutubeForm({ ...youtubeForm, title: e.target.value })}
+                          placeholder="Enter video title"
+                          className="mt-1.5 bg-white/5 border-white/10 text-white"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-white/70">YouTube URL *</Label>
+                        <Input
+                          value={youtubeForm.videoUrl}
+                          onChange={e => setYoutubeForm({ ...youtubeForm, videoUrl: e.target.value })}
+                          placeholder="https://www.youtube.com/watch?v=..."
+                          className="mt-1.5 bg-white/5 border-white/10 text-white"
+                        />
+                        <p className="text-white/30 text-xs mt-1.5">
+                          Supports: youtube.com/watch?v=..., youtu.be/..., youtube.com/shorts/...
+                        </p>
+                      </div>
+                      <div>
+                        <Label className="text-white/70">Description (Optional)</Label>
+                        <Textarea
+                          value={youtubeForm.description}
+                          onChange={e => setYoutubeForm({ ...youtubeForm, description: e.target.value })}
+                          placeholder="Brief description of the video"
+                          rows={2}
+                          className="mt-1.5 bg-white/5 border-white/10 text-white"
+                        />
+                      </div>
+                      <Button
+                        onClick={() => createYoutubeVideo.mutate(youtubeForm)}
+                        disabled={!youtubeForm.title || !youtubeForm.videoUrl}
+                        className="w-full bg-red-500 hover:bg-red-600 text-white rounded-xl"
+                      >
+                        {createYoutubeVideo.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                        Add Video
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+
+              {/* YouTube Video List */}
+              <div className="divide-y divide-white/5">
+                {youtubeLoading ? (
+                  <div className="p-12 text-center">
+                    <Loader2 className="h-6 w-6 animate-spin mx-auto text-red-400" />
+                  </div>
+                ) : !youtubeVideos?.length ? (
+                  <div className="p-12 text-center text-white/40">
+                    <Youtube className="w-12 h-12 mx-auto mb-4 opacity-30" />
+                    <p>No YouTube videos yet</p>
+                    <p className="text-sm mt-2">Add videos to display on homepage</p>
+                  </div>
+                ) : (
+                  youtubeVideos.map((video, idx) => (
+                    <div key={video.id} className="p-4 flex items-center gap-4 hover:bg-white/[0.02]">
+                      {/* Thumbnail */}
+                      <div className="w-32 h-20 rounded-xl overflow-hidden bg-black/40 flex-shrink-0 relative group">
+                        <img
+                          src={`https://img.youtube.com/vi/${video.videoId}/mqdefault.jpg`}
+                          alt={video.title}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Play className="w-8 h-8 text-white" fill="white" />
+                        </div>
+                        <div className="absolute top-1 right-1 w-6 h-6 bg-red-600 rounded flex items-center justify-center">
+                          <Youtube className="w-3 h-3 text-white" />
+                        </div>
+                      </div>
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-white truncate">{video.title}</h3>
+                        <p className="text-sm text-white/40 truncate">
+                          {video.description || "No description"}
+                        </p>
+                        <div className="flex items-center gap-3 mt-1">
+                          <span className="text-xs text-white/30">ID: {video.videoId}</span>
+                          <span className="text-xs text-white/30">#{idx + 1}</span>
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <a
+                        href={`https://www.youtube.com/watch?v=${video.videoId}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 rounded-lg hover:bg-white/10 text-white/50 hover:text-white transition-colors"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </a>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteYoutubeVideo.mutate({ id: video.id })}
+                        className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </TabsContent>

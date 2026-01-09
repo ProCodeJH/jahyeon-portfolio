@@ -126,3 +126,19 @@ export const folders = pgTable("folders", {
 
 export type Folder = typeof folders.$inferSelect;
 export type InsertFolder = typeof folders.$inferInsert;
+
+/**
+ * YouTube Videos table - stores YouTube video links for homepage showcase
+ */
+export const youtubeVideos = pgTable("youtube_videos", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  videoId: varchar("video_id", { length: 20 }).notNull(), // YouTube video ID (e.g., dQw4w9WgXcQ)
+  description: text("description"),
+  displayOrder: integer("display_order").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type YoutubeVideo = typeof youtubeVideos.$inferSelect;
+export type InsertYoutubeVideo = typeof youtubeVideos.$inferInsert;
