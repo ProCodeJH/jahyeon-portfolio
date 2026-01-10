@@ -4,6 +4,7 @@
 import { useState, useEffect } from "react";
 import { Github, GitCommit, GitBranch, Star, Users, ExternalLink, Activity, Code, Loader2 } from "lucide-react";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
+import { GitTimeline } from "./GitTimeline";
 
 const GITHUB_USERNAME = "ProCodeJH"; // GitHub username
 
@@ -326,18 +327,15 @@ export function GitHubActivitySection() {
                         </div>
                     </AnimatedSection>
 
-                    {/* Recent Activity */}
-                    <AnimatedSection delay={300} className="lg:col-span-2">
+                    {/* Git Timeline - Premium Animated */}
+                    <AnimatedSection delay={300} className="lg:col-span-3">
                         <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 backdrop-blur-xl">
-                            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                            <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
                                 <Activity className="w-5 h-5 text-blue-400" />
-                                Recent Activity
+                                Git Timeline
+                                <span className="ml-2 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-medium">Live</span>
                             </h3>
-                            <div className="space-y-1 max-h-[300px] overflow-y-auto">
-                                {data.events.slice(0, 6).map(event => (
-                                    <ActivityItem key={event.id} event={event} />
-                                ))}
-                            </div>
+                            <GitTimeline />
                         </div>
                     </AnimatedSection>
 
