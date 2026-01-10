@@ -1,10 +1,17 @@
-feat: Add GitHub real-time activity section
+fix: Remove webcontainer/xterm and add Profile page
 
-- Add GitHubActivitySection component with:
-  - GitHub profile card with avatar, stats, bio
-  - Contribution graph (grass/heatmap visualization)
-  - Recent activity feed (commits, branches, stars)
-  - Top repositories with language indicators
-  - "Live" indicator when coding in last hour
-- Integrate into Home page after Certifications section
-- Uses GitHub REST API for real-time data
+FIXES:
+- Fixed black screen by removing webcontainer/xterm dependencies from CodeEditor
+- CodeEditor now uses simulation mode for all languages (stable deployment)
+- Removed rollupOptions.external from vite.config.ts
+
+NEW FEATURES:
+- Added Profile page (/profile) for academy name management
+- Users can update academy name to "코딩쏙학원" to become verified students
+- Added /profile route to App.tsx
+
+All premium features complete (except AI chatbot):
+✅ Registration/Login with SMS verification
+✅ Student access control (Resources)
+✅ GitHub real-time activity
+✅ Profile management

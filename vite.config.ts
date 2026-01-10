@@ -12,14 +12,6 @@ export default defineConfig({
   build: {
     outDir: "../dist/public",
     emptyOutDir: true,
-    rollupOptions: {
-      external: [
-        "@webcontainer/api",
-        "xterm",
-        "xterm-addon-fit",
-        /^xterm\/.*/,
-      ],
-    },
   },
   resolve: {
     alias: {
