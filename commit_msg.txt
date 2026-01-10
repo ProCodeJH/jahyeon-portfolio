@@ -1,1 +1,14 @@
-chore: Update Firebase config with actual project values
+feat: Add dual authentication (Phone + Email)
+
+- Add email authentication functions to firebase.ts
+  - sendEmailVerificationLink
+  - checkEmailSignInLink
+  - completeEmailSignIn
+- Update Register.tsx with auth method selection
+  - Step 1: Choose between Phone or Email
+  - Step 2: Verify (SMS code or email link)
+  - Step 3: Complete registration
+- Email auth uses Firebase passwordless sign-in with email link
+- Phone auth uses Firebase SMS verification with reCAPTCHA
+
+Users can now choose their preferred verification method!

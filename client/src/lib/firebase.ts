@@ -2,15 +2,22 @@
 // Setup Instructions:
 // 1. Go to Firebase Console: https://console.firebase.google.com
 // 2. Create new project or select existing
-// 3. Enable Authentication > Sign-in method > Phone
+// 3. Enable Authentication > Sign-in method > Phone & Email
 // 4. Add your domain to Authorized domains
 // 5. Copy your config values below
 
 import { initializeApp } from "firebase/app";
-import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from "firebase/auth";
+import {
+    getAuth,
+    RecaptchaVerifier,
+    signInWithPhoneNumber,
+    sendSignInLinkToEmail,
+    isSignInWithEmailLink,
+    signInWithEmailLink,
+    type ConfirmationResult
+} from "firebase/auth";
 
 // 🔥 Firebase Configuration
-// Replace with your actual Firebase config from Firebase Console
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyD8ZD4p7swQ9xto0MDOIlZ_48bespYEKtU",
     authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "jahyeon-portfolio.firebaseapp.com",
@@ -25,11 +32,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
-// For development, we can enable the auth emulator
-// Uncomment below if using Firebase emulator
-// connectAuthEmulator(auth, "http://localhost:9099");
-
-// RecaptchaVerifier setup
+// ============================================
+// 📱 PHONE AUTHENTICATION
+// ============================================
 let recaptchaVerifier: RecaptchaVerifier | null = null;
 
 export function setupRecaptcha(buttonId: string): RecaptchaVerifier {
@@ -40,11 +45,9 @@ export function setupRecaptcha(buttonId: string): RecaptchaVerifier {
     recaptchaVerifier = new RecaptchaVerifier(auth, buttonId, {
         size: "invisible",
         callback: () => {
-            // reCAPTCHA solved - allow signInWithPhoneNumber
             console.log("reCAPTCHA verified");
         },
         "expired-callback": () => {
-            // Response expired, reset reCAPTCHA
             console.log("reCAPTCHA expired");
         },
     });
@@ -52,7 +55,7 @@ export function setupRecaptcha(buttonId: string): RecaptchaVerifier {
     return recaptchaVerifier;
 }
 
-export async function sendVerificationCode(
+export async function sendPhoneVerificationCode(
     phoneNumber: string,
     recaptcha: RecaptchaVerifier
 ): Promise<ConfirmationResult> {
@@ -67,11 +70,52 @@ export async function sendVerificationCode(
     return signInWithPhoneNumber(auth, formattedPhone, recaptcha);
 }
 
-export async function verifyCode(
+export async function verifyPhoneCode(
     confirmationResult: ConfirmationResult,
     code: string
 ) {
     return confirmationResult.confirm(code);
 }
+
+// ============================================
+// 📧 EMAIL AUTHENTICATION
+// ============================================
+const actionCodeSettings = {
+    url: typeof window !== 'undefined' ? `${window.location.origin}/register?emailVerified=true` : 'http://localhost:5173/register?emailVerified=true',
+    handleCodeInApp: true,
+};
+
+export async function sendEmailVerificationLink(email: string): Promise<void> {
+    await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+    // Save email to localStorage for verification later
+    if (typeof window !== 'undefined') {
+        window.localStorage.setItem('emailForSignIn', email);
+    }
+}
+
+export function checkEmailSignInLink(): boolean {
+    if (typeof window === 'undefined') return false;
+    return isSignInWithEmailLink(auth, window.location.href);
+}
+
+export async function completeEmailSignIn(email: string) {
+    if (typeof window === 'undefined') throw new Error('Not in browser');
+    return signInWithEmailLink(auth, email, window.location.href);
+}
+
+export function getSavedEmailForSignIn(): string | null {
+    if (typeof window === 'undefined') return null;
+    return window.localStorage.getItem('emailForSignIn');
+}
+
+export function clearSavedEmail(): void {
+    if (typeof window !== 'undefined') {
+        window.localStorage.removeItem('emailForSignIn');
+    }
+}
+
+// Legacy exports for compatibility
+export const sendVerificationCode = sendPhoneVerificationCode;
+export const verifyCode = verifyPhoneCode;
 
 export { RecaptchaVerifier, type ConfirmationResult };
