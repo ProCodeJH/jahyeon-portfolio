@@ -3,7 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
-import { Download, Loader2, FileText, Video, ExternalLink, Play, Presentation, Terminal, Cpu, Code, X, Eye, Sparkles, BookOpen, Zap, Heart, MessageCircle, Send, FolderOpen, ChevronDown, ChevronRight, Lock, School, UserPlus } from "lucide-react";
+import { Download, Loader2, FileText, Video, ExternalLink, Play, Presentation, Terminal, Cpu, Code, X, Eye, Sparkles, BookOpen, Zap, Heart, MessageCircle, Send, FolderOpen, ChevronDown, ChevronRight, Lock, School, UserPlus, LogIn } from "lucide-react";
 import { toast } from "sonner";
 import { GradientMeshBackground } from "@/components/backgrounds/GradientMeshBackground";
 import { SubtleDots } from "@/components/backgrounds/SubtleDots";
@@ -470,50 +470,212 @@ export default function Resources() {
         </div>
       </section>
 
-      {/* Non-Student Warning Banner */}
+      {/* 🔒 Premium Chain Lock Overlay */}
       {(!member || !isStudent) && (
-        <section className="px-4 md:px-8 relative z-10">
+        <section className="px-4 md:px-8 relative z-10 my-8">
           <div className="max-w-7xl mx-auto">
-            <div className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-2 border-amber-500/40 rounded-2xl p-4 md:p-6 flex flex-col md:flex-row items-start md:items-center gap-4">
-              <div className="w-12 h-12 bg-amber-500/30 rounded-xl flex items-center justify-center flex-shrink-0">
-                <Lock className="w-6 h-6 text-amber-400" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-bold text-white mb-1">
-                  📚 강의 학생 전용 자료입니다
-                </h3>
-                <p className="text-white/70 text-sm md:text-base">
-                  수업자료는 <span className="text-emerald-400 font-bold">코딩쏙학원</span> 강의 학생만 다운로드할 수 있습니다.
-                  {!member && " 로그인 또는 회원가입 후 이용해주세요."}
-                  {member && !isStudent && (
-                    <span className="block mt-1 text-amber-300">
-                      💡 현재 학원: {member.academyName || "미등록"} - 마이페이지에서 "코딩쏙학원"으로 변경하세요!
-                    </span>
-                  )}
-                </p>
-              </div>
-              {!member ? (
-                <div className="flex gap-2 w-full md:w-auto">
-                  <Link href="/login">
-                    <Button className="bg-white/20 hover:bg-white/30 text-white border border-white/30 rounded-xl">
-                      로그인
-                    </Button>
-                  </Link>
-                  <Link href="/register">
-                    <Button className="bg-emerald-500 hover:bg-emerald-600 text-black rounded-xl">
-                      <UserPlus className="w-4 h-4 mr-2" />회원가입
-                    </Button>
-                  </Link>
+            {/* Main Container with Chain Border */}
+            <div className="relative overflow-hidden rounded-3xl">
+              {/* Animated Chain Border */}
+              <div
+                className="absolute inset-0 rounded-3xl"
+                style={{
+                  background: `
+                    repeating-linear-gradient(
+                      0deg,
+                      transparent 0px,
+                      transparent 15px,
+                      rgba(120, 120, 120, 0.3) 15px,
+                      rgba(120, 120, 120, 0.3) 20px,
+                      transparent 20px,
+                      transparent 35px
+                    ),
+                    repeating-linear-gradient(
+                      90deg,
+                      transparent 0px,
+                      transparent 15px,
+                      rgba(120, 120, 120, 0.3) 15px,
+                      rgba(120, 120, 120, 0.3) 20px,
+                      transparent 20px,
+                      transparent 35px
+                    )
+                  `,
+                  animation: 'chainMove 3s linear infinite'
+                }}
+              />
+
+              {/* Dark Gradient Background */}
+              <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-8 md:p-12 lg:p-16">
+                {/* Metallic Glow Effects */}
+                <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px]" />
+                <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-[100px]" />
+
+                {/* Chain Links Decoration - Top */}
+                <div className="absolute top-4 left-0 right-0 flex justify-center gap-2 opacity-40">
+                  {[...Array(20)].map((_, i) => (
+                    <div key={i} className="w-8 h-4 border-2 border-gray-500 rounded-full" style={{ animation: `chainPulse 2s ease-in-out ${i * 0.1}s infinite` }} />
+                  ))}
                 </div>
-              ) : (
-                <Link href="/profile">
-                  <Button className="bg-amber-500 hover:bg-amber-600 text-black rounded-xl">
-                    <School className="w-4 h-4 mr-2" />학원 등록하기
-                  </Button>
-                </Link>
-              )}
+
+                {/* Chain Links Decoration - Bottom */}
+                <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 opacity-40">
+                  {[...Array(20)].map((_, i) => (
+                    <div key={i} className="w-8 h-4 border-2 border-gray-500 rounded-full" style={{ animation: `chainPulse 2s ease-in-out ${i * 0.1}s infinite` }} />
+                  ))}
+                </div>
+
+                {/* Main Content */}
+                <div className="relative flex flex-col items-center text-center">
+                  {/* 3D Animated Padlock */}
+                  <div
+                    className="relative mb-8"
+                    style={{ perspective: '1000px' }}
+                  >
+                    {/* Glow Ring */}
+                    <div
+                      className="absolute -inset-8 rounded-full opacity-50"
+                      style={{
+                        background: 'radial-gradient(circle, rgba(234,179,8,0.4) 0%, transparent 70%)',
+                        animation: 'pulseGlow 2s ease-in-out infinite'
+                      }}
+                    />
+
+                    {/* 3D Padlock Body */}
+                    <div
+                      className="relative w-32 h-40 md:w-40 md:h-48"
+                      style={{
+                        transformStyle: 'preserve-3d',
+                        animation: 'lockFloat 4s ease-in-out infinite'
+                      }}
+                    >
+                      {/* Lock Shackle (Top Arc) */}
+                      <div
+                        className="absolute -top-8 left-1/2 -translate-x-1/2 w-20 h-16 md:w-24 md:h-20 border-8 border-yellow-500 rounded-t-full border-b-0"
+                        style={{
+                          background: 'linear-gradient(180deg, #fbbf24 0%, #d97706 100%)',
+                          boxShadow: '0 -5px 20px rgba(251, 191, 36, 0.5), inset 0 2px 10px rgba(255,255,255,0.3)'
+                        }}
+                      />
+
+                      {/* Lock Body */}
+                      <div
+                        className="absolute bottom-0 left-0 right-0 h-28 md:h-32 rounded-xl"
+                        style={{
+                          background: 'linear-gradient(145deg, #fbbf24 0%, #b45309 50%, #92400e 100%)',
+                          boxShadow: '0 20px 40px rgba(0,0,0,0.5), inset 0 2px 20px rgba(255,255,255,0.2), inset 0 -5px 20px rgba(0,0,0,0.3)'
+                        }}
+                      >
+                        {/* Keyhole */}
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                          <div
+                            className="w-6 h-6 md:w-8 md:h-8 bg-gray-900 rounded-full"
+                            style={{ boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.8)' }}
+                          />
+                          <div
+                            className="w-3 h-6 md:w-4 md:h-8 bg-gray-900 mx-auto -mt-1"
+                            style={{ boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.8)' }}
+                          />
+                        </div>
+
+                        {/* Metallic Shine */}
+                        <div
+                          className="absolute top-2 left-2 right-1/2 bottom-1/2 rounded-tl-xl opacity-30"
+                          style={{ background: 'linear-gradient(135deg, white 0%, transparent 50%)' }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Title with Gradient */}
+                  <h2
+                    className="text-3xl md:text-4xl lg:text-5xl font-black mb-4"
+                    style={{
+                      background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 25%, #ffffff 50%, #f59e0b 75%, #fbbf24 100%)',
+                      backgroundSize: '200% 200%',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      animation: 'shimmer 3s linear infinite'
+                    }}
+                  >
+                    🔒 LOCKED CONTENT
+                  </h2>
+
+                  {/* Korean Message */}
+                  <p className="text-xl md:text-2xl font-bold text-white mb-2">
+                    <span className="text-emerald-400">코딩쏙학원</span> 학생들만 이용 가능합니다
+                  </p>
+
+                  {/* Subtitle */}
+                  <p className="text-gray-400 text-sm md:text-base mb-8 max-w-md">
+                    {!member
+                      ? "로그인 또는 회원가입 후 수업자료를 다운로드 받으세요."
+                      : `현재 학원: ${member.academyName || "미등록"} - 학원 정보를 업데이트해주세요.`
+                    }
+                  </p>
+
+                  {/* Premium Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    {!member ? (
+                      <>
+                        <Link href="/login">
+                          <button className="group relative px-8 py-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl text-white font-bold text-lg hover:bg-white/20 transition-all duration-300 overflow-hidden">
+                            <span className="relative z-10 flex items-center justify-center gap-2">
+                              <LogIn className="w-5 h-5" />
+                              로그인
+                            </span>
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                          </button>
+                        </Link>
+                        <Link href="/register">
+                          <button className="group relative px-8 py-4 rounded-2xl text-black font-bold text-lg overflow-hidden" style={{ background: 'linear-gradient(135deg, #10b981 0%, #34d399 50%, #10b981 100%)', boxShadow: '0 10px 30px rgba(16, 185, 129, 0.4)' }}>
+                            <span className="relative z-10 flex items-center justify-center gap-2">
+                              <UserPlus className="w-5 h-5" />
+                              회원가입
+                            </span>
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                          </button>
+                        </Link>
+                      </>
+                    ) : (
+                      <Link href="/profile">
+                        <button className="group relative px-8 py-4 rounded-2xl text-black font-bold text-lg overflow-hidden" style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #f59e0b 100%)', boxShadow: '0 10px 30px rgba(245, 158, 11, 0.4)' }}>
+                          <span className="relative z-10 flex items-center justify-center gap-2">
+                            <School className="w-5 h-5" />
+                            학원 등록하기
+                          </span>
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                        </button>
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+
+          {/* CSS Animations */}
+          <style>{`
+            @keyframes chainMove {
+              0% { background-position: 0 0; }
+              100% { background-position: 35px 35px; }
+            }
+            @keyframes chainPulse {
+              0%, 100% { opacity: 0.3; transform: scale(1); }
+              50% { opacity: 0.6; transform: scale(1.05); }
+            }
+            @keyframes pulseGlow {
+              0%, 100% { opacity: 0.3; transform: scale(1); }
+              50% { opacity: 0.6; transform: scale(1.1); }
+            }
+            @keyframes lockFloat {
+              0%, 100% { transform: translateY(0) rotateY(-5deg); }
+              50% { transform: translateY(-10px) rotateY(5deg); }
+            }
+            @keyframes shimmer {
+              0% { background-position: 0% 50%; }
+              100% { background-position: 200% 50%; }
+            }
+          `}</style>
         </section>
       )}
 

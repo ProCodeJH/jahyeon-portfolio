@@ -1,15 +1,25 @@
-feat: Add auth buttons to navigation bar
+feat: Ultra Premium Chain Lock Banner for Resources
 
-DESKTOP NAVBAR (next to Code Editor):
-- Logged in: Shows "name님" + 로그아웃 button
-- Logged out: Shows 로그인 (gray) + 회원가입 (gradient) buttons
-- Separated by left border
+VISUAL DESIGN:
+- Animated chain border pattern (moving diagonal grid)
+- Chain link decorations at top/bottom (20 links each)
+- Pulsing chain animation with staggered delays
 
-MOBILE MENU (bottom section):
-- Logged in: Shows "👋 name님 환영합니다" + 로그아웃 button
-- Logged out: Shows 로그인 + 회원가입 buttons side by side
-- Separated by top border
+3D PADLOCK:
+- Metallic gold gradient (shackle + body)
+- 3D perspective with preserve-3d
+- Floating animation (up/down + Y-rotation)
+- Glowing ring effect
+- Keyhole detail with inner shadows
+- Metallic shine overlay
 
-FUNCTIONALITY:
-- Reads member state from localStorage on mount
-- Logout: Clears localStorage, shows toast, redirects to home
+TEXT & MESSAGING:
+- "LOCKED CONTENT" with shimmer gradient animation
+- "코딩쏙학원 학생들만 이용 가능합니다" main message
+- Dynamic subtitle based on login state
+
+PREMIUM BUTTONS:
+- Sweep shine effect on hover
+- Login: Glass morphism style
+- Register: Emerald gradient with glow shadow
+- Academy: Amber gradient with glow shadow
