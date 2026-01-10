@@ -121,6 +121,14 @@ const pageViews = pgTable("page_views", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+const settings = pgTable("settings", {
+  id: serial("id").primaryKey(),
+  key: varchar("key", { length: 100 }).notNull(),
+  value: text("value"),
+  description: text("description"),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // ============ DATABASE ============
 function getDb() {
   if (!process.env.DATABASE_URL) return null;
@@ -213,7 +221,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.setHeader("Access-Control-Allow-Credentials", "true");
-  
+
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
@@ -223,7 +231,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     // ============ AUTH ROUTES ============
-    
+
     if (url.includes("/api/auth/login") && method === "GET") {
       const error = req.query.error as string | undefined;
       res.setHeader("Content-Type", "text/html");
@@ -236,7 +244,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (url.includes("/api/auth/login") && method === "POST") {
       const body = req.body;
       const password = body?.password;
-      
+
       if (password === process.env.ADMIN_PASSWORD) {
         res.setHeader("Set-Cookie", `session=admin; Path=/; HttpOnly; SameSite=Lax; Max-Age=31536000`);
         return res.redirect(302, "/admin");
@@ -254,7 +262,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // ============ tRPC-like API ROUTES ============
-    
+
     if (url.includes("/api/trpc/")) {
       const db = getDb();
       if (!db) {
@@ -264,7 +272,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const trpcPath = url.split("/api/trpc/")[1]?.split("?")[0];
       const inputParam = req.query.input as string | undefined;
       let input: any = {};
-      
+
       try {
         if (inputParam) {
           input = JSON.parse(decodeURIComponent(inputParam));
@@ -274,10 +282,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       } catch (e) {
         input = {};
       }
-      
+
       const protectedPrefixes = ["create", "update", "delete", "admin"];
       const isProtected = protectedPrefixes.some(r => trpcPath?.includes(r));
-      
+
       if (isProtected && !isAuthenticated(req)) {
         return res.status(401).json({ error: { message: "Please login (10001)" } });
       }
@@ -290,7 +298,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
           return res.json({ result: { data: null } });
         }
-        
+
         case "auth.logout": {
           res.setHeader("Set-Cookie", `session=; Path=/; HttpOnly; Max-Age=0`);
           return res.json({ result: { data: { success: true } } });
@@ -301,14 +309,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const data = await db.select().from(projects).orderBy(desc(projects.displayOrder), desc(projects.createdAt));
           return res.json({ result: { data } });
         }
-        
+
         case "projects.listByCategory": {
           const data = await db.select().from(projects)
             .where(eq(projects.category, input.category))
             .orderBy(desc(projects.displayOrder), desc(projects.createdAt));
           return res.json({ result: { data } });
         }
-        
+
         case "projects.get": {
           const result = await db.select().from(projects).where(eq(projects.id, input.id)).limit(1);
           if (result[0]) {
@@ -316,7 +324,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
           return res.json({ result: { data: result[0] || null } });
         }
-        
+
         case "projects.create": {
           const result = await db.insert(projects).values({
             title: input.title,
@@ -336,19 +344,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }).returning();
           return res.json({ result: { data: result[0] } });
         }
-        
+
         case "projects.update": {
           const updateData = { ...input.data, updatedAt: new Date() };
           await db.update(projects).set(updateData).where(eq(projects.id, input.id));
           return res.json({ result: { data: { success: true } } });
         }
-        
+
         case "projects.delete": {
           const project = await db.select().from(projects).where(eq(projects.id, input.id)).limit(1);
           if (project[0]) {
-            if (project[0].imageKey) await deleteFromR2(project[0].imageKey).catch(() => {});
-            if (project[0].videoKey) await deleteFromR2(project[0].videoKey).catch(() => {});
-            if (project[0].thumbnailKey) await deleteFromR2(project[0].thumbnailKey).catch(() => {});
+            if (project[0].imageKey) await deleteFromR2(project[0].imageKey).catch(() => { });
+            if (project[0].videoKey) await deleteFromR2(project[0].videoKey).catch(() => { });
+            if (project[0].thumbnailKey) await deleteFromR2(project[0].thumbnailKey).catch(() => { });
           }
           await db.delete(projects).where(eq(projects.id, input.id));
           return res.json({ result: { data: { success: true } } });
@@ -359,12 +367,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const data = await db.select().from(certifications).orderBy(desc(certifications.displayOrder), desc(certifications.createdAt));
           return res.json({ result: { data } });
         }
-        
+
         case "certifications.get": {
           const result = await db.select().from(certifications).where(eq(certifications.id, input.id)).limit(1);
           return res.json({ result: { data: result[0] || null } });
         }
-        
+
         case "certifications.create": {
           const result = await db.insert(certifications).values({
             title: input.title,
@@ -380,17 +388,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }).returning();
           return res.json({ result: { data: result[0] } });
         }
-        
+
         case "certifications.update": {
           const updateData = { ...input.data, updatedAt: new Date() };
           await db.update(certifications).set(updateData).where(eq(certifications.id, input.id));
           return res.json({ result: { data: { success: true } } });
         }
-        
+
         case "certifications.delete": {
           const cert = await db.select().from(certifications).where(eq(certifications.id, input.id)).limit(1);
           if (cert[0]?.imageKey) {
-            await deleteFromR2(cert[0].imageKey).catch(() => {});
+            await deleteFromR2(cert[0].imageKey).catch(() => { });
           }
           await db.delete(certifications).where(eq(certifications.id, input.id));
           return res.json({ result: { data: { success: true } } });
@@ -401,19 +409,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const data = await db.select().from(resources).orderBy(desc(resources.displayOrder), desc(resources.createdAt));
           return res.json({ result: { data } });
         }
-        
+
         case "resources.listByCategory": {
           const data = await db.select().from(resources)
             .where(eq(resources.category, input.category))
             .orderBy(desc(resources.displayOrder), desc(resources.createdAt));
           return res.json({ result: { data } });
         }
-        
+
         case "resources.get": {
           const result = await db.select().from(resources).where(eq(resources.id, input.id)).limit(1);
           return res.json({ result: { data: result[0] || null } });
         }
-        
+
         case "resources.create": {
           const result = await db.insert(resources).values({
             title: input.title,
@@ -431,7 +439,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }).returning();
           return res.json({ result: { data: result[0] } });
         }
-        
+
         case "resources.update": {
           const updateData: any = { updatedAt: new Date() };
           if (input.title !== undefined) updateData.title = input.title;
@@ -442,20 +450,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           await db.update(resources).set(updateData).where(eq(resources.id, input.id));
           return res.json({ result: { data: { success: true } } });
         }
-        
+
         case "resources.delete": {
           const resource = await db.select().from(resources).where(eq(resources.id, input.id)).limit(1);
           if (resource[0]) {
-            if (resource[0].fileKey) await deleteFromR2(resource[0].fileKey).catch(() => {});
-            if (resource[0].thumbnailKey) await deleteFromR2(resource[0].thumbnailKey).catch(() => {});
+            if (resource[0].fileKey) await deleteFromR2(resource[0].fileKey).catch(() => { });
+            if (resource[0].thumbnailKey) await deleteFromR2(resource[0].thumbnailKey).catch(() => { });
           }
           await db.delete(resources).where(eq(resources.id, input.id));
           return res.json({ result: { data: { success: true } } });
         }
-        
+
         case "resources.incrementDownload": {
-          await db.update(resources).set({ 
-            downloadCount: sql`${resources.downloadCount} + 1` 
+          await db.update(resources).set({
+            downloadCount: sql`${resources.downloadCount} + 1`
           }).where(eq(resources.id, input.id));
           return res.json({ result: { data: { success: true } } });
         }
@@ -466,7 +474,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const existing = await db.select().from(likes)
             .where(and(eq(likes.resourceId, input.resourceId), eq(likes.visitorId, visitorId)))
             .limit(1);
-          
+
           if (existing[0]) {
             await db.delete(likes).where(eq(likes.id, existing[0].id));
             await db.update(resources).set({ likeCount: sql`${resources.likeCount} - 1` }).where(eq(resources.id, input.resourceId));
@@ -477,7 +485,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.json({ result: { data: { liked: true } } });
           }
         }
-        
+
         case "likes.check": {
           const visitorId = getVisitorId(req);
           const existing = await db.select().from(likes)
@@ -493,7 +501,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             .orderBy(desc(comments.createdAt));
           return res.json({ result: { data } });
         }
-        
+
         case "comments.create": {
           const result = await db.insert(comments).values({
             resourceId: input.resourceId,
@@ -503,7 +511,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }).returning();
           return res.json({ result: { data: result[0] } });
         }
-        
+
         case "comments.delete": {
           await db.delete(comments).where(eq(comments.id, input.id));
           return res.json({ result: { data: { success: true } } });
@@ -521,17 +529,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           });
           return res.json({ result: { data: { success: true } } });
         }
-        
+
         case "analytics.adminStats": {
           const totalViews = await db.select({ count: sql<number>`count(*)` }).from(pageViews);
-          
+
           const today = new Date();
           today.setHours(0, 0, 0, 0);
           const todayViews = await db.select({ count: sql<number>`count(*)` }).from(pageViews)
             .where(sql`${pageViews.createdAt} >= ${today}`);
-          
+
           const uniqueVisitors = await db.select({ count: sql<number>`count(distinct ${pageViews.visitorId})` }).from(pageViews);
-          
+
           const viewsByPage = await db.select({
             path: pageViews.pagePath,
             count: sql<number>`count(*)`,
@@ -539,18 +547,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             .groupBy(pageViews.pagePath)
             .orderBy(sql`count(*) desc`)
             .limit(10);
-          
+
           const recentViews = await db.select().from(pageViews)
             .orderBy(desc(pageViews.createdAt))
             .limit(50);
-          
-          return res.json({ result: { data: {
-            totalViews: totalViews[0]?.count || 0,
-            todayViews: todayViews[0]?.count || 0,
-            uniqueVisitors: uniqueVisitors[0]?.count || 0,
-            viewsByPage,
-            recentViews,
-          } } });
+
+          return res.json({
+            result: {
+              data: {
+                totalViews: totalViews[0]?.count || 0,
+                todayViews: todayViews[0]?.count || 0,
+                uniqueVisitors: uniqueVisitors[0]?.count || 0,
+                viewsByPage,
+                recentViews,
+              }
+            }
+          });
         }
 
         // ============ UPLOAD ============
@@ -584,18 +596,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const presignedUrl = await getSignedUrl(client, command, { expiresIn: 3600 });
           const publicUrl = `${process.env.R2_PUBLIC_URL}/${key}`;
 
-          return res.json({ result: { data: {
-            presignedUrl,
-            key,
-            publicUrl
-          } } });
+          return res.json({
+            result: {
+              data: {
+                presignedUrl,
+                key,
+                publicUrl
+              }
+            }
+          });
         }
 
         case "upload.uploadChunk": {
           const { fileName, fileContent, chunkIndex, totalChunks, uploadId: existingUploadId, contentType } = input;
-          
+
           const uploadId = existingUploadId || `upload_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-          
+
           if (!uploadChunks.has(uploadId)) {
             uploadChunks.set(uploadId, {
               chunks: new Array(totalChunks).fill(null),
@@ -605,38 +621,46 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               contentType,
             });
           }
-          
+
           const upload = uploadChunks.get(uploadId)!;
           const chunkBuffer = Buffer.from(fileContent, "base64");
-          
+
           if (upload.chunks[chunkIndex] === null) {
             upload.chunks[chunkIndex] = chunkBuffer;
             upload.receivedCount++;
           }
-          
+
           if (upload.receivedCount === upload.totalChunks) {
             const completeBuffer = Buffer.concat(upload.chunks.filter((c): c is Buffer => c !== null));
             const key = `uploads/${Date.now()}-${upload.fileName}`;
             const result = await uploadToR2(key, completeBuffer, upload.contentType);
-            
+
             uploadChunks.delete(uploadId);
-            
-            return res.json({ result: { data: {
-              uploadId,
-              chunkIndex,
-              complete: true,
-              publicUrl: result.url,
-              fileKey: result.key,
-            } } });
+
+            return res.json({
+              result: {
+                data: {
+                  uploadId,
+                  chunkIndex,
+                  complete: true,
+                  publicUrl: result.url,
+                  fileKey: result.key,
+                }
+              }
+            });
           }
-          
-          return res.json({ result: { data: {
-            uploadId,
-            chunkIndex,
-            complete: false,
-            received: upload.receivedCount,
-            total: upload.totalChunks,
-          } } });
+
+          return res.json({
+            result: {
+              data: {
+                uploadId,
+                chunkIndex,
+                complete: false,
+                received: upload.receivedCount,
+                total: upload.totalChunks,
+              }
+            }
+          });
         }
 
         case "upload.delete": {
@@ -716,6 +740,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.json({ result: { data: { success: true } } });
         }
 
+        // ============ SETTINGS ============
+        case "settings.get": {
+          const result = await db.select().from(settings).where(eq(settings.key, input.key)).limit(1);
+          return res.json({ result: { data: result[0]?.value || null } });
+        }
+
+        case "settings.list": {
+          const data = await db.select().from(settings);
+          return res.json({ result: { data } });
+        }
+
+        case "settings.set": {
+          const existing = await db.select().from(settings).where(eq(settings.key, input.key)).limit(1);
+          if (existing[0]) {
+            await db.update(settings).set({
+              value: input.value,
+              description: input.description || existing[0].description,
+              updatedAt: new Date()
+            }).where(eq(settings.key, input.key));
+          } else {
+            await db.insert(settings).values({
+              key: input.key,
+              value: input.value,
+              description: input.description || null,
+            });
+          }
+          return res.json({ result: { data: { success: true } } });
+        }
+
         // ============ SYSTEM ============
         case "system.health": {
           return res.json({ result: { data: { status: "ok", timestamp: new Date().toISOString() } } });
@@ -730,10 +783,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   } catch (error) {
     console.error("API Error:", error);
-    return res.status(500).json({ 
-      error: { 
-        message: error instanceof Error ? error.message : "Internal server error" 
-      } 
+    return res.status(500).json({
+      error: {
+        message: error instanceof Error ? error.message : "Internal server error"
+      }
     });
   }
 }
