@@ -19,8 +19,8 @@ import {
 
 // YouTube Video Section Component
 function YouTubeVideoSection() {
-  // Hardcoded for testing - API will work after DB migration
-  const youtubeUrl = "https://youtu.be/h6IqxDwUmJQ";
+  // Fetch YouTube URL from database settings
+  const { data: youtubeUrl, isLoading } = trpc.settings.get.useQuery({ key: "youtube_video_url" });
 
   // Extract video ID from URL
   const getYouTubeVideoId = (url: string | null | undefined) => {
@@ -31,8 +31,8 @@ function YouTubeVideoSection() {
 
   const videoId = getYouTubeVideoId(youtubeUrl);
 
-  // Don't render if no video URL configured
-  if (!videoId) return null;
+  // Don't render if loading or no video URL configured
+  if (isLoading || !videoId) return null;
 
   return (
     <section className="py-24 md:py-32 px-4 md:px-8 relative overflow-hidden">
