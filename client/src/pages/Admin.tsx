@@ -308,34 +308,106 @@ export default function Admin() {
     setExpandedFolders(newExpanded);
   };
 
-  // Build folder tree structure
+  // Build folder tree structure with nested folder support
   const getFolderTree = (category: ResourceCategory) => {
     const categoryResources = resources?.filter(r => r.category === category) || [];
     const categoryFolders = folders?.filter(f => f.category === category) || [];
-    const folderMap = new Map<string, any[]>();
 
-    // Add folders from DB (even if empty)
+    interface FolderNode {
+      id?: number;
+      name: string;
+      path: string;
+      items: any[];
+      children: FolderNode[];
+      parentId?: number | null;
+      depth: number;
+    }
+
+    // Build folder lookup map
+    const folderById = new Map<number, FolderNode>();
+    const rootFolders: FolderNode[] = [];
+
+    // First pass: create all folder nodes
     categoryFolders.forEach(folder => {
-      if (!folderMap.has(folder.name)) {
-        folderMap.set(folder.name, []);
+      const node: FolderNode = {
+        id: folder.id,
+        name: folder.name,
+        path: `folder_${folder.id}`,
+        items: [],
+        children: [],
+        parentId: folder.parentId,
+        depth: 0
+      };
+      folderById.set(folder.id, node);
+    });
+
+    // Second pass: build tree structure
+    categoryFolders.forEach(folder => {
+      const node = folderById.get(folder.id)!;
+      if (folder.parentId && folderById.has(folder.parentId)) {
+        const parent = folderById.get(folder.parentId)!;
+        parent.children.push(node);
+        node.depth = parent.depth + 1;
+        // Update path to include parent
+        node.path = `${parent.path}/${folder.name}`;
+      } else {
+        rootFolders.push(node);
       }
     });
 
-    // Add resources to their folders
+    // Add resources to their folders (by subcategory name matching folder name)
     categoryResources.forEach(resource => {
-      const folder = resource.subcategory || "Uncategorized";
-      if (!folderMap.has(folder)) {
-        folderMap.set(folder, []);
+      const folderName = resource.subcategory;
+      if (folderName) {
+        // Find folder by name
+        const folder = Array.from(folderById.values()).find(f => f.name === folderName);
+        if (folder) {
+          folder.items.push(resource);
+        } else {
+          // Folder doesn't exist in DB, add to a virtual folder
+          let virtualFolder = rootFolders.find(f => f.name === folderName && !f.id);
+          if (!virtualFolder) {
+            virtualFolder = {
+              name: folderName,
+              path: `virtual_${folderName}`,
+              items: [],
+              children: [],
+              depth: 0
+            };
+            rootFolders.push(virtualFolder);
+          }
+          virtualFolder.items.push(resource);
+        }
       }
-      folderMap.get(folder)!.push(resource);
     });
 
-    return Array.from(folderMap.entries()).map(([folder, items]) => ({
-      name: folder,
-      path: folder,
-      items,
-      children: []
-    }));
+    // Add Uncategorized folder for resources without subcategory
+    const uncategorizedItems = categoryResources.filter(r => !r.subcategory);
+    if (uncategorizedItems.length > 0 || rootFolders.length === 0) {
+      const uncategorized: FolderNode = {
+        name: "Uncategorized",
+        path: "uncategorized",
+        items: uncategorizedItems,
+        children: [],
+        depth: 0
+      };
+      rootFolders.push(uncategorized);
+    }
+
+    // Flatten tree for display (with depth info for indentation)
+    const flattenTree = (nodes: FolderNode[], depth: number = 0): FolderNode[] => {
+      const result: FolderNode[] = [];
+      nodes.forEach(node => {
+        node.depth = depth;
+        result.push(node);
+        if (node.children.length > 0) {
+          result.push(...flattenTree(node.children, depth + 1));
+        }
+      });
+      return result;
+    };
+
+    return flattenTree(rootFolders);
   };
 
   // ============================================
@@ -733,20 +805,29 @@ export default function Admin() {
                 ) : (
                   getFolderTree(selectedCategory).map(folder => {
                     const isExpanded = expandedFolders.has(folder.path);
+                    const depth = (folder as any).depth || 0;
                     return (
                       <div key={folder.path} className="bg-white/[0.01]">
                         {/* Folder Header */}
-                        <div className="p-3 flex items-center gap-3 hover:bg-white/[0.02] transition-all">
+                        <div
+                          className="p-3 flex items-center gap-3 hover:bg-white/[0.02] transition-all"
+                          style={{ paddingLeft: `${12 + depth * 24}px` }}
+                        >
                           <button
                             onClick={() => toggleFolder(folder.path)}
                             className="flex-1 flex items-center gap-3"
                           >
-                            <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
-                              <FolderOpen className="w-4 h-4 text-purple-400" />
+                            {depth > 0 && (
+                              <div className="text-white/20 mr-1">↳</div>
+                            )}
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${depth > 0 ? 'bg-blue-500/20' : 'bg-purple-500/20'}`}>
+                              <FolderOpen className={`w-4 h-4 ${depth > 0 ? 'text-blue-400' : 'text-purple-400'}`} />
                             </div>
                             <div className="flex-1 text-left">
-                              <h3 className="text-white font-medium text-sm">{folder.name === "Uncategorized" ? "📄 " + folder.name : "📁 " + folder.name}</h3>
-                              <p className="text-white/30 text-xs">{folder.items.length} files</p>
+                              <h3 className="text-white font-medium text-sm">
+                                {folder.name === "Uncategorized" ? "📄 " + folder.name : (depth > 0 ? "📂 " : "📁 ") + folder.name}
+                              </h3>
+                              <p className="text-white/30 text-xs">{folder.items.length} files{(folder as any).children?.length > 0 ? `, ${(folder as any).children.length} subfolders` : ''}</p>
                             </div>
                             {isExpanded ? (
                               <ChevronDown className="w-4 h-4 text-white/50" />
