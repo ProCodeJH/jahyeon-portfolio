@@ -1,16 +1,15 @@
-fix: Resources folder toggle - proper nested display
+feat: Add auth buttons to navigation bar
 
-BEFORE (broken):
-- All folders showed as separate cards
-- Subfolders had ml-6 margin but appeared outside parent
-- Folders open by default
+DESKTOP NAVBAR (next to Code Editor):
+- Logged in: Shows "name님" + 로그아웃 button
+- Logged out: Shows 로그인 (gray) + 회원가입 (gradient) buttons
+- Separated by left border
 
-AFTER (fixed):
-- Only root folders shown initially (all closed)
-- Click folder to expand -> shows files
-- Subfolders appear INSIDE parent when expanded
-- Click subfolder to expand -> shows its files
-- Proper visual hierarchy with:
-  - ↳ arrow prefix for subfolders
-  - Blue/cyan gradient icon for subfolders
-  - ml-4 indentation inside parent container
+MOBILE MENU (bottom section):
+- Logged in: Shows "👋 name님 환영합니다" + 로그아웃 button
+- Logged out: Shows 로그인 + 회원가입 buttons side by side
+- Separated by top border
+
+FUNCTIONALITY:
+- Reads member state from localStorage on mount
+- Logout: Clears localStorage, shows toast, redirects to home

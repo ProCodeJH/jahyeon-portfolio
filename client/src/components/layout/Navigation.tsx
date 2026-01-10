@@ -1,9 +1,28 @@
-import { useState } from "react";
-import { Link } from "wouter";
-import { Menu, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "wouter";
+import { Menu, X, LogIn, LogOut, UserPlus } from "lucide-react";
+import { toast } from "sonner";
 
 export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [member, setMember] = useState<{ id: number; name: string } | null>(null);
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    const stored = localStorage.getItem("member");
+    if (stored) {
+      try {
+        setMember(JSON.parse(stored));
+      } catch { }
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("member");
+    setMember(null);
+    toast.success("로그아웃 되었습니다");
+    setLocation("/");
+  };
 
   const menuItems = [
     { name: "Work", path: "/projects" },
@@ -37,6 +56,39 @@ export function Navigation() {
                   </span>
                 </Link>
               ))}
+
+              {/* Auth Buttons */}
+              <div className="flex items-center gap-2 ml-4 pl-4 border-l border-gray-200">
+                {member ? (
+                  <>
+                    <span className="text-sm font-medium text-gray-600">
+                      {member.name}님
+                    </span>
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition-all"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      로그아웃
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/login">
+                      <button className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition-all">
+                        <LogIn className="w-4 h-4" />
+                        로그인
+                      </button>
+                    </Link>
+                    <Link href="/register">
+                      <button className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white text-sm font-medium transition-all shadow-lg shadow-purple-500/20">
+                        <UserPlus className="w-4 h-4" />
+                        회원가입
+                      </button>
+                    </Link>
+                  </>
+                )}
+              </div>
             </div>
 
             {/* Mobile Menu Button */}
@@ -58,8 +110,8 @@ export function Navigation() {
       {/* Mobile Menu Panel */}
       <div
         className={`fixed top-[73px] left-0 right-0 z-40 md:hidden bg-white/95 backdrop-blur-2xl border-b border-gray-200/50 shadow-2xl transition-all duration-300 ease-in-out ${mobileMenuOpen
-            ? "translate-y-0 opacity-100"
-            : "-translate-y-full opacity-0 pointer-events-none"
+          ? "translate-y-0 opacity-100"
+          : "-translate-y-full opacity-0 pointer-events-none"
           }`}
       >
         <div className="max-w-7xl mx-auto px-6 py-6">
@@ -85,6 +137,45 @@ export function Navigation() {
                 </div>
               </Link>
             ))}
+
+            {/* Mobile Auth Buttons */}
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              {member ? (
+                <div className="space-y-2">
+                  <div className="px-4 py-2 text-sm text-gray-600">
+                    👋 {member.name}님 환영합니다
+                  </div>
+                  <button
+                    onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium transition-all"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    로그아웃
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Link href="/login" className="flex-1">
+                    <button
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium transition-all"
+                    >
+                      <LogIn className="w-4 h-4" />
+                      로그인
+                    </button>
+                  </Link>
+                  <Link href="/register" className="flex-1">
+                    <button
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 text-white font-medium transition-all"
+                    >
+                      <UserPlus className="w-4 h-4" />
+                      회원가입
+                    </button>
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
