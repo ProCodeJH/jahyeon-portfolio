@@ -46,6 +46,83 @@ const ACCEPTED_FILE_TYPES = {
 const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2GB - Enterprise Grade
 const SMALL_FILE_THRESHOLD = 0; // 0MB - Always use Presigned URL (Vercel body limit 4.5MB issue)
 
+// YouTube URL Input Component with Save functionality
+function YouTubeUrlInput() {
+  const [url, setUrl] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const { data: savedUrl, isLoading } = trpc.settings.get.useQuery({ key: "youtube_video_url" });
+  const utils = trpc.useUtils();
+  const setSetting = trpc.settings.set.useMutation({
+    onSuccess: () => {
+      utils.settings.get.invalidate({ key: "youtube_video_url" });
+      toast.success("YouTube URL saved!");
+      setIsSaving(false);
+    },
+    onError: (e) => {
+      toast.error(e.message);
+      setIsSaving(false);
+    },
+  });
+
+  // Initialize local state when data loads
+  useState(() => {
+    if (savedUrl) setUrl(savedUrl);
+  });
+
+  const handleSave = () => {
+    setIsSaving(true);
+    setSetting.mutate({ key: "youtube_video_url", value: url, description: "Homepage YouTube video URL" });
+  };
+
+  // Extract video ID for preview
+  const getYouTubeVideoId = (videoUrl: string) => {
+    const match = videoUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    return match ? match[1] : null;
+  };
+
+  const videoId = getYouTubeVideoId(url || savedUrl || "");
+
+  if (isLoading) return <div className="text-white/50">Loading...</div>;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex gap-3">
+        <Input
+          value={url || savedUrl || ""}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="https://www.youtube.com/watch?v=..."
+          className="flex-1 bg-white/5 border-white/10 text-white"
+        />
+        <Button
+          onClick={handleSave}
+          disabled={isSaving || (!url && !savedUrl)}
+          className="bg-red-500 hover:bg-red-600 text-white px-6"
+        >
+          {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
+        </Button>
+      </div>
+
+      {/* Preview */}
+      {videoId && (
+        <div className="rounded-xl overflow-hidden border border-white/10">
+          <div className="aspect-video bg-black">
+            <iframe
+              src={`https://www.youtube.com/embed/${videoId}`}
+              title="YouTube video preview"
+              className="w-full h-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+          <p className="text-white/40 text-xs p-3 bg-white/[0.02]">
+            ✓ Video ID: {videoId}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Admin() {
   const { isAuthenticated, loading, logout } = useAuth();
   const utils = trpc.useUtils();
@@ -511,6 +588,7 @@ export default function Admin() {
             <TabsTrigger value="certifications" className="rounded-lg px-6 py-2.5 text-white/60 data-[state=active]:bg-emerald-500 data-[state=active]:text-black"><Award className="h-4 w-4 mr-2" />Certs ({certifications?.length || 0})</TabsTrigger>
             <TabsTrigger value="resources" className="rounded-lg px-6 py-2.5 text-white/60 data-[state=active]:bg-emerald-500 data-[state=active]:text-black"><Upload className="h-4 w-4 mr-2" />Resources ({resources?.length || 0})</TabsTrigger>
             <TabsTrigger value="analytics" className="rounded-lg px-6 py-2.5 text-white/60 data-[state=active]:bg-emerald-500 data-[state=active]:text-black"><BarChart3 className="h-4 w-4 mr-2" />Analytics</TabsTrigger>
+            <TabsTrigger value="settings" className="rounded-lg px-6 py-2.5 text-white/60 data-[state=active]:bg-emerald-500 data-[state=active]:text-black"><Video className="h-4 w-4 mr-2" />Settings</TabsTrigger>
           </TabsList>
 
           {/* PROJECTS TAB */}
@@ -894,6 +972,34 @@ export default function Admin() {
                 <div className="p-6 bg-white/[0.02] rounded-xl border border-white/5">
                   <h3 className="text-white/70 mb-4">Top Resources</h3>
                   <div className="space-y-3">{resources?.slice().sort((a, b) => (b.downloadCount || 0) - (a.downloadCount || 0)).slice(0, 5).map((r, i) => (<div key={r.id} className="flex items-center justify-between"><span className="text-white text-sm truncate">{i + 1}. {r.title}</span><span className="text-emerald-400 text-sm">{r.downloadCount || 0}</span></div>))}</div>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* SETTINGS TAB - YouTube URL etc. */}
+          <TabsContent value="settings">
+            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 space-y-8">
+              <div>
+                <h2 className="text-xl font-light text-white mb-2">Site Settings</h2>
+                <p className="text-white/50">Configure homepage video and other settings</p>
+              </div>
+
+              {/* YouTube Video Section */}
+              <div className="space-y-4 p-6 bg-white/[0.03] rounded-xl border border-white/10">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center">
+                    <Video className="h-6 w-6 text-red-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-white">Homepage YouTube Video</h3>
+                    <p className="text-white/50 text-sm">This video will be displayed on the main homepage after the hero section</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-white/70">YouTube Video URL</Label>
+                  <YouTubeUrlInput />
                 </div>
               </div>
             </div>

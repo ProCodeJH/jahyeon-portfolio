@@ -5,7 +5,8 @@ import {
   getAllProjects, getProjectById, createProject, updateProject, deleteProject,
   getAllCertifications, getCertificationById, createCertification, updateCertification, deleteCertification,
   getAllResources, getResourceById, createResource, updateResource, deleteResource, incrementResourceDownload,
-  getAllFolders, getFolderById, createFolder, updateFolder, deleteFolder
+  getAllFolders, getFolderById, createFolder, updateFolder, deleteFolder,
+  getSetting, upsertSetting, getAllSettings
 } from "./db";
 import { projects, certifications, resources, users, sessions } from "../drizzle/schema";
 import { eq, sql, and, gte } from "drizzle-orm";
@@ -332,6 +333,27 @@ export const appRouter = t.router({
     }),
     toggle: protectedProcedure.input(z.object({ resourceId: z.number() })).mutation(async () => {
       return { success: true, liked: false };
+    }),
+  }),
+
+  // ============================================
+  // ⚙️ Settings (YouTube URL, etc.)
+  // ============================================
+  settings: t.router({
+    get: publicProcedure.input(z.object({ key: z.string() })).query(async ({ input }) => {
+      const setting = await getSetting(input.key);
+      return setting?.value || null;
+    }),
+    list: publicProcedure.query(async () => {
+      return getAllSettings();
+    }),
+    set: protectedProcedure.input(z.object({
+      key: z.string(),
+      value: z.string(),
+      description: z.string().optional(),
+    })).mutation(async ({ input }) => {
+      await upsertSetting(input.key, input.value, input.description);
+      return { success: true };
     }),
   }),
 

@@ -17,6 +17,64 @@ import {
   PerplexityLogo, GrokLogo, AntigravityLogo, JulesLogo
 } from "@/components/icons/AILogos";
 
+// YouTube Video Section Component
+function YouTubeVideoSection() {
+  const { data: youtubeUrl, isLoading } = trpc.settings.get.useQuery({ key: "youtube_video_url" });
+
+  // Extract video ID from URL
+  const getYouTubeVideoId = (url: string | null | undefined) => {
+    if (!url) return null;
+    const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    return match ? match[1] : null;
+  };
+
+  const videoId = getYouTubeVideoId(youtubeUrl);
+
+  // Don't render if no video URL configured
+  if (isLoading || !videoId) return null;
+
+  return (
+    <section className="py-24 md:py-32 px-4 md:px-8 relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute top-10 right-20 w-72 h-72 bg-gradient-to-r from-red-500/10 to-pink-600/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-10 left-20 w-64 h-64 bg-gradient-to-r from-purple-500/10 to-blue-600/10 rounded-full blur-3xl" />
+
+      <div className="max-w-5xl mx-auto relative z-10">
+        <AnimatedSection>
+          {/* Section Header */}
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-red-500/10 border border-red-500/30 backdrop-blur-xl mb-6">
+              <Play className="w-5 h-5 text-red-400" />
+              <span className="text-sm font-bold text-red-400 tracking-wider uppercase">Featured Video</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-4 tracking-tight">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-red-400 via-pink-400 to-purple-400">
+                Watch Now
+              </span>
+            </h2>
+          </div>
+
+          {/* Video Container */}
+          <div className="relative rounded-3xl overflow-hidden border-2 border-white/10 shadow-2xl shadow-purple-500/10 group">
+            {/* Red Glow Effect */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-red-500/30 via-pink-500/30 to-purple-500/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+            <div className="relative aspect-video bg-[#0a0a0a]">
+              <iframe
+                src={`https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`}
+                title="Featured YouTube Video"
+                className="w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </AnimatedSection>
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   const { data: projects } = trpc.projects.list.useQuery();
   const { data: certifications, isLoading: certificationsLoading } = trpc.certifications.list.useQuery();
@@ -114,6 +172,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* 🎬 YOUTUBE VIDEO SECTION */}
+      <YouTubeVideoSection />
 
       {/* 🎯 EXPERTISE Section - Large Image Cards */}
       <section className="py-24 md:py-40 lg:py-48 px-4 md:px-8 relative overflow-hidden">
