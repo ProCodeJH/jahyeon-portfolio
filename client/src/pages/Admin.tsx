@@ -187,14 +187,17 @@ export default function Admin() {
   const [showEditResourceDialog, setShowEditResourceDialog] = useState(false);
   const [showCreateFolderDialog, setShowCreateFolderDialog] = useState(false);
   const [showRenameFolderDialog, setShowRenameFolderDialog] = useState(false);
+  const [showMoveFolderDialog, setShowMoveFolderDialog] = useState(false);
   const [editingResource, setEditingResource] = useState<any>(null);
   const [renamingFolder, setRenamingFolder] = useState<{ category: ResourceCategory, oldName: string, newName: string } | null>(null);
+  const [movingFolder, setMovingFolder] = useState<{ id: number, name: string, category: ResourceCategory, currentParentId?: number | null } | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [newFolderName, setNewFolderName] = useState("");
   const [parentFolderName, setParentFolderName] = useState("__root__");
   const [selectedCategory, setSelectedCategory] = useState<ResourceCategory>("presentation");
+  const [moveTargetParentId, setMoveTargetParentId] = useState<number | null>(null);
 
   const [projectForm, setProjectForm] = useState({
     title: "", description: "", technologies: "", category: "c_lang" as ProjectCategory,
@@ -860,9 +863,32 @@ export default function Admin() {
                                   handleRenameFolder(selectedCategory, folder.name);
                                 }}
                                 className="h-7 w-7 p-0 text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/10"
+                                title="Rename"
                               >
                                 <Pencil className="h-3 w-3" />
                               </Button>
+                              {/* Move Folder Button */}
+                              {(folder as any).id && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setMovingFolder({
+                                      id: (folder as any).id,
+                                      name: folder.name,
+                                      category: selectedCategory,
+                                      currentParentId: (folder as any).parentId
+                                    });
+                                    setMoveTargetParentId((folder as any).parentId || null);
+                                    setShowMoveFolderDialog(true);
+                                  }}
+                                  className="h-7 w-7 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
+                                  title="Move to folder"
+                                >
+                                  <FolderInput className="h-3 w-3" />
+                                </Button>
+                              )}
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -871,6 +897,7 @@ export default function Admin() {
                                   handleDeleteFolder(selectedCategory, folder.name);
                                 }}
                                 className="h-7 w-7 p-0 text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                                title="Delete"
                               >
                                 <Trash2 className="h-3 w-3" />
                               </Button>
@@ -1437,6 +1464,100 @@ export default function Admin() {
                 onClick={() => {
                   setShowRenameFolderDialog(false);
                   setRenamingFolder(null);
+                }}
+                className="border-white/20 bg-transparent text-white hover:bg-white/10"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* MOVE FOLDER DIALOG */}
+      <Dialog open={showMoveFolderDialog} onOpenChange={setShowMoveFolderDialog}>
+        <DialogContent className="max-w-md bg-[#111] border-white/10 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-light">Move Folder</DialogTitle>
+            <DialogDescription className="text-white/50">
+              Move "{movingFolder?.name}" into another folder
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label className="text-white/70">Current Folder</Label>
+              <div className="mt-1.5 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white/50">
+                📁 {movingFolder?.name}
+              </div>
+            </div>
+
+            <div>
+              <Label className="text-white/70">Move to *</Label>
+              <Select
+                value={moveTargetParentId === null ? "__root__" : String(moveTargetParentId)}
+                onValueChange={(v) => setMoveTargetParentId(v === "__root__" ? null : Number(v))}
+              >
+                <SelectTrigger className="mt-1.5 bg-white/5 border-white/10 text-white">
+                  <SelectValue placeholder="Select parent folder" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#111] border-white/10">
+                  <SelectItem value="__root__" className="text-white hover:bg-white/10">
+                    📁 Root (No parent folder)
+                  </SelectItem>
+                  {folders?.filter(f =>
+                    f.category === movingFolder?.category &&
+                    f.id !== movingFolder?.id &&
+                    f.parentId !== movingFolder?.id // Prevent circular reference
+                  ).map(f => (
+                    <SelectItem key={f.id} value={String(f.id)} className="text-white hover:bg-white/10">
+                      📂 {f.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-white/40 text-xs mt-1">
+                💡 Select a folder to move "{movingFolder?.name}" into it as a subfolder
+              </p>
+            </div>
+
+            {/* Preview */}
+            <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+              <p className="text-white/50 text-xs mb-1">📍 After move:</p>
+              <p className="text-blue-400 font-mono text-sm">
+                {moveTargetParentId
+                  ? `📂 ${folders?.find(f => f.id === moveTargetParentId)?.name} / 📁 ${movingFolder?.name}`
+                  : `📁 ${movingFolder?.name} (root level)`
+                }
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                onClick={async () => {
+                  if (!movingFolder) return;
+                  try {
+                    await updateFolder.mutateAsync({
+                      id: movingFolder.id,
+                      parentId: moveTargetParentId,
+                    });
+                    toast.success(`Folder "${movingFolder.name}" moved successfully`);
+                    setShowMoveFolderDialog(false);
+                    setMovingFolder(null);
+                  } catch (error) {
+                    toast.error("Failed to move folder");
+                  }
+                }}
+                disabled={updateFolder.isPending}
+                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white rounded-xl"
+              >
+                {updateFolder.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                Move Folder
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowMoveFolderDialog(false);
+                  setMovingFolder(null);
                 }}
                 className="border-white/20 bg-transparent text-white hover:bg-white/10"
               >

@@ -1,7 +1,13 @@
-fix: Remove category badge from project cards
+feat: Add Move Folder feature for nesting existing folders
 
-REMOVED:
-- Category badge (C_LANG etc.) from Home page project cards
-- Category badge from Admin project list
+NEW FEATURE - Move Folder:
+- Blue folder move button (📂→) in folder action bar
+- Move Folder dialog with parent folder selector
+- Can move any existing folder into another folder
+- Preview shows folder structure after move
+- Prevents circular references (can't move parent into child)
 
-Project cards now show only project number (#1, #2, etc.) and view count.
+UI:
+- Button appears only for folders saved in DB (with id)
+- Drop-down lists all folders in same category except self
+- Root option to move folder back to top level
