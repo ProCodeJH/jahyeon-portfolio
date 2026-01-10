@@ -6,9 +6,11 @@ import {
   getAllCertifications, getCertificationById, createCertification, updateCertification, deleteCertification,
   getAllResources, getResourceById, createResource, updateResource, deleteResource, incrementResourceDownload,
   getAllFolders, getFolderById, createFolder, updateFolder, deleteFolder,
-  getSetting, upsertSetting, getAllSettings
+  getSetting, upsertSetting, getAllSettings,
+  getMemberByPhone, getMemberById, createMember, updateMember, updateMemberLastLogin,
+  createSmsVerification, verifySmsCode
 } from "./db";
-import { projects, certifications, resources, users, sessions } from "../drizzle/schema";
+import { projects, certifications, resources, users, sessions, members } from "../drizzle/schema";
 import { eq, sql, and, gte } from "drizzle-orm";
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
@@ -357,6 +359,149 @@ export const appRouter = t.router({
     }),
   }),
 
+  // ============================================
+  // 👥 Members (Registration with SMS verification)
+  // ============================================
+  members: t.router({
+    // Send SMS verification code
+    sendSMS: publicProcedure.input(z.object({
+      phone: z.string().min(10).max(15),
+    })).mutation(async ({ input }) => {
+      // Generate 6-digit code
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+      // Store verification code in DB
+      await createSmsVerification(input.phone, code);
+
+      // TODO: Integrate with actual SMS provider (NHN Cloud Toast, Aligo, etc.)
+      // For now, we'll log the code for testing - REMOVE IN PRODUCTION!
+      console.log(`📱 SMS Code for ${input.phone}: ${code}`);
+
+      // In production, send SMS via API:
+      // await sendSmsViaProvider(input.phone, `[코딩쏙학원] 인증번호: ${code}`);
+
+      return { success: true, message: "인증번호가 발송되었습니다" };
+    }),
+
+    // Verify SMS code
+    verifySMS: publicProcedure.input(z.object({
+      phone: z.string(),
+      code: z.string().length(6),
+    })).mutation(async ({ input }) => {
+      const isValid = await verifySmsCode(input.phone, input.code);
+      if (!isValid) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "인증번호가 일치하지 않거나 만료되었습니다" });
+      }
+      return { success: true, message: "인증이 완료되었습니다" };
+    }),
+
+    // Register new member
+    register: publicProcedure.input(z.object({
+      name: z.string().min(2).max(100),
+      age: z.number().min(5).max(150),
+      phone: z.string().min(10).max(15),
+      password: z.string().min(6),
+      academyName: z.string().optional(),
+    })).mutation(async ({ input }) => {
+      // Check if phone already exists
+      const existing = await getMemberByPhone(input.phone);
+      if (existing) {
+        throw new TRPCError({ code: "CONFLICT", message: "이미 가입된 번호입니다" });
+      }
+
+      // Simple password hashing (use bcrypt in production)
+      const passwordHash = Buffer.from(input.password).toString("base64");
+
+      const member = await createMember({
+        name: input.name,
+        age: input.age,
+        phone: input.phone,
+        passwordHash,
+        academyName: input.academyName || null,
+        phoneVerified: true, // Assume verified if they passed SMS check
+      });
+
+      return {
+        success: true,
+        member: {
+          id: member.id,
+          name: member.name,
+          isStudent: member.isStudent,
+        },
+      };
+    }),
+
+    // Login
+    login: publicProcedure.input(z.object({
+      phone: z.string(),
+      password: z.string(),
+    })).mutation(async ({ input }) => {
+      const member = await getMemberByPhone(input.phone);
+      if (!member) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "가입되지 않은 번호입니다" });
+      }
+
+      // Simple password check (use bcrypt in production)
+      const passwordHash = Buffer.from(input.password).toString("base64");
+      if (member.passwordHash !== passwordHash) {
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "비밀번호가 일치하지 않습니다" });
+      }
+
+      // Update last login
+      await updateMemberLastLogin(member.id);
+
+      // Generate session token (simple for now - use JWT in production)
+      const token = `member_${member.id}_${Date.now()}`;
+
+      return {
+        success: true,
+        token,
+        member: {
+          id: member.id,
+          name: member.name,
+          isStudent: member.isStudent,
+          academyName: member.academyName,
+        },
+      };
+    }),
+
+    // Get current member info
+    me: publicProcedure.input(z.object({
+      memberId: z.number(),
+    })).query(async ({ input }) => {
+      const member = await getMemberById(input.memberId);
+      if (!member) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "회원 정보를 찾을 수 없습니다" });
+      }
+      return {
+        id: member.id,
+        name: member.name,
+        age: member.age,
+        phone: member.phone,
+        academyName: member.academyName,
+        isStudent: member.isStudent,
+        createdAt: member.createdAt,
+      };
+    }),
+
+    // Update profile (academy name)
+    updateProfile: publicProcedure.input(z.object({
+      memberId: z.number(),
+      academyName: z.string().optional(),
+    })).mutation(async ({ input }) => {
+      const updated = await updateMember(input.memberId, {
+        academyName: input.academyName || null,
+      });
+      return {
+        success: true,
+        isStudent: updated?.isStudent,
+        message: updated?.isStudent
+          ? "🎉 코딩쏙학원 학생으로 인증되었습니다! 수업자료를 다운로드할 수 있습니다."
+          : "프로필이 업데이트되었습니다.",
+      };
+    }),
+  }),
+
   comments: t.router({
     list: publicProcedure.input(z.object({ resourceId: z.number() })).query(async () => {
       return [];
@@ -371,3 +516,4 @@ export const appRouter = t.router({
 });
 
 export type AppRouter = typeof appRouter;
+

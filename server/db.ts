@@ -7,7 +7,9 @@ import {
   certifications, InsertCertification,
   resources, InsertResource,
   folders, InsertFolder,
-  settings, InsertSetting
+  settings, InsertSetting,
+  members, InsertMember,
+  smsVerifications, InsertSmsVerification
 } from "../drizzle/schema";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -265,3 +267,90 @@ export async function deleteSetting(key: string) {
   await db.delete(settings).where(eq(settings.key, key));
 }
 
+// Members queries
+export async function getMemberByPhone(phone: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(members).where(eq(members.phone, phone)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getMemberById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(members).where(eq(members.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createMember(data: InsertMember) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Check if academyName === "코딩쏙학원" for student status
+  const isStudent = data.academyName === "코딩쏙학원";
+
+  const result = await db.insert(members).values({
+    ...data,
+    isStudent,
+  }).returning();
+  return result[0];
+}
+
+export async function updateMember(id: number, data: Partial<InsertMember>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // If academyName is being updated, recalculate isStudent
+  const updateData: Record<string, unknown> = { ...data, updatedAt: new Date() };
+  if (data.academyName !== undefined) {
+    updateData.isStudent = data.academyName === "코딩쏙학원";
+  }
+
+  await db.update(members).set(updateData).where(eq(members.id, id));
+  return getMemberById(id);
+}
+
+export async function updateMemberLastLogin(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(members).set({ lastLoginAt: new Date() }).where(eq(members.id, id));
+}
+
+// SMS Verification queries
+export async function createSmsVerification(phone: string, code: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Delete any existing unverified codes for this phone
+  await db.delete(smsVerifications).where(eq(smsVerifications.phone, phone));
+
+  // Create new verification with 5 minute expiry
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+  await db.insert(smsVerifications).values({ phone, code, expiresAt });
+}
+
+export async function verifySmsCode(phone: string, code: string): Promise<boolean> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.select().from(smsVerifications)
+    .where(eq(smsVerifications.phone, phone))
+    .limit(1);
+
+  if (result.length === 0) return false;
+
+  const verification = result[0];
+
+  // Check if expired
+  if (new Date() > verification.expiresAt) {
+    await db.delete(smsVerifications).where(eq(smsVerifications.id, verification.id));
+    return false;
+  }
+
+  // Check if code matches
+  if (verification.code !== code) return false;
+
+  // Mark as verified and delete
+  await db.delete(smsVerifications).where(eq(smsVerifications.id, verification.id));
+  return true;
+}

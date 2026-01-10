@@ -1,4 +1,4 @@
-import { pgTable, pgEnum, serial, text, timestamp, varchar, integer } from "drizzle-orm/pg-core";
+import { pgTable, pgEnum, serial, text, timestamp, varchar, integer, boolean } from "drizzle-orm/pg-core";
 
 // Enums
 export const roleEnum = pgEnum("role", ["user", "admin"]);
@@ -141,3 +141,38 @@ export const settings = pgTable("settings", {
 export type Setting = typeof settings.$inferSelect;
 export type InsertSetting = typeof settings.$inferInsert;
 
+/**
+ * Members table - stores registered users with phone verification
+ * is_student = true when academy_name === "코딩쏙학원"
+ */
+export const members = pgTable("members", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  age: integer("age").notNull(),
+  phone: varchar("phone", { length: 20 }).notNull().unique(),
+  phoneVerified: boolean("phone_verified").default(false).notNull(),
+  academyName: varchar("academy_name", { length: 100 }),
+  isStudent: boolean("is_student").default(false).notNull(), // true if academyName === "코딩쏙학원"
+  passwordHash: text("password_hash").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  lastLoginAt: timestamp("last_login_at"),
+});
+
+export type Member = typeof members.$inferSelect;
+export type InsertMember = typeof members.$inferInsert;
+
+/**
+ * SMS Verifications table - stores temporary verification codes
+ */
+export const smsVerifications = pgTable("sms_verifications", {
+  id: serial("id").primaryKey(),
+  phone: varchar("phone", { length: 20 }).notNull(),
+  code: varchar("code", { length: 6 }).notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  verified: boolean("verified").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type SmsVerification = typeof smsVerifications.$inferSelect;
+export type InsertSmsVerification = typeof smsVerifications.$inferInsert;

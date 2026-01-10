@@ -1,0 +1,7 @@
+feat: Add member registration system with SMS verification
+
+- Add members and sms_verifications tables to schema
+- Add member CRUD and SMS verification functions to db.ts
+- Add members router with sendSMS, verifySMS, register, login, me, updateProfile
+- Student verification: academyName === "코딩쏙학원" grants resource access
+- Fix vite.config.ts externals for xterm/webcontainer build issues
