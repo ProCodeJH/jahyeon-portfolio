@@ -87,24 +87,6 @@ function YouTubeVideoSection() {
 
             {/* Main Container */}
             <div className="relative rounded-[28px] overflow-hidden bg-[#0a0a0a]">
-              {/* Corner Decorations */}
-              <div className="absolute top-0 left-0 w-32 h-32 pointer-events-none z-20">
-                <div className="absolute top-4 left-4 w-8 h-[2px] bg-gradient-to-r from-red-400 to-transparent" />
-                <div className="absolute top-4 left-4 w-[2px] h-8 bg-gradient-to-b from-red-400 to-transparent" />
-              </div>
-              <div className="absolute top-0 right-0 w-32 h-32 pointer-events-none z-20">
-                <div className="absolute top-4 right-4 w-8 h-[2px] bg-gradient-to-l from-pink-400 to-transparent" />
-                <div className="absolute top-4 right-4 w-[2px] h-8 bg-gradient-to-b from-pink-400 to-transparent" />
-              </div>
-              <div className="absolute bottom-0 left-0 w-32 h-32 pointer-events-none z-20">
-                <div className="absolute bottom-4 left-4 w-8 h-[2px] bg-gradient-to-r from-purple-400 to-transparent" />
-                <div className="absolute bottom-4 left-4 w-[2px] h-8 bg-gradient-to-t from-purple-400 to-transparent" />
-              </div>
-              <div className="absolute bottom-0 right-0 w-32 h-32 pointer-events-none z-20">
-                <div className="absolute bottom-4 right-4 w-8 h-[2px] bg-gradient-to-l from-blue-400 to-transparent" />
-                <div className="absolute bottom-4 right-4 w-[2px] h-8 bg-gradient-to-t from-blue-400 to-transparent" />
-              </div>
-
               {/* Hover Glow Overlay */}
               <div className="absolute inset-0 bg-gradient-to-r from-red-500/0 via-pink-500/10 to-purple-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-10" />
 
@@ -128,14 +110,6 @@ function YouTubeVideoSection() {
                   </div>
                 )}
               </div>
-            </div>
-
-            {/* Floating Labels */}
-            <div className="absolute -top-4 left-8 px-4 py-2 rounded-full bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold shadow-lg shadow-red-500/30 z-30">
-              ✨ Premium Content
-            </div>
-            <div className="absolute -bottom-4 right-8 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 text-white text-xs font-bold shadow-lg shadow-purple-500/30 z-30">
-              🎬 HD Quality
             </div>
           </div>
         </AnimatedSection>

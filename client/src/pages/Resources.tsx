@@ -301,6 +301,7 @@ function VideoModal({ resource, onClose }: { resource: any; onClose: () => void 
 
 export default function Resources() {
   const { data: resources, isLoading } = trpc.resources.list.useQuery();
+  const { data: folders } = trpc.folders.list.useQuery();
   const incrementDownload = trpc.resources.incrementDownload.useMutation();
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedVideo, setSelectedVideo] = useState<any>(null);
@@ -323,14 +324,86 @@ export default function Resources() {
   const isStudent = member?.isStudent === true;
 
   const filteredResources = resources?.filter(r => activeCategory === "all" || r.category === activeCategory);
+  const filteredFolders = folders?.filter(f => activeCategory === "all" || f.category === activeCategory);
 
-  // Group resources by folder/subcategory
-  const groupedResources = filteredResources?.reduce((acc, resource) => {
-    const folder = resource.subcategory || "📄 Uncategorized";
-    if (!acc[folder]) acc[folder] = [];
-    acc[folder].push(resource);
-    return acc;
-  }, {} as Record<string, typeof filteredResources>);
+  // Build folder tree with nested structure
+  interface FolderNode {
+    id?: number;
+    name: string;
+    items: any[];
+    children: FolderNode[];
+    depth: number;
+    parentId?: number | null;
+  }
+
+  const buildFolderTree = (): FolderNode[] => {
+    const folderById = new Map<number, FolderNode>();
+    const rootFolders: FolderNode[] = [];
+
+    // Create all folder nodes
+    filteredFolders?.forEach(folder => {
+      const node: FolderNode = {
+        id: folder.id,
+        name: folder.name,
+        items: [],
+        children: [],
+        depth: 0,
+        parentId: folder.parentId
+      };
+      folderById.set(folder.id, node);
+    });
+
+    // Build tree structure
+    filteredFolders?.forEach(folder => {
+      const node = folderById.get(folder.id)!;
+      if (folder.parentId && folderById.has(folder.parentId)) {
+        const parent = folderById.get(folder.parentId)!;
+        parent.children.push(node);
+        node.depth = parent.depth + 1;
+      } else {
+        rootFolders.push(node);
+      }
+    });
+
+    // Add resources to folders by subcategory name
+    filteredResources?.forEach(resource => {
+      const folderName = resource.subcategory;
+      if (folderName) {
+        const folder = Array.from(folderById.values()).find(f => f.name === folderName);
+        if (folder) {
+          folder.items.push(resource);
+        }
+      }
+    });
+
+    // Add uncategorized folder
+    const uncategorizedItems = filteredResources?.filter(r => !r.subcategory) || [];
+    if (uncategorizedItems.length > 0 || rootFolders.length === 0) {
+      rootFolders.push({
+        name: "📄 Uncategorized",
+        items: uncategorizedItems,
+        children: [],
+        depth: 0
+      });
+    }
+
+    // Flatten tree for display
+    const flattenTree = (nodes: FolderNode[], depth = 0): FolderNode[] => {
+      const result: FolderNode[] = [];
+      nodes.forEach(node => {
+        node.depth = depth;
+        result.push(node);
+        if (node.children.length > 0) {
+          result.push(...flattenTree(node.children, depth + 1));
+        }
+      });
+      return result;
+    };
+
+    return flattenTree(rootFolders);
+  };
+
+  const folderTree = buildFolderTree();
 
   const toggleFolder = (folder: string) => {
     const newExpanded = new Set(expandedFolders);
@@ -498,28 +571,41 @@ export default function Resources() {
               <h3 className="text-2xl font-semibold mb-2 text-gray-900">No resources found</h3>
             </div>
           ) : (
-            <div className="space-y-8">
-              {Object.entries(groupedResources || {}).map(([folder, folderResources]) => {
-                const isExpanded = expandedFolders.has(folder);
-                const resourceCount = folderResources?.length || 0;
+            <div className="space-y-6">
+              {folderTree.map((folder) => {
+                const folderKey = folder.id ? `folder_${folder.id}` : folder.name;
+                const isExpanded = expandedFolders.has(folderKey);
+                const resourceCount = folder.items.length;
+                const hasSubfolders = folder.children.length > 0;
+                const isSubfolder = folder.depth > 0;
 
                 return (
-                  <div key={folder} className="bg-white/60 backdrop-blur-xl border border-gray-200/50 rounded-3xl overflow-hidden shadow-lg">
+                  <div
+                    key={folderKey}
+                    className={`bg-white/60 backdrop-blur-xl border border-gray-200/50 rounded-3xl overflow-hidden shadow-lg ${isSubfolder ? 'ml-6 md:ml-10' : ''}`}
+                  >
                     {/* Folder Header */}
                     <button
-                      onClick={() => toggleFolder(folder)}
+                      onClick={() => toggleFolder(folderKey)}
                       className="w-full p-5 md:p-6 flex items-center justify-between hover:bg-white/80 transition-all group"
                     >
                       <div className="flex items-center gap-3 md:gap-4">
-                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shadow-lg">
+                        {isSubfolder && (
+                          <span className="text-purple-400 text-xl">↳</span>
+                        )}
+                        <div className={`w-12 h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center shadow-lg ${isSubfolder
+                          ? 'bg-gradient-to-br from-blue-500 to-cyan-500'
+                          : 'bg-gradient-to-br from-purple-500 to-blue-500'
+                          }`}>
                           <FolderOpen className="w-6 h-6 md:w-7 md:h-7 text-white" />
                         </div>
                         <div className="text-left">
                           <h3 className="text-xl md:text-2xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors">
-                            {folder.startsWith('📄') ? folder : `📁 ${folder}`}
+                            {folder.name.startsWith('📄') ? folder.name : (isSubfolder ? `📂 ${folder.name}` : `📁 ${folder.name}`)}
                           </h3>
                           <p className="text-gray-500 text-sm md:text-base">
                             {resourceCount} {resourceCount === 1 ? 'file' : 'files'}
+                            {hasSubfolders && `, ${folder.children.length} subfolder${folder.children.length > 1 ? 's' : ''}`}
                           </p>
                         </div>
                       </div>
@@ -536,7 +622,7 @@ export default function Resources() {
                     {isExpanded && (
                       <div className="p-4 md:p-6 pt-0">
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-                          {folderResources?.map((resource, index) => {
+                          {folder.items.map((resource: any, index: number) => {
                             const thumbnail = resource.thumbnailUrl || (isYouTubeUrl(resource.fileUrl) ? getYouTubeThumbnail(resource.fileUrl) : null);
                             const isVideo = isYouTubeUrl(resource.fileUrl) || resource.mimeType?.startsWith('video/');
                             const isPPTFile = isPPT(resource.mimeType || '', resource.fileName || '');
