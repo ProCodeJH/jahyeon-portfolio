@@ -19,8 +19,15 @@ import {
 
 // YouTube Video Section Component
 function YouTubeVideoSection() {
-  // Fetch YouTube URL from database settings
-  const { data: youtubeUrl, isLoading } = trpc.settings.get.useQuery({ key: "youtube_video_url" });
+  // Try to fetch YouTube URL from database, fallback to hardcoded if API fails
+  const { data: youtubeUrl, isLoading, isError } = trpc.settings.get.useQuery(
+    { key: "youtube_video_url" },
+    { retry: false }
+  );
+
+  // Fallback URL when API fails or no value in DB
+  const fallbackUrl = "https://www.youtube.com/watch?v=X_idSUmKSBw";
+  const finalUrl = youtubeUrl || fallbackUrl;
 
   // Extract video ID from URL
   const getYouTubeVideoId = (url: string | null | undefined) => {
@@ -29,10 +36,10 @@ function YouTubeVideoSection() {
     return match ? match[1] : null;
   };
 
-  const videoId = getYouTubeVideoId(youtubeUrl);
+  const videoId = getYouTubeVideoId(finalUrl);
 
-  // Don't render if loading or no video URL configured
-  if (isLoading || !videoId) return null;
+  // Don't render only while loading (fallback ensures video always shows)
+  if (isLoading) return null;
 
   return (
     <section className="py-24 md:py-32 px-4 md:px-8 relative overflow-hidden">
