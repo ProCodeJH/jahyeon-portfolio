@@ -1,16 +1,15 @@
-fix: Add secret access code for student verification
+fix: Add members API routes to Vercel serverless function
 
-SECURITY IMPROVEMENTS:
-- Replace "학원명" with "접근 코드" (access code) system
-- Only users with correct code become students with download access
-- Default code: "코딩쏙2024" (can be changed in Admin settings)
-- Admin can set custom code via settings key "student_access_code"
+ROOT CAUSE OF 404 ERROR:
+- api/index.ts (Vercel serverless) lacked members routes
+- server/routers.ts has them but isn't used in production Vercel
 
-UI CHANGES:
-- Removed "🔥 Firebase 무료 인증 (월 10,000건)" text
-- Changed input from "학원명" to "학원 접근 코드"
-- Updated help text to indicate code comes from teacher
+ADDED:
+- members table schema in api/index.ts
+- members.register endpoint with access code verification
+- members.login endpoint with password check
 
-BACKEND:
-- Register checks access code from settings table
-- isStudent is set based on code match, not academy name
+ACCESS CODE SYSTEM:
+- Default code: "코딩쏙2024"
+- Can be changed via settings key "student_access_code"
+- Only users with correct code become students

@@ -129,6 +129,20 @@ const settings = pgTable("settings", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+const members = pgTable("members", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  age: integer("age").notNull(),
+  phone: varchar("phone", { length: 20 }).notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  academyName: varchar("academy_name", { length: 100 }),
+  isStudent: boolean("is_student").default(false),
+  phoneVerified: boolean("phone_verified").default(false),
+  lastLoginAt: timestamp("last_login_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // ============ DATABASE ============
 function getDb() {
   if (!process.env.DATABASE_URL) return null;
@@ -772,6 +786,76 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // ============ SYSTEM ============
         case "system.health": {
           return res.json({ result: { data: { status: "ok", timestamp: new Date().toISOString() } } });
+        }
+
+        // ============ MEMBERS ============
+        case "members.register": {
+          // Check if phone already exists
+          const existingMember = await db.select().from(members).where(eq(members.phone, input.phone)).limit(1);
+          if (existingMember[0]) {
+            return res.status(409).json({ error: { message: "이미 가입된 번호입니다" } });
+          }
+
+          // Check access code from settings
+          const accessCodeSetting = await db.select().from(settings).where(eq(settings.key, "student_access_code")).limit(1);
+          const validAccessCode = accessCodeSetting[0]?.value || "코딩쏙2024";
+          const isValidStudent = input.academyName === validAccessCode;
+
+          // Simple password hashing
+          const passwordHash = Buffer.from(input.password).toString("base64");
+
+          const result = await db.insert(members).values({
+            name: input.name,
+            age: input.age,
+            phone: input.phone,
+            passwordHash,
+            academyName: isValidStudent ? "코딩쏙학원" : null,
+            isStudent: isValidStudent,
+            phoneVerified: true,
+          }).returning();
+
+          return res.json({
+            result: {
+              data: {
+                success: true,
+                member: {
+                  id: result[0].id,
+                  name: result[0].name,
+                  isStudent: isValidStudent,
+                },
+              }
+            }
+          });
+        }
+
+        case "members.login": {
+          const member = await db.select().from(members).where(eq(members.phone, input.phone)).limit(1);
+          if (!member[0]) {
+            return res.status(404).json({ error: { message: "가입되지 않은 번호입니다" } });
+          }
+
+          const passwordHash = Buffer.from(input.password).toString("base64");
+          if (member[0].passwordHash !== passwordHash) {
+            return res.status(401).json({ error: { message: "비밀번호가 일치하지 않습니다" } });
+          }
+
+          // Update last login
+          await db.update(members).set({ lastLoginAt: new Date() }).where(eq(members.id, member[0].id));
+
+          return res.json({
+            result: {
+              data: {
+                success: true,
+                token: `member_${member[0].id}_${Date.now()}`,
+                member: {
+                  id: member[0].id,
+                  name: member[0].name,
+                  isStudent: member[0].isStudent,
+                  academyName: member[0].academyName,
+                },
+              }
+            }
+          });
         }
 
         default:
