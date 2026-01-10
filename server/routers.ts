@@ -409,13 +409,18 @@ export const appRouter = t.router({
       age: z.number().min(5).max(150),
       phone: z.string().min(10).max(15),
       password: z.string().min(6),
-      academyName: z.string().optional(),
+      academyName: z.string().optional(), // Actually the access code
     })).mutation(async ({ input }) => {
       // Check if phone already exists
       const existing = await getMemberByPhone(input.phone);
       if (existing) {
         throw new TRPCError({ code: "CONFLICT", message: "이미 가입된 번호입니다" });
       }
+
+      // Check access code from settings
+      const accessCodeSetting = await getSetting("student_access_code");
+      const validAccessCode = accessCodeSetting?.value || "코딩쏙2024"; // Default code
+      const isValidStudent = input.academyName === validAccessCode;
 
       // Simple password hashing (use bcrypt in production)
       const passwordHash = Buffer.from(input.password).toString("base64");
@@ -425,8 +430,9 @@ export const appRouter = t.router({
         age: input.age,
         phone: input.phone,
         passwordHash,
-        academyName: input.academyName || null,
-        phoneVerified: true, // Assume verified if they passed SMS check
+        academyName: isValidStudent ? "코딩쏙학원" : null,
+        phoneVerified: true,
+        isStudent: isValidStudent, // Set based on access code
       });
 
       return {
@@ -434,7 +440,7 @@ export const appRouter = t.router({
         member: {
           id: member.id,
           name: member.name,
-          isStudent: member.isStudent,
+          isStudent: isValidStudent,
         },
       };
     }),

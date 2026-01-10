@@ -228,8 +228,8 @@ export default function Register() {
                     {[0, 1, 2, 3].map((i) => (
                         <div key={i} className="flex items-center gap-2">
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${getStepNumber() === i ? "bg-emerald-500 text-black" :
-                                    getStepNumber() > i ? "bg-emerald-500/30 text-emerald-400" :
-                                        "bg-white/10 text-white/40"
+                                getStepNumber() > i ? "bg-emerald-500/30 text-emerald-400" :
+                                    "bg-white/10 text-white/40"
                                 }`}>
                                 {getStepNumber() > i ? <CheckCircle className="w-4 h-4" /> : i + 1}
                             </div>
@@ -258,8 +258,8 @@ export default function Register() {
                                 <button
                                     onClick={() => { setAuthMethod("phone"); setStep("input"); }}
                                     className={`w-full p-4 rounded-xl border transition-all flex items-center gap-4 ${authMethod === "phone"
-                                            ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-400"
-                                            : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10"
+                                        ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-400"
+                                        : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10"
                                         }`}
                                 >
                                     <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
@@ -274,8 +274,8 @@ export default function Register() {
                                 <button
                                     onClick={() => { setAuthMethod("email"); setStep("input"); }}
                                     className={`w-full p-4 rounded-xl border transition-all flex items-center gap-4 ${authMethod === "email"
-                                            ? "bg-purple-500/10 border-purple-500/50 text-purple-400"
-                                            : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10"
+                                        ? "bg-purple-500/10 border-purple-500/50 text-purple-400"
+                                        : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10"
                                         }`}
                                 >
                                     <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center">
@@ -288,9 +288,7 @@ export default function Register() {
                                 </button>
                             </div>
 
-                            <p className="text-white/30 text-xs text-center">
-                                🔥 Firebase 무료 인증 (월 10,000건)
-                            </p>
+
                         </>
                     )}
 
@@ -498,16 +496,16 @@ export default function Register() {
                             <div>
                                 <Label className="text-white/70 flex items-center gap-2">
                                     <School className="w-4 h-4" />
-                                    학원명 (선택)
+                                    학원 접근 코드 (선택)
                                 </Label>
                                 <Input
                                     value={form.academyName}
                                     onChange={(e) => setForm({ ...form, academyName: e.target.value })}
-                                    placeholder="코딩쏙학원"
+                                    placeholder="선생님께 받은 코드 입력"
                                     className="mt-1.5 bg-white/5 border-white/10 text-white"
                                 />
                                 <p className="text-amber-400/80 text-xs mt-1">
-                                    💡 "코딩쏙학원" 입력 시 수업자료 다운로드가 가능합니다
+                                    🔐 학원 수업자료 다운로드를 위한 코드입니다
                                 </p>
                             </div>
 

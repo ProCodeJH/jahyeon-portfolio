@@ -1,1 +1,16 @@
-chore: Rebuild for Vercel deployment
+fix: Add secret access code for student verification
+
+SECURITY IMPROVEMENTS:
+- Replace "학원명" with "접근 코드" (access code) system
+- Only users with correct code become students with download access
+- Default code: "코딩쏙2024" (can be changed in Admin settings)
+- Admin can set custom code via settings key "student_access_code"
+
+UI CHANGES:
+- Removed "🔥 Firebase 무료 인증 (월 10,000건)" text
+- Changed input from "학원명" to "학원 접근 코드"
+- Updated help text to indicate code comes from teacher
+
+BACKEND:
+- Register checks access code from settings table
+- isStudent is set based on code match, not academy name
