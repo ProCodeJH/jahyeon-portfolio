@@ -1,8 +1,10 @@
-feat: Add frontend auth pages and student access control
+feat: Add GitHub real-time activity section
 
-- Add Register page with 3-step SMS verification flow
-- Add Login page with phone/password authentication
-- Add /login and /register routes to App.tsx
-- Add student access control to Resources page
-- Add non-student warning banner with login/register CTAs
-- Download restricted to 코딩쏙학원 students only
+- Add GitHubActivitySection component with:
+  - GitHub profile card with avatar, stats, bio
+  - Contribution graph (grass/heatmap visualization)
+  - Recent activity feed (commits, branches, stars)
+  - Top repositories with language indicators
+  - "Live" indicator when coding in last hour
+- Integrate into Home page after Certifications section
+- Uses GitHub REST API for real-time data

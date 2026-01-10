@@ -11,6 +11,7 @@ import { TiltCard } from "@/components/effects/TiltCard";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
 import { Navigation } from "@/components/layout/Navigation";
 import { TechnicalScopeSlider } from "@/components/sections/TechnicalScopeSlider";
+import { GitHubActivitySection } from "@/components/sections/GitHubActivity";
 import {
   OpenAILogo, GoogleGeminiLogo, AnthropicLogo, GitHubLogo, MicrosoftLogo,
   MetaLogo, MistralLogo, VercelLogo, CursorLogo, CohereLogo, HuggingFaceLogo,
@@ -613,6 +614,9 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      {/* 🐙 GITHUB ACTIVITY SECTION */}
+      <GitHubActivitySection />
 
       {/* 🎬 FULL-WIDTH CINEMATIC FEATURED WORK */}
       < section className="py-20 md:py-32 lg:py-40 relative overflow-hidden" >
