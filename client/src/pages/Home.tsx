@@ -82,13 +82,12 @@ function YouTubeVideoSection() {
             <div className="relative aspect-video bg-[#0a0a0a]">
               {videoId ? (
                 <iframe
-                  src={`https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`}
+                  src={`https://www.youtube.com/embed/${videoId}`}
                   title="Featured YouTube Video"
                   className="w-full h-full"
+                  frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
-                  referrerPolicy="no-referrer-when-downgrade"
-                  loading="lazy"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-400">
