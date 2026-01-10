@@ -26,17 +26,29 @@ function YouTubeVideoSection() {
   );
 
   // Fallback URL when API fails or no value in DB
-  const fallbackUrl = "https://www.youtube.com/watch?v=X_idSUmKSBw";
+  const fallbackUrl = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
   const finalUrl = youtubeUrl || fallbackUrl;
 
-  // Extract video ID from URL
+  // Extract video ID from URL - handles youtube.com, youtu.be, and query params
   const getYouTubeVideoId = (url: string | null | undefined) => {
     if (!url) return null;
-    const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-    return match ? match[1] : null;
+    // Handle youtu.be/ID or youtube.com/watch?v=ID or youtube.com/embed/ID
+    const patterns = [
+      /youtu\.be\/([a-zA-Z0-9_-]{11})/,
+      /youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/,
+      /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
+    ];
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match) return match[1];
+    }
+    return null;
   };
 
   const videoId = getYouTubeVideoId(finalUrl);
+
+  // Debug logging
+  console.log("🎬 YouTube Debug:", { youtubeUrl, finalUrl, videoId, isLoading, isError });
 
   // Don't render only while loading (fallback ensures video always shows)
   if (isLoading) return null;
@@ -70,11 +82,13 @@ function YouTubeVideoSection() {
             <div className="relative aspect-video bg-[#0a0a0a]">
               {videoId ? (
                 <iframe
-                  src={`https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`}
+                  src={`https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`}
                   title="Featured YouTube Video"
                   className="w-full h-full"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
+                  referrerPolicy="no-referrer-when-downgrade"
+                  loading="lazy"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-400">
