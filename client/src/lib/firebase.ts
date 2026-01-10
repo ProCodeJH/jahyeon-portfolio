@@ -12,12 +12,13 @@ import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult }
 // 🔥 Firebase Configuration
 // Replace with your actual Firebase config from Firebase Console
 const firebaseConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "YOUR_API_KEY",
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "YOUR_PROJECT.firebaseapp.com",
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "YOUR_PROJECT_ID",
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "YOUR_PROJECT.appspot.com",
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "YOUR_SENDER_ID",
-    appId: import.meta.env.VITE_FIREBASE_APP_ID || "YOUR_APP_ID",
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyD8ZD4p7swQ9xto0MDOIlZ_48bespYEKtU",
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "jahyeon-portfolio.firebaseapp.com",
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "jahyeon-portfolio",
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "jahyeon-portfolio.firebasestorage.app",
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "920680268286",
+    appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:920680268286:web:e41ac1cd66449fbade40af",
+    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-W50MRKZJ86",
 };
 
 // Initialize Firebase

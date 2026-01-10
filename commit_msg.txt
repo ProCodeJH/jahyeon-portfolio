@@ -1,17 +1,1 @@
-feat: Add nested folder support and subfolder creation button
-
-DATABASE:
-- Add parent_id column to folders table for nested structure
-- Migration: drizzle/0009_add_nested_folders.sql
-
-BACKEND:
-- Update folders.create to accept parentId
-- Update folders.update to accept parentId
-- Duplicate check now considers parentId
-
-ADMIN UI:
-- Add "Add Subfolder" button (FolderPlus icon) next to each folder
-- Clicking opens folder dialog with that folder pre-selected as parent
-- Parent folder selector in create dialog
-
-Now users can create folders within folders!
+chore: Update Firebase config with actual project values
