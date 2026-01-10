@@ -68,13 +68,19 @@ function YouTubeVideoSection() {
             <div className="absolute -inset-1 bg-gradient-to-r from-red-500/30 via-pink-500/30 to-purple-500/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
             <div className="relative aspect-video bg-[#0a0a0a]">
-              <iframe
-                src={`https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`}
-                title="Featured YouTube Video"
-                className="w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              />
+              {videoId ? (
+                <iframe
+                  src={`https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`}
+                  title="Featured YouTube Video"
+                  className="w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                  <p>Video loading error - URL: {finalUrl}</p>
+                </div>
+              )}
             </div>
           </div>
         </AnimatedSection>
