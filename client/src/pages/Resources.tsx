@@ -378,7 +378,7 @@ export default function Resources() {
 
     // Add uncategorized folder
     const uncategorizedItems = filteredResources?.filter(r => !r.subcategory) || [];
-    if (uncategorizedItems.length > 0 || rootFolders.length === 0) {
+    if (uncategorizedItems.length > 0) {
       rootFolders.push({
         name: "📄 Uncategorized",
         items: uncategorizedItems,
@@ -387,20 +387,8 @@ export default function Resources() {
       });
     }
 
-    // Flatten tree for display
-    const flattenTree = (nodes: FolderNode[], depth = 0): FolderNode[] => {
-      const result: FolderNode[] = [];
-      nodes.forEach(node => {
-        node.depth = depth;
-        result.push(node);
-        if (node.children.length > 0) {
-          result.push(...flattenTree(node.children, depth + 1));
-        }
-      });
-      return result;
-    };
-
-    return flattenTree(rootFolders);
+    // Return only root folders (NOT flattened!) - subfolders are in .children
+    return rootFolders;
   };
 
   const folderTree = buildFolderTree();
@@ -577,12 +565,11 @@ export default function Resources() {
                 const isExpanded = expandedFolders.has(folderKey);
                 const resourceCount = folder.items.length;
                 const hasSubfolders = folder.children.length > 0;
-                const isSubfolder = folder.depth > 0;
 
                 return (
                   <div
                     key={folderKey}
-                    className={`bg-white/60 backdrop-blur-xl border border-gray-200/50 rounded-3xl overflow-hidden shadow-lg ${isSubfolder ? 'ml-6 md:ml-10' : ''}`}
+                    className="bg-white/60 backdrop-blur-xl border border-gray-200/50 rounded-3xl overflow-hidden shadow-lg"
                   >
                     {/* Folder Header */}
                     <button
@@ -590,18 +577,12 @@ export default function Resources() {
                       className="w-full p-5 md:p-6 flex items-center justify-between hover:bg-white/80 transition-all group"
                     >
                       <div className="flex items-center gap-3 md:gap-4">
-                        {isSubfolder && (
-                          <span className="text-purple-400 text-xl">↳</span>
-                        )}
-                        <div className={`w-12 h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center shadow-lg ${isSubfolder
-                          ? 'bg-gradient-to-br from-blue-500 to-cyan-500'
-                          : 'bg-gradient-to-br from-purple-500 to-blue-500'
-                          }`}>
+                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shadow-lg">
                           <FolderOpen className="w-6 h-6 md:w-7 md:h-7 text-white" />
                         </div>
                         <div className="text-left">
                           <h3 className="text-xl md:text-2xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors">
-                            {folder.name.startsWith('📄') ? folder.name : (isSubfolder ? `📂 ${folder.name}` : `📁 ${folder.name}`)}
+                            {folder.name.startsWith('📄') ? folder.name : `📁 ${folder.name}`}
                           </h3>
                           <p className="text-gray-500 text-sm md:text-base">
                             {resourceCount} {resourceCount === 1 ? 'file' : 'files'}
@@ -707,6 +688,84 @@ export default function Resources() {
                             );
                           })}
                         </div>
+
+                        {/* Subfolders inside parent */}
+                        {hasSubfolders && (
+                          <div className="mt-6 space-y-4">
+                            {folder.children.map((subfolder) => {
+                              const subfolderKey = subfolder.id ? `folder_${subfolder.id}` : subfolder.name;
+                              const isSubExpanded = expandedFolders.has(subfolderKey);
+                              const subResourceCount = subfolder.items.length;
+
+                              return (
+                                <div key={subfolderKey} className="bg-white/50 border border-gray-200/40 rounded-2xl overflow-hidden ml-4">
+                                  {/* Subfolder Header */}
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); toggleFolder(subfolderKey); }}
+                                    className="w-full p-4 flex items-center justify-between hover:bg-white/70 transition-all group"
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <span className="text-purple-400 text-lg">↳</span>
+                                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow">
+                                        <FolderOpen className="w-5 h-5 text-white" />
+                                      </div>
+                                      <div className="text-left">
+                                        <h4 className="text-lg font-bold text-gray-800 group-hover:text-blue-600 transition-colors">
+                                          📂 {subfolder.name}
+                                        </h4>
+                                        <p className="text-gray-500 text-sm">{subResourceCount} files</p>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center">
+                                      {isSubExpanded ? (
+                                        <ChevronDown className="w-5 h-5 text-blue-600" />
+                                      ) : (
+                                        <ChevronRight className="w-5 h-5 text-gray-400" />
+                                      )}
+                                    </div>
+                                  </button>
+
+                                  {/* Subfolder Contents */}
+                                  {isSubExpanded && subfolder.items.length > 0 && (
+                                    <div className="p-4 pt-0">
+                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        {subfolder.items.map((resource: any) => {
+                                          const canPreview = isYouTubeUrl(resource.fileUrl) || resource.mimeType?.startsWith('video/') || isPPT(resource.mimeType || '', resource.fileName || '') || isPDF(resource.mimeType || '', resource.fileName || '');
+
+                                          return (
+                                            <div
+                                              key={resource.id}
+                                              className={`p-3 bg-white rounded-xl border border-gray-200 hover:border-blue-300 transition-all ${canPreview ? 'cursor-pointer' : ''}`}
+                                              onClick={() => canPreview && handleResourceClick(resource)}
+                                            >
+                                              <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                                                  <FileText className="w-5 h-5 text-gray-400" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                  <p className="font-medium text-gray-900 truncate text-sm">{resource.title}</p>
+                                                  <p className="text-xs text-gray-500 truncate">{resource.fileName}</p>
+                                                </div>
+                                                <Button
+                                                  size="sm"
+                                                  variant="ghost"
+                                                  className="h-8 w-8 p-0"
+                                                  onClick={(e) => { e.stopPropagation(); handleDownload(resource); }}
+                                                >
+                                                  <Download className="w-4 h-4" />
+                                                </Button>
+                                              </div>
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

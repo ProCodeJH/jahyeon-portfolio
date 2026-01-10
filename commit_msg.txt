@@ -1,23 +1,16 @@
-feat: Real code execution using Piston API
+fix: Resources folder toggle - proper nested display
 
-REAL CODE EXECUTION:
-- Removed simulated/fake output
-- Integrated Piston API (https://emkc.org/api/v2/piston/execute)
-- Actually compiles and runs code on real server
+BEFORE (broken):
+- All folders showed as separate cards
+- Subfolders had ml-6 margin but appeared outside parent
+- Folders open by default
 
-SUPPORTED LANGUAGES:
-- C (GCC 10.2.0)
-- C++ (G++ 10.2.0)
-- Python (3.10.0)
-- JavaScript (Node.js 18.15.0)
-- TypeScript (5.0.3)
-- Java (15.0.2)
-- Rust (1.68.2)
-- Go (1.16.2)
-
-OUTPUT FEATURES:
-- Real stdout from program
-- Real stderr (errors shown in red)
-- Actual exit code
-- Real execution time measurement
-- Error handling for network/API issues
+AFTER (fixed):
+- Only root folders shown initially (all closed)
+- Click folder to expand -> shows files
+- Subfolders appear INSIDE parent when expanded
+- Click subfolder to expand -> shows its files
+- Proper visual hierarchy with:
+  - ↳ arrow prefix for subfolders
+  - Blue/cyan gradient icon for subfolders
+  - ml-4 indentation inside parent container
