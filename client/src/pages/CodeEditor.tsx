@@ -377,7 +377,7 @@ export default function CodeEditor() {
                             </div>
 
                             {/* Monaco Editor */}
-                            <div className="flex-1 relative bg-[#0c0c0c] min-h-[500px]">
+                            <div className="flex-1 relative bg-[#0a0a0a] min-h-[500px]">
                                 <Editor
                                     height="100%"
                                     language={currentLang?.monaco || "plaintext"}
@@ -386,17 +386,95 @@ export default function CodeEditor() {
                                     theme="vs-dark"
                                     options={{
                                         fontSize,
-                                        fontFamily: "'JetBrains Mono', 'Fira Code', Consolas, monospace",
+                                        fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'SF Mono', Consolas, monospace",
                                         fontLigatures: true,
-                                        minimap: { enabled: false },
+                                        minimap: {
+                                            enabled: true,
+                                            maxColumn: 80,
+                                            renderCharacters: false,
+                                            showSlider: "mouseover"
+                                        },
                                         scrollBeyondLastLine: false,
                                         automaticLayout: true,
                                         tabSize: 4,
                                         wordWrap: "on",
                                         lineNumbers: "on",
-                                        padding: { top: 20, bottom: 20 },
-                                        cursorBlinking: "smooth",
+                                        padding: { top: 24, bottom: 24 },
+                                        cursorBlinking: "phase",
+                                        cursorSmoothCaretAnimation: "on",
                                         smoothScrolling: true,
+                                        renderLineHighlight: "all",
+                                        bracketPairColorization: { enabled: true },
+                                        guides: {
+                                            bracketPairs: true,
+                                            indentation: true,
+                                            highlightActiveIndentation: true
+                                        },
+                                        formatOnPaste: true,
+                                        formatOnType: true,
+                                        autoClosingBrackets: "always",
+                                        autoClosingQuotes: "always",
+                                        autoSurround: "languageDefined",
+                                        suggest: {
+                                            showMethods: true,
+                                            showFunctions: true,
+                                            showVariables: true,
+                                            showSnippets: true,
+                                            preview: true
+                                        },
+                                        quickSuggestions: true,
+                                        parameterHints: { enabled: true },
+                                        folding: true,
+                                        foldingHighlight: true,
+                                        showFoldingControls: "mouseover",
+                                        renderWhitespace: "selection",
+                                        colorDecorators: true,
+                                        links: true,
+                                        occurrencesHighlight: "singleFile",
+                                        selectionHighlight: true,
+                                        stickyScroll: { enabled: true },
+                                        inlineSuggest: { enabled: true },
+                                    }}
+                                    beforeMount={(monaco) => {
+                                        // Custom premium dark theme
+                                        monaco.editor.defineTheme('premium-dark', {
+                                            base: 'vs-dark',
+                                            inherit: true,
+                                            rules: [
+                                                { token: 'comment', foreground: '6A9955', fontStyle: 'italic' },
+                                                { token: 'keyword', foreground: 'C586C0' },
+                                                { token: 'string', foreground: 'CE9178' },
+                                                { token: 'number', foreground: 'B5CEA8' },
+                                                { token: 'function', foreground: 'DCDCAA' },
+                                                { token: 'variable', foreground: '9CDCFE' },
+                                                { token: 'type', foreground: '4EC9B0' },
+                                            ],
+                                            colors: {
+                                                'editor.background': '#0a0a0a',
+                                                'editor.foreground': '#d4d4d4',
+                                                'editorLineNumber.foreground': '#4a4a4a',
+                                                'editorLineNumber.activeForeground': '#a855f7',
+                                                'editor.lineHighlightBackground': '#1a1a2e',
+                                                'editor.selectionBackground': '#264f7844',
+                                                'editorCursor.foreground': '#a855f7',
+                                                'editor.findMatchBackground': '#515c6a',
+                                                'editor.findMatchHighlightBackground': '#ea5c0055',
+                                                'editorBracketMatch.background': '#0d3a58',
+                                                'editorBracketMatch.border': '#888888',
+                                                'editorIndentGuide.activeBackground': '#3a3a5a',
+                                                'scrollbar.shadow': '#00000000',
+                                                'scrollbarSlider.background': '#ffffff15',
+                                                'scrollbarSlider.hoverBackground': '#ffffff25',
+                                                'scrollbarSlider.activeBackground': '#ffffff30',
+                                            }
+                                        });
+                                    }}
+                                    onMount={(editor, monaco) => {
+                                        monaco.editor.setTheme('premium-dark');
+                                        // Add custom keybindings
+                                        editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+                                            handleRun();
+                                        });
                                     }}
                                 />
                             </div>
@@ -418,8 +496,8 @@ export default function CodeEditor() {
                                     onClick={handleRun}
                                     disabled={isRunning || !code.trim()}
                                     className={`px-6 py-5 rounded-xl font-bold transition-all duration-300 shadow-lg ${isRunning
-                                            ? 'bg-gray-800 text-gray-400 cursor-not-allowed'
-                                            : 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-purple-500/20 hover:shadow-purple-500/40 hover:scale-[1.02]'
+                                        ? 'bg-gray-800 text-gray-400 cursor-not-allowed'
+                                        : 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-purple-500/20 hover:shadow-purple-500/40 hover:scale-[1.02]'
                                         }`}
                                 >
                                     {isRunning ? (
@@ -437,29 +515,112 @@ export default function CodeEditor() {
                             </div>
                         </div>
 
-                        {/* Terminal/Output Panel */}
-                        <div className="flex flex-col rounded-2xl md:rounded-3xl border border-white/10 bg-[#09090b] shadow-2xl overflow-hidden min-h-[400px]">
+                        {/* Terminal/Output Panel - Ultra Premium */}
+                        <div className="flex flex-col rounded-2xl md:rounded-3xl border border-white/10 bg-[#050508] shadow-2xl overflow-hidden min-h-[400px] relative group/output">
+                            {/* Animated Border Glow */}
+                            <div className="absolute inset-0 rounded-2xl md:rounded-3xl bg-gradient-to-r from-purple-500/20 via-blue-500/20 to-emerald-500/20 opacity-0 group-hover/output:opacity-100 transition-opacity duration-500 blur-xl -z-10" />
+
                             {/* Terminal Header */}
-                            <div className="flex items-center justify-between px-5 py-4 border-b border-white/5 bg-white/[0.02]">
-                                <div className="flex items-center gap-2 text-sm font-medium text-gray-300">
-                                    <Terminal className="w-4 h-4 text-purple-400" />
-                                    Output
-                                    <span className="px-1.5 py-0.5 rounded-md bg-white/5 text-[10px] text-gray-500 font-mono">console</span>
+                            <div className="flex items-center justify-between px-5 py-4 border-b border-white/5 bg-gradient-to-r from-white/[0.02] to-white/[0.04]">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex gap-1.5">
+                                        <div className="w-3 h-3 rounded-full bg-red-500/60" />
+                                        <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
+                                        <div className="w-3 h-3 rounded-full bg-green-500/60" />
+                                    </div>
+                                    <div className="h-4 w-px bg-white/10" />
+                                    <div className="flex items-center gap-2 text-sm font-semibold text-white">
+                                        <Terminal className="w-4 h-4 text-emerald-400" />
+                                        Output
+                                    </div>
+                                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-[10px] text-emerald-400 font-mono border border-emerald-500/30">
+                                        console
+                                    </span>
                                 </div>
-                                <button
-                                    onClick={() => setOutput("")}
-                                    className="p-1.5 rounded-md hover:bg-white/10 text-gray-500 hover:text-white transition-colors"
-                                    title="Clear Console"
-                                >
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                </button>
+                                <div className="flex items-center gap-2">
+                                    {output && !output.includes("Compiling") && (
+                                        <div className="flex items-center gap-2 px-2 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                            <span className="text-[10px] text-emerald-400 font-mono">Program exited with code 0</span>
+                                        </div>
+                                    )}
+                                    <button
+                                        onClick={() => setOutput("")}
+                                        className="p-2 rounded-lg hover:bg-white/10 text-gray-500 hover:text-white transition-all duration-200 hover:scale-110"
+                                        title="Clear Console"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
+                                </div>
                             </div>
 
-                            {/* Output Area */}
-                            <div className="flex-1 relative bg-[#09090b] p-4 overflow-auto">
-                                <pre className="text-sm font-mono text-gray-300 whitespace-pre-wrap">
-                                    {output || "$ Ready to run code..."}
-                                </pre>
+                            {/* Output Area - Premium Styling */}
+                            <div className="flex-1 relative bg-[#050508] overflow-auto custom-scrollbar">
+                                <div className="p-5 min-h-full">
+                                    {output ? (
+                                        <div className="space-y-3">
+                                            {output.split('\n').map((line, i) => (
+                                                <div key={i} className="flex items-start gap-3 group/line">
+                                                    {line.includes("✅") ? (
+                                                        <div className="flex-shrink-0 w-5 h-5 rounded bg-emerald-500/20 flex items-center justify-center mt-0.5">
+                                                            <Check className="w-3 h-3 text-emerald-400" />
+                                                        </div>
+                                                    ) : line.includes("⏱") ? (
+                                                        <div className="flex-shrink-0 w-5 h-5 rounded bg-blue-500/20 flex items-center justify-center mt-0.5">
+                                                            <RefreshCw className="w-3 h-3 text-blue-400" />
+                                                        </div>
+                                                    ) : line.startsWith("➜") ? (
+                                                        <div className="flex-shrink-0 w-5 h-5 rounded bg-purple-500/20 flex items-center justify-center mt-0.5">
+                                                            <Terminal className="w-3 h-3 text-purple-400" />
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex-shrink-0 w-5 h-5 rounded bg-white/5 flex items-center justify-center mt-0.5 opacity-0 group-hover/line:opacity-100 transition-opacity">
+                                                            <span className="text-[9px] text-gray-600 font-mono">{i + 1}</span>
+                                                        </div>
+                                                    )}
+                                                    <pre className={`text-sm font-mono leading-relaxed ${line.includes("✅") ? "text-emerald-400" :
+                                                            line.includes("⏱") ? "text-blue-400" :
+                                                                line.startsWith("➜") ? "text-purple-400 font-semibold" :
+                                                                    line.includes("Error") || line.includes("error") ? "text-red-400" :
+                                                                        "text-gray-300"
+                                                        }`}>
+                                                        {line || " "}
+                                                    </pre>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col items-center justify-center h-full min-h-[200px] text-center">
+                                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center mb-4">
+                                                <Terminal className="w-8 h-8 text-purple-400" />
+                                            </div>
+                                            <p className="text-gray-400 font-medium mb-1">Ready to execute</p>
+                                            <p className="text-gray-600 text-sm">Press <kbd className="px-2 py-0.5 rounded bg-white/10 text-purple-400 font-mono text-xs">Ctrl</kbd> + <kbd className="px-2 py-0.5 rounded bg-white/10 text-purple-400 font-mono text-xs">Enter</kbd> to run</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Status Bar */}
+                            <div className="px-5 py-3 border-t border-white/5 bg-white/[0.02] flex items-center justify-between">
+                                <div className="flex items-center gap-4 text-xs text-gray-500 font-mono">
+                                    <div className="flex items-center gap-1.5">
+                                        <div className={`w-2 h-2 rounded-full ${output ? 'bg-emerald-500' : 'bg-gray-600'}`} />
+                                        {output ? 'Completed' : 'Idle'}
+                                    </div>
+                                </div>
+                                {output && !output.includes("Compiling") && (
+                                    <div className="flex items-center gap-3 text-xs text-gray-500 font-mono">
+                                        <span className="flex items-center gap-1">
+                                            <RefreshCw className="w-3 h-3" />
+                                            0.003s
+                                        </span>
+                                        <span className="text-emerald-400 flex items-center gap-1">
+                                            <Check className="w-3 h-3" />
+                                            Success
+                                        </span>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
