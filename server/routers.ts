@@ -283,24 +283,31 @@ export const appRouter = t.router({
     create: protectedProcedure.input(z.object({
       name: z.string().min(1),
       category: resourceCategoryEnum,
+      parentId: z.number().optional(), // For nested folders
       description: z.string().optional().default(""),
     })).mutation(async ({ input }) => {
       try {
-        // Check for duplicate folder in same category
+        // Check for duplicate folder in same category and parent
         const existingFolders = await getAllFolders();
         const duplicate = existingFolders.find(f =>
           f.name.toLowerCase() === input.name.toLowerCase() &&
-          f.category === input.category
+          f.category === input.category &&
+          f.parentId === (input.parentId ?? null)
         );
 
         if (duplicate) {
           // Return existing folder instead of throwing error
-          console.log(`[Folders] Folder "${input.name}" already exists in ${input.category}, returning existing`);
+          console.log(`[Folders] Folder "${input.name}" already exists, returning existing`);
           return duplicate;
         }
 
-        const newFolder = await createFolder(input);
-        console.log(`[Folders] Created new folder: "${input.name}" in ${input.category}`);
+        const newFolder = await createFolder({
+          name: input.name,
+          category: input.category,
+          parentId: input.parentId ?? null,
+          description: input.description,
+        });
+        console.log(`[Folders] Created new folder: "${input.name}" in ${input.category}${input.parentId ? ` (parent: ${input.parentId})` : ''}`);
         return newFolder;
       } catch (error) {
         console.error("[Folders] Create error:", error);
@@ -313,6 +320,7 @@ export const appRouter = t.router({
     update: protectedProcedure.input(z.object({
       id: z.number(),
       name: z.string().min(1).optional(),
+      parentId: z.number().nullable().optional(),
       description: z.string().optional(),
     })).mutation(async ({ input }) => {
       const { id, ...data } = input;

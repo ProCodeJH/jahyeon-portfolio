@@ -1,17 +1,17 @@
-feat: Add Firebase Phone Auth for free SMS verification
+feat: Add nested folder support and subfolder creation button
 
-- Install Firebase SDK
-- Add firebase.ts config with Phone Auth helpers
-- Update Register.tsx to use Firebase Phone Auth
-  - reCAPTCHA verification
-  - SMS sending via Firebase
-  - Code verification via Firebase
-- Add .env.example for Firebase config setup
+DATABASE:
+- Add parent_id column to folders table for nested structure
+- Migration: drizzle/0009_add_nested_folders.sql
 
-Setup required:
-1. Create Firebase project
-2. Enable Phone Auth in Firebase Console
-3. Add domain to authorized domains
-4. Copy Firebase config to .env.local
+BACKEND:
+- Update folders.create to accept parentId
+- Update folders.update to accept parentId
+- Duplicate check now considers parentId
 
-Free tier: 10,000 SMS/month
+ADMIN UI:
+- Add "Add Subfolder" button (FolderPlus icon) next to each folder
+- Clicking opens folder dialog with that folder pre-selected as parent
+- Parent folder selector in create dialog
+
+Now users can create folders within folders!

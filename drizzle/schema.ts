@@ -113,11 +113,13 @@ export type InsertResource = typeof resources.$inferInsert;
 
 /**
  * Folders table - stores folder structure for resources
+ * Supports nested folders via parentId
  */
 export const folders = pgTable("folders", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   category: resourceCategoryEnum("category").notNull(),
+  parentId: integer("parent_id"), // Reference to parent folder for nesting
   description: text("description"),
   displayOrder: integer("display_order").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),

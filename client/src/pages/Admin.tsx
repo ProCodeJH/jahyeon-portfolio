@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "wouter";
-import { Loader2, Plus, Trash2, Eye, Heart, BarChart3, FileText, LogOut, ImageIcon, Video, X, FolderOpen, Award, Upload, TrendingUp, Presentation, Code, Cpu, Terminal, CheckCircle, Pencil, FolderInput, ChevronDown, ChevronRight } from "lucide-react";
+import { Loader2, Plus, Trash2, Eye, Heart, BarChart3, FileText, LogOut, ImageIcon, Video, X, FolderOpen, Award, Upload, TrendingUp, Presentation, Code, Cpu, Terminal, CheckCircle, Pencil, FolderInput, FolderPlus, ChevronDown, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 
@@ -761,6 +761,21 @@ export default function Admin() {
                           </button>
                           {folder.name !== "Uncategorized" && (
                             <>
+                              {/* Add Subfolder Button */}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setParentFolderName(folder.name);
+                                  setNewFolderName("");
+                                  setShowCreateFolderDialog(true);
+                                }}
+                                className="h-7 w-7 p-0 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10"
+                                title="Add Subfolder"
+                              >
+                                <FolderPlus className="h-3 w-3" />
+                              </Button>
                               <Button
                                 variant="ghost"
                                 size="sm"
