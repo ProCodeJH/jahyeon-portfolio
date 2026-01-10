@@ -257,18 +257,85 @@ export default function CodeEditor() {
 
     const currentLang = LANGUAGES.find(l => l.id === language);
 
-    // 🚀 Simulate code execution
+    // 🚀 REAL Code execution using Piston API
     const handleRun = useCallback(async () => {
         setIsRunning(true);
+        const startTime = Date.now();
         setOutput("➜  Compiling...\n");
 
-        await new Promise(resolve => setTimeout(resolve, 800));
+        // Piston API language mapping
+        const pistonLanguages: Record<string, { language: string; version: string }> = {
+            c: { language: "c", version: "10.2.0" },
+            cpp: { language: "c++", version: "10.2.0" },
+            python: { language: "python", version: "3.10.0" },
+            javascript: { language: "javascript", version: "18.15.0" },
+            typescript: { language: "typescript", version: "5.0.3" },
+            java: { language: "java", version: "15.0.2" },
+            rust: { language: "rust", version: "1.68.2" },
+            go: { language: "go", version: "1.16.2" },
+        };
 
-        const simulatedOutput = SIMULATED_OUTPUTS[language] || "Execution completed";
-        setOutput(simulatedOutput);
+        const langConfig = pistonLanguages[language];
+        if (!langConfig) {
+            setOutput("❌ Unsupported language for execution");
+            setIsRunning(false);
+            return;
+        }
+
+        try {
+            const response = await fetch("https://emkc.org/api/v2/piston/execute", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    language: langConfig.language,
+                    version: langConfig.version,
+                    files: [{ name: `main${currentLang?.extension || ".txt"}`, content: code }],
+                }),
+            });
+
+            const result = await response.json();
+            const execTime = ((Date.now() - startTime) / 1000).toFixed(3);
+
+            if (result.run) {
+                const stdout = result.run.stdout || "";
+                const stderr = result.run.stderr || "";
+                const exitCode = result.run.code;
+
+                let outputText = "";
+
+                if (stdout) {
+                    outputText += stdout;
+                }
+
+                if (stderr) {
+                    outputText += `\n❌ Error:\n${stderr}`;
+                }
+
+                outputText += `\n\n✅ Program exited with code ${exitCode}`;
+                outputText += `\n⏱ Execution time: ${execTime}s`;
+
+                setOutput(outputText);
+
+                if (exitCode === 0 && !stderr) {
+                    toast.success("Code executed successfully!");
+                } else if (stderr) {
+                    toast.error("Code execution had errors");
+                }
+            } else if (result.message) {
+                setOutput(`❌ API Error: ${result.message}`);
+                toast.error("Execution failed");
+            } else {
+                setOutput("❌ Unknown error occurred");
+                toast.error("Execution failed");
+            }
+        } catch (error: any) {
+            const execTime = ((Date.now() - startTime) / 1000).toFixed(3);
+            setOutput(`❌ Network Error: ${error.message || "Failed to connect to execution server"}\n\n⏱ Time: ${execTime}s`);
+            toast.error("Failed to execute code");
+        }
+
         setIsRunning(false);
-        toast.success("Code executed successfully!");
-    }, [language]);
+    }, [language, code, currentLang]);
 
     const handleCopy = useCallback(async () => {
         await navigator.clipboard.writeText(code);
@@ -579,10 +646,10 @@ export default function CodeEditor() {
                                                         </div>
                                                     )}
                                                     <pre className={`text-sm font-mono leading-relaxed ${line.includes("✅") ? "text-emerald-400" :
-                                                            line.includes("⏱") ? "text-blue-400" :
-                                                                line.startsWith("➜") ? "text-purple-400 font-semibold" :
-                                                                    line.includes("Error") || line.includes("error") ? "text-red-400" :
-                                                                        "text-gray-300"
+                                                        line.includes("⏱") ? "text-blue-400" :
+                                                            line.startsWith("➜") ? "text-purple-400 font-semibold" :
+                                                                line.includes("Error") || line.includes("error") ? "text-red-400" :
+                                                                    "text-gray-300"
                                                         }`}>
                                                         {line || " "}
                                                     </pre>

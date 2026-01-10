@@ -1,16 +1,23 @@
-feat: Nested folders on Resources page + YouTube cleanup
+feat: Real code execution using Piston API
 
-RESOURCES PAGE - NESTED FOLDER DISPLAY:
-- Added folders query from database
-- Built folder tree with parentId-based hierarchy
-- Subfolders shown with:
-  - ↳ prefix indicator
-  - Blue/cyan gradient icon (vs purple for root)
-  - Left margin indentation (ml-6/ml-10)
-  - 📂 icon (vs 📁 for root)
-- Shows subfolder count in folder info
+REAL CODE EXECUTION:
+- Removed simulated/fake output
+- Integrated Piston API (https://emkc.org/api/v2/piston/execute)
+- Actually compiles and runs code on real server
 
-YOUTUBE SECTION CLEANUP:
-- Removed corner L-shaped decorations
-- Removed floating labels ("Premium Content", "HD Quality")
-- Kept animated gradient border and hover glow
+SUPPORTED LANGUAGES:
+- C (GCC 10.2.0)
+- C++ (G++ 10.2.0)
+- Python (3.10.0)
+- JavaScript (Node.js 18.15.0)
+- TypeScript (5.0.3)
+- Java (15.0.2)
+- Rust (1.68.2)
+- Go (1.16.2)
+
+OUTPUT FEATURES:
+- Real stdout from program
+- Real stderr (errors shown in red)
+- Actual exit code
+- Real execution time measurement
+- Error handling for network/API issues
