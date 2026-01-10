@@ -126,3 +126,17 @@ export const folders = pgTable("folders", {
 
 export type Folder = typeof folders.$inferSelect;
 export type InsertFolder = typeof folders.$inferInsert;
+
+/**
+ * Settings table - stores site configuration (e.g., YouTube URL)
+ */
+export const settings = pgTable("settings", {
+  id: serial("id").primaryKey(),
+  key: varchar("key", { length: 255 }).notNull().unique(),
+  value: text("value"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type Setting = typeof settings.$inferSelect;
+export type InsertSetting = typeof settings.$inferInsert;

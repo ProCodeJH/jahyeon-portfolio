@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "wouter";
-import { Loader2, Plus, Trash2, Eye, Heart, BarChart3, FileText, LogOut, ImageIcon, Video, X, FolderOpen, Award, Upload, TrendingUp, Presentation, Code, Cpu, Terminal, CheckCircle, Pencil, FolderInput, ChevronDown, ChevronRight } from "lucide-react";
+import { Loader2, Plus, Trash2, Eye, Heart, BarChart3, FileText, LogOut, ImageIcon, Video, X, FolderOpen, Award, Upload, TrendingUp, Presentation, Code, Cpu, Terminal, CheckCircle, Pencil, FolderInput, ChevronDown, ChevronRight, Settings, Youtube } from "lucide-react";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 
@@ -111,6 +111,28 @@ export default function Admin() {
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [newFolderName, setNewFolderName] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<ResourceCategory>("presentation");
+  const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [savingYoutubeUrl, setSavingYoutubeUrl] = useState(false);
+
+  // YouTube URL setting query
+  const { data: youtubeUrlSetting } = trpc.settings.get.useQuery({ key: "youtube_url" });
+  const setSetting = trpc.settings.set.useMutation({
+    onSuccess: () => {
+      toast.success("YouTube URL saved!");
+      setSavingYoutubeUrl(false);
+    },
+    onError: (e) => {
+      toast.error(e.message);
+      setSavingYoutubeUrl(false);
+    },
+  });
+
+  // Load YouTube URL when data is fetched
+  useEffect(() => {
+    if (youtubeUrlSetting?.value) {
+      setYoutubeUrl(youtubeUrlSetting.value);
+    }
+  }, [youtubeUrlSetting]);
 
   const [projectForm, setProjectForm] = useState({
     title: "", description: "", technologies: "", category: "c_lang" as ProjectCategory,
@@ -504,6 +526,7 @@ export default function Admin() {
             <TabsTrigger value="certifications" className="rounded-lg px-6 py-2.5 text-white/60 data-[state=active]:bg-emerald-500 data-[state=active]:text-black"><Award className="h-4 w-4 mr-2" />Certs ({certifications?.length || 0})</TabsTrigger>
             <TabsTrigger value="resources" className="rounded-lg px-6 py-2.5 text-white/60 data-[state=active]:bg-emerald-500 data-[state=active]:text-black"><Upload className="h-4 w-4 mr-2" />Resources ({resources?.length || 0})</TabsTrigger>
             <TabsTrigger value="analytics" className="rounded-lg px-6 py-2.5 text-white/60 data-[state=active]:bg-emerald-500 data-[state=active]:text-black"><BarChart3 className="h-4 w-4 mr-2" />Analytics</TabsTrigger>
+            <TabsTrigger value="settings" className="rounded-lg px-6 py-2.5 text-white/60 data-[state=active]:bg-emerald-500 data-[state=active]:text-black"><Settings className="h-4 w-4 mr-2" />Settings</TabsTrigger>
           </TabsList>
 
           {/* PROJECTS TAB */}
@@ -888,6 +911,73 @@ export default function Admin() {
                   <h3 className="text-white/70 mb-4">Top Resources</h3>
                   <div className="space-y-3">{resources?.slice().sort((a, b) => (b.downloadCount || 0) - (a.downloadCount || 0)).slice(0, 5).map((r, i) => (<div key={r.id} className="flex items-center justify-between"><span className="text-white text-sm truncate">{i + 1}. {r.title}</span><span className="text-emerald-400 text-sm">{r.downloadCount || 0}</span></div>))}</div>
                 </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* SETTINGS TAB */}
+          <TabsContent value="settings">
+            <div className="bg-white/[0.02] border border-white/5 rounded-2xl">
+              <div className="p-6 border-b border-white/5">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center">
+                    <Youtube className="h-6 w-6 text-red-400" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-light text-white">YouTube Featured Video</h2>
+                    <p className="text-white/50 mt-1">This video will be displayed on the homepage</p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6 space-y-4">
+                <div>
+                  <Label className="text-white/70">YouTube Video URL</Label>
+                  <Input
+                    value={youtubeUrl || youtubeUrlSetting?.value || ""}
+                    onChange={e => setYoutubeUrl(e.target.value)}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    className="mt-1.5 bg-white/5 border-white/10 text-white"
+                  />
+                  <p className="text-white/40 text-xs mt-1">
+                    Supports: youtube.com/watch?v=..., youtu.be/..., youtube.com/embed/...
+                  </p>
+                </div>
+
+                {/* Preview */}
+                {(youtubeUrl || youtubeUrlSetting?.value) && (
+                  <div className="bg-white/5 rounded-xl p-4">
+                    <Label className="text-white/70 mb-2 block">Preview</Label>
+                    <div className="aspect-video rounded-lg overflow-hidden bg-black">
+                      <iframe
+                        src={`https://www.youtube.com/embed/${(() => {
+                          const url = youtubeUrl || youtubeUrlSetting?.value || "";
+                          const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s?/]+)/);
+                          return match?.[1] || "";
+                        })()}?rel=0`}
+                        title="YouTube Preview"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="w-full h-full"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <Button
+                  onClick={() => {
+                    if (!youtubeUrl.trim()) {
+                      toast.error("Please enter a YouTube URL");
+                      return;
+                    }
+                    setSavingYoutubeUrl(true);
+                    setSetting.mutate({ key: "youtube_url", value: youtubeUrl });
+                  }}
+                  disabled={savingYoutubeUrl || !youtubeUrl.trim()}
+                  className="bg-emerald-500 hover:bg-emerald-600 text-black rounded-xl"
+                >
+                  {savingYoutubeUrl && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                  Save YouTube URL
+                </Button>
               </div>
             </div>
           </TabsContent>

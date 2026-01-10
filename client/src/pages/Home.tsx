@@ -10,10 +10,12 @@ import { SubtleDots } from "@/components/backgrounds/SubtleDots";
 import { TiltCard } from "@/components/effects/TiltCard";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
 import { Navigation } from "@/components/layout/Navigation";
+import { YouTubeEmbed } from "@/components/video/YouTubeEmbed";
 
 export default function Home() {
   const { data: projects } = trpc.projects.list.useQuery();
   const { data: certifications, isLoading: certificationsLoading } = trpc.certifications.list.useQuery();
+  const { data: youtubeUrlSetting } = trpc.settings.get.useQuery({ key: "youtube_url" });
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
@@ -487,6 +489,41 @@ export default function Home() {
           )}
         </div>
       </section>
+
+      {/* 🎬 FEATURED VIDEO SECTION */}
+      {youtubeUrlSetting?.value && (
+        <section className="py-20 md:py-32 lg:py-40 px-4 md:px-8 relative overflow-hidden">
+          {/* Background Effects */}
+          <div className="absolute top-20 left-10 w-48 md:w-72 h-48 md:h-72 bg-gradient-to-r from-red-400/10 to-pink-400/10 rounded-full blur-3xl animate-float" />
+          <div className="absolute bottom-20 right-10 w-64 md:w-96 h-64 md:h-96 bg-gradient-to-r from-purple-400/10 to-blue-400/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+
+          <div className="max-w-7xl mx-auto relative z-10">
+            <AnimatedSection>
+              <div className="text-center mb-12 md:mb-16 lg:mb-20">
+                <div className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-3 rounded-full bg-gradient-to-r from-red-500/10 to-pink-500/10 border border-red-200/50 backdrop-blur-xl mb-4 md:mb-6 shadow-lg">
+                  <Play className="w-4 md:w-5 h-4 md:h-5 text-red-500" />
+                  <span className="text-xs md:text-sm font-bold text-red-500 tracking-wider uppercase">Featured Video</span>
+                </div>
+                <h2 className="text-4xl md:text-6xl lg:text-7xl font-black mb-4 md:mb-6 tracking-tight">
+                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-red-500 via-pink-500 to-purple-600 animate-gradient-x">
+                    Watch Now
+                  </span>
+                </h2>
+                <div className="w-24 md:w-32 h-1.5 md:h-2 bg-gradient-to-r from-red-500 to-pink-500 rounded-full mx-auto shadow-lg shadow-red-500/50" />
+              </div>
+            </AnimatedSection>
+
+            {/* YouTube Video Container */}
+            <AnimatedSection delay={200}>
+              <div className="max-w-4xl mx-auto">
+                <TiltCard sensitivity={4}>
+                  <YouTubeEmbed url={youtubeUrlSetting.value} className="shadow-2xl shadow-purple-500/20" />
+                </TiltCard>
+              </div>
+            </AnimatedSection>
+          </div>
+        </section>
+      )}
 
       {/* 🎬 FULL-WIDTH CINEMATIC FEATURED WORK */}
       <section className="py-20 md:py-32 lg:py-40 relative overflow-hidden">

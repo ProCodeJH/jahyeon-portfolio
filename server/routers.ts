@@ -5,7 +5,8 @@ import {
   getAllProjects, getProjectById, createProject, updateProject, deleteProject,
   getAllCertifications, getCertificationById, createCertification, updateCertification, deleteCertification,
   getAllResources, getResourceById, createResource, updateResource, deleteResource, incrementResourceDownload,
-  getAllFolders, getFolderById, createFolder, updateFolder, deleteFolder
+  getAllFolders, getFolderById, createFolder, updateFolder, deleteFolder,
+  getSetting, setSetting
 } from "./db";
 import { projects, certifications, resources, users, sessions } from "../drizzle/schema";
 import { eq, sql, and, gte } from "drizzle-orm";
@@ -318,6 +319,20 @@ export const appRouter = t.router({
     }),
     delete: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
       await deleteFolder(input.id);
+      return { success: true };
+    }),
+  }),
+
+  // ============================================
+  // ⚙️ Site Settings (YouTube URL, etc.)
+  // ============================================
+  settings: t.router({
+    get: publicProcedure.input(z.object({ key: z.string() })).query(async ({ input }) => {
+      const value = await getSetting(input.key);
+      return { key: input.key, value: value || null };
+    }),
+    set: protectedProcedure.input(z.object({ key: z.string(), value: z.string() })).mutation(async ({ input }) => {
+      await setSetting(input.key, input.value);
       return { success: true };
     }),
   }),
