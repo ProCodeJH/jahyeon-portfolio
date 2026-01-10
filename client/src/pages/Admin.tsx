@@ -1263,7 +1263,11 @@ export default function Admin() {
               <div className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
                 <p className="text-white/50 text-xs mb-1">📍 Folder will be created as:</p>
                 <p className="text-purple-400 font-mono text-sm">
-                  {selectedCategory} / {parentFolderName !== '__root__' ? `${parentFolderName}/` : ''}{newFolderName}
+                  {parentFolderName !== '__root__' ? (
+                    <>📂 {parentFolderName} / 📁 {newFolderName}</>
+                  ) : (
+                    <>📁 {newFolderName} (in {selectedCategory})</>
+                  )}
                 </p>
               </div>
             )}
@@ -1275,12 +1279,18 @@ export default function Admin() {
                     toast.error("Please enter a folder name");
                     return;
                   }
-                  const finalFolderName = parentFolderName !== '__root__'
-                    ? `${parentFolderName}/${newFolderName.trim()}`
-                    : newFolderName.trim();
+                  // Find parent folder ID if parentFolderName is selected
+                  let parentId: number | undefined = undefined;
+                  if (parentFolderName !== '__root__') {
+                    const parentFolder = folders?.find(f => f.name === parentFolderName && f.category === selectedCategory);
+                    if (parentFolder) {
+                      parentId = parentFolder.id;
+                    }
+                  }
                   createFolder.mutate({
-                    name: finalFolderName,
+                    name: newFolderName.trim(),
                     category: selectedCategory,
+                    parentId: parentId,
                     description: "",
                   });
                 }}

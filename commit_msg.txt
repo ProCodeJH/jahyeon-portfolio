@@ -1,23 +1,15 @@
-feat: Add premium animated Git Timeline with commit visualization
+fix: Proper nested folder creation using parentId instead of name concatenation
 
-NEW COMPONENT - GitTimeline.tsx:
-- Animated timeline with lines and dots
-- Real-time GitHub API data
-- Branch labels showing recent branches
-- Commit SHA preview with messages
-- Color-coded event types (Push, Create, PR, Fork, etc.)
-- Smooth staggered animations
-- Glow effects and pulse animations
-- "더 보기" link to GitHub profile
+ISSUE:
+- Subfolder creation was concatenating folder names with "/" (e.g., "Parent/Child")
+- This didn't use the database's parentId column correctly
 
-INTEGRATION:
-- Replaced simple activity list with premium GitTimeline
-- Added "Live" badge to indicate real-time data
-- Full-width layout (col-span-3) for timeline visibility
+FIX:
+- Now looks up parent folder by name to get its ID
+- Passes actual parentId to the API
+- Folders are stored with proper parent-child relationship
 
-VISUAL FEATURES:
-- Flowing line animation between timeline nodes
-- Sparkle effect on connecting lines
-- Hover scale animation on nodes
-- Gradient backgrounds per event type
-- Korean localization (방금 전, 분 전, etc.)
+UI IMPROVEMENTS:
+- Updated folder creation preview to show hierarchy with icons
+- Shows "📂 Parent / 📁 Child" format for nested folders
+- Shows "📁 Name (in category)" for root-level folders
