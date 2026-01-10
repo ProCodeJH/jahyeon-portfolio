@@ -10,6 +10,8 @@ import Projects from "./pages/Projects";
 import Resources from "./pages/Resources";
 import CodeEditor from "./pages/CodeEditor";
 import Admin from "./pages/Admin";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 import { useSmoothScroll } from "./hooks/useSmoothScroll";
 
 function Router() {
@@ -21,6 +23,8 @@ function Router() {
       <Route path="/resources" component={Resources} />
       <Route path="/code-editor" component={CodeEditor} />
       <Route path="/admin" component={Admin} />
+      <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
       <Route path="/404" component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

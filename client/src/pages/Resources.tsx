@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
-import { Download, Loader2, FileText, Video, ExternalLink, Play, Presentation, Terminal, Cpu, Code, X, Eye, Sparkles, BookOpen, Zap, Heart, MessageCircle, Send, FolderOpen, ChevronDown, ChevronRight } from "lucide-react";
+import { Download, Loader2, FileText, Video, ExternalLink, Play, Presentation, Terminal, Cpu, Code, X, Eye, Sparkles, BookOpen, Zap, Heart, MessageCircle, Send, FolderOpen, ChevronDown, ChevronRight, Lock, School, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { GradientMeshBackground } from "@/components/backgrounds/GradientMeshBackground";
 import { SubtleDots } from "@/components/backgrounds/SubtleDots";
@@ -312,6 +312,20 @@ export default function Resources() {
   const [selectedCommentResource, setSelectedCommentResource] = useState<any>(null);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
 
+  // Member state from localStorage
+  const [member, setMember] = useState<{ id: number; name: string; isStudent: boolean; academyName?: string } | null>(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("member");
+    if (stored) {
+      try {
+        setMember(JSON.parse(stored));
+      } catch { }
+    }
+  }, []);
+
+  const isStudent = member?.isStudent === true;
+
   const filteredResources = resources?.filter(r => activeCategory === "all" || r.category === activeCategory);
 
   // Group resources by folder/subcategory
@@ -333,6 +347,16 @@ export default function Resources() {
   };
 
   const handleDownload = async (resource: any) => {
+    // Check if user is logged in and is a student
+    if (!member) {
+      toast.error("로그인이 필요합니다");
+      return;
+    }
+    if (!isStudent) {
+      toast.error("수업자료는 코딩쏙학원 강의 학생만 다운로드할 수 있습니다");
+      return;
+    }
+
     try {
       await incrementDownload.mutateAsync({ id: resource.id });
       window.open(resource.fileUrl, '_blank');
@@ -388,6 +412,53 @@ export default function Resources() {
           </AnimatedSection>
         </div>
       </section>
+
+      {/* Non-Student Warning Banner */}
+      {(!member || !isStudent) && (
+        <section className="px-4 md:px-8 relative z-10">
+          <div className="max-w-7xl mx-auto">
+            <div className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-2 border-amber-500/40 rounded-2xl p-4 md:p-6 flex flex-col md:flex-row items-start md:items-center gap-4">
+              <div className="w-12 h-12 bg-amber-500/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Lock className="w-6 h-6 text-amber-400" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-white mb-1">
+                  📚 강의 학생 전용 자료입니다
+                </h3>
+                <p className="text-white/70 text-sm md:text-base">
+                  수업자료는 <span className="text-emerald-400 font-bold">코딩쏙학원</span> 강의 학생만 다운로드할 수 있습니다.
+                  {!member && " 로그인 또는 회원가입 후 이용해주세요."}
+                  {member && !isStudent && (
+                    <span className="block mt-1 text-amber-300">
+                      💡 현재 학원: {member.academyName || "미등록"} - 마이페이지에서 "코딩쏙학원"으로 변경하세요!
+                    </span>
+                  )}
+                </p>
+              </div>
+              {!member ? (
+                <div className="flex gap-2 w-full md:w-auto">
+                  <Link href="/login">
+                    <Button className="bg-white/20 hover:bg-white/30 text-white border border-white/30 rounded-xl">
+                      로그인
+                    </Button>
+                  </Link>
+                  <Link href="/register">
+                    <Button className="bg-emerald-500 hover:bg-emerald-600 text-black rounded-xl">
+                      <UserPlus className="w-4 h-4 mr-2" />회원가입
+                    </Button>
+                  </Link>
+                </div>
+              ) : (
+                <Link href="/profile">
+                  <Button className="bg-amber-500 hover:bg-amber-600 text-black rounded-xl">
+                    <School className="w-4 h-4 mr-2" />학원 등록하기
+                  </Button>
+                </Link>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Filter */}
       <section className="py-4 md:py-6 lg:py-8 sticky top-16 md:top-20 lg:top-24 z-40 bg-[#12121a]/80 backdrop-blur-xl border-y border-white/10">
