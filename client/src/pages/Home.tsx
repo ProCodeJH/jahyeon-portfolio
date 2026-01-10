@@ -668,12 +668,8 @@ export default function Home() {
 
                       {/* Content */}
                       <div className="absolute inset-0 p-6 md:p-8 lg:p-10 flex flex-col justify-end">
-                        {/* Category Badge */}
+                        {/* Project Badge */}
                         <div className="flex items-center gap-2 mb-3 md:mb-4">
-                          <span className="px-3 md:px-4 py-1 md:py-1.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs md:text-sm font-bold tracking-wider uppercase shadow-lg">
-                            <Code className="w-3 h-3 md:w-4 md:h-4 inline mr-1.5" />
-                            {project.category}
-                          </span>
                           <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-xl text-white text-xs md:text-sm font-medium">
                             #{idx + 1}
                           </span>

@@ -1,14 +1,7 @@
-fix: Complete nested folder support with proper hierarchy display
+fix: Remove category badge from project cards
 
-ROOT CAUSE: 
-getFolderTree function was not using parentId at all - showing all folders flat
+REMOVED:
+- Category badge (C_LANG etc.) from Home page project cards
+- Category badge from Admin project list
 
-FIXES:
-1. Rewrote getFolderTree to build proper parent-child hierarchy using parentId
-2. Folders with parentId are now shown as children of their parent folder
-3. Added depth-based indentation (24px per level)
-4. Visual indicators for subfolders:
-   - ↳ arrow prefix for nested folders
-   - Blue color for subfolders (vs purple for root)
-   - 📂 icon for subfolders (vs 📁 for root)
-5. Shows subfolder count in folder info
+Project cards now show only project number (#1, #2, etc.) and view count.

@@ -705,7 +705,7 @@ export default function Admin() {
                   <div key={project.id} className="p-4 flex items-center gap-4 hover:bg-white/[0.02]">
                     <div className="w-16 h-16 rounded-xl bg-white/5 overflow-hidden flex-shrink-0">{project.imageUrl ? (<img src={project.imageUrl} className="w-full h-full object-cover" />) : (<div className="w-full h-full flex items-center justify-center"><Code className="w-6 h-6 text-white/20" /></div>)}</div>
                     <div className="flex-1 min-w-0"><h3 className="font-medium text-white truncate">{project.title}</h3><p className="text-sm text-white/40 truncate">{project.description}</p>
-                      <div className="flex items-center gap-3 mt-1"><span className="px-2 py-0.5 rounded text-xs" style={{ backgroundColor: PROJECT_CATEGORIES.find(c => c.value === project.category)?.color + '30', color: PROJECT_CATEGORIES.find(c => c.value === project.category)?.color }}>{project.category}</span><span className="text-xs text-white/30 flex items-center gap-1"><Eye className="w-3 h-3" />{project.viewCount || 0}</span></div>
+                      <div className="flex items-center gap-3 mt-1"><span className="text-xs text-white/30 flex items-center gap-1"><Eye className="w-3 h-3" />{project.viewCount || 0}</span></div>
                     </div>
                     <Button variant="ghost" size="sm" onClick={() => deleteProject.mutate({ id: project.id })} className="text-red-400 hover:text-red-300 hover:bg-red-500/10"><Trash2 className="h-4 w-4" /></Button>
                   </div>
