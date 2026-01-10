@@ -1,15 +1,5 @@
-fix: Proper nested folder creation using parentId instead of name concatenation
+fix: Remove category from project creation dialog
 
-ISSUE:
-- Subfolder creation was concatenating folder names with "/" (e.g., "Parent/Child")
-- This didn't use the database's parentId column correctly
-
-FIX:
-- Now looks up parent folder by name to get its ID
-- Passes actual parentId to the API
-- Folders are stored with proper parent-child relationship
-
-UI IMPROVEMENTS:
-- Updated folder creation preview to show hierarchy with icons
-- Shows "📂 Parent / 📁 Child" format for nested folders
-- Shows "📁 Name (in category)" for root-level folders
+- Removed category selector from "Add Project" dialog
+- Title input now spans full width
+- Simplified project creation form

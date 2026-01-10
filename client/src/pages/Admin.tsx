@@ -604,14 +604,9 @@ export default function Admin() {
                       <DialogDescription className="text-white/50">Add a new project to your portfolio</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-5 py-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div><Label className="text-white/70">Title *</Label><Input value={projectForm.title} onChange={e => setProjectForm({ ...projectForm, title: e.target.value })} className="mt-1.5 bg-white/5 border-white/10 text-white" placeholder="Project title" /></div>
-                        <div><Label className="text-white/70">Category *</Label>
-                          <Select value={projectForm.category} onValueChange={(v: ProjectCategory) => setProjectForm({ ...projectForm, category: v })}>
-                            <SelectTrigger className="mt-1.5 bg-white/5 border-white/10 text-white"><SelectValue /></SelectTrigger>
-                            <SelectContent className="bg-[#111] border-white/10">{PROJECT_CATEGORIES.map(c => (<SelectItem key={c.value} value={c.value} className="text-white hover:bg-white/10"><div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full" style={{ backgroundColor: c.color }} />{c.label}</div></SelectItem>))}</SelectContent>
-                          </Select>
-                        </div>
+                      <div>
+                        <Label className="text-white/70">Title *</Label>
+                        <Input value={projectForm.title} onChange={e => setProjectForm({ ...projectForm, title: e.target.value })} className="mt-1.5 bg-white/5 border-white/10 text-white" placeholder="Project title" />
                       </div>
                       <div><Label className="text-white/70">Description *</Label><Textarea value={projectForm.description} onChange={e => setProjectForm({ ...projectForm, description: e.target.value })} rows={3} className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
                       <div><Label className="text-white/70">Technologies *</Label><Input value={projectForm.technologies} onChange={e => setProjectForm({ ...projectForm, technologies: e.target.value })} placeholder="C, Python, Arduino" className="mt-1.5 bg-white/5 border-white/10 text-white" /></div>
