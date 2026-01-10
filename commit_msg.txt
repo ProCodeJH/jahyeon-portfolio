@@ -1,17 +1,17 @@
-fix: Remove webcontainer/xterm and add Profile page
+feat: Add Firebase Phone Auth for free SMS verification
 
-FIXES:
-- Fixed black screen by removing webcontainer/xterm dependencies from CodeEditor
-- CodeEditor now uses simulation mode for all languages (stable deployment)
-- Removed rollupOptions.external from vite.config.ts
+- Install Firebase SDK
+- Add firebase.ts config with Phone Auth helpers
+- Update Register.tsx to use Firebase Phone Auth
+  - reCAPTCHA verification
+  - SMS sending via Firebase
+  - Code verification via Firebase
+- Add .env.example for Firebase config setup
 
-NEW FEATURES:
-- Added Profile page (/profile) for academy name management
-- Users can update academy name to "코딩쏙학원" to become verified students
-- Added /profile route to App.tsx
+Setup required:
+1. Create Firebase project
+2. Enable Phone Auth in Firebase Console
+3. Add domain to authorized domains
+4. Copy Firebase config to .env.local
 
-All premium features complete (except AI chatbot):
-✅ Registration/Login with SMS verification
-✅ Student access control (Resources)
-✅ GitHub real-time activity
-✅ Profile management
+Free tier: 10,000 SMS/month

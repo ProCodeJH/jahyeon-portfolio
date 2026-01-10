@@ -1,10 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
+import {
+    auth,
+    setupRecaptcha,
+    sendVerificationCode,
+    verifyCode,
+    type ConfirmationResult
+} from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, User, Phone, Lock, School, ArrowRight, CheckCircle, Sparkles } from "lucide-react";
+import { Loader2, User, Phone, Lock, School, ArrowRight, CheckCircle, Sparkles, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Register() {
@@ -12,6 +19,7 @@ export default function Register() {
     const [step, setStep] = useState<"phone" | "verify" | "info">("phone");
     const [phone, setPhone] = useState("");
     const [verificationCode, setVerificationCode] = useState("");
+    const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
     const [form, setForm] = useState({
         name: "",
         age: "",
@@ -19,47 +27,91 @@ export default function Register() {
         confirmPassword: "",
         academyName: "",
     });
-
-    const sendSMS = trpc.members.sendSMS.useMutation({
-        onSuccess: () => {
-            toast.success("인증번호가 발송되었습니다!");
-            setStep("verify");
-        },
-        onError: (e) => toast.error(e.message),
-    });
-
-    const verifySMS = trpc.members.verifySMS.useMutation({
-        onSuccess: () => {
-            toast.success("인증이 완료되었습니다!");
-            setStep("info");
-        },
-        onError: (e) => toast.error(e.message),
-    });
+    const [isLoading, setIsLoading] = useState(false);
+    const [firebaseError, setFirebaseError] = useState<string | null>(null);
+    const recaptchaContainerRef = useRef<HTMLDivElement>(null);
 
     const register = trpc.members.register.useMutation({
         onSuccess: (data) => {
             toast.success("회원가입이 완료되었습니다!");
-            // Store member info in localStorage
             localStorage.setItem("member", JSON.stringify(data.member));
             setLocation("/");
         },
         onError: (e) => toast.error(e.message),
     });
 
-    const handleSendSMS = () => {
+    // Send SMS via Firebase
+    const handleSendSMS = async () => {
         if (phone.length < 10) {
             toast.error("올바른 전화번호를 입력해주세요");
             return;
         }
-        sendSMS.mutate({ phone });
+
+        setIsLoading(true);
+        setFirebaseError(null);
+
+        try {
+            // Setup invisible reCAPTCHA
+            const recaptcha = setupRecaptcha("send-sms-button");
+            await recaptcha.render();
+
+            // Send verification code
+            const result = await sendVerificationCode(phone, recaptcha);
+            setConfirmationResult(result);
+            toast.success("인증번호가 발송되었습니다!");
+            setStep("verify");
+        } catch (error: any) {
+            console.error("Firebase SMS error:", error);
+
+            // Handle specific Firebase errors
+            if (error.code === "auth/invalid-phone-number") {
+                setFirebaseError("올바른 전화번호 형식이 아닙니다");
+            } else if (error.code === "auth/too-many-requests") {
+                setFirebaseError("너무 많은 요청입니다. 잠시 후 다시 시도해주세요");
+            } else if (error.code === "auth/quota-exceeded") {
+                setFirebaseError("일일 한도를 초과했습니다");
+            } else {
+                setFirebaseError("SMS 발송에 실패했습니다. 다시 시도해주세요");
+            }
+            toast.error(firebaseError || "SMS 발송 실패");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const handleVerify = () => {
+    // Verify code via Firebase
+    const handleVerify = async () => {
         if (verificationCode.length !== 6) {
             toast.error("6자리 인증번호를 입력해주세요");
             return;
         }
-        verifySMS.mutate({ phone, code: verificationCode });
+
+        if (!confirmationResult) {
+            toast.error("인증 세션이 만료되었습니다. 다시 시도해주세요");
+            setStep("phone");
+            return;
+        }
+
+        setIsLoading(true);
+
+        try {
+            await verifyCode(confirmationResult, verificationCode);
+            toast.success("인증이 완료되었습니다!");
+            setStep("info");
+        } catch (error: any) {
+            console.error("Verification error:", error);
+
+            if (error.code === "auth/invalid-verification-code") {
+                toast.error("인증번호가 올바르지 않습니다");
+            } else if (error.code === "auth/code-expired") {
+                toast.error("인증번호가 만료되었습니다. 다시 요청해주세요");
+                setStep("phone");
+            } else {
+                toast.error("인증 실패. 다시 시도해주세요");
+            }
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleRegister = () => {
@@ -92,6 +144,9 @@ export default function Register() {
                 <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
             </div>
 
+            {/* Hidden reCAPTCHA container */}
+            <div id="recaptcha-container" ref={recaptchaContainerRef} />
+
             <div className="relative w-full max-w-md">
                 {/* Header */}
                 <div className="text-center mb-8">
@@ -121,6 +176,14 @@ export default function Register() {
                 {/* Form Card */}
                 <div className="bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-2xl p-6 space-y-6">
 
+                    {/* Firebase Error Alert */}
+                    {firebaseError && (
+                        <div className="flex items-start gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/30">
+                            <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                            <p className="text-red-400 text-sm">{firebaseError}</p>
+                        </div>
+                    )}
+
                     {/* Step 1: Phone */}
                     {step === "phone" && (
                         <>
@@ -139,14 +202,20 @@ export default function Register() {
                                 <p className="text-white/40 text-xs mt-1">'-' 없이 숫자만 입력하세요</p>
                             </div>
                             <Button
+                                id="send-sms-button"
                                 onClick={handleSendSMS}
-                                disabled={sendSMS.isPending || phone.length < 10}
+                                disabled={isLoading || phone.length < 10}
                                 className="w-full bg-emerald-500 hover:bg-emerald-600 text-black font-medium py-6"
                             >
-                                {sendSMS.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                                {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                                 인증번호 발송
                                 <ArrowRight className="w-4 h-4 ml-2" />
                             </Button>
+
+                            {/* Firebase Info */}
+                            <p className="text-white/30 text-xs text-center">
+                                🔥 Firebase Phone Auth 사용 (월 10,000건 무료)
+                            </p>
                         </>
                     )}
 
@@ -169,17 +238,21 @@ export default function Register() {
                             <div className="flex gap-3">
                                 <Button
                                     variant="outline"
-                                    onClick={() => setStep("phone")}
+                                    onClick={() => {
+                                        setStep("phone");
+                                        setConfirmationResult(null);
+                                        setVerificationCode("");
+                                    }}
                                     className="flex-1 border-white/20 text-white hover:bg-white/10"
                                 >
                                     이전
                                 </Button>
                                 <Button
                                     onClick={handleVerify}
-                                    disabled={verifySMS.isPending || verificationCode.length !== 6}
+                                    disabled={isLoading || verificationCode.length !== 6}
                                     className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-black"
                                 >
-                                    {verifySMS.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                                    {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                                     확인
                                 </Button>
                             </div>
