@@ -16,7 +16,7 @@ export default function Profile() {
         isStudent: boolean;
         academyName?: string;
     } | null>(null);
-    const [academyName, setAcademyName] = useState("");
+    const [accessCode, setAccessCode] = useState("");
     const [isSaving, setIsSaving] = useState(false);
 
     // Load member from localStorage
@@ -26,7 +26,7 @@ export default function Profile() {
             try {
                 const parsed = JSON.parse(stored);
                 setMember(parsed);
-                setAcademyName(parsed.academyName || "");
+                setAccessCode(""); // Don't pre-fill access code
             } catch {
                 setLocation("/login");
             }
@@ -38,7 +38,7 @@ export default function Profile() {
     const updateProfile = trpc.members.updateProfile.useMutation({
         onSuccess: (data) => {
             if (member) {
-                const updated = { ...member, isStudent: data.isStudent ?? false, academyName };
+                const updated = { ...member, isStudent: data.isStudent ?? false };
                 setMember(updated);
                 localStorage.setItem("member", JSON.stringify(updated));
             }
@@ -54,7 +54,7 @@ export default function Profile() {
     const handleSave = () => {
         if (!member) return;
         setIsSaving(true);
-        updateProfile.mutate({ memberId: member.id, academyName });
+        updateProfile.mutate({ memberId: member.id, academyName: accessCode });
     };
 
     const handleLogout = () => {
@@ -109,31 +109,31 @@ export default function Profile() {
                     <div className="bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-2xl p-6 space-y-6">
                         <h2 className="text-xl font-semibold text-white">프로필 설정</h2>
 
-                        {/* Academy Name */}
+                        {/* Access Code */}
                         <div className="space-y-3">
                             <Label className="text-white/70 flex items-center gap-2">
                                 <School className="w-4 h-4" />
-                                학원명
+                                학원 접근 코드
                             </Label>
                             <Input
-                                value={academyName}
-                                onChange={(e) => setAcademyName(e.target.value)}
-                                placeholder="코딩쏙학원"
+                                value={accessCode}
+                                onChange={(e) => setAccessCode(e.target.value)}
+                                placeholder="선생님께 받은 코드 입력"
                                 className="bg-white/5 border-white/10 text-white"
                             />
 
                             {/* Help text */}
                             <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30">
                                 <p className="text-amber-400 text-sm">
-                                    💡 <strong>"코딩쏙학원"</strong>이라고 정확히 입력하시면 강의 학생으로 인증되어 수업자료를 다운로드할 수 있습니다.
+                                    🔐 선생님께 받은 <strong>접근 코드</strong>를 입력하시면 강의 학생으로 인증되어 수업자료를 다운로드할 수 있습니다.
                                 </p>
                             </div>
 
-                            {/* Preview */}
-                            {academyName === "코딩쏙학원" && !member.isStudent && (
+                            {/* Status */}
+                            {member.isStudent && (
                                 <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
                                     <p className="text-emerald-400 text-sm">
-                                        ✅ 저장하면 강의 학생으로 인증됩니다!
+                                        ✅ 이미 학생으로 인증되어 있습니다!
                                     </p>
                                 </div>
                             )}

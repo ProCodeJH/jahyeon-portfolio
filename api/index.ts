@@ -858,6 +858,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           });
         }
 
+        case "members.updateProfile": {
+          // Get member
+          const memberToUpdate = await db.select().from(members).where(eq(members.id, input.memberId)).limit(1);
+          if (!memberToUpdate[0]) {
+            return res.status(404).json({ error: { message: "회원을 찾을 수 없습니다" } });
+          }
+
+          // Check access code from settings
+          const accessCodeSetting = await db.select().from(settings).where(eq(settings.key, "student_access_code")).limit(1);
+          const validAccessCode = accessCodeSetting[0]?.value || "코딩쏙2024";
+          const isValidStudent = input.academyName === validAccessCode;
+
+          // Update member
+          await db.update(members).set({
+            academyName: isValidStudent ? "코딩쏙학원" : (input.academyName || null),
+            isStudent: isValidStudent,
+            updatedAt: new Date(),
+          }).where(eq(members.id, input.memberId));
+
+          return res.json({
+            result: {
+              data: {
+                success: true,
+                isStudent: isValidStudent,
+                message: isValidStudent ? "학생 인증이 완료되었습니다!" : "프로필이 저장되었습니다",
+              }
+            }
+          });
+        }
+
         default:
           return res.status(404).json({ error: { message: `Unknown procedure: ${trpcPath}` } });
       }

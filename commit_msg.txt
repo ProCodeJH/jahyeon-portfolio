@@ -1,15 +1,17 @@
-fix: Add members API routes to Vercel serverless function
+feat: Add members.updateProfile API and update Profile page to use access code
 
-ROOT CAUSE OF 404 ERROR:
-- api/index.ts (Vercel serverless) lacked members routes
-- server/routers.ts has them but isn't used in production Vercel
+API ADDITIONS:
+- Added members.updateProfile endpoint to api/index.ts
+- Validates access code against settings
+- Updates isStudent based on code match
 
-ADDED:
-- members table schema in api/index.ts
-- members.register endpoint with access code verification
-- members.login endpoint with password check
+UI CHANGES:
+- Profile page now shows "학원 접근 코드" instead of "학원명"
+- Changed placeholder to "선생님께 받은 코드 입력"
+- Shows current student status
+- Updated help text to explain access code system
 
-ACCESS CODE SYSTEM:
+SECURITY:
+- Access code is validated server-side
 - Default code: "코딩쏙2024"
-- Can be changed via settings key "student_access_code"
-- Only users with correct code become students
+- Can be changed in settings table
