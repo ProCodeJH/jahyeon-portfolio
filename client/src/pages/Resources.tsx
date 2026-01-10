@@ -15,10 +15,6 @@ import { ResourceCardSkeleton } from "@/components/ui/skeleton";
 const CATEGORIES = [
   { value: "all", label: "All", icon: Sparkles, color: "#8B5CF6", gradient: "from-purple-500 to-pink-500" },
   { value: "daily_life", label: "Daily Videos", icon: Video, color: "#EC4899", gradient: "from-pink-500 to-rose-500" },
-  { value: "lecture_c", label: "C Lectures", icon: Terminal, color: "#3B82F6", gradient: "from-blue-500 to-indigo-500" },
-  { value: "lecture_arduino", label: "Arduino", icon: Cpu, color: "#10B981", gradient: "from-emerald-500 to-green-500" },
-  { value: "lecture_python", label: "Python", icon: Code, color: "#F59E0B", gradient: "from-amber-500 to-orange-500" },
-  { value: "presentation", label: "Presentations", icon: Presentation, color: "#8B5CF6", gradient: "from-purple-500 to-violet-500" },
 ];
 
 // PPT Thumbnail

@@ -1,13 +1,15 @@
-feat: Add Move Folder feature for nesting existing folders
+feat: Simplify categories and upgrade YouTube section
 
-NEW FEATURE - Move Folder:
-- Blue folder move button (📂→) in folder action bar
-- Move Folder dialog with parent folder selector
-- Can move any existing folder into another folder
-- Preview shows folder structure after move
-- Prevents circular references (can't move parent into child)
+CATEGORIES SIMPLIFIED:
+- Resources.tsx: Only "All" and "Daily Videos" now
+- Admin.tsx: Only "Daily Videos" category
+- PPT, PDF, source code will all be mixed together
 
-UI:
-- Button appears only for folders saved in DB (with id)
-- Drop-down lists all folders in same category except self
-- Root option to move folder back to top level
+YOUTUBE SECTION PREMIUM UPGRADE:
+- Animated gradient border (red → pink → purple → blue)
+- Pulsing background blobs with staggered delays
+- Corner L-shaped decorations in gradient colors
+- Floating labels: "✨ Premium Content" and "🎬 HD Quality"
+- Larger text (7xl), better spacing
+- Hover glow overlay effect
+- Bigger max-width container (max-w-6xl)

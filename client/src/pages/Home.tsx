@@ -18,7 +18,7 @@ import {
   PerplexityLogo, GrokLogo, AntigravityLogo, JulesLogo
 } from "@/components/icons/AILogos";
 
-// YouTube Video Section Component
+// YouTube Video Section Component - Premium Ultra Edition
 function YouTubeVideoSection() {
   // Try to fetch YouTube URL from database, fallback to hardcoded if API fails
   const { data: youtubeUrl, isLoading, isError } = trpc.settings.get.useQuery(
@@ -33,7 +33,6 @@ function YouTubeVideoSection() {
   // Extract video ID from URL - handles youtube.com, youtu.be, and query params
   const getYouTubeVideoId = (url: string | null | undefined) => {
     if (!url) return null;
-    // Handle youtu.be/ID or youtube.com/watch?v=ID or youtube.com/embed/ID
     const patterns = [
       /youtu\.be\/([a-zA-Z0-9_-]{11})/,
       /youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/,
@@ -47,54 +46,96 @@ function YouTubeVideoSection() {
   };
 
   const videoId = getYouTubeVideoId(finalUrl);
-
-  // Debug logging
-  console.log("🎬 YouTube Debug:", { youtubeUrl, finalUrl, videoId, isLoading, isError });
-
-  // Don't render only while loading (fallback ensures video always shows)
   if (isLoading) return null;
 
   return (
-    <section className="py-24 md:py-32 px-4 md:px-8 relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute top-10 right-20 w-72 h-72 bg-gradient-to-r from-red-500/10 to-pink-600/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-10 left-20 w-64 h-64 bg-gradient-to-r from-purple-500/10 to-blue-600/10 rounded-full blur-3xl" />
+    <section className="py-24 md:py-36 px-4 md:px-8 relative overflow-hidden">
+      {/* Premium Background Effects */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-gradient-to-r from-red-500/20 to-pink-600/20 rounded-full blur-[100px] animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-gradient-to-r from-purple-500/20 to-blue-600/20 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/2 left-0 w-[300px] h-[300px] bg-gradient-to-r from-orange-500/15 to-red-600/15 rounded-full blur-[80px] animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
 
-      <div className="max-w-5xl mx-auto relative z-10">
+      <div className="max-w-6xl mx-auto relative z-10">
         <AnimatedSection>
           {/* Section Header */}
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-red-500/10 border border-red-500/30 backdrop-blur-xl mb-6">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-red-500/20 via-pink-500/20 to-purple-500/20 border border-red-500/30 backdrop-blur-xl mb-8 shadow-lg shadow-red-500/10">
+              <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
               <Play className="w-5 h-5 text-red-400" />
-              <span className="text-sm font-bold text-red-400 tracking-wider uppercase">Featured Video</span>
+              <span className="text-sm font-bold text-red-300 tracking-wider uppercase">Featured Video</span>
+              <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse" style={{ animationDelay: '0.5s' }} />
             </div>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-4 tracking-tight">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-red-400 via-pink-400 to-purple-400">
+            <h2 className="text-5xl md:text-6xl lg:text-7xl font-black mb-6 tracking-tight">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-red-400 via-pink-400 to-purple-400 animate-gradient-x">
                 Watch Now
               </span>
             </h2>
+            <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto">
+              Experience our latest content in stunning high quality
+            </p>
           </div>
 
-          {/* Video Container */}
-          <div className="relative rounded-3xl overflow-hidden border-2 border-white/10 shadow-2xl shadow-purple-500/10 group">
-            {/* Red Glow Effect */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-red-500/30 via-pink-500/30 to-purple-500/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          {/* Ultra Premium Video Container */}
+          <div className="relative group">
+            {/* Animated Gradient Border */}
+            <div className="absolute -inset-[3px] rounded-[32px] bg-gradient-to-r from-red-500 via-pink-500 via-purple-500 via-blue-500 to-red-500 bg-[length:400%_400%] animate-gradient-x opacity-75 group-hover:opacity-100 blur-sm transition-all duration-500" />
 
-            <div className="relative aspect-video bg-[#0a0a0a]">
-              {videoId ? (
-                <iframe
-                  src={`https://www.youtube.com/embed/${videoId}`}
-                  title="Featured YouTube Video"
-                  className="w-full h-full"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-400">
-                  <p>Video loading error - URL: {finalUrl}</p>
-                </div>
-              )}
+            {/* Solid inner border */}
+            <div className="absolute -inset-[2px] rounded-[30px] bg-gradient-to-r from-red-500/80 via-pink-500/80 to-purple-500/80 bg-[length:200%_200%] animate-gradient-x" />
+
+            {/* Main Container */}
+            <div className="relative rounded-[28px] overflow-hidden bg-[#0a0a0a]">
+              {/* Corner Decorations */}
+              <div className="absolute top-0 left-0 w-32 h-32 pointer-events-none z-20">
+                <div className="absolute top-4 left-4 w-8 h-[2px] bg-gradient-to-r from-red-400 to-transparent" />
+                <div className="absolute top-4 left-4 w-[2px] h-8 bg-gradient-to-b from-red-400 to-transparent" />
+              </div>
+              <div className="absolute top-0 right-0 w-32 h-32 pointer-events-none z-20">
+                <div className="absolute top-4 right-4 w-8 h-[2px] bg-gradient-to-l from-pink-400 to-transparent" />
+                <div className="absolute top-4 right-4 w-[2px] h-8 bg-gradient-to-b from-pink-400 to-transparent" />
+              </div>
+              <div className="absolute bottom-0 left-0 w-32 h-32 pointer-events-none z-20">
+                <div className="absolute bottom-4 left-4 w-8 h-[2px] bg-gradient-to-r from-purple-400 to-transparent" />
+                <div className="absolute bottom-4 left-4 w-[2px] h-8 bg-gradient-to-t from-purple-400 to-transparent" />
+              </div>
+              <div className="absolute bottom-0 right-0 w-32 h-32 pointer-events-none z-20">
+                <div className="absolute bottom-4 right-4 w-8 h-[2px] bg-gradient-to-l from-blue-400 to-transparent" />
+                <div className="absolute bottom-4 right-4 w-[2px] h-8 bg-gradient-to-t from-blue-400 to-transparent" />
+              </div>
+
+              {/* Hover Glow Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-r from-red-500/0 via-pink-500/10 to-purple-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-10" />
+
+              {/* Video */}
+              <div className="relative aspect-video">
+                {videoId ? (
+                  <iframe
+                    src={`https://www.youtube.com/embed/${videoId}`}
+                    title="Featured YouTube Video"
+                    className="w-full h-full"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-400 bg-gradient-to-br from-gray-900 to-gray-800">
+                    <div className="text-center">
+                      <Play className="w-16 h-16 mx-auto mb-4 text-red-400/50" />
+                      <p>Video loading...</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Floating Labels */}
+            <div className="absolute -top-4 left-8 px-4 py-2 rounded-full bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold shadow-lg shadow-red-500/30 z-30">
+              ✨ Premium Content
+            </div>
+            <div className="absolute -bottom-4 right-8 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 text-white text-xs font-bold shadow-lg shadow-purple-500/30 z-30">
+              🎬 HD Quality
             </div>
           </div>
         </AnimatedSection>

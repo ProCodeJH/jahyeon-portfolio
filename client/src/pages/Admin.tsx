@@ -27,10 +27,6 @@ const PROJECT_CATEGORIES = [
 
 const RESOURCE_CATEGORIES = [
   { value: "daily_life" as const, label: "Daily Videos", color: "#EC4899" },
-  { value: "lecture_c" as const, label: "C Language Lectures", color: "#3B82F6" },
-  { value: "lecture_arduino" as const, label: "Arduino Lectures", color: "#10B981" },
-  { value: "lecture_python" as const, label: "Python Lectures", color: "#F59E0B" },
-  { value: "presentation" as const, label: "Presentations (PPT)", color: "#8B5CF6" },
 ];
 
 const ACCEPTED_FILE_TYPES = {
