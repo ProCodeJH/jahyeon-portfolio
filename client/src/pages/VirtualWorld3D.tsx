@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import {
     Users, MessageCircle, Send, X, Maximize2, Minimize2,
-    Volume2, VolumeX, LogIn, Shuffle, Wifi, WifiOff, UserPlus, RotateCcw, Map,
+    Volume2, VolumeX, LogIn, Shuffle, Wifi, WifiOff, UserPlus, RotateCcw, Map as MapIcon,
 } from "lucide-react";
 import { useRealtimeWorld } from "@/hooks/useRealtimeWorld";
 import * as THREE from "three";
@@ -801,7 +801,7 @@ export default function VirtualWorld3D() {
 
                         <div className="flex gap-2 pointer-events-auto">
                             <button onClick={() => setShowMinimap(!showMinimap)} className="w-11 h-11 bg-black/70 rounded-xl flex items-center justify-center hover:bg-white/20 border border-white/20">
-                                <Map className="w-5 h-5" />
+                                <MapIcon className="w-5 h-5" />
                             </button>
                             <button onClick={() => setIsMuted(!isMuted)} className="w-11 h-11 bg-black/70 rounded-xl flex items-center justify-center hover:bg-white/20 border border-white/20">
                                 {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
