@@ -1574,6 +1574,11 @@ export default function Admin() {
                     const newCategory = movingFolder.category;
                     const categoryChanged = originalCategory && originalCategory !== newCategory;
 
+                    // Get target parent folder name if exists
+                    const targetParentFolder = moveTargetParentId
+                      ? folders?.find(f => f.id === moveTargetParentId)
+                      : null;
+
                     // Update folder category and parent
                     await updateFolder.mutateAsync({
                       id: movingFolder.id,
@@ -1581,20 +1586,26 @@ export default function Admin() {
                       category: newCategory,
                     });
 
-                    // If category changed, also update all resources in this folder
-                    if (categoryChanged) {
-                      const resourcesToMove = resources?.filter(r =>
-                        r.category === originalCategory &&
-                        r.subcategory === movingFolder.name
-                      ) || [];
+                    // Update all resources in this folder
+                    const resourcesToMove = resources?.filter(r =>
+                      r.category === originalCategory &&
+                      r.subcategory === movingFolder.name
+                    ) || [];
 
-                      for (const resource of resourcesToMove) {
-                        await updateResource.mutateAsync({
-                          id: resource.id,
-                          category: newCategory,
-                        });
-                      }
+                    // New subcategory is the target parent folder's name, or the moved folder's name if going to root
+                    const newSubcategory = targetParentFolder
+                      ? `${targetParentFolder.name}/${movingFolder.name}`
+                      : movingFolder.name;
 
+                    for (const resource of resourcesToMove) {
+                      await updateResource.mutateAsync({
+                        id: resource.id,
+                        category: newCategory,
+                        subcategory: newSubcategory,
+                      });
+                    }
+
+                    if (categoryChanged || targetParentFolder) {
                       toast.success(`폴더 "${movingFolder.name}"와 ${resourcesToMove.length}개 파일이 이동되었습니다`);
                     } else {
                       toast.success(`폴더 "${movingFolder.name}" 이동 완료`);
