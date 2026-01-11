@@ -216,7 +216,7 @@ export function useRealtimeWorld(options: UseRealtimeWorldOptions): UseRealtimeW
 
     // Send chat message
     const sendChat = useCallback((message: string) => {
-        if (!channelRef.current || !isConnected || !message.trim()) return;
+        if (!message.trim()) return;
 
         const chatMsg: ChatMessage = {
             id: `${playerId}-${Date.now()}`,
@@ -226,21 +226,21 @@ export function useRealtimeWorld(options: UseRealtimeWorldOptions): UseRealtimeW
             timestamp: new Date().toISOString(),
         };
 
-        // Add locally first
+        // Always add locally first (so user sees their own message)
         setChatMessages(prev => [...prev.slice(-99), chatMsg]);
 
-        // Broadcast to others
-        channelRef.current.send({
-            type: 'broadcast',
-            event: 'chat',
-            payload: chatMsg,
-        });
+        // Try to broadcast to others if connected
+        if (channelRef.current && isConnected) {
+            channelRef.current.send({
+                type: 'broadcast',
+                event: 'chat',
+                payload: chatMsg,
+            });
+        }
     }, [isConnected, playerId, playerName]);
 
     // Send emote (Phase 9)
     const sendEmote = useCallback((emote: string) => {
-        if (!channelRef.current || !isConnected) return;
-
         // Broadcast emote as a special chat message
         const emoteMsg: ChatMessage = {
             id: `${playerId}-emote-${Date.now()}`,
@@ -250,13 +250,17 @@ export function useRealtimeWorld(options: UseRealtimeWorldOptions): UseRealtimeW
             timestamp: new Date().toISOString(),
         };
 
+        // Always add locally first
         setChatMessages(prev => [...prev.slice(-99), emoteMsg]);
 
-        channelRef.current.send({
-            type: 'broadcast',
-            event: 'chat',
-            payload: emoteMsg,
-        });
+        // Try to broadcast if connected
+        if (channelRef.current && isConnected) {
+            channelRef.current.send({
+                type: 'broadcast',
+                event: 'chat',
+                payload: emoteMsg,
+            });
+        }
     }, [isConnected, playerId, playerName]);
 
     // Disconnect
