@@ -12,7 +12,7 @@ import { useRealtimeWorld } from "@/hooks/useRealtimeWorld";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
-// ════════════════════════════════════════════════════════════════
+// VirtualWorld3D v2.0 - 2026-01-11 20:33 KST - Cache bust
 // 🌍 WORLD CONSTANTS - 100x100 COMPLETE CITY
 // ════════════════════════════════════════════════════════════════
 
