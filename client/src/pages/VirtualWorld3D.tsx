@@ -433,7 +433,7 @@ export default function VirtualWorld3D() {
         // Scene
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x87CEEB);
-        scene.fog = new THREE.Fog(0x87CEEB, 50, 150);
+        // Note: Fog removed due to bundler compatibility issues
         sceneRef.current = scene;
 
         // Camera
