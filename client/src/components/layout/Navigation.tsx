@@ -27,7 +27,8 @@ export function Navigation() {
   const menuItems = [
     { name: "Work", path: "/projects" },
     { name: "Resources", path: "/resources" },
-    { name: "Code Editor", path: "/code-editor" }
+    { name: "Code Editor", path: "/code-editor" },
+    { name: "🌐 World", path: "/virtual-world" }
   ];
 
   return (
