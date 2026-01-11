@@ -123,6 +123,70 @@ function YouTubeUrlInput() {
   );
 }
 
+// Access Code Input Component for Student Verification
+function AccessCodeInput() {
+  const [code, setCode] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const { data: savedCode, isLoading } = trpc.settings.get.useQuery({ key: "student_access_code" });
+  const utils = trpc.useUtils();
+  const setSetting = trpc.settings.set.useMutation({
+    onSuccess: () => {
+      utils.settings.get.invalidate({ key: "student_access_code" });
+      toast.success("접근 코드가 저장되었습니다!");
+      setIsSaving(false);
+    },
+    onError: (e) => {
+      toast.error(e.message);
+      setIsSaving(false);
+    },
+  });
+
+  const handleSave = () => {
+    if (!code.trim()) {
+      toast.error("접근 코드를 입력해주세요");
+      return;
+    }
+    setIsSaving(true);
+    setSetting.mutate({ key: "student_access_code", value: code.trim(), description: "학생 인증을 위한 접근 코드" });
+  };
+
+  if (isLoading) return <div className="text-white/50">Loading...</div>;
+
+  return (
+    <div className="bg-white/[0.03] border border-amber-500/30 rounded-xl p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-amber-400 text-lg">🔐</span>
+        <h3 className="text-white font-medium">수업자료 페이지 접근 코드</h3>
+      </div>
+      <p className="text-white/50 text-sm mb-3">
+        학생이 회원가입 시 이 코드를 입력하면 수업자료에 접근할 수 있습니다.
+      </p>
+      <div className="flex gap-3">
+        <Input
+          value={code || savedCode || ""}
+          onChange={(e) => setCode(e.target.value)}
+          placeholder="예: 코딩쏙2024"
+          className="flex-1 bg-white/5 border-white/10 text-white font-mono"
+        />
+        <Button
+          onClick={handleSave}
+          disabled={isSaving || (!code && !savedCode)}
+          className="bg-amber-500 hover:bg-amber-600 text-black px-6"
+        >
+          {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : "저장"}
+        </Button>
+      </div>
+      {(code || savedCode) && (
+        <div className="mt-3 p-2 bg-amber-500/10 rounded-lg">
+          <p className="text-amber-400 text-sm">
+            ✓ 현재 코드: <span className="font-mono font-bold">{code || savedCode}</span>
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Admin() {
   const { isAuthenticated, loading, logout } = useAuth();
   const utils = trpc.useUtils();
@@ -1131,6 +1195,9 @@ export default function Admin() {
                   <YouTubeUrlInput />
                 </div>
               </div>
+
+              {/* Student Access Code Section */}
+              <AccessCodeInput />
             </div>
           </TabsContent>
         </Tabs>

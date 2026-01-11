@@ -267,6 +267,12 @@ export async function deleteSetting(key: string) {
   await db.delete(settings).where(eq(settings.key, key));
 }
 
+// Get access code for student verification
+export async function getAccessCode(): Promise<string> {
+  const setting = await getSetting('access_code');
+  return setting?.value || '코딩쏙학원'; // Default fallback
+}
+
 // Members queries
 export async function getMemberByPhone(phone: string) {
   const db = await getDb();
@@ -286,8 +292,9 @@ export async function createMember(data: InsertMember) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  // Check if academyName === "코딩쏙학원" for student status
-  const isStudent = data.academyName === "코딩쏙학원";
+  // Get dynamic access code from settings
+  const accessCode = await getAccessCode();
+  const isStudent = data.academyName === accessCode;
 
   const result = await db.insert(members).values({
     ...data,
@@ -300,10 +307,11 @@ export async function updateMember(id: number, data: Partial<InsertMember>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  // If academyName is being updated, recalculate isStudent
+  // If academyName is being updated, recalculate isStudent with dynamic code
   const updateData: Record<string, unknown> = { ...data, updatedAt: new Date() };
   if (data.academyName !== undefined) {
-    updateData.isStudent = data.academyName === "코딩쏙학원";
+    const accessCode = await getAccessCode();
+    updateData.isStudent = data.academyName === accessCode;
   }
 
   await db.update(members).set(updateData).where(eq(members.id, id));
