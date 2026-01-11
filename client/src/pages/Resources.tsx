@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,9 @@ import { TiltCard } from "@/components/effects/TiltCard";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
 import { Navigation } from "@/components/layout/Navigation";
 import { ResourceCardSkeleton } from "@/components/ui/skeleton";
+
+// Lazy load 3D Secure Vault Overlay for performance
+const SecureVaultOverlay = lazy(() => import("@/components/3d/SecureVaultOverlay"));
 
 const CATEGORIES = [
   { value: "all", label: "All", icon: Sparkles, color: "#8B5CF6", gradient: "from-purple-500 to-pink-500" },
@@ -439,6 +442,15 @@ export default function Resources() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a0a1a] via-[#12121a] to-[#0a0a1a] text-white overflow-hidden">
+      {/* 🔒 3D SECURE VAULT OVERLAY - Premium Lock Screen */}
+      {!isStudent && (
+        <Suspense fallback={<div className="fixed inset-0 z-50 bg-black" />}>
+          <SecureVaultOverlay
+            isAuthenticated={isStudent}
+            onUnlockComplete={() => window.location.reload()}
+          />
+        </Suspense>
+      )}
       {/* Dark Neon Background */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-cyan-900/20" />
