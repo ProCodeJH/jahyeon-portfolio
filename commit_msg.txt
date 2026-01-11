@@ -1,42 +1,29 @@
-feat: Web Metaverse (Virtual World) - Phase 1
+feat: Web Metaverse Phase 2 - Supabase Realtime Multiplayer
 
-NEW PAGE: /virtual-world
+NEW FILES:
+- client/src/lib/supabase.ts - Supabase client configuration
+- client/src/hooks/useRealtimeWorld.ts - Realtime multiplayer hook
 
-FEATURES:
-- PixiJS 2D game canvas
-- Academy-themed map with 4 zones:
-  - 로비 (Lobby)
-  - 코딩 교실 (Coding Classroom)
-  - 휴게실 (Lounge)
-  - 자료실 (Resource Room)
-- Decorations: Trees and fountain
-- Grid-based floor with dark theme
+SUPABASE REALTIME FEATURES:
+- Presence tracking (who's online)
+- Position broadcasting with throttling
+- Real-time chat messaging
+- Player join/leave notifications
 
-AVATAR SYSTEM:
-- Seed-based random generation (691K+ combinations)
-- Body color, hair style/color, outfit style/color
-- Avatar randomize button
-- Saved to localStorage
+VIRTUAL WORLD UPDATES:
+- Other players rendered with avatars
+- Smooth position interpolation (30% lerp)
+- Connection status indicator (Wifi/WifiOff icons)
+- Online player count display
+- Chat using realtime broadcast
 
-MOVEMENT:
-- WASD or Arrow keys
-- Smooth player movement
-- Camera follows player
-- Boundary collision
+MULTIPLAYER DATA FLOW:
+1. Player joins -> tracked via Presence API
+2. Movement -> broadcast to all players
+3. Chat message -> broadcast to all players
+4. Player leaves -> auto-removed from presence
 
-UI/HUD:
-- Mini-map with zone visualization
-- Player position indicator
-- Current zone display
-- Online user count
-- Fullscreen toggle
-- Mute toggle
-
-CHAT PANEL:
-- Real-time messaging (local for now)
-- System messages
-- Timestamp display
-- Collapsible sidebar
-
-NAVIGATION:
-- Added "🌐 World" link
+ENVIRONMENT SETUP REQUIRED:
+Set these environment variables in Vercel:
+- VITE_SUPABASE_URL
+- VITE_SUPABASE_ANON_KEY

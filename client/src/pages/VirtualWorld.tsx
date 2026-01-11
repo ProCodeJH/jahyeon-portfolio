@@ -16,9 +16,12 @@ import {
     Volume2,
     VolumeX,
     LogIn,
-    Shuffle
+    Shuffle,
+    Wifi,
+    WifiOff
 } from "lucide-react";
 import * as PIXI from "pixi.js";
+import { useRealtimeWorld } from "@/hooks/useRealtimeWorld";
 
 // ============================================
 // 🎨 AVATAR GENERATION SYSTEM
@@ -84,6 +87,8 @@ export default function VirtualWorld() {
     const canvasRef = useRef<HTMLDivElement>(null);
     const appRef = useRef<PIXI.Application | null>(null);
     const playerRef = useRef<PIXI.Container | null>(null);
+    const gameContainerRef = useRef<PIXI.Container | null>(null);
+    const otherPlayersRef = useRef<Map<string, PIXI.Container>>(new Map());
 
     // State
     const [member, setMember] = useState<{ id: number; name: string; avatarSeed?: number } | null>(null);
@@ -91,13 +96,10 @@ export default function VirtualWorld() {
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
     const [showChat, setShowChat] = useState(true);
-    const [chatMessages, setChatMessages] = useState<Array<{ name: string; message: string; time: string }>>([
-        { name: "시스템", message: "가상 공간에 오신 것을 환영합니다! 🎉", time: "00:00" },
-    ]);
     const [chatInput, setChatInput] = useState("");
-    const [onlineUsers, setOnlineUsers] = useState<Array<{ id: number; name: string; avatarSeed: number }>>([]);
     const [playerPosition, setPlayerPosition] = useState({ x: MAP_WIDTH / 2, y: MAP_HEIGHT / 2 });
     const [currentZone, setCurrentZone] = useState("로비");
+    const [direction, setDirection] = useState<string>("idle");
 
     // Keys pressed
     const keysRef = useRef<Set<string>>(new Set());
@@ -118,6 +120,82 @@ export default function VirtualWorld() {
         }
         setIsLoading(false);
     }, []);
+
+    // Realtime multiplayer hook
+    const {
+        players: onlinePlayers,
+        chatMessages: realtimeChatMessages,
+        isConnected,
+        sendPosition,
+        sendChat,
+        disconnect
+    } = useRealtimeWorld({
+        playerId: member ? `user_${member.id}` : '',
+        playerName: member?.name || '',
+        avatarSeed: member?.avatarSeed || 0,
+        initialX: MAP_WIDTH / 2,
+        initialY: MAP_HEIGHT / 2,
+    });
+
+    // Render other players
+    useEffect(() => {
+        if (!gameContainerRef.current || !member) return;
+
+        const gameContainer = gameContainerRef.current;
+
+        // Remove players who left
+        otherPlayersRef.current.forEach((sprite, id) => {
+            if (!onlinePlayers.has(id)) {
+                gameContainer.removeChild(sprite);
+                otherPlayersRef.current.delete(id);
+            }
+        });
+
+        // Add/update players
+        onlinePlayers.forEach((player, id) => {
+            let sprite = otherPlayersRef.current.get(id);
+
+            if (!sprite) {
+                // Create new player sprite
+                const avatar = generateAvatar(player.avatarSeed);
+                sprite = new PIXI.Container();
+
+                const body = new PIXI.Graphics();
+                body.circle(0, 0, 20);
+                body.fill(avatar.bodyColor);
+                sprite.addChild(body);
+
+                const outfit = new PIXI.Graphics();
+                outfit.roundRect(-15, 5, 30, 25, 5);
+                outfit.fill(avatar.outfitColor);
+                sprite.addChild(outfit);
+
+                const face = new PIXI.Graphics();
+                face.circle(-7, -5, 3);
+                face.fill(0x333333);
+                face.circle(7, -5, 3);
+                face.fill(0x333333);
+                face.arc(0, 2, 8, 0.2, Math.PI - 0.2);
+                face.stroke({ width: 2, color: 0x333333 });
+                sprite.addChild(face);
+
+                const nameTag = new PIXI.Text({
+                    text: player.name,
+                    style: { fontSize: 12, fontWeight: "bold", fill: 0xffffff }
+                });
+                nameTag.anchor.set(0.5);
+                nameTag.position.set(0, -35);
+                sprite.addChild(nameTag);
+
+                gameContainer.addChild(sprite);
+                otherPlayersRef.current.set(id, sprite);
+            }
+
+            // Update position with interpolation
+            sprite.position.x += (player.x - sprite.position.x) * 0.3;
+            sprite.position.y += (player.y - sprite.position.y) * 0.3;
+        });
+    }, [onlinePlayers, member]);
 
     // Initialize PixiJS
     useEffect(() => {
@@ -245,6 +323,7 @@ export default function VirtualWorld() {
             player.position.set(MAP_WIDTH / 2, MAP_HEIGHT / 2);
             gameContainer.addChild(player);
             playerRef.current = player;
+            gameContainerRef.current = gameContainer;
 
             // Center camera on player
             const centerCamera = () => {
@@ -261,24 +340,29 @@ export default function VirtualWorld() {
             app.ticker.add(() => {
                 const keys = keysRef.current;
                 let moved = false;
+                let dir = "idle";
                 let newX = player.position.x;
                 let newY = player.position.y;
 
                 if (keys.has("ArrowUp") || keys.has("KeyW")) {
                     newY -= PLAYER_SPEED;
                     moved = true;
+                    dir = "up";
                 }
                 if (keys.has("ArrowDown") || keys.has("KeyS")) {
                     newY += PLAYER_SPEED;
                     moved = true;
+                    dir = "down";
                 }
                 if (keys.has("ArrowLeft") || keys.has("KeyA")) {
                     newX -= PLAYER_SPEED;
                     moved = true;
+                    dir = "left";
                 }
                 if (keys.has("ArrowRight") || keys.has("KeyD")) {
                     newX += PLAYER_SPEED;
                     moved = true;
+                    dir = "right";
                 }
 
                 // Boundary check
@@ -298,6 +382,9 @@ export default function VirtualWorld() {
                     if (zone && zone.name !== currentZone) {
                         setCurrentZone(zone.name);
                     }
+
+                    // Send position to other players
+                    sendPosition(newX, newY, dir, zone?.name || currentZone);
                 }
             });
 
@@ -350,9 +437,7 @@ export default function VirtualWorld() {
     // Send chat
     const handleSendChat = () => {
         if (!chatInput.trim()) return;
-        const now = new Date();
-        const time = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
-        setChatMessages(prev => [...prev, { name: member?.name || "익명", message: chatInput, time }]);
+        sendChat(chatInput);
         setChatInput("");
     };
 
@@ -494,7 +579,10 @@ export default function VirtualWorld() {
                         <div className="flex items-center gap-4 text-sm text-gray-400">
                             <span>⬆️⬇️⬅️➡️ 또는 WASD로 이동</span>
                             <span className="text-purple-400">|</span>
-                            <span>👥 {onlineUsers.length + 1}명 접속 중</span>
+                            <span className="flex items-center gap-1">
+                                {isConnected ? <Wifi className="w-3 h-3 text-green-400" /> : <WifiOff className="w-3 h-3 text-red-400" />}
+                                👥 {onlinePlayers.size + 1}명 접속 중
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -518,17 +606,17 @@ export default function VirtualWorld() {
 
                         {/* Messages */}
                         <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                            {chatMessages.map((msg, i) => (
-                                <div key={i} className={`${msg.name === "시스템" ? "text-center" : ""}`}>
-                                    {msg.name === "시스템" ? (
+                            {realtimeChatMessages.map((msg, i) => (
+                                <div key={i} className={`${msg.playerName === "시스템" ? "text-center" : ""}`}>
+                                    {msg.playerName === "시스템" ? (
                                         <div className="text-xs text-purple-400 bg-purple-500/10 rounded-lg px-3 py-2">
                                             {msg.message}
                                         </div>
                                     ) : (
                                         <div>
                                             <div className="flex items-center gap-2 mb-1">
-                                                <span className="text-sm font-bold text-white">{msg.name}</span>
-                                                <span className="text-xs text-gray-500">{msg.time}</span>
+                                                <span className="text-sm font-bold text-white">{msg.playerName}</span>
+                                                <span className="text-xs text-gray-500">{new Date(msg.timestamp).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}</span>
                                             </div>
                                             <div className="bg-white/10 rounded-xl px-3 py-2 text-sm">
                                                 {msg.message}
