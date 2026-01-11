@@ -305,8 +305,8 @@ export default function ArduinoLab() {
             {/* MAIN CONTENT */}
             {/* ============================================ */}
             <main className={`relative px-6 pb-12 ${isFullscreen ? 'h-screen p-0' : ''}`}>
-                <div className={`max-w-7xl mx-auto ${isFullscreen ? 'max-w-none h-full' : ''}`}>
-                    <div className={`grid gap-6 ${showTutorial && !isFullscreen ? 'lg:grid-cols-[1fr_380px]' : ''} ${isFullscreen ? 'h-full' : ''}`}>
+                <div className={`mx-auto ${isFullscreen ? 'max-w-none h-full' : showTutorial ? 'max-w-7xl' : 'max-w-[1600px]'}`}>
+                    <div className={`grid gap-6 ${showTutorial && !isFullscreen ? 'lg:grid-cols-[1fr_340px]' : ''} ${isFullscreen ? 'h-full' : ''}`}>
 
                         {/* ============================================ */}
                         {/* WOKWI SIMULATOR */}
@@ -342,7 +342,7 @@ export default function ArduinoLab() {
                                 </div>
 
                                 {/* Wokwi iframe */}
-                                <div className={`relative ${isFullscreen ? 'h-[calc(100%-60px)]' : 'aspect-[16/10] min-h-[500px]'}`}>
+                                <div className={`relative ${isFullscreen ? 'h-[calc(100%-60px)]' : showTutorial ? 'min-h-[600px]' : 'min-h-[700px] lg:min-h-[800px]'}`}>
                                     <iframe
                                         id="wokwi-frame"
                                         src={selected.wokwiUrl}
@@ -403,14 +403,14 @@ export default function ArduinoLab() {
                                                 key={i}
                                                 onClick={() => toggleStep(i)}
                                                 className={`w-full text-left p-4 rounded-xl transition-all border ${completedSteps.includes(i)
-                                                        ? 'bg-emerald-500/10 border-emerald-500/30'
-                                                        : 'bg-white/[0.02] border-white/[0.06] hover:bg-white/[0.04] hover:border-white/10'
+                                                    ? 'bg-emerald-500/10 border-emerald-500/30'
+                                                    : 'bg-white/[0.02] border-white/[0.06] hover:bg-white/[0.04] hover:border-white/10'
                                                     }`}
                                             >
                                                 <div className="flex items-start gap-3">
                                                     <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${completedSteps.includes(i)
-                                                            ? 'bg-emerald-500'
-                                                            : 'bg-white/10'
+                                                        ? 'bg-emerald-500'
+                                                        : 'bg-white/10'
                                                         }`}>
                                                         {completedSteps.includes(i) ? (
                                                             <CheckCircle2 className="w-4 h-4" />
