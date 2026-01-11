@@ -9,7 +9,7 @@ import Projects from "./pages/Projects";
 // Certifications page removed - merged into Home
 import Resources from "./pages/Resources";
 import CodeEditor from "./pages/CodeEditor";
-import VirtualWorld from "./pages/VirtualWorld";
+import VirtualWorld3D from "./pages/VirtualWorld3D";
 import Admin from "./pages/Admin";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -24,7 +24,7 @@ function Router() {
       {/* Certifications route removed - content merged into Home */}
       <Route path="/resources" component={Resources} />
       <Route path="/code-editor" component={CodeEditor} />
-      <Route path="/virtual-world" component={VirtualWorld} />
+      <Route path="/virtual-world" component={VirtualWorld3D} />
       <Route path="/admin" component={Admin} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
