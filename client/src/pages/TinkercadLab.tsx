@@ -1,9 +1,9 @@
 /**
  * ============================================
- * TINKERCAD ARDUINO LAB
+ * WOKWI ARDUINO LAB
  * ============================================
- * Tinkercad 프로젝트 갤러리 + 새 탭에서 열기
- * (Tinkercad는 iframe 임베드를 차단하므로 새 탭 방식 사용)
+ * Wokwi를 iframe으로 임베드하여 Arduino 시뮬레이션
+ * Wokwi는 iframe 임베드를 공식 지원합니다
  */
 
 import { useState } from 'react';
@@ -11,42 +11,47 @@ import { Navigation } from '@/components/layout/Navigation';
 import { Button } from '@/components/ui/button';
 import {
     Cpu, ExternalLink, Play, Lightbulb, Zap, BookOpen,
-    ChevronRight, ArrowRight, Monitor, Code2
+    ChevronRight, Maximize2, Minimize2, RotateCcw, Code2, ChevronDown
 } from 'lucide-react';
 
 // ============================================
-// 프로젝트 설정 (Tinkercad URL에서 ID 복사)
+// WOKWI 프로젝트 설정
 // ============================================
 const PROJECTS = [
     {
         id: 'blink',
-        tinkercadId: 'glorious-lappi',
-        title: 'LED 깜빡이기',
+        wokwiUrl: 'https://wokwi.com/projects/new/arduino-uno', // Arduino Uno 기본
+        title: 'LED 깜빡이기 (Blink)',
         description: 'Arduino의 가장 기본 예제. 내장 LED를 1초 간격으로 켜고 끕니다.',
         level: '초급',
         levelColor: 'bg-green-500',
         icon: '💡',
         color: 'from-green-500 to-emerald-600',
         tutorial: [
-            '시뮬레이션 시작 버튼(▶)을 클릭하세요',
-            'Arduino 보드의 LED(D13핀)가 깜빡이는 것을 확인하세요',
-            '코드 보기를 클릭하여 소스코드를 확인하세요',
-            'delay(1000)을 delay(500)으로 바꿔서 속도를 변경해보세요',
+            '▶ 재생 버튼을 클릭하여 시뮬레이션 시작',
+            'LED가 1초 간격으로 깜빡이는 것을 확인',
+            'delay(1000)을 delay(500)으로 바꿔보세요',
+            '저장하려면 Wokwi 계정이 필요합니다',
         ],
-        code: `void setup() {
-  pinMode(13, OUTPUT);
-}
-
-void loop() {
-  digitalWrite(13, HIGH);
-  delay(1000);
-  digitalWrite(13, LOW);
-  delay(1000);
-}`,
     },
     {
-        id: 'button',
-        tinkercadId: 'magnificent-albar',
+        id: 'traffic-light',
+        wokwiUrl: 'https://wokwi.com/projects/new/arduino-uno',
+        title: '신호등 시스템',
+        description: 'RGB LED로 실제 신호등처럼 동작하는 시스템을 만듭니다.',
+        level: '중급',
+        levelColor: 'bg-yellow-500',
+        icon: '🚦',
+        color: 'from-yellow-500 to-orange-600',
+        tutorial: [
+            '빨간 LED, 노란 LED, 초록 LED 배치',
+            '각 신호 유지 시간 설정 (5초, 2초, 5초)',
+            '순차적으로 켜지는 로직 구현',
+        ],
+    },
+    {
+        id: 'button-led',
+        wokwiUrl: 'https://wokwi.com/projects/new/arduino-uno',
         title: '버튼으로 LED 제어',
         description: '버튼을 누르면 LED가 켜지는 디지털 입력 예제입니다.',
         level: '초급',
@@ -54,61 +59,14 @@ void loop() {
         icon: '🔘',
         color: 'from-blue-500 to-cyan-600',
         tutorial: [
-            '버튼을 클릭하면 LED가 켜집니다',
-            '버튼에서 손을 떼면 LED가 꺼집니다',
-            'digitalRead() 함수로 버튼 상태를 읽습니다',
-            'INPUT_PULLUP 모드를 이해해보세요',
+            '버튼과 LED를 회로에 추가',
+            'digitalRead()로 버튼 상태 읽기',
+            'INPUT_PULLUP 모드 사용하기',
         ],
-        code: `void setup() {
-  pinMode(2, INPUT_PULLUP);
-  pinMode(13, OUTPUT);
-}
-
-void loop() {
-  if (digitalRead(2) == LOW) {
-    digitalWrite(13, HIGH);
-  } else {
-    digitalWrite(13, LOW);
-  }
-}`,
-    },
-    {
-        id: 'traffic',
-        tinkercadId: 'brave-luulia',
-        title: '신호등 시스템',
-        description: '3색 LED로 실제 신호등처럼 동작하는 시스템을 만듭니다.',
-        level: '중급',
-        levelColor: 'bg-yellow-500',
-        icon: '🚦',
-        color: 'from-yellow-500 to-orange-600',
-        tutorial: [
-            '빨간불 → 노란불 → 초록불 순서로 변합니다',
-            '각 신호의 유지 시간을 분석해보세요',
-            '보행자 신호를 추가해볼 수 있습니다',
-        ],
-        code: `int red = 10, yellow = 9, green = 8;
-
-void setup() {
-  pinMode(red, OUTPUT);
-  pinMode(yellow, OUTPUT);
-  pinMode(green, OUTPUT);
-}
-
-void loop() {
-  digitalWrite(red, HIGH);
-  delay(5000);
-  digitalWrite(red, LOW);
-  digitalWrite(green, HIGH);
-  delay(5000);
-  digitalWrite(green, LOW);
-  digitalWrite(yellow, HIGH);
-  delay(2000);
-  digitalWrite(yellow, LOW);
-}`,
     },
     {
         id: 'servo',
-        tinkercadId: 'striking-kup',
+        wokwiUrl: 'https://wokwi.com/projects/new/arduino-uno',
         title: '서보 모터 제어',
         description: '서보 모터를 0도에서 180도까지 회전시키는 방법을 배웁니다.',
         level: '중급',
@@ -116,242 +74,248 @@ void loop() {
         icon: '⚙️',
         color: 'from-purple-500 to-pink-600',
         tutorial: [
-            '서보 모터가 천천히 회전하는 것을 관찰하세요',
-            'write() 함수로 각도를 제어합니다',
-            'for 반복문으로 부드러운 회전을 구현합니다',
+            'Servo 라이브러리 include',
+            'write() 함수로 각도 제어',
+            'for 반복문으로 부드러운 회전',
         ],
-        code: `#include <Servo.h>
-Servo myservo;
-
-void setup() {
-  myservo.attach(9);
-}
-
-void loop() {
-  for (int pos = 0; pos <= 180; pos++) {
-    myservo.write(pos);
-    delay(15);
-  }
-  for (int pos = 180; pos >= 0; pos--) {
-    myservo.write(pos);
-    delay(15);
-  }
-}`,
     },
     {
-        id: 'ultrasonic',
-        tinkercadId: 'funky-fulffy',
-        title: '초음파 거리 센서',
-        description: 'HC-SR04 센서로 거리를 측정하고 Serial Monitor에 출력합니다.',
-        level: '고급',
-        levelColor: 'bg-red-500',
-        icon: '📡',
-        color: 'from-red-500 to-rose-600',
+        id: 'lcd',
+        wokwiUrl: 'https://wokwi.com/projects/new/arduino-uno',
+        title: 'LCD 디스플레이',
+        description: '16x2 LCD에 텍스트를 출력하는 방법을 배웁니다.',
+        level: '중급',
+        levelColor: 'bg-yellow-500',
+        icon: '📺',
+        color: 'from-indigo-500 to-violet-600',
         tutorial: [
-            'Serial Monitor를 열어서 거리 값을 확인하세요',
-            '물체를 센서 앞에 배치해보세요',
-            '측정된 거리 값이 변하는 것을 확인하세요',
+            'LiquidCrystal 라이브러리 사용',
+            'lcd.print()로 텍스트 출력',
+            'lcd.setCursor()로 위치 지정',
         ],
-        code: `int trig = 9, echo = 10;
-
-void setup() {
-  pinMode(trig, OUTPUT);
-  pinMode(echo, INPUT);
-  Serial.begin(9600);
-}
-
-void loop() {
-  digitalWrite(trig, LOW);
-  delayMicroseconds(2);
-  digitalWrite(trig, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trig, LOW);
-  
-  long duration = pulseIn(echo, HIGH);
-  int distance = duration * 0.034 / 2;
-  
-  Serial.print("Distance: ");
-  Serial.println(distance);
-  delay(100);
-}`,
     },
 ];
 
-export default function TinkercadLab() {
-    const [selectedProject, setSelectedProject] = useState(PROJECTS[0]);
-    const [showCode, setShowCode] = useState(false);
-
-    // Tinkercad 링크 열기
-    const openTinkercad = (tinkercadId: string) => {
-        window.open(`https://www.tinkercad.com/things/${tinkercadId}/editel`, '_blank');
-    };
+export default function WokwiLab() {
+    const [selected, setSelected] = useState(PROJECTS[0]);
+    const [showDropdown, setShowDropdown] = useState(false);
+    const [showTutorial, setShowTutorial] = useState(true);
+    const [isFullscreen, setIsFullscreen] = useState(false);
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-[#0a0a12] to-[#12121f] text-white">
-            <Navigation />
+        <div className={`min-h-screen bg-[#0a0a12] text-white ${isFullscreen ? '' : ''}`}>
+            {!isFullscreen && <Navigation />}
 
             {/* Header */}
-            <header className="pt-24 pb-10 px-4 md:px-8">
-                <div className="max-w-6xl mx-auto text-center">
-                    <div className="inline-flex items-center gap-3 px-4 py-2 bg-cyan-500/10 border border-cyan-500/20 rounded-full mb-6">
-                        <Cpu className="w-5 h-5 text-cyan-400" />
-                        <span className="text-cyan-400 font-medium">Tinkercad Circuits</span>
-                    </div>
-                    <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                        Arduino 실험실
-                    </h1>
-                    <p className="text-white/60 text-lg max-w-2xl mx-auto">
-                        프로젝트를 선택하면 Tinkercad에서 직접 시뮬레이션할 수 있습니다.
-                        아래 튜토리얼을 참고하세요!
-                    </p>
-                </div>
-            </header>
-
-            {/* Main Content */}
-            <main className="px-4 md:px-8 pb-16">
-                <div className="max-w-6xl mx-auto">
-                    <div className="grid lg:grid-cols-[1fr_400px] gap-8">
-
-                        {/* Project Gallery */}
-                        <div>
-                            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                                <Lightbulb className="w-5 h-5 text-yellow-400" />
-                                프로젝트 선택
-                            </h2>
-
-                            <div className="grid sm:grid-cols-2 gap-4">
-                                {PROJECTS.map((project) => (
-                                    <div
-                                        key={project.id}
-                                        onClick={() => setSelectedProject(project)}
-                                        className={`relative group cursor-pointer rounded-2xl border transition-all duration-300 overflow-hidden ${selectedProject.id === project.id
-                                                ? 'border-cyan-500 bg-cyan-500/10'
-                                                : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
-                                            }`}
-                                    >
-                                        {/* Gradient Header */}
-                                        <div className={`h-20 bg-gradient-to-br ${project.color} flex items-center justify-center`}>
-                                            <span className="text-4xl">{project.icon}</span>
-                                        </div>
-
-                                        {/* Content */}
-                                        <div className="p-4">
-                                            <div className="flex items-start justify-between mb-2">
-                                                <h3 className="font-bold">{project.title}</h3>
-                                                <span className={`text-xs px-2 py-0.5 rounded-full text-white ${project.levelColor}`}>
-                                                    {project.level}
-                                                </span>
-                                            </div>
-                                            <p className="text-sm text-white/50 line-clamp-2">{project.description}</p>
-                                        </div>
-
-                                        {/* Selected Indicator */}
-                                        {selectedProject.id === project.id && (
-                                            <div className="absolute top-2 right-2 w-3 h-3 bg-cyan-400 rounded-full" />
-                                        )}
-                                    </div>
-                                ))}
+            {!isFullscreen && (
+                <header className="pt-24 pb-6 px-4 md:px-8">
+                    <div className="max-w-7xl mx-auto">
+                        {/* Title */}
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
+                                <Cpu className="w-6 h-6" />
                             </div>
-
-                            {/* Open Tinkercad Button */}
-                            <Button
-                                onClick={() => openTinkercad(selectedProject.tinkercadId)}
-                                className="w-full mt-6 py-6 text-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 rounded-2xl"
-                            >
-                                <Monitor className="w-5 h-5 mr-2" />
-                                Tinkercad에서 "{selectedProject.title}" 열기
-                                <ExternalLink className="w-5 h-5 ml-2" />
-                            </Button>
-
-                            <p className="text-center text-white/40 text-sm mt-3">
-                                ↑ 클릭하면 새 탭에서 Tinkercad가 열립니다
-                            </p>
+                            <div>
+                                <h1 className="text-2xl md:text-3xl font-bold">Arduino 실험실</h1>
+                                <p className="text-white/50 text-sm">Wokwi Simulator로 배우는 Arduino</p>
+                            </div>
                         </div>
 
-                        {/* Tutorial Sidebar */}
-                        <div className="space-y-4">
-                            {/* Current Project Info */}
-                            <div className={`rounded-2xl p-6 bg-gradient-to-br ${selectedProject.color} relative overflow-hidden`}>
-                                <div className="absolute top-4 right-4 text-6xl opacity-20">{selectedProject.icon}</div>
-                                <span className={`inline-block text-xs px-2 py-0.5 rounded-full text-white ${selectedProject.levelColor} mb-3`}>
-                                    {selectedProject.level}
-                                </span>
-                                <h2 className="text-2xl font-bold mb-2">{selectedProject.title}</h2>
-                                <p className="text-white/80">{selectedProject.description}</p>
-                            </div>
-
-                            {/* Tutorial Steps */}
-                            <div className="bg-white/5 rounded-2xl p-5 border border-white/10">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="flex items-center gap-2">
-                                        <BookOpen className="w-5 h-5 text-cyan-400" />
-                                        <h3 className="font-bold">실습 튜토리얼</h3>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-3">
-                                    {selectedProject.tutorial.map((step, i) => (
-                                        <div key={i} className="flex items-start gap-3 p-3 bg-white/5 rounded-xl">
-                                            <span className="w-6 h-6 rounded-full bg-cyan-500 flex items-center justify-center text-xs font-bold text-black flex-shrink-0">
-                                                {i + 1}
-                                            </span>
-                                            <span className="text-sm text-white/80">{step}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Sample Code */}
-                            <div className="bg-white/5 rounded-2xl border border-white/10 overflow-hidden">
+                        {/* Controls */}
+                        <div className="flex flex-wrap items-center gap-3">
+                            {/* Project Selector */}
+                            <div className="relative">
                                 <button
-                                    onClick={() => setShowCode(!showCode)}
-                                    className="w-full p-4 flex items-center justify-between hover:bg-white/5 transition-colors"
+                                    onClick={() => setShowDropdown(!showDropdown)}
+                                    className="flex items-center gap-2 px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all"
                                 >
-                                    <div className="flex items-center gap-2">
-                                        <Code2 className="w-5 h-5 text-green-400" />
-                                        <span className="font-bold">예제 코드</span>
-                                    </div>
-                                    <ChevronRight className={`w-5 h-5 text-white/50 transition-transform ${showCode ? 'rotate-90' : ''}`} />
+                                    <span className="text-xl">{selected.icon}</span>
+                                    <span className="font-medium">{selected.title}</span>
+                                    <ChevronDown className={`w-4 h-4 text-white/50 transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
                                 </button>
 
-                                {showCode && (
-                                    <div className="p-4 pt-0">
-                                        <pre className="bg-black/50 rounded-xl p-4 overflow-x-auto text-sm font-mono text-green-400">
-                                            {selectedProject.code}
-                                        </pre>
+                                {showDropdown && (
+                                    <div className="absolute top-full left-0 mt-2 w-80 bg-[#14141f] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden">
+                                        {PROJECTS.map((p) => (
+                                            <button
+                                                key={p.id}
+                                                onClick={() => { setSelected(p); setShowDropdown(false); }}
+                                                className={`w-full text-left px-4 py-3 hover:bg-white/5 transition-all flex items-center gap-3 ${selected.id === p.id ? 'bg-white/10' : ''}`}
+                                            >
+                                                <span className="text-2xl">{p.icon}</span>
+                                                <div className="flex-1">
+                                                    <div className="font-medium">{p.title}</div>
+                                                    <div className="text-xs text-white/40">{p.description.slice(0, 50)}...</div>
+                                                </div>
+                                                <span className={`text-xs px-2 py-0.5 rounded-full text-white ${p.levelColor}`}>{p.level}</span>
+                                            </button>
+                                        ))}
                                     </div>
                                 )}
                             </div>
 
-                            {/* Tips */}
-                            <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 rounded-2xl p-5 border border-amber-500/20">
-                                <div className="flex items-center gap-2 mb-3">
-                                    <Zap className="w-5 h-5 text-amber-400" />
-                                    <h3 className="font-bold text-amber-400">Tinkercad 사용 팁</h3>
+                            {/* Level Badge */}
+                            <span className={`px-3 py-1.5 text-xs font-medium rounded-full text-white ${selected.levelColor}`}>
+                                {selected.level}
+                            </span>
+
+                            <div className="flex-1" />
+
+                            {/* Action Buttons */}
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setShowTutorial(!showTutorial)}
+                                className="border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                            >
+                                <BookOpen className="w-4 h-4 mr-2" />
+                                {showTutorial ? '튜토리얼 숨기기' : '튜토리얼'}
+                            </Button>
+
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => window.open(selected.wokwiUrl, '_blank')}
+                                className="border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                            >
+                                <ExternalLink className="w-4 h-4 mr-2" />
+                                새 탭에서 열기
+                            </Button>
+
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setIsFullscreen(!isFullscreen)}
+                                className="border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                            >
+                                {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                            </Button>
+                        </div>
+                    </div>
+                </header>
+            )}
+
+            {/* Main Content */}
+            <main className={`px-4 md:px-8 pb-12 ${isFullscreen ? 'h-screen p-0' : ''}`}>
+                <div className={`max-w-7xl mx-auto ${isFullscreen ? 'max-w-none h-full' : ''}`}>
+                    <div className={`grid gap-6 ${showTutorial && !isFullscreen ? 'lg:grid-cols-[1fr_320px]' : ''} ${isFullscreen ? 'h-full' : ''}`}>
+
+                        {/* Wokwi iframe */}
+                        <div className={`bg-white/5 rounded-2xl overflow-hidden border border-white/10 ${isFullscreen ? 'h-full rounded-none' : ''}`}>
+                            {/* Header */}
+                            <div className="px-4 py-3 bg-white/5 border-b border-white/10 flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <div className="flex gap-1.5">
+                                        <div className="w-3 h-3 rounded-full bg-red-500" />
+                                        <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                                        <div className="w-3 h-3 rounded-full bg-green-500" />
+                                    </div>
+                                    <span className="text-sm text-white/60 ml-2">{selected.title}</span>
                                 </div>
-                                <ul className="text-sm text-white/70 space-y-2">
-                                    <li className="flex items-start gap-2">
-                                        <span className="text-amber-400">▶</span>
-                                        시뮬레이션 시작 버튼으로 회로 실행
-                                    </li>
-                                    <li className="flex items-start gap-2">
-                                        <span className="text-amber-400">📝</span>
-                                        코드 버튼으로 Arduino 코드 보기/편집
-                                    </li>
-                                    <li className="flex items-start gap-2">
-                                        <span className="text-amber-400">🔧</span>
-                                        부품을 클릭하면 속성 변경 가능
-                                    </li>
-                                    <li className="flex items-start gap-2">
-                                        <span className="text-amber-400">📺</span>
-                                        Serial Monitor로 출력 확인
-                                    </li>
-                                </ul>
+                                <button
+                                    onClick={() => {
+                                        const iframe = document.getElementById('wokwi-frame') as HTMLIFrameElement;
+                                        if (iframe) iframe.src = selected.wokwiUrl;
+                                    }}
+                                    className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                                    title="새로고침"
+                                >
+                                    <RotateCcw className="w-4 h-4 text-white/50" />
+                                </button>
+                            </div>
+
+                            {/* Wokwi iframe */}
+                            <div className={`relative ${isFullscreen ? 'h-[calc(100%-52px)]' : 'aspect-video min-h-[500px]'}`}>
+                                <iframe
+                                    id="wokwi-frame"
+                                    src={selected.wokwiUrl}
+                                    className="absolute inset-0 w-full h-full"
+                                    frameBorder="0"
+                                    allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; microphone; midi; payment; usb; xr-spatial-tracking"
+                                    allowFullScreen
+                                    title={selected.title}
+                                />
                             </div>
                         </div>
+
+                        {/* Tutorial Sidebar */}
+                        {showTutorial && !isFullscreen && (
+                            <div className="space-y-4">
+                                {/* Project Info */}
+                                <div className={`rounded-2xl p-6 bg-gradient-to-br ${selected.color} relative overflow-hidden`}>
+                                    <div className="absolute top-4 right-4 text-6xl opacity-20">{selected.icon}</div>
+                                    <span className={`inline-block text-xs px-2 py-0.5 rounded-full text-white ${selected.levelColor} mb-3`}>
+                                        {selected.level}
+                                    </span>
+                                    <h2 className="text-xl font-bold mb-2">{selected.title}</h2>
+                                    <p className="text-white/80 text-sm">{selected.description}</p>
+                                </div>
+
+                                {/* Tutorial Steps */}
+                                <div className="bg-white/5 rounded-2xl p-5 border border-white/10">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <Play className="w-5 h-5 text-green-400" />
+                                        <h3 className="font-bold">실습 단계</h3>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        {selected.tutorial.map((step, i) => (
+                                            <div key={i} className="flex items-start gap-3 p-3 bg-white/5 rounded-xl">
+                                                <span className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                                    {i + 1}
+                                                </span>
+                                                <span className="text-sm text-white/80">{step}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Wokwi Tips */}
+                                <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-2xl p-5 border border-purple-500/20">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <Zap className="w-5 h-5 text-purple-400" />
+                                        <h3 className="font-bold text-purple-400">Wokwi 사용법</h3>
+                                    </div>
+                                    <ul className="text-sm text-white/70 space-y-2">
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-purple-400">▶</span>
+                                            초록색 재생 버튼으로 시뮬레이션 시작
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-purple-400">+</span>
+                                            왼쪽 패널에서 부품 추가 가능
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-purple-400">📝</span>
+                                            오른쪽에서 Arduino 코드 편집
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-purple-400">💾</span>
+                                            저장하려면 Wokwi 계정 필요
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </main>
+
+            {/* Fullscreen Close Button */}
+            {isFullscreen && (
+                <button
+                    onClick={() => setIsFullscreen(false)}
+                    className="fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-2 bg-black/80 hover:bg-black border border-white/20 rounded-xl text-sm font-medium transition-all"
+                >
+                    <Minimize2 className="w-4 h-4" />
+                    닫기
+                </button>
+            )}
+
+            {/* Dropdown Overlay */}
+            {showDropdown && (
+                <div className="fixed inset-0 z-40" onClick={() => setShowDropdown(false)} />
+            )}
         </div>
     );
 }
