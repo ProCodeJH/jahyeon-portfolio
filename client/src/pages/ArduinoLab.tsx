@@ -1,9 +1,10 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Stage, Layer, Rect, Circle, Group, Text, Line, Arrow } from 'react-konva';
+import Editor from '@monaco-editor/react';
 import { Button } from '@/components/ui/button';
 import {
     Play, Square, RotateCcw, ZoomIn, ZoomOut, Grid, Trash2,
-    Save, Upload, Settings, ChevronLeft, ChevronRight, Terminal
+    Save, Upload, Settings, ChevronLeft, ChevronRight, Terminal, Code2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -239,14 +240,21 @@ export default function ArduinoLab() {
     const [simulating, setSimulating] = useState(false);
     const [showCode, setShowCode] = useState(true);
     const [showSerial, setShowSerial] = useState(false);
-    const [code, setCode] = useState(`void setup() {
+    const [serialOutput, setSerialOutput] = useState<string[]>([]);
+    const [ledBrightness, setLedBrightness] = useState<Map<string, number>>(new Map());
+    const [code, setCode] = useState(`// Arduino Simulator - Blink Example
+void setup() {
   pinMode(13, OUTPUT);
+  Serial.begin(9600);
+  Serial.println("Arduino Ready!");
 }
 
 void loop() {
   digitalWrite(13, HIGH);
+  Serial.println("LED ON");
   delay(1000);
   digitalWrite(13, LOW);
+  Serial.println("LED OFF");
   delay(1000);
 }`);
 
@@ -534,19 +542,35 @@ void loop() {
 
                 {/* Code Editor Panel */}
                 {showCode && (
-                    <div className="w-96 bg-[#1a1a2e] border-l border-white/10 flex flex-col">
-                        <div className="p-3 border-b border-white/10 flex items-center justify-between">
-                            <span className="text-sm font-medium">Arduino Code</span>
-                            <Button size="sm" variant="ghost" className="text-blue-400">
-                                Compile
+                    <div className="w-[420px] bg-[#1e1e1e] border-l border-white/10 flex flex-col">
+                        <div className="p-3 border-b border-white/10 flex items-center justify-between bg-[#252526]">
+                            <div className="flex items-center gap-2">
+                                <Code2 className="w-4 h-4 text-blue-400" />
+                                <span className="text-sm font-medium">sketch.ino</span>
+                            </div>
+                            <Button size="sm" variant="ghost" className="text-green-400 hover:bg-green-500/20">
+                                <Play className="w-3 h-3 mr-1" />
+                                Upload
                             </Button>
                         </div>
-                        <div className="flex-1 p-3">
-                            <textarea
+                        <div className="flex-1">
+                            <Editor
+                                height="100%"
+                                defaultLanguage="cpp"
+                                theme="vs-dark"
                                 value={code}
-                                onChange={(e) => setCode(e.target.value)}
-                                className="w-full h-full bg-[#0a0a14] text-green-400 font-mono text-sm p-3 rounded-lg border border-white/10 resize-none focus:outline-none focus:border-blue-500"
-                                spellCheck={false}
+                                onChange={(value) => setCode(value || '')}
+                                options={{
+                                    fontSize: 13,
+                                    fontFamily: 'JetBrains Mono, Fira Code, monospace',
+                                    minimap: { enabled: false },
+                                    lineNumbers: 'on',
+                                    scrollBeyondLastLine: false,
+                                    automaticLayout: true,
+                                    tabSize: 2,
+                                    wordWrap: 'on',
+                                    padding: { top: 10 },
+                                }}
                             />
                         </div>
                     </div>
@@ -555,13 +579,30 @@ void loop() {
 
             {/* Serial Monitor */}
             {showSerial && (
-                <div className="h-48 bg-[#1a1a2e] border-t border-white/10 flex flex-col">
-                    <div className="p-2 border-b border-white/10 flex items-center gap-2">
-                        <span className="text-sm font-medium">Serial Monitor</span>
-                        <span className="text-xs text-white/50">9600 baud</span>
+                <div className="h-48 bg-[#0d1117] border-t border-white/10 flex flex-col">
+                    <div className="px-4 py-2 border-b border-white/10 flex items-center justify-between bg-[#161b22]">
+                        <div className="flex items-center gap-3">
+                            <Terminal className="w-4 h-4 text-green-400" />
+                            <span className="text-sm font-medium">Serial Monitor</span>
+                            <span className="text-xs text-white/40 bg-white/10 px-2 py-0.5 rounded">9600 baud</span>
+                        </div>
+                        <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-xs text-white/50 hover:text-white"
+                            onClick={() => setSerialOutput([])}
+                        >
+                            Clear
+                        </Button>
                     </div>
-                    <div className="flex-1 p-3 font-mono text-sm text-green-400 overflow-y-auto bg-black/30">
-                        <p className="text-white/30">// Serial output will appear here</p>
+                    <div className="flex-1 p-3 font-mono text-xs overflow-y-auto bg-black/50">
+                        {serialOutput.length === 0 ? (
+                            <p className="text-white/30">// Waiting for serial output...</p>
+                        ) : (
+                            serialOutput.map((line, i) => (
+                                <div key={i} className="text-green-400">{line}</div>
+                            ))
+                        )}
                     </div>
                 </div>
             )}
