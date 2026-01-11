@@ -19,6 +19,9 @@ import { useSmoothScroll } from "./hooks/useSmoothScroll";
 // Lazy load VirtualWorld3D to isolate Three.js in separate bundle chunk
 const VirtualWorld3D = lazy(() => import("./pages/VirtualWorld3D"));
 
+// Lazy load ArduinoLab to isolate Konva in separate bundle chunk
+const ArduinoLab = lazy(() => import("./pages/ArduinoLab"));
+
 // Loading fallback for VirtualWorld
 function VirtualWorldLoader() {
   return (
@@ -42,6 +45,11 @@ function Router() {
       <Route path="/virtual-world">
         <Suspense fallback={<VirtualWorldLoader />}>
           <VirtualWorld3D />
+        </Suspense>
+      </Route>
+      <Route path="/arduino-lab">
+        <Suspense fallback={<VirtualWorldLoader />}>
+          <ArduinoLab />
         </Suspense>
       </Route>
       <Route path="/admin" component={Admin} />
