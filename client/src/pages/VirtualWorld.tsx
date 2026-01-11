@@ -502,7 +502,7 @@ export default function VirtualWorld() {
     const playerRef = useRef({ x: MAP_WIDTH / 2, y: MAP_HEIGHT / 2 });
     const keysRef = useRef<Set<string>>(new Set());
     const directionRef = useRef("down");
-    const chatBubbleRef = useRef<{ message: string; timestamp: number } | undefined>();
+    const chatBubbleRef = useRef<{ message: string; timestamp: number } | undefined>(undefined);
     const cameraRef = useRef({ x: 0, y: 0 });
 
     // Time of day (Phase 7)
@@ -524,6 +524,9 @@ export default function VirtualWorld() {
         setIsLoading(false);
     }, []);
 
+    // Phase 5: Player join/leave notifications
+    const [showPlayerList, setShowPlayerList] = useState(false);
+
     // Realtime multiplayer
     const {
         players: onlinePlayers,
@@ -531,12 +534,19 @@ export default function VirtualWorld() {
         isConnected,
         sendPosition,
         sendChat,
+        sendEmote,
     } = useRealtimeWorld({
         playerId: member ? `user_${member.id}` : "",
         playerName: member?.name || "",
         avatarSeed: member?.avatarSeed || 0,
         initialX: MAP_WIDTH / 2,
         initialY: MAP_HEIGHT / 2,
+        onPlayerJoin: (name) => {
+            toast.success(`👋 ${name}님이 입장했습니다!`, { duration: 3000 });
+        },
+        onPlayerLeave: (name) => {
+            toast.info(`👋 ${name}님이 퇴장했습니다.`, { duration: 3000 });
+        },
     });
 
     // Time of day cycle (Phase 7)
@@ -899,7 +909,7 @@ export default function VirtualWorld() {
                         </div>
                     </div>
 
-                    {/* Bottom HUD - Instructions */}
+                    {/* Bottom HUD - Instructions + Emotes */}
                     <div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-xl rounded-2xl px-4 py-3 border border-white/10">
                         <div className="flex items-center gap-4 text-sm text-gray-400">
                             <span>⬆️⬇️⬅️➡️ 또는 WASD로 이동</span>
@@ -912,12 +922,72 @@ export default function VirtualWorld() {
                                 )}
                             </span>
                             <span className="text-purple-400">|</span>
-                            <span className="flex items-center gap-1">
+                            <button
+                                onClick={() => setShowPlayerList(!showPlayerList)}
+                                className="flex items-center gap-1 hover:text-white transition-colors"
+                            >
                                 <Users className="w-4 h-4" />
                                 {onlinePlayers.size + 1}명 접속
-                            </span>
+                            </button>
                         </div>
                     </div>
+
+                    {/* Phase 9: Emote Picker */}
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-xl rounded-2xl px-4 py-3 border border-white/10">
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs text-gray-400 mr-2">이모트:</span>
+                            {["👋", "😊", "👍", "❤️", "🎉", "🔥", "😂", "🙏"].map((emote) => (
+                                <button
+                                    key={emote}
+                                    onClick={() => {
+                                        sendEmote(emote);
+                                        chatBubbleRef.current = { message: emote, timestamp: Date.now() };
+                                        setTimeout(() => { chatBubbleRef.current = undefined; }, 3000);
+                                    }}
+                                    className="w-10 h-10 text-xl hover:bg-white/20 rounded-lg transition-all hover:scale-125 flex items-center justify-center"
+                                    title={`이모트: ${emote}`}
+                                >
+                                    {emote}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Phase 5: Player List Panel */}
+                    {showPlayerList && (
+                        <div className="absolute bottom-20 left-4 bg-black/80 backdrop-blur-xl rounded-2xl p-4 border border-white/10 min-w-[200px]">
+                            <div className="flex items-center justify-between mb-3">
+                                <h3 className="font-bold text-sm flex items-center gap-2">
+                                    <Users className="w-4 h-4 text-purple-400" />
+                                    접속자 목록
+                                </h3>
+                                <button
+                                    onClick={() => setShowPlayerList(false)}
+                                    className="w-6 h-6 rounded hover:bg-white/10 flex items-center justify-center"
+                                >
+                                    <X className="w-3 h-3" />
+                                </button>
+                            </div>
+                            <div className="space-y-2 max-h-48 overflow-y-auto">
+                                {/* Current player */}
+                                <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-purple-500/20">
+                                    <div className="w-3 h-3 rounded-full bg-green-400 animate-pulse" />
+                                    <span className="text-sm font-medium text-purple-300">{member?.name} (나)</span>
+                                </div>
+                                {/* Other players */}
+                                {Array.from(onlinePlayers.values()).map((player) => (
+                                    <div key={player.id} className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white/10">
+                                        <div className="w-3 h-3 rounded-full bg-green-400" />
+                                        <span className="text-sm">{player.name}</span>
+                                        <span className="text-xs text-gray-500">@ {player.zone}</span>
+                                    </div>
+                                ))}
+                                {onlinePlayers.size === 0 && (
+                                    <p className="text-xs text-gray-500 text-center py-2">다른 접속자가 없습니다</p>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Chat Panel (Phase 3) */}

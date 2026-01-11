@@ -8,6 +8,8 @@ interface UseRealtimeWorldOptions {
     avatarSeed: number;
     initialX: number;
     initialY: number;
+    onPlayerJoin?: (name: string) => void;
+    onPlayerLeave?: (name: string) => void;
 }
 
 interface UseRealtimeWorldReturn {
@@ -16,11 +18,12 @@ interface UseRealtimeWorldReturn {
     isConnected: boolean;
     sendPosition: (x: number, y: number, direction: string, zone: string) => void;
     sendChat: (message: string) => void;
+    sendEmote: (emote: string) => void;
     disconnect: () => void;
 }
 
 export function useRealtimeWorld(options: UseRealtimeWorldOptions): UseRealtimeWorldReturn {
-    const { playerId, playerName, avatarSeed, initialX, initialY } = options;
+    const { playerId, playerName, avatarSeed, initialX, initialY, onPlayerJoin, onPlayerLeave } = options;
 
     const [players, setPlayers] = useState<Map<string, PlayerState>>(new Map());
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -66,17 +69,18 @@ export function useRealtimeWorld(options: UseRealtimeWorldOptions): UseRealtimeW
             setPlayers(newPlayers);
         });
 
-        // Handle new player join
+        // Handle new player join (Phase 5)
         channel.on('presence', { event: 'join' }, ({ key, newPresences }) => {
             if (key === playerId) return;
 
             const presence = (newPresences as any[])[0];
             if (presence) {
+                const joinedName = presence.name || 'Unknown';
                 setPlayers(prev => {
                     const updated = new Map(prev);
                     updated.set(key, {
                         id: key,
-                        name: presence.name || 'Unknown',
+                        name: joinedName,
                         avatarSeed: presence.avatarSeed || 0,
                         x: presence.x || 800,
                         y: presence.y || 600,
@@ -85,20 +89,26 @@ export function useRealtimeWorld(options: UseRealtimeWorldOptions): UseRealtimeW
                     });
                     return updated;
                 });
+                // Call join callback for notification
+                onPlayerJoin?.(joinedName);
             }
         });
 
-        // Handle player leave
-        channel.on('presence', { event: 'leave' }, ({ key }) => {
+        // Handle player leave (Phase 5)
+        channel.on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+            const leftPresence = (leftPresences as any[])?.[0];
+            const leftName = leftPresence?.name || 'Unknown';
             setPlayers(prev => {
                 const updated = new Map(prev);
                 updated.delete(key);
                 return updated;
             });
+            // Call leave callback for notification
+            onPlayerLeave?.(leftName);
         });
 
         // Handle broadcast messages (position updates)
-        channel.on('broadcast', { event: 'position' }, ({ payload }) => {
+        channel.on('broadcast', { event: 'position' }, ({ payload }: { payload: any }) => {
             if (payload.playerId === playerId) return;
 
             setPlayers(prev => {
@@ -118,7 +128,7 @@ export function useRealtimeWorld(options: UseRealtimeWorldOptions): UseRealtimeW
         });
 
         // Handle chat messages
-        channel.on('broadcast', { event: 'chat' }, ({ payload }) => {
+        channel.on('broadcast', { event: 'chat' }, ({ payload }: { payload: any }) => {
             setChatMessages(prev => [...prev.slice(-99), {
                 id: payload.id,
                 playerId: payload.playerId,
@@ -129,7 +139,7 @@ export function useRealtimeWorld(options: UseRealtimeWorldOptions): UseRealtimeW
         });
 
         // Subscribe and track presence
-        channel.subscribe(async (status) => {
+        channel.subscribe(async (status: string) => {
             if (status === 'SUBSCRIBED') {
                 setIsConnected(true);
 
@@ -151,7 +161,7 @@ export function useRealtimeWorld(options: UseRealtimeWorldOptions): UseRealtimeW
             channelRef.current = null;
             setIsConnected(false);
         };
-    }, [playerId, playerName, avatarSeed, initialX, initialY]);
+    }, [playerId, playerName, avatarSeed, initialX, initialY, onPlayerJoin, onPlayerLeave]);
 
     // Send position update (throttled)
     const sendPosition = useCallback((x: number, y: number, direction: string, zone: string) => {
@@ -213,6 +223,28 @@ export function useRealtimeWorld(options: UseRealtimeWorldOptions): UseRealtimeW
         });
     }, [isConnected, playerId, playerName]);
 
+    // Send emote (Phase 9)
+    const sendEmote = useCallback((emote: string) => {
+        if (!channelRef.current || !isConnected) return;
+
+        // Broadcast emote as a special chat message
+        const emoteMsg: ChatMessage = {
+            id: `${playerId}-emote-${Date.now()}`,
+            playerId,
+            playerName: `${playerName}`,
+            message: emote,
+            timestamp: new Date().toISOString(),
+        };
+
+        setChatMessages(prev => [...prev.slice(-99), emoteMsg]);
+
+        channelRef.current.send({
+            type: 'broadcast',
+            event: 'chat',
+            payload: emoteMsg,
+        });
+    }, [isConnected, playerId, playerName]);
+
     // Disconnect
     const disconnect = useCallback(() => {
         if (channelRef.current) {
@@ -228,6 +260,7 @@ export function useRealtimeWorld(options: UseRealtimeWorldOptions): UseRealtimeW
         isConnected,
         sendPosition,
         sendChat,
+        sendEmote,
         disconnect,
     };
 }
