@@ -69,8 +69,12 @@ export function useRealtimeWorld(options: UseRealtimeWorldOptions): UseRealtimeW
             setPlayers(newPlayers);
         });
 
+        // Track known players to prevent duplicate notifications
+        const knownPlayers = new Set<string>();
+
         // Handle new player join (Phase 5)
         channel.on('presence', { event: 'join' }, ({ key, newPresences }) => {
+            // Skip self join events
             if (key === playerId) return;
 
             const presence = (newPresences as any[])[0];
@@ -89,13 +93,22 @@ export function useRealtimeWorld(options: UseRealtimeWorldOptions): UseRealtimeW
                     });
                     return updated;
                 });
-                // Call join callback for notification
-                onPlayerJoin?.(joinedName);
+                // Only notify if this is a NEW player we haven't seen before
+                if (!knownPlayers.has(key)) {
+                    knownPlayers.add(key);
+                    onPlayerJoin?.(joinedName);
+                }
             }
         });
 
         // Handle player leave (Phase 5)
         channel.on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+            // Skip self leave events
+            if (key === playerId) return;
+
+            // Only notify if we actually knew this player
+            if (!knownPlayers.has(key)) return;
+
             const leftPresence = (leftPresences as any[])?.[0];
             const leftName = leftPresence?.name || 'Unknown';
             setPlayers(prev => {
@@ -103,7 +116,8 @@ export function useRealtimeWorld(options: UseRealtimeWorldOptions): UseRealtimeW
                 updated.delete(key);
                 return updated;
             });
-            // Call leave callback for notification
+            // Remove from known and notify
+            knownPlayers.delete(key);
             onPlayerLeave?.(leftName);
         });
 
