@@ -202,207 +202,227 @@ export default function VirtualWorld() {
         if (!member || !canvasRef.current || appRef.current) return;
 
         const initPixi = async () => {
-            const app = new PIXI.Application();
-            await app.init({
-                width: canvasRef.current!.clientWidth,
-                height: canvasRef.current!.clientHeight,
-                backgroundColor: 0x1a1a2e,
-                antialias: true,
-                resolution: window.devicePixelRatio || 1,
-            });
+            try {
+                // Wait for container to have dimensions
+                const container = canvasRef.current!;
+                const width = container.clientWidth || 800;
+                const height = container.clientHeight || 600;
 
-            canvasRef.current!.appendChild(app.canvas);
-            appRef.current = app;
+                console.log('Initializing PixiJS with dimensions:', width, height);
 
-            // Create game container
-            const gameContainer = new PIXI.Container();
-            app.stage.addChild(gameContainer);
+                const app = new PIXI.Application();
+                await app.init({
+                    width,
+                    height,
+                    backgroundColor: 0x1a1a2e,
+                    antialias: true,
+                    resolution: window.devicePixelRatio || 1,
+                    autoDensity: true,
+                });
 
-            // Draw map background
-            const mapBg = new PIXI.Graphics();
-            mapBg.rect(0, 0, MAP_WIDTH, MAP_HEIGHT);
-            mapBg.fill(0x16213e);
-            gameContainer.addChild(mapBg);
+                // Clear any existing canvas
+                while (container.firstChild) {
+                    container.removeChild(container.firstChild);
+                }
 
-            // Draw grid
-            const grid = new PIXI.Graphics();
-            grid.setStrokeStyle({ width: 1, color: 0x1f3460, alpha: 0.3 });
-            for (let x = 0; x <= MAP_WIDTH; x += TILE_SIZE) {
-                grid.moveTo(x, 0);
-                grid.lineTo(x, MAP_HEIGHT);
-            }
-            for (let y = 0; y <= MAP_HEIGHT; y += TILE_SIZE) {
-                grid.moveTo(0, y);
-                grid.lineTo(MAP_WIDTH, y);
-            }
-            grid.stroke();
-            gameContainer.addChild(grid);
+                container.appendChild(app.canvas);
+                appRef.current = app;
 
-            // Draw zones
-            MAP_ZONES.forEach(zone => {
-                const zoneGraphics = new PIXI.Graphics();
-                zoneGraphics.roundRect(zone.x, zone.y, zone.width, zone.height, 20);
-                zoneGraphics.fill({ color: zone.color, alpha: 0.3 });
-                zoneGraphics.stroke({ width: 3, color: zone.color, alpha: 0.8 });
-                gameContainer.addChild(zoneGraphics);
+                console.log('PixiJS initialized successfully');
 
-                // Zone label
-                const label = new PIXI.Text({
-                    text: zone.name,
+                // Create game container
+                const gameContainer = new PIXI.Container();
+                app.stage.addChild(gameContainer);
+
+                // Draw map background
+                const mapBg = new PIXI.Graphics();
+                mapBg.rect(0, 0, MAP_WIDTH, MAP_HEIGHT);
+                mapBg.fill(0x16213e);
+                gameContainer.addChild(mapBg);
+
+                // Draw grid
+                const grid = new PIXI.Graphics();
+                grid.setStrokeStyle({ width: 1, color: 0x1f3460, alpha: 0.3 });
+                for (let x = 0; x <= MAP_WIDTH; x += TILE_SIZE) {
+                    grid.moveTo(x, 0);
+                    grid.lineTo(x, MAP_HEIGHT);
+                }
+                for (let y = 0; y <= MAP_HEIGHT; y += TILE_SIZE) {
+                    grid.moveTo(0, y);
+                    grid.lineTo(MAP_WIDTH, y);
+                }
+                grid.stroke();
+                gameContainer.addChild(grid);
+
+                // Draw zones
+                MAP_ZONES.forEach(zone => {
+                    const zoneGraphics = new PIXI.Graphics();
+                    zoneGraphics.roundRect(zone.x, zone.y, zone.width, zone.height, 20);
+                    zoneGraphics.fill({ color: zone.color, alpha: 0.3 });
+                    zoneGraphics.stroke({ width: 3, color: zone.color, alpha: 0.8 });
+                    gameContainer.addChild(zoneGraphics);
+
+                    // Zone label
+                    const label = new PIXI.Text({
+                        text: zone.name,
+                        style: {
+                            fontSize: 18,
+                            fontWeight: "bold",
+                            fill: 0xffffff,
+                        }
+                    });
+                    label.anchor.set(0.5);
+                    label.position.set(zone.x + zone.width / 2, zone.y + 25);
+                    gameContainer.addChild(label);
+                });
+
+                // Draw decorations
+                DECORATIONS.forEach(dec => {
+                    const decGraphics = new PIXI.Graphics();
+                    if (dec.type === "tree") {
+                        // Tree trunk
+                        decGraphics.rect(dec.x - 5, dec.y + 20, 10, 30);
+                        decGraphics.fill(0x8B4513);
+                        // Tree top
+                        decGraphics.circle(dec.x, dec.y, 25);
+                        decGraphics.fill(0x2E8B57);
+                    } else if (dec.type === "fountain") {
+                        // Fountain base
+                        decGraphics.circle(dec.x, dec.y, 50);
+                        decGraphics.fill(0x4169E1);
+                        decGraphics.circle(dec.x, dec.y, 30);
+                        decGraphics.fill(0x6495ED);
+                    }
+                    gameContainer.addChild(decGraphics);
+                });
+
+                // Create player
+                const avatar = generateAvatar(member.avatarSeed || 12345);
+                const player = new PIXI.Container();
+
+                // Player body
+                const body = new PIXI.Graphics();
+                body.circle(0, 0, 20);
+                body.fill(avatar.bodyColor);
+                player.addChild(body);
+
+                // Player outfit
+                const outfit = new PIXI.Graphics();
+                outfit.roundRect(-15, 5, 30, 25, 5);
+                outfit.fill(avatar.outfitColor);
+                player.addChild(outfit);
+
+                // Player face
+                const face = new PIXI.Graphics();
+                face.circle(-7, -5, 3);
+                face.fill(0x333333);
+                face.circle(7, -5, 3);
+                face.fill(0x333333);
+                // Smile
+                face.arc(0, 2, 8, 0.2, Math.PI - 0.2);
+                face.stroke({ width: 2, color: 0x333333 });
+                player.addChild(face);
+
+                // Player name
+                const nameTag = new PIXI.Text({
+                    text: member.name,
                     style: {
-                        fontSize: 18,
+                        fontSize: 14,
                         fontWeight: "bold",
                         fill: 0xffffff,
                     }
                 });
-                label.anchor.set(0.5);
-                label.position.set(zone.x + zone.width / 2, zone.y + 25);
-                gameContainer.addChild(label);
-            });
+                nameTag.anchor.set(0.5);
+                nameTag.position.set(0, -35);
+                player.addChild(nameTag);
 
-            // Draw decorations
-            DECORATIONS.forEach(dec => {
-                const decGraphics = new PIXI.Graphics();
-                if (dec.type === "tree") {
-                    // Tree trunk
-                    decGraphics.rect(dec.x - 5, dec.y + 20, 10, 30);
-                    decGraphics.fill(0x8B4513);
-                    // Tree top
-                    decGraphics.circle(dec.x, dec.y, 25);
-                    decGraphics.fill(0x2E8B57);
-                } else if (dec.type === "fountain") {
-                    // Fountain base
-                    decGraphics.circle(dec.x, dec.y, 50);
-                    decGraphics.fill(0x4169E1);
-                    decGraphics.circle(dec.x, dec.y, 30);
-                    decGraphics.fill(0x6495ED);
-                }
-                gameContainer.addChild(decGraphics);
-            });
+                player.position.set(MAP_WIDTH / 2, MAP_HEIGHT / 2);
+                gameContainer.addChild(player);
+                playerRef.current = player;
+                gameContainerRef.current = gameContainer;
 
-            // Create player
-            const avatar = generateAvatar(member.avatarSeed || 12345);
-            const player = new PIXI.Container();
-
-            // Player body
-            const body = new PIXI.Graphics();
-            body.circle(0, 0, 20);
-            body.fill(avatar.bodyColor);
-            player.addChild(body);
-
-            // Player outfit
-            const outfit = new PIXI.Graphics();
-            outfit.roundRect(-15, 5, 30, 25, 5);
-            outfit.fill(avatar.outfitColor);
-            player.addChild(outfit);
-
-            // Player face
-            const face = new PIXI.Graphics();
-            face.circle(-7, -5, 3);
-            face.fill(0x333333);
-            face.circle(7, -5, 3);
-            face.fill(0x333333);
-            // Smile
-            face.arc(0, 2, 8, 0.2, Math.PI - 0.2);
-            face.stroke({ width: 2, color: 0x333333 });
-            player.addChild(face);
-
-            // Player name
-            const nameTag = new PIXI.Text({
-                text: member.name,
-                style: {
-                    fontSize: 14,
-                    fontWeight: "bold",
-                    fill: 0xffffff,
-                }
-            });
-            nameTag.anchor.set(0.5);
-            nameTag.position.set(0, -35);
-            player.addChild(nameTag);
-
-            player.position.set(MAP_WIDTH / 2, MAP_HEIGHT / 2);
-            gameContainer.addChild(player);
-            playerRef.current = player;
-            gameContainerRef.current = gameContainer;
-
-            // Center camera on player
-            const centerCamera = () => {
-                const screenWidth = app.screen.width;
-                const screenHeight = app.screen.height;
-                gameContainer.position.set(
-                    screenWidth / 2 - player.position.x,
-                    screenHeight / 2 - player.position.y
-                );
-            };
-            centerCamera();
-
-            // Game loop
-            app.ticker.add(() => {
-                const keys = keysRef.current;
-                let moved = false;
-                let dir = "idle";
-                let newX = player.position.x;
-                let newY = player.position.y;
-
-                if (keys.has("ArrowUp") || keys.has("KeyW")) {
-                    newY -= PLAYER_SPEED;
-                    moved = true;
-                    dir = "up";
-                }
-                if (keys.has("ArrowDown") || keys.has("KeyS")) {
-                    newY += PLAYER_SPEED;
-                    moved = true;
-                    dir = "down";
-                }
-                if (keys.has("ArrowLeft") || keys.has("KeyA")) {
-                    newX -= PLAYER_SPEED;
-                    moved = true;
-                    dir = "left";
-                }
-                if (keys.has("ArrowRight") || keys.has("KeyD")) {
-                    newX += PLAYER_SPEED;
-                    moved = true;
-                    dir = "right";
-                }
-
-                // Boundary check
-                newX = Math.max(30, Math.min(MAP_WIDTH - 30, newX));
-                newY = Math.max(30, Math.min(MAP_HEIGHT - 30, newY));
-
-                if (moved) {
-                    player.position.set(newX, newY);
-                    setPlayerPosition({ x: newX, y: newY });
-                    centerCamera();
-
-                    // Check zone
-                    const zone = MAP_ZONES.find(z =>
-                        newX >= z.x && newX <= z.x + z.width &&
-                        newY >= z.y && newY <= z.y + z.height
+                // Center camera on player
+                const centerCamera = () => {
+                    const screenWidth = app.screen.width;
+                    const screenHeight = app.screen.height;
+                    gameContainer.position.set(
+                        screenWidth / 2 - player.position.x,
+                        screenHeight / 2 - player.position.y
                     );
-                    if (zone && zone.name !== currentZone) {
-                        setCurrentZone(zone.name);
+                };
+                centerCamera();
+
+                // Game loop
+                app.ticker.add(() => {
+                    const keys = keysRef.current;
+                    let moved = false;
+                    let dir = "idle";
+                    let newX = player.position.x;
+                    let newY = player.position.y;
+
+                    if (keys.has("ArrowUp") || keys.has("KeyW")) {
+                        newY -= PLAYER_SPEED;
+                        moved = true;
+                        dir = "up";
+                    }
+                    if (keys.has("ArrowDown") || keys.has("KeyS")) {
+                        newY += PLAYER_SPEED;
+                        moved = true;
+                        dir = "down";
+                    }
+                    if (keys.has("ArrowLeft") || keys.has("KeyA")) {
+                        newX -= PLAYER_SPEED;
+                        moved = true;
+                        dir = "left";
+                    }
+                    if (keys.has("ArrowRight") || keys.has("KeyD")) {
+                        newX += PLAYER_SPEED;
+                        moved = true;
+                        dir = "right";
                     }
 
-                    // Send position to other players
-                    sendPosition(newX, newY, dir, zone?.name || currentZone);
-                }
-            });
+                    // Boundary check
+                    newX = Math.max(30, Math.min(MAP_WIDTH - 30, newX));
+                    newY = Math.max(30, Math.min(MAP_HEIGHT - 30, newY));
 
-            // Resize handler
-            const handleResize = () => {
-                if (canvasRef.current && app) {
-                    app.renderer.resize(
-                        canvasRef.current.clientWidth,
-                        canvasRef.current.clientHeight
-                    );
-                    centerCamera();
-                }
-            };
-            window.addEventListener("resize", handleResize);
+                    if (moved) {
+                        player.position.set(newX, newY);
+                        setPlayerPosition({ x: newX, y: newY });
+                        centerCamera();
 
-            return () => {
-                window.removeEventListener("resize", handleResize);
-            };
+                        // Check zone
+                        const zone = MAP_ZONES.find(z =>
+                            newX >= z.x && newX <= z.x + z.width &&
+                            newY >= z.y && newY <= z.y + z.height
+                        );
+                        if (zone && zone.name !== currentZone) {
+                            setCurrentZone(zone.name);
+                        }
+
+                        // Send position to other players
+                        sendPosition(newX, newY, dir, zone?.name || currentZone);
+                    }
+                });
+
+                // Resize handler
+                const handleResize = () => {
+                    if (canvasRef.current && app) {
+                        app.renderer.resize(
+                            canvasRef.current.clientWidth,
+                            canvasRef.current.clientHeight
+                        );
+                        centerCamera();
+                    }
+                };
+                window.addEventListener("resize", handleResize);
+
+                return () => {
+                    window.removeEventListener("resize", handleResize);
+                };
+            } catch (error) {
+                console.error('PixiJS initialization failed:', error);
+                toast.error('게임 로딩에 실패했습니다. 새로고침 해주세요.');
+            }
         };
 
         initPixi();
