@@ -103,8 +103,7 @@ export default function Login() {
                 {/* Student Info */}
                 <div className="mt-8 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
                     <p className="text-amber-400 text-sm text-center">
-                        💡 <strong>코딩쏙학원</strong> 학생만 수업자료를 다운로드할 수 있습니다.<br />
-                        회원가입 시 학원명을 입력해주세요!
+                        💡 <strong>Resource</strong> 학원 수업자료는 학원 학생들만 확인 및 다운 가능합니다.
                     </p>
                 </div>
             </div>

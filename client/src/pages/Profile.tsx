@@ -113,7 +113,7 @@ export default function Profile() {
                         <div className="space-y-3">
                             <Label className="text-white/70 flex items-center gap-2">
                                 <School className="w-4 h-4" />
-                                학원 접근 코드
+                                수업자료 페이지 접근 코드
                             </Label>
                             <Input
                                 value={accessCode}

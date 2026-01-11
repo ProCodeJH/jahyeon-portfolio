@@ -496,7 +496,7 @@ export default function Register() {
                             <div>
                                 <Label className="text-white/70 flex items-center gap-2">
                                     <School className="w-4 h-4" />
-                                    학원 접근 코드 (선택)
+                                    수업자료 페이지 접근 코드 (선택)
                                 </Label>
                                 <Input
                                     value={form.academyName}
