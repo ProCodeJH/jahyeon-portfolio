@@ -566,10 +566,14 @@ export function SecureVaultOverlay({
                         </h2>
 
                         {/* Subtitle */}
-                        <p className="text-white/60 text-lg mb-8 max-w-md mx-auto">
-                            <span className="text-amber-400">코딩쏙학원</span> 학생 전용 콘텐츠입니다.
+                        <p className="text-white/60 text-lg mb-8 max-w-lg mx-auto leading-relaxed">
+                            학원 학생들 전용 수업자료 페이지입니다.
                             <br />
-                            로그인하여 프리미엄 학습 자료를 이용하세요.
+                            <span className="text-amber-400/80 text-base">
+                                해당 학원 학생들은 회원가입할 때 안내받은 코드를
+                                <br />
+                                반드시 정확히 기입하시길 바랍니다.
+                            </span>
                         </p>
 
                         {/* Buttons */}
