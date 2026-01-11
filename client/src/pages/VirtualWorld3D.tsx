@@ -324,10 +324,10 @@ export default function VirtualWorld3D() {
     const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
     const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
     const playerMeshRef = useRef<THREE.Group | null>(null);
-    const otherPlayerMeshesRef = useRef<Map<string, THREE.Group>>(new Map());
+    const otherPlayerMeshesRef = useRef(new Map<string, THREE.Group>());
     const animationIdRef = useRef<number>(0);
     const isInitializedRef = useRef(false);
-    const keysRef = useRef<Set<string>>(new Set());
+    const keysRef = useRef(new Set<string>());
     const playerPosRef = useRef({ x: 0, z: 0 });
     const playerRotationRef = useRef(0);
     const cameraTargetRef = useRef({ x: 0, y: CAMERA_HEIGHT, z: CAMERA_DISTANCE });
