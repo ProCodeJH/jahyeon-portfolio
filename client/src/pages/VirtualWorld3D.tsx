@@ -345,6 +345,8 @@ export default function VirtualWorld3D() {
     const [showPlayerList, setShowPlayerList] = useState(false);
     const [currentZone, setCurrentZone] = useState("도심 CBD");
     const [showMinimap, setShowMinimap] = useState(true);
+    const [myBubble, setMyBubble] = useState<{ text: string; timestamp: number } | null>(null);
+    const [bubbleScreenPos, setBubbleScreenPos] = useState({ x: 0, y: 0 });
 
     // Check login
     useEffect(() => {
@@ -724,7 +726,16 @@ export default function VirtualWorld3D() {
         };
     }, [member]);
 
-    const handleSendChat = () => { if (chatInput.trim()) { sendChat(chatInput); setChatInput(""); } };
+    const handleSendChat = () => {
+        if (chatInput.trim()) {
+            sendChat(chatInput);
+            // Set bubble above my character
+            setMyBubble({ text: chatInput, timestamp: Date.now() });
+            setChatInput("");
+            // Auto-clear bubble after 4 seconds
+            setTimeout(() => setMyBubble(null), 4000);
+        }
+    };
     const handleRandomizeAvatar = () => {
         if (!member) return;
         const updated = { ...member, avatarSeed: Math.floor(Math.random() * 1000000) };
@@ -793,26 +804,35 @@ export default function VirtualWorld3D() {
                         🚧 프로토타입 (개발중) - 테스트 버전입니다
                     </div>
 
-                    {/* 💬 Chat Bubbles Overlay */}
-                    <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
-                        {realtimeChatMessages.slice(-5).map((msg, index) => (
+                    {/* 💬 Chat Bubble Above My Character */}
+                    {myBubble && cameraRef.current && playerMeshRef.current && containerRef.current && (() => {
+                        // Convert 3D world position to screen position
+                        const playerPos = new THREE.Vector3(
+                            playerPosRef.current.x,
+                            2.5, // Above player head
+                            playerPosRef.current.z
+                        );
+                        playerPos.project(cameraRef.current!);
+                        const x = (playerPos.x * 0.5 + 0.5) * containerRef.current!.clientWidth;
+                        const y = (-playerPos.y * 0.5 + 0.5) * containerRef.current!.clientHeight;
+
+                        return (
                             <div
-                                key={msg.id}
-                                className="absolute animate-fadeIn"
+                                className="absolute pointer-events-none z-20"
                                 style={{
-                                    left: `${20 + (index * 15)}%`,
-                                    bottom: `${15 + (index * 8)}%`,
-                                    animation: 'fadeInOut 5s forwards',
-                                    opacity: 1 - (index * 0.15),
+                                    left: `${x}px`,
+                                    top: `${y}px`,
+                                    transform: 'translate(-50%, -100%)',
                                 }}
                             >
-                                <div className="bg-black/80 backdrop-blur-sm rounded-2xl rounded-bl-sm px-4 py-2 max-w-xs border border-white/20">
-                                    <div className="text-xs text-blue-400 mb-0.5">{msg.playerName}</div>
-                                    <p className="text-white text-sm">{msg.message}</p>
+                                <div className="bg-white text-black rounded-2xl rounded-bl-sm px-4 py-2 max-w-[200px] shadow-lg border-2 border-blue-400">
+                                    <p className="text-sm font-medium break-words">{myBubble.text}</p>
                                 </div>
+                                {/* Speech bubble pointer */}
+                                <div className="absolute left-4 bottom-0 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-white" style={{ transform: 'translateY(100%)' }} />
                             </div>
-                        ))}
-                    </div>
+                        );
+                    })()}
 
                     {/* HUD */}
                     <div className="absolute top-10 left-4 right-4 flex justify-between items-start pointer-events-none">
