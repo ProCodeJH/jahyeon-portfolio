@@ -28,8 +28,8 @@ export function Navigation() {
     { name: "Work", path: "/projects" },
     { name: "Resources", path: "/resources" },
     { name: "Code Editor", path: "/code-editor" },
-    { name: "🔌 Arduino", path: "/arduino-lab" },
-    { name: "🌐 World", path: "/virtual-world" }
+    { name: "Arduino", path: "/arduino-lab" },
+    { name: "World", path: "/virtual-world" }
   ];
 
   return (
