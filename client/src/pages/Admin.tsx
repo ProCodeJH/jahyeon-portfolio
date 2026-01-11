@@ -1474,25 +1474,59 @@ export default function Admin() {
         </DialogContent>
       </Dialog>
 
-      {/* MOVE FOLDER DIALOG */}
+      {/* MOVE FOLDER DIALOG - Cross-Category Support */}
       <Dialog open={showMoveFolderDialog} onOpenChange={setShowMoveFolderDialog}>
         <DialogContent className="max-w-md bg-[#111] border-white/10 text-white">
           <DialogHeader>
             <DialogTitle className="text-xl font-light">Move Folder</DialogTitle>
             <DialogDescription className="text-white/50">
-              Move "{movingFolder?.name}" into another folder
+              Move "{movingFolder?.name}" to another category or folder
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
               <Label className="text-white/70">Current Folder</Label>
               <div className="mt-1.5 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white/50">
-                📁 {movingFolder?.name}
+                📁 {movingFolder?.name} ({RESOURCE_CATEGORIES.find(c => c.value === movingFolder?.category)?.label || movingFolder?.category})
               </div>
             </div>
 
+            {/* Target Category Selector - NEW! */}
             <div>
-              <Label className="text-white/70">Move to *</Label>
+              <Label className="text-white/70 flex items-center gap-2">
+                🏷️ Target Category *
+              </Label>
+              <Select
+                value={movingFolder?.category || selectedCategory}
+                onValueChange={(v: ResourceCategory) => {
+                  if (movingFolder) {
+                    setMovingFolder({ ...movingFolder, category: v });
+                    setMoveTargetParentId(null); // Reset parent when category changes
+                  }
+                }}
+              >
+                <SelectTrigger className="mt-1.5 bg-white/5 border-white/10 text-white">
+                  <SelectValue placeholder="Select target category" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#111] border-white/10">
+                  {RESOURCE_CATEGORIES.map(c => (
+                    <SelectItem key={c.value} value={c.value} className="text-white hover:bg-white/10">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: c.color }} />
+                        {c.label}
+                        {c.value === movingFolder?.category && " (현재)"}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-emerald-400/80 text-xs mt-1">
+                💡 다른 카테고리로 이동하면 폴더 안의 모든 파일도 함께 이동됩니다
+              </p>
+            </div>
+
+            <div>
+              <Label className="text-white/70">Parent Folder (Optional)</Label>
               <Select
                 value={moveTargetParentId === null ? "__root__" : String(moveTargetParentId)}
                 onValueChange={(v) => setMoveTargetParentId(v === "__root__" ? null : Number(v))}
@@ -1507,7 +1541,7 @@ export default function Admin() {
                   {folders?.filter(f =>
                     f.category === movingFolder?.category &&
                     f.id !== movingFolder?.id &&
-                    f.parentId !== movingFolder?.id // Prevent circular reference
+                    f.parentId !== movingFolder?.id
                   ).map(f => (
                     <SelectItem key={f.id} value={String(f.id)} className="text-white hover:bg-white/10">
                       📂 {f.name}
@@ -1515,18 +1549,16 @@ export default function Admin() {
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-white/40 text-xs mt-1">
-                💡 Select a folder to move "{movingFolder?.name}" into it as a subfolder
-              </p>
             </div>
 
             {/* Preview */}
             <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-              <p className="text-white/50 text-xs mb-1">📍 After move:</p>
+              <p className="text-white/50 text-xs mb-1">📍 이동 결과:</p>
               <p className="text-blue-400 font-mono text-sm">
+                [{RESOURCE_CATEGORIES.find(c => c.value === movingFolder?.category)?.label}]
                 {moveTargetParentId
-                  ? `📂 ${folders?.find(f => f.id === moveTargetParentId)?.name} / 📁 ${movingFolder?.name}`
-                  : `📁 ${movingFolder?.name} (root level)`
+                  ? ` / 📂 ${folders?.find(f => f.id === moveTargetParentId)?.name} / 📁 ${movingFolder?.name}`
+                  : ` / 📁 ${movingFolder?.name}`
                 }
               </p>
             </div>
@@ -1536,15 +1568,45 @@ export default function Admin() {
                 onClick={async () => {
                   if (!movingFolder) return;
                   try {
+                    const originalCategory = movingFolder.currentParentId !== undefined
+                      ? folders?.find(f => f.id === movingFolder.id)?.category
+                      : movingFolder.category;
+                    const newCategory = movingFolder.category;
+                    const categoryChanged = originalCategory && originalCategory !== newCategory;
+
+                    // Update folder category and parent
                     await updateFolder.mutateAsync({
                       id: movingFolder.id,
                       parentId: moveTargetParentId,
+                      category: newCategory,
                     });
-                    toast.success(`Folder "${movingFolder.name}" moved successfully`);
+
+                    // If category changed, also update all resources in this folder
+                    if (categoryChanged) {
+                      const resourcesToMove = resources?.filter(r =>
+                        r.category === originalCategory &&
+                        r.subcategory === movingFolder.name
+                      ) || [];
+
+                      for (const resource of resourcesToMove) {
+                        await updateResource.mutateAsync({
+                          id: resource.id,
+                          category: newCategory,
+                        });
+                      }
+
+                      toast.success(`폴더 "${movingFolder.name}"와 ${resourcesToMove.length}개 파일이 이동되었습니다`);
+                    } else {
+                      toast.success(`폴더 "${movingFolder.name}" 이동 완료`);
+                    }
+
                     setShowMoveFolderDialog(false);
                     setMovingFolder(null);
+                    utils.resources.list.invalidate();
+                    utils.folders.list.invalidate();
                   } catch (error) {
-                    toast.error("Failed to move folder");
+                    toast.error("폴더 이동 실패");
+                    console.error(error);
                   }
                 }}
                 disabled={updateFolder.isPending}

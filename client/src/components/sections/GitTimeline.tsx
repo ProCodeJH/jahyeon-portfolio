@@ -21,16 +21,17 @@ interface GitHubEvent {
 
 const GITHUB_USERNAME = "ProCodeJH";
 
-// Event type colors
+// Event type colors - User-requested color scheme
+// 커밋=파랑, 브랜치=주황, PR=보라, Fork=초록
 const EVENT_COLORS = {
-    PushEvent: { bg: "from-emerald-500 to-green-400", glow: "emerald", line: "#10b981" },
-    CreateEvent: { bg: "from-blue-500 to-cyan-400", glow: "blue", line: "#3b82f6" },
-    PullRequestEvent: { bg: "from-purple-500 to-pink-400", glow: "purple", line: "#a855f7" },
-    IssuesEvent: { bg: "from-orange-500 to-yellow-400", glow: "orange", line: "#f97316" },
-    WatchEvent: { bg: "from-yellow-500 to-amber-400", glow: "yellow", line: "#eab308" },
-    ForkEvent: { bg: "from-indigo-500 to-violet-400", glow: "indigo", line: "#6366f1" },
-    DeleteEvent: { bg: "from-red-500 to-rose-400", glow: "red", line: "#ef4444" },
-    ReleaseEvent: { bg: "from-teal-500 to-emerald-400", glow: "teal", line: "#14b8a6" },
+    PushEvent: { bg: "from-blue-500 to-cyan-400", glow: "blue", line: "#3b82f6" },           // 🔵 커밋 푸시 = 파란색
+    CreateEvent: { bg: "from-orange-500 to-amber-400", glow: "orange", line: "#f97316" },   // 🟠 브랜치 생성 = 주황색
+    PullRequestEvent: { bg: "from-purple-500 to-pink-400", glow: "purple", line: "#a855f7" }, // 🟣 PR = 보라색
+    IssuesEvent: { bg: "from-rose-500 to-red-400", glow: "rose", line: "#f43f5e" },         // 🔴 이슈 = 빨간색
+    WatchEvent: { bg: "from-yellow-500 to-amber-400", glow: "yellow", line: "#eab308" },    // 🟡 스타 = 노란색
+    ForkEvent: { bg: "from-emerald-500 to-green-400", glow: "emerald", line: "#10b981" },   // 🟢 포크 = 초록색
+    DeleteEvent: { bg: "from-red-600 to-rose-500", glow: "red", line: "#dc2626" },          // ❌ 삭제 = 진빨강
+    ReleaseEvent: { bg: "from-teal-500 to-emerald-400", glow: "teal", line: "#14b8a6" },    // 릴리스 = 청록
     default: { bg: "from-gray-500 to-slate-400", glow: "gray", line: "#6b7280" },
 } as const;
 

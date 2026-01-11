@@ -76,55 +76,136 @@ const LANGUAGE_COLORS: Record<string, string> = {
     Rust: "#dea584",
 };
 
-// Contribution Graph Component (Grass/Heatmap style)
+// Contribution Graph Component (Real GitHub data)
 function ContributionGraph() {
-    const [contributions, setContributions] = useState<number[]>([]);
+    const [contributions, setContributions] = useState<{ date: string; count: number; level: number }[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [totalContributions, setTotalContributions] = useState(0);
 
     useEffect(() => {
-        // Generate mock contribution data (in real implementation, use GitHub GraphQL API)
-        // GitHub's contribution data requires authentication for accuracy
-        const mockData = Array.from({ length: 52 * 7 }, () =>
-            Math.random() > 0.3 ? Math.floor(Math.random() * 4) + 1 : 0
-        );
-        setContributions(mockData);
+        // Fetch real contributions using GitHub's public contribution calendar
+        // We'll use a proxy service or calculate from events
+        const fetchContributions = async () => {
+            try {
+                // Method 1: Use GitHub events to calculate contributions
+                const response = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}/events/public?per_page=100`);
+                const events = await response.json();
+
+                // Create a map of dates to contribution counts
+                const contributionMap = new Map<string, number>();
+                const today = new Date();
+
+                // Initialize last 365 days with 0
+                for (let i = 0; i < 365; i++) {
+                    const date = new Date(today);
+                    date.setDate(date.getDate() - i);
+                    const dateStr = date.toISOString().split('T')[0];
+                    contributionMap.set(dateStr, 0);
+                }
+
+                // Count events by date
+                if (Array.isArray(events)) {
+                    events.forEach((event: any) => {
+                        const dateStr = event.created_at?.split('T')[0];
+                        if (dateStr && contributionMap.has(dateStr)) {
+                            // Count commits for PushEvents
+                            if (event.type === 'PushEvent' && event.payload?.commits) {
+                                contributionMap.set(dateStr, (contributionMap.get(dateStr) || 0) + event.payload.commits.length);
+                            } else {
+                                contributionMap.set(dateStr, (contributionMap.get(dateStr) || 0) + 1);
+                            }
+                        }
+                    });
+                }
+
+                // Convert to array and calculate levels
+                const sortedDates = Array.from(contributionMap.entries())
+                    .sort((a, b) => a[0].localeCompare(b[0]))
+                    .slice(-364); // Last 52 weeks
+
+                const maxCount = Math.max(...sortedDates.map(([, count]) => count), 1);
+                const total = sortedDates.reduce((sum, [, count]) => sum + count, 0);
+                setTotalContributions(total);
+
+                const data = sortedDates.map(([date, count]) => ({
+                    date,
+                    count,
+                    level: count === 0 ? 0 : Math.min(4, Math.ceil((count / maxCount) * 4)),
+                }));
+
+                setContributions(data);
+            } catch (error) {
+                console.error("Failed to fetch contributions:", error);
+                // Fallback to empty state
+                setContributions([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchContributions();
     }, []);
 
     const getColor = (level: number) => {
         const colors = [
-            "bg-white/5", // 0 contributions
-            "bg-emerald-900/50", // 1-2 contributions
-            "bg-emerald-700/60", // 3-4 contributions
-            "bg-emerald-500/70", // 5-6 contributions
-            "bg-emerald-400", // 7+ contributions
+            "bg-white/5",         // 0 contributions
+            "bg-emerald-900/60",  // Level 1
+            "bg-emerald-700/70",  // Level 2
+            "bg-emerald-500/80",  // Level 3
+            "bg-emerald-400",     // Level 4 (max)
         ];
         return colors[Math.min(level, 4)];
     };
 
+    // Organize contributions into weeks
+    const weeks: { date: string; count: number; level: number }[][] = [];
+    for (let i = 0; i < contributions.length; i += 7) {
+        weeks.push(contributions.slice(i, i + 7));
+    }
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center py-8">
+                <div className="w-6 h-6 border-2 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin" />
+            </div>
+        );
+    }
+
     return (
-        <div className="overflow-x-auto pb-2">
-            <div className="grid grid-flow-col auto-cols-[10px] gap-[3px] min-w-fit">
-                {Array.from({ length: 52 }).map((_, weekIndex) => (
-                    <div key={weekIndex} className="grid grid-rows-7 gap-[3px]">
-                        {Array.from({ length: 7 }).map((_, dayIndex) => {
-                            const index = weekIndex * 7 + dayIndex;
-                            const level = contributions[index] || 0;
-                            return (
+        <div>
+            {/* Total contributions badge */}
+            <div className="flex items-center justify-between mb-4">
+                <span className="text-xs text-white/40">Last 52 weeks</span>
+                <span className="text-sm font-medium text-emerald-400">
+                    {totalContributions.toLocaleString()} contributions
+                </span>
+            </div>
+
+            <div className="overflow-x-auto pb-2">
+                <div className="grid grid-flow-col auto-cols-[10px] gap-[3px] min-w-fit">
+                    {weeks.map((week, weekIndex) => (
+                        <div key={weekIndex} className="grid grid-rows-7 gap-[3px]">
+                            {week.map((day, dayIndex) => (
                                 <div
                                     key={dayIndex}
-                                    className={`w-[10px] h-[10px] rounded-sm ${getColor(level)} transition-colors hover:ring-1 hover:ring-emerald-400`}
-                                    title={`${level} contributions`}
+                                    className={`w-[10px] h-[10px] rounded-sm ${getColor(day.level)} transition-all duration-200 hover:ring-2 hover:ring-emerald-400 hover:scale-125 cursor-pointer`}
+                                    title={`${day.date}: ${day.count} contributions`}
                                 />
-                            );
-                        })}
-                    </div>
-                ))}
-            </div>
-            <div className="flex items-center justify-end gap-1 mt-2 text-xs text-white/40">
-                <span>Less</span>
-                {[0, 1, 2, 3, 4].map(i => (
-                    <div key={i} className={`w-[10px] h-[10px] rounded-sm ${getColor(i)}`} />
-                ))}
-                <span>More</span>
+                            ))}
+                            {/* Fill remaining days in week if incomplete */}
+                            {Array.from({ length: 7 - week.length }).map((_, i) => (
+                                <div key={`empty-${i}`} className="w-[10px] h-[10px]" />
+                            ))}
+                        </div>
+                    ))}
+                </div>
+                <div className="flex items-center justify-end gap-1 mt-3 text-xs text-white/40">
+                    <span>Less</span>
+                    {[0, 1, 2, 3, 4].map(i => (
+                        <div key={i} className={`w-[10px] h-[10px] rounded-sm ${getColor(i)}`} />
+                    ))}
+                    <span>More</span>
+                </div>
             </div>
         </div>
     );
