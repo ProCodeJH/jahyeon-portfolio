@@ -867,28 +867,39 @@ export default function Admin() {
                               >
                                 <Pencil className="h-3 w-3" />
                               </Button>
-                              {/* Move Folder Button */}
-                              {(folder as any).id && (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
+                              {/* Move Folder Button - Show for ALL folders */}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const folderId = (folder as any).id;
+                                  if (folderId) {
+                                    // Folder exists in DB
                                     setMovingFolder({
-                                      id: (folder as any).id,
+                                      id: folderId,
                                       name: folder.name,
                                       category: selectedCategory,
                                       currentParentId: (folder as any).parentId
                                     });
-                                    setMoveTargetParentId((folder as any).parentId || null);
-                                    setShowMoveFolderDialog(true);
-                                  }}
-                                  className="h-7 w-7 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
-                                  title="Move to folder"
-                                >
-                                  <FolderInput className="h-3 w-3" />
-                                </Button>
-                              )}
+                                  } else {
+                                    // Folder from resources only - create temp entry
+                                    // We'll handle this case specially in move handler
+                                    setMovingFolder({
+                                      id: -1, // Special marker for "no DB id"
+                                      name: folder.name,
+                                      category: selectedCategory,
+                                      currentParentId: null
+                                    });
+                                  }
+                                  setMoveTargetParentId((folder as any).parentId || null);
+                                  setShowMoveFolderDialog(true);
+                                }}
+                                className="h-7 w-7 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
+                                title="Move to folder"
+                              >
+                                <FolderInput className="h-3 w-3" />
+                              </Button>
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -1572,19 +1583,28 @@ export default function Admin() {
                       ? folders?.find(f => f.id === movingFolder.id)?.category
                       : movingFolder.category;
                     const newCategory = movingFolder.category;
-                    const categoryChanged = originalCategory && originalCategory !== newCategory;
+                    const hasFolderInDb = movingFolder.id > 0;
 
                     // Get target parent folder name if exists
                     const targetParentFolder = moveTargetParentId
                       ? folders?.find(f => f.id === moveTargetParentId)
                       : null;
 
-                    // Update folder category and parent
-                    await updateFolder.mutateAsync({
-                      id: movingFolder.id,
-                      parentId: moveTargetParentId,
-                      category: newCategory,
-                    });
+                    // Update folder in DB only if it exists
+                    if (hasFolderInDb) {
+                      await updateFolder.mutateAsync({
+                        id: movingFolder.id,
+                        parentId: moveTargetParentId,
+                        category: newCategory,
+                      });
+                    } else {
+                      // Create new folder in target category if moving cross-category
+                      await createFolder.mutateAsync({
+                        name: movingFolder.name,
+                        category: newCategory,
+                        parentId: moveTargetParentId,
+                      });
+                    }
 
                     // Update all resources in this folder
                     const resourcesToMove = resources?.filter(r =>
@@ -1605,11 +1625,7 @@ export default function Admin() {
                       });
                     }
 
-                    if (categoryChanged || targetParentFolder) {
-                      toast.success(`폴더 "${movingFolder.name}"와 ${resourcesToMove.length}개 파일이 이동되었습니다`);
-                    } else {
-                      toast.success(`폴더 "${movingFolder.name}" 이동 완료`);
-                    }
+                    toast.success(`폴더 "${movingFolder.name}"와 ${resourcesToMove.length}개 파일이 이동되었습니다`);
 
                     setShowMoveFolderDialog(false);
                     setMovingFolder(null);

@@ -9,12 +9,27 @@ import Projects from "./pages/Projects";
 // Certifications page removed - merged into Home
 import Resources from "./pages/Resources";
 import CodeEditor from "./pages/CodeEditor";
-import VirtualWorld3D from "./pages/VirtualWorld3D";
+import { lazy, Suspense } from "react";
 import Admin from "./pages/Admin";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import { useSmoothScroll } from "./hooks/useSmoothScroll";
+
+// Lazy load VirtualWorld3D to isolate Three.js in separate bundle chunk
+const VirtualWorld3D = lazy(() => import("./pages/VirtualWorld3D"));
+
+// Loading fallback for VirtualWorld
+function VirtualWorldLoader() {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-sky-400 to-sky-200 flex items-center justify-center">
+      <div className="text-center">
+        <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-white font-medium">가상 세계 로딩 중...</p>
+      </div>
+    </div>
+  );
+}
 
 function Router() {
   return (
@@ -24,7 +39,11 @@ function Router() {
       {/* Certifications route removed - content merged into Home */}
       <Route path="/resources" component={Resources} />
       <Route path="/code-editor" component={CodeEditor} />
-      <Route path="/virtual-world" component={VirtualWorld3D} />
+      <Route path="/virtual-world">
+        <Suspense fallback={<VirtualWorldLoader />}>
+          <VirtualWorld3D />
+        </Suspense>
+      </Route>
       <Route path="/admin" component={Admin} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
