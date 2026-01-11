@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { supabase, WORLD_CHANNEL, PlayerState, ChatMessage } from '@/lib/supabase';
+import { supabase, WORLD_CHANNEL, PlayerState, ChatMessage, isSupabaseConfigured } from '@/lib/supabase';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
 interface UseRealtimeWorldOptions {
@@ -31,7 +31,7 @@ export function useRealtimeWorld(options: UseRealtimeWorldOptions): UseRealtimeW
 
     // Initialize channel
     useEffect(() => {
-        if (!playerId) return;
+        if (!playerId || !isSupabaseConfigured || !supabase) return;
 
         const channel = supabase.channel(WORLD_CHANNEL, {
             config: {
