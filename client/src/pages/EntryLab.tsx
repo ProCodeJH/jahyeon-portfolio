@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Navigation } from "@/components/layout/Navigation";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
 import { Button } from "@/components/ui/button";
@@ -7,233 +7,290 @@ import {
     Blocks,
     Rocket,
     Lightbulb,
-    ExternalLink,
     Play,
     BookOpen,
     Gamepad2,
-    Sparkles
+    Sparkles,
+    Terminal,
+    Zap,
+    ArrowLeft
 } from "lucide-react";
 import { Link } from "wouter";
 
-export default function EntryLab() {
-    const [activeTab, setActiveTab] = useState<'scratch' | 'projects'>('scratch');
+// Sample Blockly-style visual blocks (pure CSS implementation)
+function BlocklyDemo() {
+    const [isRunning, setIsRunning] = useState(false);
+    const [output, setOutput] = useState<string[]>([]);
+    const [catPosition, setCatPosition] = useState(0);
 
-    const sampleProjects = [
-        {
-            id: 1,
-            title: "🎮 간단한 게임 만들기",
-            description: "방향키로 캐릭터를 움직여 별을 모으는 게임",
-            difficulty: "초급",
-            color: "from-green-500 to-emerald-500"
-        },
-        {
-            id: 2,
-            title: "🎨 그림 그리기 프로그램",
-            description: "마우스를 따라다니며 그림을 그리는 펜 만들기",
-            difficulty: "초급",
-            color: "from-blue-500 to-cyan-500"
-        },
-        {
-            id: 3,
-            title: "🐱 고양이 피아노",
-            description: "키보드를 누르면 다른 소리가 나는 피아노",
-            difficulty: "중급",
-            color: "from-purple-500 to-pink-500"
-        },
-        {
-            id: 4,
-            title: "🚀 우주 슈팅 게임",
-            description: "우주선을 조종해 적을 물리치는 게임",
-            difficulty: "중급",
-            color: "from-orange-500 to-red-500"
-        },
-    ];
+    const runCode = () => {
+        setIsRunning(true);
+        setOutput([]);
+        setCatPosition(0);
+
+        const steps = [
+            { delay: 0, log: "🚀 프로그램 시작!", pos: 0 },
+            { delay: 500, log: "➡️ 10칸 이동", pos: 50 },
+            { delay: 1000, log: "➡️ 10칸 이동", pos: 100 },
+            { delay: 1500, log: "🔄 90도 회전", pos: 100 },
+            { delay: 2000, log: "➡️ 10칸 이동", pos: 150 },
+            { delay: 2500, log: "🎉 완료!", pos: 200 },
+        ];
+
+        steps.forEach(({ delay, log, pos }) => {
+            setTimeout(() => {
+                setOutput(prev => [...prev, log]);
+                setCatPosition(pos);
+            }, delay);
+        });
+
+        setTimeout(() => setIsRunning(false), 3000);
+    };
 
     return (
+        <div className="grid lg:grid-cols-2 gap-8">
+            {/* Block Editor */}
+            <div className="relative rounded-3xl overflow-hidden bg-[#1e1e2e] border border-white/10 shadow-2xl">
+                {/* Glow */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 rounded-3xl opacity-30 blur-xl" />
+
+                <div className="relative">
+                    {/* Header */}
+                    <div className="flex items-center justify-between px-6 py-4 bg-black/30 border-b border-white/10">
+                        <div className="flex items-center gap-3">
+                            <Blocks className="w-5 h-5 text-purple-400" />
+                            <span className="text-white font-bold">블록 에디터</span>
+                        </div>
+                        <Button
+                            onClick={runCode}
+                            disabled={isRunning}
+                            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-bold px-6 shadow-lg shadow-green-500/30"
+                        >
+                            <Play className="w-4 h-4 mr-2" />
+                            {isRunning ? "실행 중..." : "실행하기"}
+                        </Button>
+                    </div>
+
+                    {/* Blocks Area */}
+                    <div className="p-6 space-y-3 min-h-[350px]">
+                        {/* Event Block */}
+                        <div className="group">
+                            <div className="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-bold shadow-lg shadow-orange-500/30 cursor-move hover:scale-105 transition-transform">
+                                <Zap className="w-5 h-5" />
+                                <span>🏁 시작하면</span>
+                            </div>
+                        </div>
+
+                        {/* Motion Blocks */}
+                        <div className="ml-8 space-y-2">
+                            <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium shadow-lg shadow-blue-500/30 cursor-move hover:scale-105 transition-transform">
+                                <span>➡️</span>
+                                <span>10</span>
+                                <span className="text-blue-200">칸 이동하기</span>
+                            </div>
+
+                            <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium shadow-lg shadow-blue-500/30 cursor-move hover:scale-105 transition-transform">
+                                <span>➡️</span>
+                                <span>10</span>
+                                <span className="text-blue-200">칸 이동하기</span>
+                            </div>
+
+                            <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium shadow-lg shadow-blue-500/30 cursor-move hover:scale-105 transition-transform">
+                                <span>🔄</span>
+                                <span>90</span>
+                                <span className="text-blue-200">도 회전하기</span>
+                            </div>
+
+                            <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium shadow-lg shadow-blue-500/30 cursor-move hover:scale-105 transition-transform">
+                                <span>➡️</span>
+                                <span>10</span>
+                                <span className="text-blue-200">칸 이동하기</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Stage & Console */}
+            <div className="space-y-6">
+                {/* Stage */}
+                <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-sky-400 to-blue-500 border border-white/20 shadow-2xl aspect-video">
+                    <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:20px_20px]" />
+
+                    {/* Character */}
+                    <div
+                        className="absolute bottom-1/4 transition-all duration-500 ease-out"
+                        style={{ left: `calc(10% + ${catPosition}px)` }}
+                    >
+                        <div className="text-6xl animate-bounce">🐱</div>
+                    </div>
+
+                    {/* Stage Label */}
+                    <div className="absolute top-4 left-4 px-3 py-1.5 rounded-lg bg-black/30 backdrop-blur-sm text-white text-sm font-medium">
+                        🎬 스테이지
+                    </div>
+                </div>
+
+                {/* Console */}
+                <div className="rounded-2xl overflow-hidden bg-[#0d1117] border border-white/10">
+                    <div className="flex items-center gap-2 px-4 py-2 bg-[#161b22] border-b border-white/10">
+                        <Terminal className="w-4 h-4 text-green-400" />
+                        <span className="text-xs text-gray-400 font-mono">출력</span>
+                    </div>
+                    <div className="p-4 h-32 overflow-y-auto font-mono text-sm">
+                        {output.length === 0 ? (
+                            <span className="text-gray-600">실행 버튼을 눌러 코드를 실행하세요...</span>
+                        ) : (
+                            output.map((line, i) => (
+                                <div key={i} className="text-green-400">{line}</div>
+                            ))
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// Sample Projects
+const projects = [
+    {
+        title: "🎮 간단한 게임",
+        description: "방향키로 캐릭터를 움직여 별을 모으는 게임",
+        difficulty: "초급",
+        color: "from-green-500 to-emerald-500"
+    },
+    {
+        title: "🎨 그림 그리기",
+        description: "마우스를 따라다니며 그림을 그리는 펜",
+        difficulty: "초급",
+        color: "from-blue-500 to-cyan-500"
+    },
+    {
+        title: "🎵 멜로디 연주",
+        description: "키보드를 누르면 다른 음이 나는 피아노",
+        difficulty: "중급",
+        color: "from-purple-500 to-pink-500"
+    },
+    {
+        title: "🚀 우주 슈팅",
+        description: "우주선을 조종해 적을 물리치는 게임",
+        difficulty: "고급",
+        color: "from-orange-500 to-red-500"
+    },
+];
+
+export default function EntryLab() {
+    return (
         <div className="min-h-screen bg-gradient-to-br from-[#0a0a1a] via-[#0d0d20] to-[#0a0a1a] text-white">
-            {/* Background Effects */}
-            <div className="fixed inset-0 pointer-events-none">
-                <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-r from-orange-500/20 to-yellow-500/20 rounded-full blur-3xl animate-float" />
-                <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+            {/* Animated Background */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden">
+                <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-full blur-3xl animate-pulse" />
+                <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-gradient-to-r from-cyan-500/20 to-blue-600/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-orange-500/10 to-yellow-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
             </div>
 
             <Navigation />
 
-            {/* Hero Section */}
+            {/* Hero */}
             <section className="pt-32 pb-16 px-4 md:px-8 relative z-10">
                 <div className="max-w-7xl mx-auto">
                     <AnimatedSection>
-                        <div className="text-center mb-12">
-                            <div className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-orange-500/20 via-yellow-500/20 to-green-500/20 border border-orange-500/30 backdrop-blur-xl mb-8">
-                                <Blocks className="w-6 h-6 text-orange-400" />
-                                <span className="text-lg font-bold text-orange-300 tracking-wider uppercase">Block Coding Lab</span>
-                                <Blocks className="w-6 h-6 text-orange-400" />
+                        <div className="text-center mb-16">
+                            {/* Badge */}
+                            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-orange-500/20 border border-purple-500/30 backdrop-blur-xl mb-8 shadow-2xl">
+                                <Blocks className="w-5 h-5 text-purple-400" />
+                                <span className="text-sm font-bold text-purple-300 tracking-wider uppercase">Block Coding Lab</span>
+                                <Sparkles className="w-5 h-5 text-pink-400" />
                             </div>
 
+                            {/* Title */}
                             <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 tracking-tight">
-                                <span className="bg-clip-text text-transparent bg-gradient-to-r from-orange-400 via-yellow-400 to-green-400 animate-gradient-x">
-                                    코딩 연습실
+                                <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 animate-gradient-x">
+                                    블록 코딩
                                 </span>
+                                <br />
+                                <span className="text-white">연습실</span>
                             </h1>
 
-                            <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-8">
-                                <span className="text-orange-400 font-semibold">Scratch</span>로 블록 코딩을 배우고,
-                                <br className="hidden md:block" />
-                                창의적인 프로젝트를 만들어보세요!
+                            <p className="text-xl md:text-2xl text-gray-400 max-w-2xl mx-auto">
+                                드래그 앤 드롭으로 코딩의 기초를 배워보세요!
                             </p>
-
-                            {/* Tab Buttons */}
-                            <div className="flex items-center justify-center gap-4 mb-8">
-                                <Button
-                                    onClick={() => setActiveTab('scratch')}
-                                    className={`px-6 py-3 rounded-xl font-bold transition-all ${activeTab === 'scratch'
-                                            ? 'bg-gradient-to-r from-orange-500 to-yellow-500 text-white shadow-lg shadow-orange-500/50'
-                                            : 'bg-white/10 text-gray-300 hover:bg-white/20'
-                                        }`}
-                                >
-                                    <Play className="w-5 h-5 mr-2" />
-                                    Scratch 에디터
-                                </Button>
-                                <Button
-                                    onClick={() => setActiveTab('projects')}
-                                    className={`px-6 py-3 rounded-xl font-bold transition-all ${activeTab === 'projects'
-                                            ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/50'
-                                            : 'bg-white/10 text-gray-300 hover:bg-white/20'
-                                        }`}
-                                >
-                                    <Lightbulb className="w-5 h-5 mr-2" />
-                                    프로젝트 아이디어
-                                </Button>
-                            </div>
                         </div>
                     </AnimatedSection>
 
-                    {/* Main Content Area */}
-                    {activeTab === 'scratch' ? (
-                        <AnimatedSection delay={100}>
-                            {/* Scratch Editor Embed */}
-                            <div className="relative rounded-3xl overflow-hidden bg-[#12121a] border border-white/10 shadow-2xl">
-                                {/* Glow Border */}
-                                <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-500 via-yellow-500 to-green-500 rounded-3xl opacity-50 blur" />
+                    {/* Block Editor Demo */}
+                    <AnimatedSection delay={100}>
+                        <BlocklyDemo />
+                    </AnimatedSection>
 
-                                <div className="relative bg-[#0a0a1a] rounded-3xl overflow-hidden">
-                                    {/* Header Bar */}
-                                    <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-orange-500/20 to-yellow-500/20 border-b border-white/10">
-                                        <div className="flex items-center gap-3">
-                                            <div className="flex gap-2">
-                                                <div className="w-3 h-3 rounded-full bg-red-500" />
-                                                <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                                                <div className="w-3 h-3 rounded-full bg-green-500" />
-                                            </div>
-                                            <span className="text-white font-bold">Scratch 3.0 Editor</span>
-                                        </div>
-                                        <a
-                                            href="https://scratch.mit.edu/projects/editor/"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-sm font-medium"
-                                        >
-                                            <ExternalLink className="w-4 h-4" />
-                                            새 창에서 열기
-                                        </a>
+                    {/* Tips */}
+                    <AnimatedSection delay={200}>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
+                            {[
+                                { icon: Gamepad2, title: "드래그 & 드롭", desc: "블록을 끌어다 놓으면 코드가 완성!" },
+                                { icon: Play, title: "즉시 실행", desc: "실행 버튼으로 바로 결과 확인" },
+                                { icon: BookOpen, title: "쉽게 배우기", desc: "복잡한 문법 없이 논리만 이해하면 OK" },
+                            ].map((tip, i) => (
+                                <div
+                                    key={i}
+                                    className="group p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl hover:bg-white/10 hover:border-purple-500/50 transition-all duration-500"
+                                >
+                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all shadow-lg shadow-purple-500/30">
+                                        <tip.icon className="w-6 h-6 text-white" />
                                     </div>
-
-                                    {/* Scratch iframe */}
-                                    <div className="aspect-[16/10] w-full">
-                                        <iframe
-                                            src="https://scratch.mit.edu/projects/editor/?tutorial=getStarted"
-                                            title="Scratch Editor"
-                                            className="w-full h-full"
-                                            allowFullScreen
-                                            allow="clipboard-read; clipboard-write"
-                                        />
-                                    </div>
+                                    <h3 className="text-lg font-bold text-white mb-2">{tip.title}</h3>
+                                    <p className="text-gray-400 text-sm">{tip.desc}</p>
                                 </div>
-                            </div>
+                            ))}
+                        </div>
+                    </AnimatedSection>
 
-                            {/* Quick Tips */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                                {[
-                                    { icon: Gamepad2, title: "드래그 & 드롭", desc: "블록을 끌어다 놓으면 코드가 완성돼요" },
-                                    { icon: Play, title: "초록 깃발", desc: "초록 깃발을 클릭하면 프로그램이 실행돼요" },
-                                    { icon: BookOpen, title: "튜토리얼", desc: "우측 상단 '?' 버튼으로 도움말을 볼 수 있어요" },
-                                ].map((tip, idx) => (
-                                    <div key={idx} className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-orange-500/50 transition-colors">
-                                        <tip.icon className="w-8 h-8 text-orange-400 mb-3" />
-                                        <h3 className="text-lg font-bold text-white mb-2">{tip.title}</h3>
-                                        <p className="text-gray-400">{tip.desc}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </AnimatedSection>
-                    ) : (
-                        <AnimatedSection delay={100}>
-                            {/* Project Ideas */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {sampleProjects.map((project, idx) => (
+                    {/* Project Ideas */}
+                    <AnimatedSection delay={300}>
+                        <div className="mt-24">
+                            <h2 className="text-3xl md:text-4xl font-black text-center mb-12">
+                                <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-purple-400">
+                                    프로젝트 아이디어
+                                </span>
+                            </h2>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                {projects.map((project, i) => (
                                     <div
-                                        key={project.id}
-                                        className="group relative p-8 rounded-3xl bg-[#12121a] border border-white/10 hover:border-purple-500/50 transition-all duration-500 overflow-hidden"
+                                        key={i}
+                                        className="group relative p-6 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-xl overflow-hidden cursor-pointer hover:border-white/30 transition-all"
                                     >
-                                        {/* Gradient Background */}
-                                        <div className={`absolute inset-0 bg-gradient-to-br ${project.color} opacity-5 group-hover:opacity-10 transition-opacity`} />
+                                        {/* Gradient overlay */}
+                                        <div className={`absolute inset-0 bg-gradient-to-br ${project.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
 
-                                        {/* Content */}
                                         <div className="relative">
-                                            <div className="flex items-start justify-between mb-4">
-                                                <h3 className="text-2xl font-black text-white group-hover:text-purple-300 transition-colors">
-                                                    {project.title}
-                                                </h3>
-                                                <span className={`px-3 py-1 rounded-full text-sm font-bold ${project.difficulty === '초급'
-                                                        ? 'bg-green-500/20 text-green-400'
-                                                        : 'bg-orange-500/20 text-orange-400'
+                                            <div className="flex items-center justify-between mb-3">
+                                                <span className="text-2xl">{project.title.split(' ')[0]}</span>
+                                                <span className={`px-2 py-1 rounded-full text-xs font-bold ${project.difficulty === '초급' ? 'bg-green-500/20 text-green-400' :
+                                                        project.difficulty === '중급' ? 'bg-yellow-500/20 text-yellow-400' :
+                                                            'bg-red-500/20 text-red-400'
                                                     }`}>
                                                     {project.difficulty}
                                                 </span>
                                             </div>
-                                            <p className="text-gray-400 mb-6">{project.description}</p>
-                                            <Button
-                                                onClick={() => setActiveTab('scratch')}
-                                                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold"
-                                            >
-                                                <Rocket className="w-4 h-4 mr-2" />
-                                                만들어보기
-                                            </Button>
+                                            <h3 className="text-lg font-bold text-white mb-2">{project.title.split(' ').slice(1).join(' ')}</h3>
+                                            <p className="text-gray-400 text-sm">{project.description}</p>
                                         </div>
                                     </div>
                                 ))}
                             </div>
-
-                            {/* More Resources */}
-                            <div className="mt-12 p-8 rounded-3xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30">
-                                <div className="flex items-center gap-4 mb-4">
-                                    <Sparkles className="w-8 h-8 text-purple-400" />
-                                    <h3 className="text-2xl font-bold text-white">더 많은 프로젝트</h3>
-                                </div>
-                                <p className="text-gray-300 mb-6">
-                                    Scratch 공식 사이트에서 수천 개의 프로젝트를 탐색하고, 다른 사람들의 코드를 배워보세요!
-                                </p>
-                                <a
-                                    href="https://scratch.mit.edu/explore/projects/all"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                    <Button className="bg-white text-purple-600 hover:bg-gray-100 font-bold">
-                                        <ExternalLink className="w-4 h-4 mr-2" />
-                                        Scratch 탐색하기
-                                    </Button>
-                                </a>
-                            </div>
-                        </AnimatedSection>
-                    )}
+                        </div>
+                    </AnimatedSection>
                 </div>
             </section>
 
-            {/* Back to Home Link */}
-            <div className="text-center pb-16">
+            {/* Back Button */}
+            <div className="text-center pb-16 relative z-10">
                 <Link href="/">
                     <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
-                        ← 홈으로 돌아가기
+                        <ArrowLeft className="w-4 h-4 mr-2" />
+                        홈으로 돌아가기
                     </Button>
                 </Link>
             </div>

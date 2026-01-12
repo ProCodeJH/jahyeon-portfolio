@@ -1,386 +1,373 @@
 import { useState, useEffect, useRef } from "react";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
-import {
-    Server,
-    Database,
-    Globe,
-    Zap,
-    Code2,
-    Layers,
-    Activity,
-    Cpu,
-    Cloud,
-    GitBranch,
-    Terminal,
-    Braces,
-    Palette,
-    Shield,
-    Rocket,
-    Sparkles,
-    Play,
-    ChevronRight
-} from "lucide-react";
 
-interface TechItem {
-    name: string;
-    icon: React.ElementType;
-    category: 'frontend' | 'backend' | 'database' | 'infra';
-    gradient: string;
-    glow: string;
-}
-
-const techStack: TechItem[] = [
-    // Frontend
-    { name: "React", icon: Code2, category: 'frontend', gradient: "from-cyan-400 to-blue-500", glow: "cyan" },
-    { name: "TypeScript", icon: Braces, category: 'frontend', gradient: "from-blue-500 to-indigo-600", glow: "blue" },
-    { name: "Vite", icon: Zap, category: 'frontend', gradient: "from-yellow-400 to-purple-500", glow: "purple" },
-    { name: "TailwindCSS", icon: Palette, category: 'frontend', gradient: "from-teal-400 to-cyan-500", glow: "teal" },
-    { name: "Three.js", icon: Globe, category: 'frontend', gradient: "from-purple-500 to-pink-500", glow: "purple" },
-
-    // Backend
-    { name: "NestJS", icon: Server, category: 'backend', gradient: "from-red-500 to-pink-600", glow: "red" },
-    { name: "Socket.IO", icon: Activity, category: 'backend', gradient: "from-gray-500 to-gray-700", glow: "gray" },
-    { name: "Prisma", icon: Database, category: 'backend', gradient: "from-indigo-500 to-purple-600", glow: "indigo" },
-    { name: "JWT", icon: Shield, category: 'backend', gradient: "from-green-500 to-emerald-600", glow: "green" },
-
-    // Database
-    { name: "PostgreSQL", icon: Database, category: 'database', gradient: "from-blue-600 to-blue-800", glow: "blue" },
-    { name: "Supabase", icon: Cloud, category: 'database', gradient: "from-emerald-500 to-green-600", glow: "emerald" },
-
-    // Infrastructure
-    { name: "Vercel", icon: Rocket, category: 'infra', gradient: "from-gray-700 to-black", glow: "gray" },
-    { name: "Render", icon: Server, category: 'infra', gradient: "from-purple-600 to-indigo-700", glow: "purple" },
-    { name: "GitHub", icon: GitBranch, category: 'infra', gradient: "from-gray-600 to-gray-900", glow: "gray" },
-    { name: "Expo", icon: Cpu, category: 'infra', gradient: "from-violet-500 to-purple-600", glow: "violet" },
+// Tech stack data
+const technologies = [
+    { name: "React", color: "#61DAFB", category: "Frontend" },
+    { name: "TypeScript", color: "#3178C6", category: "Frontend" },
+    { name: "Vite", color: "#646CFF", category: "Frontend" },
+    { name: "TailwindCSS", color: "#06B6D4", category: "Frontend" },
+    { name: "Three.js", color: "#000000", category: "Frontend" },
+    { name: "NestJS", color: "#E0234E", category: "Backend" },
+    { name: "Prisma", color: "#2D3748", category: "Backend" },
+    { name: "Socket.IO", color: "#010101", category: "Backend" },
+    { name: "PostgreSQL", color: "#336791", category: "Database" },
+    { name: "Supabase", color: "#3ECF8E", category: "Database" },
+    { name: "Vercel", color: "#000000", category: "Deploy" },
+    { name: "Render", color: "#46E3B7", category: "Deploy" },
 ];
 
-// Floating orb animation component
-function FloatingOrb({ delay = 0, size = "w-32 h-32", color = "purple" }: { delay?: number; size?: string; color?: string }) {
-    const colors: Record<string, string> = {
-        purple: "from-purple-600/30 to-pink-600/30",
-        cyan: "from-cyan-500/30 to-blue-600/30",
-        orange: "from-orange-500/30 to-red-500/30",
-    };
+const codeLines = [
+    { text: "import { NestFactory } from '@nestjs/core';", delay: 0 },
+    { text: "import { AppModule } from './app.module';", delay: 100 },
+    { text: "", delay: 200 },
+    { text: "async function bootstrap() {", delay: 300 },
+    { text: "  const app = await NestFactory.create(AppModule);", delay: 400 },
+    { text: "  app.enableCors({ origin: '*' });", delay: 500 },
+    { text: "  await app.listen(3001);", delay: 600 },
+    { text: "  console.log('🚀 Server running...');", delay: 700 },
+    { text: "}", delay: 800 },
+    { text: "", delay: 900 },
+    { text: "bootstrap();", delay: 1000 },
+];
+
+// Typing animation hook
+function useTypingEffect(text: string, speed: number = 30, delay: number = 0) {
+    const [displayedText, setDisplayedText] = useState("");
+    const [isComplete, setIsComplete] = useState(false);
+
+    useEffect(() => {
+        let timeout: NodeJS.Timeout;
+
+        const startTyping = () => {
+            let i = 0;
+            const type = () => {
+                if (i < text.length) {
+                    setDisplayedText(text.slice(0, i + 1));
+                    i++;
+                    timeout = setTimeout(type, speed);
+                } else {
+                    setIsComplete(true);
+                }
+            };
+            type();
+        };
+
+        const delayTimeout = setTimeout(startTyping, delay);
+        return () => {
+            clearTimeout(timeout);
+            clearTimeout(delayTimeout);
+        };
+    }, [text, speed, delay]);
+
+    return { displayedText, isComplete };
+}
+
+// Syntax highlighting
+function highlightCode(code: string) {
+    return code
+        .replace(/(import|from|async|function|await|const|new)/g, '<span class="text-purple-400">$1</span>')
+        .replace(/('.*?')/g, '<span class="text-emerald-400">$1</span>')
+        .replace(/(console|app)/g, '<span class="text-cyan-400">$1</span>')
+        .replace(/(\{|\}|\(|\)|=>|;)/g, '<span class="text-gray-500">$1</span>');
+}
+
+// Code Terminal Component
+function CodeTerminal() {
+    const [visibleLines, setVisibleLines] = useState(0);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setVisibleLines(prev => {
+                if (prev >= codeLines.length) {
+                    // Reset after showing all
+                    setTimeout(() => setVisibleLines(0), 3000);
+                    return prev;
+                }
+                return prev + 1;
+            });
+        }, 150);
+        return () => clearInterval(interval);
+    }, []);
 
     return (
-        <div
-            className={`absolute ${size} bg-gradient-to-r ${colors[color]} rounded-full blur-3xl animate-float pointer-events-none`}
-            style={{ animationDelay: `${delay}s`, animationDuration: '8s' }}
+        <div className="relative">
+            {/* Terminal Window */}
+            <div className="relative rounded-2xl overflow-hidden bg-[#0d1117] border border-white/10 shadow-2xl shadow-purple-500/20">
+                {/* Glow */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600 rounded-2xl opacity-20 blur-xl animate-pulse" />
+
+                {/* Header */}
+                <div className="relative flex items-center gap-2 px-4 py-3 bg-[#161b22] border-b border-white/10">
+                    <div className="flex gap-1.5">
+                        <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
+                        <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
+                        <div className="w-3 h-3 rounded-full bg-[#27c93f]" />
+                    </div>
+                    <span className="ml-2 text-xs text-gray-500 font-mono">main.ts — NestJS Server</span>
+                    <div className="ml-auto flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="text-xs text-emerald-400 font-mono">LIVE</span>
+                    </div>
+                </div>
+
+                {/* Code Area */}
+                <div className="relative p-6 font-mono text-sm overflow-hidden" style={{ minHeight: '320px' }}>
+                    {/* Scanlines effect */}
+                    <div className="absolute inset-0 pointer-events-none opacity-5 bg-[linear-gradient(transparent_50%,_rgba(0,0,0,0.5)_50%)] bg-[length:100%_4px]" />
+
+                    {codeLines.slice(0, visibleLines).map((line, i) => (
+                        <div key={i} className="flex items-center gap-4 leading-7">
+                            <span className="w-6 text-right text-gray-600 select-none text-xs">{i + 1}</span>
+                            <span
+                                className="text-gray-300"
+                                dangerouslySetInnerHTML={{ __html: highlightCode(line.text) || '&nbsp;' }}
+                            />
+                            {i === visibleLines - 1 && (
+                                <span className="w-2 h-5 bg-purple-400 animate-pulse" />
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// Orbital Tech Ring
+function TechOrbit() {
+    const [rotation, setRotation] = useState(0);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setRotation(prev => (prev + 0.3) % 360);
+        }, 30);
+        return () => clearInterval(interval);
+    }, []);
+
+    return (
+        <div className="relative w-full aspect-square max-w-lg mx-auto">
+            {/* Central Glow */}
+            <div className="absolute inset-1/3 rounded-full bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600 blur-3xl opacity-40 animate-pulse" />
+
+            {/* Center Logo */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+                <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-purple-600 via-pink-600 to-blue-600 flex items-center justify-center shadow-2xl shadow-purple-500/50">
+                    <span className="text-4xl md:text-5xl font-black text-white">JH</span>
+                </div>
+            </div>
+
+            {/* Orbiting circles */}
+            {[0, 1, 2].map((ring) => (
+                <div
+                    key={ring}
+                    className="absolute inset-0 rounded-full border border-white/5"
+                    style={{
+                        transform: `scale(${0.6 + ring * 0.25})`,
+                    }}
+                />
+            ))}
+
+            {/* Orbiting Technologies */}
+            {technologies.slice(0, 8).map((tech, i) => {
+                const angle = (rotation + i * 45) * (Math.PI / 180);
+                const radius = 42;
+                const x = 50 + radius * Math.cos(angle);
+                const y = 50 + radius * Math.sin(angle);
+
+                return (
+                    <div
+                        key={tech.name}
+                        className="absolute w-14 h-14 md:w-16 md:h-16 rounded-xl bg-black/80 backdrop-blur-xl border border-white/20 flex items-center justify-center text-xs font-bold text-white shadow-xl transition-all duration-300 hover:scale-125 hover:z-30 group cursor-pointer"
+                        style={{
+                            left: `${x}%`,
+                            top: `${y}%`,
+                            transform: 'translate(-50%, -50%)',
+                            boxShadow: `0 0 20px ${tech.color}40`,
+                        }}
+                    >
+                        <span className="text-[10px] md:text-xs font-bold truncate px-1">{tech.name}</span>
+
+                        {/* Hover tooltip */}
+                        <div className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-lg bg-black/90 text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-white/10">
+                            {tech.category}
+                        </div>
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
+
+// Matrix-style falling code
+function MatrixRain() {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+
+        const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>{}[]();';
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops: number[] = Array(Math.floor(columns)).fill(1);
+
+        const draw = () => {
+            ctx.fillStyle = 'rgba(10, 10, 26, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#a855f720';
+            ctx.font = `${fontSize}px monospace`;
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = chars[Math.floor(Math.random() * chars.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        };
+
+        const interval = setInterval(draw, 50);
+        return () => clearInterval(interval);
+    }, []);
+
+    return (
+        <canvas
+            ref={canvasRef}
+            className="absolute inset-0 w-full h-full opacity-30 pointer-events-none"
         />
     );
 }
 
-export function LiveTechStack() {
-    const [apiStatus, setApiStatus] = useState<'checking' | 'online' | 'offline'>('checking');
-    const [latency, setLatency] = useState<number | null>(null);
-    const [hoveredTech, setHoveredTech] = useState<string | null>(null);
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-    const containerRef = useRef<HTMLDivElement>(null);
+// Stats Counter Animation
+function AnimatedStat({ value, label, suffix = "" }: { value: number; label: string; suffix?: string }) {
+    const [count, setCount] = useState(0);
+    const [isVisible, setIsVisible] = useState(false);
+    const ref = useRef<HTMLDivElement>(null);
 
-    // Check API status
     useEffect(() => {
-        const checkApi = async () => {
-            const start = Date.now();
-            try {
-                const res = await fetch('https://jahyeon-portfolio.onrender.com/api/blog/categories');
-                if (res.ok) {
-                    setApiStatus('online');
-                    setLatency(Date.now() - start);
-                } else {
-                    setApiStatus('offline');
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true);
                 }
-            } catch {
-                setApiStatus('offline');
-            }
-        };
+            },
+            { threshold: 0.5 }
+        );
 
-        checkApi();
-        const interval = setInterval(checkApi, 30000);
-        return () => clearInterval(interval);
+        if (ref.current) observer.observe(ref.current);
+        return () => observer.disconnect();
     }, []);
 
-    // Mouse tracking for parallax
     useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            if (containerRef.current) {
-                const rect = containerRef.current.getBoundingClientRect();
-                setMousePosition({
-                    x: ((e.clientX - rect.left) / rect.width - 0.5) * 20,
-                    y: ((e.clientY - rect.top) / rect.height - 0.5) * 20,
-                });
+        if (!isVisible) return;
+
+        let start = 0;
+        const duration = 2000;
+        const startTime = Date.now();
+
+        const animate = () => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 4);
+            setCount(Math.floor(eased * value));
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
             }
         };
 
-        window.addEventListener('mousemove', handleMouseMove);
-        return () => window.removeEventListener('mousemove', handleMouseMove);
-    }, []);
+        animate();
+    }, [isVisible, value]);
 
     return (
-        <section ref={containerRef} className="py-32 md:py-48 px-4 md:px-8 relative overflow-hidden">
-            {/* 🌌 PREMIUM ANIMATED BACKGROUND */}
-            <div className="absolute inset-0 overflow-hidden">
-                {/* Gradient Mesh */}
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_rgba(139,92,246,0.15)_0%,_transparent_50%)]" />
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_rgba(6,182,212,0.15)_0%,_transparent_50%)]" />
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(236,72,153,0.08)_0%,_transparent_40%)]" />
-
-                {/* Floating Orbs */}
-                <FloatingOrb delay={0} size="w-96 h-96" color="purple" />
-                <FloatingOrb delay={2} size="w-80 h-80" color="cyan" />
-                <FloatingOrb delay={4} size="w-64 h-64" color="orange" />
-
-                {/* Grid Pattern */}
-                <div
-                    className="absolute inset-0 opacity-[0.03]"
-                    style={{
-                        backgroundImage: `
-              linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)
-            `,
-                        backgroundSize: '50px 50px',
-                    }}
-                />
-
-                {/* Animated particles */}
-                {[...Array(20)].map((_, i) => (
-                    <div
-                        key={i}
-                        className="absolute w-1 h-1 bg-white/30 rounded-full animate-twinkle"
-                        style={{
-                            left: `${Math.random() * 100}%`,
-                            top: `${Math.random() * 100}%`,
-                            animationDelay: `${Math.random() * 5}s`,
-                            animationDuration: `${3 + Math.random() * 4}s`,
-                        }}
-                    />
-                ))}
+        <div ref={ref} className="text-center">
+            <div className="text-5xl md:text-7xl font-black bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-400">
+                {count}{suffix}
             </div>
+            <p className="text-gray-500 mt-2 font-medium">{label}</p>
+        </div>
+    );
+}
+
+export function LiveTechStack() {
+    return (
+        <section className="py-32 md:py-48 px-4 md:px-8 relative overflow-hidden bg-gradient-to-b from-[#0a0a1a] via-[#0d0d20] to-[#0a0a1a]">
+            {/* Matrix Rain Background */}
+            <MatrixRain />
+
+            {/* Gradient Orbs */}
+            <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] animate-pulse" />
+            <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-cyan-600/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
 
             <div className="max-w-7xl mx-auto relative z-10">
-                {/* 🎯 SECTION HEADER - Ultra Premium */}
+                {/* Header */}
                 <AnimatedSection>
-                    <div className="text-center mb-20 md:mb-32">
-                        {/* Live Status Badge */}
-                        <div className="inline-flex items-center gap-4 px-6 py-3 rounded-full bg-black/40 backdrop-blur-2xl border border-white/10 mb-10 shadow-2xl">
-                            <div className="relative">
-                                <div className={`w-3 h-3 rounded-full ${apiStatus === 'online' ? 'bg-emerald-400' :
-                                        apiStatus === 'offline' ? 'bg-red-400' : 'bg-yellow-400'
-                                    }`} />
-                                <div className={`absolute inset-0 w-3 h-3 rounded-full ${apiStatus === 'online' ? 'bg-emerald-400' : 'bg-yellow-400'
-                                    } animate-ping`} />
-                            </div>
-                            <span className="text-sm font-medium text-white/80">
-                                {apiStatus === 'online' ? 'All Systems Operational' :
-                                    apiStatus === 'offline' ? 'Service Unavailable' : 'Checking...'}
+                    <div className="text-center mb-20">
+                        <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl mb-8">
+                            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                            <span className="text-sm text-gray-400 font-medium">Production Ready</span>
+                        </div>
+
+                        <h2 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-none">
+                            <span className="block text-white">Built with</span>
+                            <span className="block bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 animate-gradient-x">
+                                Modern Stack
                             </span>
-                            {latency && (
-                                <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 text-xs font-mono font-bold">
-                                    {latency}ms
-                                </span>
-                            )}
-                        </div>
-
-                        {/* Main Title with Parallax */}
-                        <div
-                            className="relative"
-                            style={{ transform: `translate(${mousePosition.x * 0.3}px, ${mousePosition.y * 0.3}px)` }}
-                        >
-                            <h2 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter mb-6">
-                                <span className="relative inline-block">
-                                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 animate-gradient-x">
-                                        Powered
-                                    </span>
-                                    {/* Glowing underline */}
-                                    <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-full blur-sm" />
-                                    <div className="absolute -bottom-2 left-0 right-0 h-0.5 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-full" />
-                                </span>
-                                <br />
-                                <span className="text-white/90">By</span>
-                            </h2>
-                        </div>
-
-                        <p className="text-xl md:text-2xl text-gray-400 max-w-2xl mx-auto font-light leading-relaxed">
-                            이 포트폴리오를 구동하는{" "}
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 font-medium">
-                                최신 기술 스택
-                            </span>
-                        </p>
+                        </h2>
                     </div>
                 </AnimatedSection>
 
-                {/* 🔥 LIVE STATUS CARDS */}
-                <AnimatedSection delay={100}>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-20">
-                        {/* API Card */}
-                        <div className="group relative">
-                            <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-3xl opacity-0 group-hover:opacity-100 blur transition-all duration-500" />
-                            <div className="relative p-8 rounded-3xl bg-black/60 backdrop-blur-2xl border border-white/10 overflow-hidden">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-500/20 to-transparent rounded-bl-full" />
+                {/* Main Content Grid */}
+                <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+                    {/* Left: Tech Orbit */}
+                    <AnimatedSection delay={100}>
+                        <TechOrbit />
+                    </AnimatedSection>
 
-                                <div className="flex items-center justify-between mb-6">
-                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-                                        <Server className="w-7 h-7 text-white" />
-                                    </div>
-                                    <div className={`px-4 py-2 rounded-full ${apiStatus === 'online' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'
-                                        } text-sm font-bold flex items-center gap-2`}>
-                                        <div className={`w-2 h-2 rounded-full ${apiStatus === 'online' ? 'bg-emerald-400' : 'bg-red-400'
-                                            } animate-pulse`} />
-                                        {apiStatus === 'online' ? 'LIVE' : 'DOWN'}
-                                    </div>
-                                </div>
+                    {/* Right: Code Terminal */}
+                    <AnimatedSection delay={200}>
+                        <CodeTerminal />
+                    </AnimatedSection>
+                </div>
 
-                                <h3 className="text-2xl font-bold text-white mb-2">API Server</h3>
-                                <p className="text-gray-400 text-sm">NestJS + WebSocket</p>
-                            </div>
-                        </div>
-
-                        {/* Database Card */}
-                        <div className="group relative">
-                            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-3xl opacity-0 group-hover:opacity-100 blur transition-all duration-500" />
-                            <div className="relative p-8 rounded-3xl bg-black/60 backdrop-blur-2xl border border-white/10 overflow-hidden">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-transparent rounded-bl-full" />
-
-                                <div className="flex items-center justify-between mb-6">
-                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
-                                        <Database className="w-7 h-7 text-white" />
-                                    </div>
-                                    <div className="px-4 py-2 rounded-full bg-blue-500/20 text-blue-400 text-sm font-bold flex items-center gap-2">
-                                        <Activity className="w-4 h-4 animate-pulse" />
-                                        SYNCED
-                                    </div>
-                                </div>
-
-                                <h3 className="text-2xl font-bold text-white mb-2">Database</h3>
-                                <p className="text-gray-400 text-sm">PostgreSQL + Supabase</p>
-                            </div>
-                        </div>
-
-                        {/* Mobile App Card */}
-                        <div className="group relative">
-                            <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl opacity-0 group-hover:opacity-100 blur transition-all duration-500" />
-                            <div className="relative p-8 rounded-3xl bg-black/60 backdrop-blur-2xl border border-white/10 overflow-hidden">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/20 to-transparent rounded-bl-full" />
-
-                                <div className="flex items-center justify-between mb-6">
-                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
-                                        <Cpu className="w-7 h-7 text-white" />
-                                    </div>
-                                    <div className="px-4 py-2 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center gap-2">
-                                        <Sparkles className="w-4 h-4" />
-                                        NATIVE
-                                    </div>
-                                </div>
-
-                                <h3 className="text-2xl font-bold text-white mb-2">Mobile App</h3>
-                                <p className="text-gray-400 text-sm">React Native + Expo</p>
-                            </div>
-                        </div>
-                    </div>
-                </AnimatedSection>
-
-                {/* 🎨 TECH STACK SHOWCASE - Bento Grid Style */}
-                <AnimatedSection delay={200}>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
-                        {techStack.map((tech, idx) => {
-                            const Icon = tech.icon;
-                            const isHovered = hoveredTech === tech.name;
-
-                            return (
-                                <div
-                                    key={tech.name}
-                                    className="group relative cursor-pointer"
-                                    onMouseEnter={() => setHoveredTech(tech.name)}
-                                    onMouseLeave={() => setHoveredTech(null)}
-                                    style={{
-                                        animationDelay: `${idx * 30}ms`,
-                                        transform: isHovered ? 'scale(1.05) translateY(-8px)' : 'scale(1)',
-                                        transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)'
-                                    }}
-                                >
-                                    {/* Glow Effect */}
-                                    <div className={`absolute -inset-1 bg-gradient-to-r ${tech.gradient} rounded-2xl opacity-0 group-hover:opacity-70 blur-lg transition-all duration-500`} />
-
-                                    {/* Card */}
-                                    <div className="relative p-6 rounded-2xl bg-black/50 backdrop-blur-xl border border-white/10 group-hover:border-white/30 transition-all duration-500 overflow-hidden h-full">
-                                        {/* Background gradient on hover */}
-                                        <div className={`absolute inset-0 bg-gradient-to-br ${tech.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500`} />
-
-                                        {/* Icon Container */}
-                                        <div
-                                            className={`relative w-14 h-14 rounded-xl bg-gradient-to-br ${tech.gradient} flex items-center justify-center mb-4 shadow-xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}
-                                            style={{ boxShadow: isHovered ? `0 0 30px var(--${tech.glow}-glow, rgba(139,92,246,0.5))` : 'none' }}
-                                        >
-                                            <Icon className="w-7 h-7 text-white" />
-
-                                            {/* Sparkle effect */}
-                                            {isHovered && (
-                                                <div className="absolute -inset-1">
-                                                    <div className="absolute top-0 right-0 w-2 h-2 bg-white rounded-full animate-ping" />
-                                                    <div className="absolute bottom-0 left-0 w-1.5 h-1.5 bg-white rounded-full animate-ping" style={{ animationDelay: '0.2s' }} />
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        {/* Text */}
-                                        <h4 className="text-lg font-bold text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-white/70 transition-all duration-300">
-                                            {tech.name}
-                                        </h4>
-
-                                        {/* Category Badge */}
-                                        <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                                {tech.category}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </AnimatedSection>
-
-                {/* 💫 ANIMATED STATS */}
+                {/* Stats Row */}
                 <AnimatedSection delay={300}>
-                    <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-6">
-                        {[
-                            { value: "15+", label: "Technologies", gradient: "from-cyan-500 to-blue-500" },
-                            { value: "25+", label: "API Endpoints", gradient: "from-purple-500 to-pink-500" },
-                            { value: "50+", label: "Components", gradient: "from-orange-500 to-red-500" },
-                            { value: "100%", label: "Type Safe", gradient: "from-emerald-500 to-teal-500" },
-                        ].map((stat, idx) => (
-                            <div key={idx} className="group relative text-center p-8 rounded-3xl bg-black/40 backdrop-blur-xl border border-white/5 hover:border-white/20 transition-all duration-500 overflow-hidden">
-                                {/* Gradient overlay on hover */}
-                                <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
+                    <div className="mt-24 grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+                        <AnimatedStat value={15} label="Technologies" suffix="+" />
+                        <AnimatedStat value={25} label="API Routes" suffix="+" />
+                        <AnimatedStat value={50} label="Components" suffix="+" />
+                        <AnimatedStat value={100} label="Type Safe" suffix="%" />
+                    </div>
+                </AnimatedSection>
 
-                                <div className={`text-5xl md:text-6xl font-black bg-clip-text text-transparent bg-gradient-to-r ${stat.gradient} mb-3`}>
-                                    {stat.value}
-                                </div>
-                                <p className="text-gray-400 font-medium">{stat.label}</p>
+                {/* Tech Pills */}
+                <AnimatedSection delay={400}>
+                    <div className="mt-20 flex flex-wrap justify-center gap-3">
+                        {technologies.map((tech, i) => (
+                            <div
+                                key={tech.name}
+                                className="px-5 py-2.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl text-white font-medium text-sm hover:bg-white/10 hover:border-white/20 transition-all cursor-default"
+                                style={{
+                                    animationDelay: `${i * 50}ms`,
+                                    boxShadow: `inset 0 0 20px ${tech.color}10`
+                                }}
+                            >
+                                {tech.name}
                             </div>
                         ))}
                     </div>
                 </AnimatedSection>
             </div>
-
-            {/* Custom Animations */}
-            <style>{`
-        @keyframes twinkle {
-          0%, 100% { opacity: 0; transform: scale(0.5); }
-          50% { opacity: 1; transform: scale(1); }
-        }
-        .animate-twinkle {
-          animation: twinkle 3s ease-in-out infinite;
-        }
-        @keyframes float {
-          0%, 100% { transform: translateY(0) translateX(0); }
-          25% { transform: translateY(-20px) translateX(10px); }
-          50% { transform: translateY(-10px) translateX(-10px); }
-          75% { transform: translateY(-30px) translateX(5px); }
-        }
-        .animate-float {
-          animation: float 8s ease-in-out infinite;
-        }
-      `}</style>
         </section>
     );
 }
