@@ -1,0 +1,15 @@
+# Gu Jahyeon Portfolio - robots.txt
+# https://jahyeon-portfolio.vercel.app
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://jahyeon-portfolio.vercel.app/sitemap.xml
+
+# Disallow admin and auth pages
+Disallow: /admin
+Disallow: /login
+Disallow: /register
+Disallow: /profile
+Disallow: /404

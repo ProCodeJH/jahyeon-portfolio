@@ -15,6 +15,10 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import { useSmoothScroll } from "./hooks/useSmoothScroll";
+import { BackToTop } from "./components/ui/BackToTop";
+import { ScrollProgressBar } from "./components/ui/ScrollProgressBar";
+import { CookieConsent } from "./components/ui/CookieConsent";
+import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 
 // Lazy load VirtualWorld3D to isolate Three.js in separate bundle chunk
 const VirtualWorld3D = lazy(() => import("./pages/VirtualWorld3D"));
@@ -67,12 +71,18 @@ function App() {
   // 🚀 ENTERPRISE-GRADE SMOOTH SCROLL (Lenis + GSAP)
   useSmoothScroll();
 
+  // ⌨️ KEYBOARD SHORTCUTS
+  useKeyboardShortcuts();
+
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="dark">
+      <ThemeProvider defaultTheme="dark" switchable={true}>
         <TooltipProvider>
           <Toaster />
+          <ScrollProgressBar />
           <Router />
+          <BackToTop />
+          <CookieConsent />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

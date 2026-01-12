@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Menu, X, LogIn, LogOut, UserPlus } from "lucide-react";
 import { toast } from "sonner";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -59,8 +60,9 @@ export function Navigation() {
                 </Link>
               ))}
 
-              {/* Auth Buttons */}
-              <div className="flex items-center gap-2 ml-4 pl-4 border-l border-gray-200">
+              {/* Theme Toggle & Auth Buttons */}
+              <div className="flex items-center gap-3 ml-4 pl-4 border-l border-gray-200">
+                <ThemeToggle />
                 {member ? (
                   <>
                     <span className="text-sm font-medium text-gray-600">

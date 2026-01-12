@@ -1,0 +1,245 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// AUTH & ADMIN USERS
+// ============================================
+
+model Admin {
+  id               String         @id @default(cuid())
+  email            String         @unique
+  passwordHash     String
+  name             String
+  avatarUrl        String?
+  role             AdminRole      @default(ADMIN)
+  twoFactorEnabled Boolean        @default(false)
+  twoFactorSecret  String?
+  devices          AdminDevice[]
+  chats            Chat[]         @relation("AdminChats")
+  messages         Message[]
+  blogPosts        BlogPost[]
+  refreshTokens    RefreshToken[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  MODERATOR
+}
+
+model AdminDevice {
+  id          String     @id @default(cuid())
+  adminId     String
+  admin       Admin      @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  deviceToken String
+  deviceType  DeviceType
+  deviceName  String?
+  lastActive  DateTime   @default(now())
+  createdAt   DateTime   @default(now())
+
+  @@index([adminId])
+}
+
+enum DeviceType {
+  WEB
+  IOS
+  ANDROID
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  adminId   String
+  admin     Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  deviceId  String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([adminId])
+  @@index([token])
+}
+
+// ============================================
+// CHAT SYSTEM
+// ============================================
+
+model Visitor {
+  id          String   @id @default(cuid())
+  fingerprint String?  @unique
+  name        String?
+  email       String?
+  ipAddress   String?
+  userAgent   String?
+  metadata    Json?
+  isBlocked   Boolean  @default(false)
+  chats       Chat[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([fingerprint])
+}
+
+model Chat {
+  id        String     @id @default(cuid())
+  visitorId String
+  visitor   Visitor    @relation(fields: [visitorId], references: [id], onDelete: Cascade)
+  adminId   String?
+  admin     Admin?     @relation("AdminChats", fields: [adminId], references: [id])
+  status    ChatStatus @default(WAITING)
+  subject   String?
+  priority  Priority   @default(NORMAL)
+  messages  Message[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  closedAt  DateTime?
+
+  @@index([visitorId])
+  @@index([adminId])
+  @@index([status])
+}
+
+enum ChatStatus {
+  WAITING
+  ACTIVE
+  CLOSED
+  RESOLVED
+}
+
+enum Priority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+model Message {
+  id          String       @id @default(cuid())
+  chatId      String
+  chat        Chat         @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  senderId    String?
+  admin       Admin?       @relation(fields: [senderId], references: [id])
+  senderType  SenderType
+  content     String
+  type        MessageType  @default(TEXT)
+  attachments Attachment[]
+  isRead      Boolean      @default(false)
+  readAt      DateTime?
+  createdAt   DateTime     @default(now())
+
+  @@index([chatId])
+  @@index([senderId])
+}
+
+enum SenderType {
+  VISITOR
+  ADMIN
+  SYSTEM
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  EMOJI
+  SYSTEM
+}
+
+model Attachment {
+  id        String   @id @default(cuid())
+  messageId String
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  fileName  String
+  fileUrl   String
+  fileSize  Int
+  mimeType  String
+  createdAt DateTime @default(now())
+
+  @@index([messageId])
+}
+
+// ============================================
+// BLOG CMS
+// ============================================
+
+model BlogPost {
+  id          String        @id @default(cuid())
+  authorId    String
+  author      Admin         @relation(fields: [authorId], references: [id])
+  title       String
+  slug        String        @unique
+  content     String        @db.Text
+  excerpt     String?
+  coverImage  String?
+  status      PostStatus    @default(DRAFT)
+  categoryId  String?
+  category    BlogCategory? @relation(fields: [categoryId], references: [id])
+  tags        BlogTag[]
+  comments    BlogComment[]
+  seoTitle    String?
+  seoDesc     String?
+  viewCount   Int           @default(0)
+  publishedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([authorId])
+  @@index([categoryId])
+  @@index([status])
+  @@index([slug])
+}
+
+enum PostStatus {
+  DRAFT
+  PENDING
+  PUBLISHED
+  ARCHIVED
+}
+
+model BlogCategory {
+  id    String     @id @default(cuid())
+  name  String     @unique
+  slug  String     @unique
+  posts BlogPost[]
+}
+
+model BlogTag {
+  id    String     @id @default(cuid())
+  name  String     @unique
+  posts BlogPost[]
+}
+
+model BlogComment {
+  id        String   @id @default(cuid())
+  postId    String
+  post      BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    String
+  email     String?
+  content   String
+  approved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([postId])
+}
+
+// ============================================
+// PUSH NOTIFICATIONS
+// ============================================
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  adminId   String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  @@index([adminId])
+}

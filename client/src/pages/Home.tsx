@@ -12,6 +12,7 @@ import { AnimatedSection } from "@/components/animations/AnimatedSection";
 import { Navigation } from "@/components/layout/Navigation";
 import { TechnicalScopeSlider } from "@/components/sections/TechnicalScopeSlider";
 import { GitHubActivitySection } from "@/components/sections/GitHubActivity";
+import { ShareButtons } from "@/components/ui/ShareButtons";
 import {
   OpenAILogo, GoogleGeminiLogo, AnthropicLogo, GitHubLogo, MicrosoftLogo,
   MetaLogo, MistralLogo, VercelLogo, CursorLogo, CohereLogo, HuggingFaceLogo,
@@ -796,6 +797,12 @@ export default function Home() {
                 I hope everyone can share, exchange, and nurture their dreams together here.
               </span>
             </p>
+
+            {/* 🔗 SOCIAL SHARE BUTTONS */}
+            <div className="flex items-center justify-center gap-4 mb-12 md:mb-16">
+              <span className="text-gray-400 text-sm md:text-base font-medium">Share:</span>
+              <ShareButtons variant="horizontal" />
+            </div>
 
             <div className="w-32 md:w-48 h-2 md:h-3 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full mx-auto mb-16 md:mb-20" style={{ boxShadow: '0 0 30px rgba(168, 85, 247, 0.6)' }} />
 
