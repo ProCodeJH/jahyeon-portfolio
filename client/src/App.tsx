@@ -27,6 +27,9 @@ const VirtualWorld3D = lazy(() => import("./pages/VirtualWorld3D"));
 // Lazy load TinkercadLab for Arduino experiments
 const TinkercadLab = lazy(() => import("./pages/TinkercadLab"));
 
+// Lazy load EntryLab for block coding
+const EntryLab = lazy(() => import("./pages/EntryLab"));
+
 // Loading fallback for VirtualWorld
 function VirtualWorldLoader() {
   return (
@@ -55,6 +58,11 @@ function Router() {
       <Route path="/arduino-lab">
         <Suspense fallback={<VirtualWorldLoader />}>
           <TinkercadLab />
+        </Suspense>
+      </Route>
+      <Route path="/entry-lab">
+        <Suspense fallback={<VirtualWorldLoader />}>
+          <EntryLab />
         </Suspense>
       </Route>
       <Route path="/admin" component={Admin} />
