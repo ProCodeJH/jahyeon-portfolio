@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: jahyeon-api
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: cd apps/api && npm install && npm run build
+    startCommand: cd apps/api && npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: https://jahyeon.vercel.app,https://gujahyeon.com

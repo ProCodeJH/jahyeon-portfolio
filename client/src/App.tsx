@@ -19,6 +19,7 @@ import { BackToTop } from "./components/ui/BackToTop";
 import { ScrollProgressBar } from "./components/ui/ScrollProgressBar";
 import { CookieConsent } from "./components/ui/CookieConsent";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
+import { AdminChatWidget } from "./components/chat/AdminChatWidget";
 
 // Lazy load VirtualWorld3D to isolate Three.js in separate bundle chunk
 const VirtualWorld3D = lazy(() => import("./pages/VirtualWorld3D"));
@@ -83,6 +84,7 @@ function App() {
           <Router />
           <BackToTop />
           <CookieConsent />
+          <AdminChatWidget />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

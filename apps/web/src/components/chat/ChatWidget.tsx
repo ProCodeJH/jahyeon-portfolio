@@ -30,8 +30,7 @@ export function ChatWidget() {
     useEffect(() => {
         if (!isOpen || !visitorId) return;
 
-        const socket = io(process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:3001', {
-            path: '/chat',
+        const socket = io((process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:3001') + '/chat', {
             query: { visitorId },
         });
 
@@ -194,8 +193,8 @@ export function ChatWidget() {
                                     >
                                         <div
                                             className={`max-w-[80%] px-4 py-3 rounded-2xl ${msg.senderType === 'VISITOR'
-                                                    ? 'bg-gradient-to-r from-purple-600 to-cyan-600 text-white'
-                                                    : 'bg-white/10 text-white'
+                                                ? 'bg-gradient-to-r from-purple-600 to-cyan-600 text-white'
+                                                : 'bg-white/10 text-white'
                                                 }`}
                                         >
                                             <p>{msg.content}</p>

@@ -56,7 +56,7 @@ export class PushService implements OnModuleInit {
             return;
         }
 
-        const tokens = devices.map(d => d.deviceToken);
+        const tokens = devices.map((d: { deviceToken: string }) => d.deviceToken);
 
         try {
             const response = await admin.messaging(this.firebaseApp).sendEachForMulticast({

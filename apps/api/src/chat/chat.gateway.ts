@@ -47,7 +47,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
                 client.userType = 'admin';
 
                 // Track online status
-                await this.redisService.setOnline(client.userId, client.id);
+                if (client.userId) {
+                    await this.redisService.setOnline(client.userId, client.id);
+                }
 
                 // Join admin room
                 client.join('admins');
