@@ -24,7 +24,7 @@ interface BlogPost {
     updatedAt: string;
 }
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3001';
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://jahyeon-portfolio.onrender.com';
 
 export default function BlogScreen() {
     const [posts, setPosts] = useState<BlogPost[]>([]);
