@@ -23,7 +23,7 @@ interface ChatState {
     visitorId: string | null;
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_API_URL || 'https://jahyeon-portfolio.onrender.com';
 
 export function AdminChatWidget() {
     const [isOpen, setIsOpen] = useState(false);
@@ -311,10 +311,10 @@ export function AdminChatWidget() {
                                             )}
                                             <div
                                                 className={`max-w-[75%] px-4 py-3 rounded-2xl ${msg.senderType === 'VISITOR'
-                                                        ? 'bg-gradient-to-r from-purple-600 to-cyan-600 text-white rounded-br-md'
-                                                        : msg.senderType === 'SYSTEM'
-                                                            ? 'bg-white/5 text-white/80 border border-white/10'
-                                                            : 'bg-white/10 text-white rounded-bl-md'
+                                                    ? 'bg-gradient-to-r from-purple-600 to-cyan-600 text-white rounded-br-md'
+                                                    : msg.senderType === 'SYSTEM'
+                                                        ? 'bg-white/5 text-white/80 border border-white/10'
+                                                        : 'bg-white/10 text-white rounded-bl-md'
                                                     }`}
                                             >
                                                 <p className="text-sm leading-relaxed">{msg.content}</p>
