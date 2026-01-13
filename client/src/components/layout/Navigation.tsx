@@ -30,7 +30,7 @@ export function Navigation() {
     { name: "Resources", path: "/resources" },
     { name: "Code Editor", path: "/code-editor" },
     { name: "Arduino", path: "/arduino-lab" },
-    { name: "Entry Lab", path: "/entry-lab" },
+    { name: "Block Coding", path: "/block-coding" },
     { name: "World", path: "/virtual-world" }
   ];
 

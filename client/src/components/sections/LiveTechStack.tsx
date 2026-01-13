@@ -1,373 +1,291 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
+import { TiltCard } from "@/components/effects/TiltCard";
+import {
+    Server,
+    Database,
+    Globe,
+    Zap,
+    Code2,
+    Layers,
+    Activity,
+    Cpu,
+    Cloud,
+    GitBranch,
+    Terminal,
+    Braces,
+    Palette,
+    Shield,
+    Rocket,
+    Sparkles,
+    Smartphone,
+    LineChart,
+    Lock,
+    RefreshCw,
+    Layout,
+    Box,
+    Monitor,
+    Wifi,
+    HardDrive
+} from "lucide-react";
 
-// Tech stack data
-const technologies = [
-    { name: "React", color: "#61DAFB", category: "Frontend" },
-    { name: "TypeScript", color: "#3178C6", category: "Frontend" },
-    { name: "Vite", color: "#646CFF", category: "Frontend" },
-    { name: "TailwindCSS", color: "#06B6D4", category: "Frontend" },
-    { name: "Three.js", color: "#000000", category: "Frontend" },
-    { name: "NestJS", color: "#E0234E", category: "Backend" },
-    { name: "Prisma", color: "#2D3748", category: "Backend" },
-    { name: "Socket.IO", color: "#010101", category: "Backend" },
-    { name: "PostgreSQL", color: "#336791", category: "Database" },
-    { name: "Supabase", color: "#3ECF8E", category: "Database" },
-    { name: "Vercel", color: "#000000", category: "Deploy" },
-    { name: "Render", color: "#46E3B7", category: "Deploy" },
+interface TechCategory {
+    name: string;
+    icon: React.ElementType;
+    color: string;
+    glow: string;
+    items: {
+        name: string;
+        description: string;
+    }[];
+}
+
+const techCategories: TechCategory[] = [
+    {
+        name: "Frontend",
+        icon: Layout,
+        color: "from-cyan-500 to-blue-600",
+        glow: "cyan",
+        items: [
+            { name: "React 18", description: "UI 라이브러리" },
+            { name: "TypeScript", description: "타입 안전성" },
+            { name: "Vite", description: "빌드 도구" },
+            { name: "TailwindCSS", description: "스타일링" },
+            { name: "Framer Motion", description: "애니메이션" },
+            { name: "Three.js", description: "3D 그래픽스" },
+            { name: "GSAP", description: "고급 애니메이션" },
+            { name: "Zustand", description: "상태 관리" },
+        ]
+    },
+    {
+        name: "Backend",
+        icon: Server,
+        color: "from-purple-500 to-pink-600",
+        glow: "purple",
+        items: [
+            { name: "NestJS", description: "API 프레임워크" },
+            { name: "Prisma", description: "ORM" },
+            { name: "Socket.IO", description: "실시간 통신" },
+            { name: "JWT", description: "인증" },
+            { name: "bcrypt", description: "암호화" },
+            { name: "REST API", description: "API 설계" },
+        ]
+    },
+    {
+        name: "Database",
+        icon: Database,
+        color: "from-emerald-500 to-teal-600",
+        glow: "emerald",
+        items: [
+            { name: "PostgreSQL", description: "메인 DB" },
+            { name: "Supabase", description: "BaaS" },
+            { name: "Redis", description: "캐싱" },
+            { name: "Drizzle", description: "쿼리 빌더" },
+        ]
+    },
+    {
+        name: "DevOps",
+        icon: Cloud,
+        color: "from-orange-500 to-red-600",
+        glow: "orange",
+        items: [
+            { name: "Vercel", description: "프론트 호스팅" },
+            { name: "Render", description: "백엔드 호스팅" },
+            { name: "GitHub Actions", description: "CI/CD" },
+            { name: "Docker", description: "컨테이너" },
+        ]
+    },
+    {
+        name: "Mobile",
+        icon: Smartphone,
+        color: "from-violet-500 to-purple-600",
+        glow: "violet",
+        items: [
+            { name: "React Native", description: "크로스 플랫폼" },
+            { name: "Expo", description: "개발 도구" },
+            { name: "EAS Build", description: "앱 빌드" },
+        ]
+    },
+    {
+        name: "Tools",
+        icon: Terminal,
+        color: "from-gray-500 to-gray-700",
+        glow: "gray",
+        items: [
+            { name: "ESLint", description: "린터" },
+            { name: "Prettier", description: "포매터" },
+            { name: "Git", description: "버전 관리" },
+            { name: "VS Code", description: "에디터" },
+        ]
+    },
 ];
 
-const codeLines = [
-    { text: "import { NestFactory } from '@nestjs/core';", delay: 0 },
-    { text: "import { AppModule } from './app.module';", delay: 100 },
-    { text: "", delay: 200 },
-    { text: "async function bootstrap() {", delay: 300 },
-    { text: "  const app = await NestFactory.create(AppModule);", delay: 400 },
-    { text: "  app.enableCors({ origin: '*' });", delay: 500 },
-    { text: "  await app.listen(3001);", delay: 600 },
-    { text: "  console.log('🚀 Server running...');", delay: 700 },
-    { text: "}", delay: 800 },
-    { text: "", delay: 900 },
-    { text: "bootstrap();", delay: 1000 },
-];
-
-// Typing animation hook
-function useTypingEffect(text: string, speed: number = 30, delay: number = 0) {
-    const [displayedText, setDisplayedText] = useState("");
-    const [isComplete, setIsComplete] = useState(false);
-
-    useEffect(() => {
-        let timeout: NodeJS.Timeout;
-
-        const startTyping = () => {
-            let i = 0;
-            const type = () => {
-                if (i < text.length) {
-                    setDisplayedText(text.slice(0, i + 1));
-                    i++;
-                    timeout = setTimeout(type, speed);
-                } else {
-                    setIsComplete(true);
-                }
-            };
-            type();
-        };
-
-        const delayTimeout = setTimeout(startTyping, delay);
-        return () => {
-            clearTimeout(timeout);
-            clearTimeout(delayTimeout);
-        };
-    }, [text, speed, delay]);
-
-    return { displayedText, isComplete };
-}
-
-// Syntax highlighting
-function highlightCode(code: string) {
-    return code
-        .replace(/(import|from|async|function|await|const|new)/g, '<span class="text-purple-400">$1</span>')
-        .replace(/('.*?')/g, '<span class="text-emerald-400">$1</span>')
-        .replace(/(console|app)/g, '<span class="text-cyan-400">$1</span>')
-        .replace(/(\{|\}|\(|\)|=>|;)/g, '<span class="text-gray-500">$1</span>');
-}
-
-// Code Terminal Component
-function CodeTerminal() {
-    const [visibleLines, setVisibleLines] = useState(0);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setVisibleLines(prev => {
-                if (prev >= codeLines.length) {
-                    // Reset after showing all
-                    setTimeout(() => setVisibleLines(0), 3000);
-                    return prev;
-                }
-                return prev + 1;
-            });
-        }, 150);
-        return () => clearInterval(interval);
-    }, []);
-
-    return (
-        <div className="relative">
-            {/* Terminal Window */}
-            <div className="relative rounded-2xl overflow-hidden bg-[#0d1117] border border-white/10 shadow-2xl shadow-purple-500/20">
-                {/* Glow */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600 rounded-2xl opacity-20 blur-xl animate-pulse" />
-
-                {/* Header */}
-                <div className="relative flex items-center gap-2 px-4 py-3 bg-[#161b22] border-b border-white/10">
-                    <div className="flex gap-1.5">
-                        <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
-                        <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
-                        <div className="w-3 h-3 rounded-full bg-[#27c93f]" />
-                    </div>
-                    <span className="ml-2 text-xs text-gray-500 font-mono">main.ts — NestJS Server</span>
-                    <div className="ml-auto flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                        <span className="text-xs text-emerald-400 font-mono">LIVE</span>
-                    </div>
-                </div>
-
-                {/* Code Area */}
-                <div className="relative p-6 font-mono text-sm overflow-hidden" style={{ minHeight: '320px' }}>
-                    {/* Scanlines effect */}
-                    <div className="absolute inset-0 pointer-events-none opacity-5 bg-[linear-gradient(transparent_50%,_rgba(0,0,0,0.5)_50%)] bg-[length:100%_4px]" />
-
-                    {codeLines.slice(0, visibleLines).map((line, i) => (
-                        <div key={i} className="flex items-center gap-4 leading-7">
-                            <span className="w-6 text-right text-gray-600 select-none text-xs">{i + 1}</span>
-                            <span
-                                className="text-gray-300"
-                                dangerouslySetInnerHTML={{ __html: highlightCode(line.text) || '&nbsp;' }}
-                            />
-                            {i === visibleLines - 1 && (
-                                <span className="w-2 h-5 bg-purple-400 animate-pulse" />
-                            )}
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </div>
-    );
-}
-
-// Orbital Tech Ring
-function TechOrbit() {
-    const [rotation, setRotation] = useState(0);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setRotation(prev => (prev + 0.3) % 360);
-        }, 30);
-        return () => clearInterval(interval);
-    }, []);
-
-    return (
-        <div className="relative w-full aspect-square max-w-lg mx-auto">
-            {/* Central Glow */}
-            <div className="absolute inset-1/3 rounded-full bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600 blur-3xl opacity-40 animate-pulse" />
-
-            {/* Center Logo */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-                <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-purple-600 via-pink-600 to-blue-600 flex items-center justify-center shadow-2xl shadow-purple-500/50">
-                    <span className="text-4xl md:text-5xl font-black text-white">JH</span>
-                </div>
-            </div>
-
-            {/* Orbiting circles */}
-            {[0, 1, 2].map((ring) => (
-                <div
-                    key={ring}
-                    className="absolute inset-0 rounded-full border border-white/5"
-                    style={{
-                        transform: `scale(${0.6 + ring * 0.25})`,
-                    }}
-                />
-            ))}
-
-            {/* Orbiting Technologies */}
-            {technologies.slice(0, 8).map((tech, i) => {
-                const angle = (rotation + i * 45) * (Math.PI / 180);
-                const radius = 42;
-                const x = 50 + radius * Math.cos(angle);
-                const y = 50 + radius * Math.sin(angle);
-
-                return (
-                    <div
-                        key={tech.name}
-                        className="absolute w-14 h-14 md:w-16 md:h-16 rounded-xl bg-black/80 backdrop-blur-xl border border-white/20 flex items-center justify-center text-xs font-bold text-white shadow-xl transition-all duration-300 hover:scale-125 hover:z-30 group cursor-pointer"
-                        style={{
-                            left: `${x}%`,
-                            top: `${y}%`,
-                            transform: 'translate(-50%, -50%)',
-                            boxShadow: `0 0 20px ${tech.color}40`,
-                        }}
-                    >
-                        <span className="text-[10px] md:text-xs font-bold truncate px-1">{tech.name}</span>
-
-                        {/* Hover tooltip */}
-                        <div className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-lg bg-black/90 text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-white/10">
-                            {tech.category}
-                        </div>
-                    </div>
-                );
-            })}
-        </div>
-    );
-}
-
-// Matrix-style falling code
-function MatrixRain() {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-
-        const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>{}[]();';
-        const fontSize = 14;
-        const columns = canvas.width / fontSize;
-        const drops: number[] = Array(Math.floor(columns)).fill(1);
-
-        const draw = () => {
-            ctx.fillStyle = 'rgba(10, 10, 26, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.fillStyle = '#a855f720';
-            ctx.font = `${fontSize}px monospace`;
-
-            for (let i = 0; i < drops.length; i++) {
-                const text = chars[Math.floor(Math.random() * chars.length)];
-                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                    drops[i] = 0;
-                }
-                drops[i]++;
-            }
-        };
-
-        const interval = setInterval(draw, 50);
-        return () => clearInterval(interval);
-    }, []);
-
-    return (
-        <canvas
-            ref={canvasRef}
-            className="absolute inset-0 w-full h-full opacity-30 pointer-events-none"
-        />
-    );
-}
-
-// Stats Counter Animation
-function AnimatedStat({ value, label, suffix = "" }: { value: number; label: string; suffix?: string }) {
-    const [count, setCount] = useState(0);
-    const [isVisible, setIsVisible] = useState(false);
-    const ref = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting) {
-                    setIsVisible(true);
-                }
-            },
-            { threshold: 0.5 }
-        );
-
-        if (ref.current) observer.observe(ref.current);
-        return () => observer.disconnect();
-    }, []);
-
-    useEffect(() => {
-        if (!isVisible) return;
-
-        let start = 0;
-        const duration = 2000;
-        const startTime = Date.now();
-
-        const animate = () => {
-            const elapsed = Date.now() - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            const eased = 1 - Math.pow(1 - progress, 4);
-            setCount(Math.floor(eased * value));
-
-            if (progress < 1) {
-                requestAnimationFrame(animate);
-            }
-        };
-
-        animate();
-    }, [isVisible, value]);
-
-    return (
-        <div ref={ref} className="text-center">
-            <div className="text-5xl md:text-7xl font-black bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-400">
-                {count}{suffix}
-            </div>
-            <p className="text-gray-500 mt-2 font-medium">{label}</p>
-        </div>
-    );
-}
+// All technologies flattened for the marquee
+const allTechs = techCategories.flatMap(cat => cat.items.map(item => item.name));
 
 export function LiveTechStack() {
-    return (
-        <section className="py-32 md:py-48 px-4 md:px-8 relative overflow-hidden bg-gradient-to-b from-[#0a0a1a] via-[#0d0d20] to-[#0a0a1a]">
-            {/* Matrix Rain Background */}
-            <MatrixRain />
+    const [activeCategory, setActiveCategory] = useState<string | null>(null);
+    const [hoveredTech, setHoveredTech] = useState<string | null>(null);
 
-            {/* Gradient Orbs */}
-            <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] animate-pulse" />
-            <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-cyan-600/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
+    return (
+        <section className="py-32 md:py-48 px-4 md:px-8 relative overflow-hidden">
+            {/* Background - matches website vibe */}
+            <div className="absolute inset-0">
+                <div className="absolute top-1/4 left-0 w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[150px]" />
+                <div className="absolute bottom-1/4 right-0 w-[500px] h-[500px] bg-cyan-600/10 rounded-full blur-[150px]" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-pink-600/5 rounded-full blur-[200px]" />
+            </div>
 
             <div className="max-w-7xl mx-auto relative z-10">
                 {/* Header */}
                 <AnimatedSection>
-                    <div className="text-center mb-20">
-                        <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl mb-8">
-                            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                            <span className="text-sm text-gray-400 font-medium">Production Ready</span>
+                    <div className="text-center mb-20 md:mb-28">
+                        <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-purple-500/10 border border-purple-500/30 backdrop-blur-xl mb-8">
+                            <Sparkles className="w-5 h-5 text-purple-400 animate-pulse" />
+                            <span className="text-sm font-bold text-purple-400 tracking-wider uppercase">Tech Stack</span>
                         </div>
 
-                        <h2 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-none">
-                            <span className="block text-white">Built with</span>
-                            <span className="block bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 animate-gradient-x">
-                                Modern Stack
+                        <h2 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 tracking-tight">
+                            <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 animate-gradient-x">
+                                Built With
                             </span>
                         </h2>
+                        <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto">
+                            이 포트폴리오를 구동하는 <span className="text-purple-400 font-semibold">30개 이상</span>의 최신 기술 스택
+                        </p>
+
+                        <div className="w-32 md:w-48 h-2 bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 rounded-full mx-auto mt-8" style={{ boxShadow: '0 0 30px rgba(168, 85, 247, 0.5)' }} />
                     </div>
                 </AnimatedSection>
 
-                {/* Main Content Grid */}
-                <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-                    {/* Left: Tech Orbit */}
-                    <AnimatedSection delay={100}>
-                        <TechOrbit />
-                    </AnimatedSection>
+                {/* Tech Categories Grid */}
+                <AnimatedSection delay={100}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-20">
+                        {techCategories.map((category, idx) => {
+                            const Icon = category.icon;
+                            const isActive = activeCategory === category.name;
 
-                    {/* Right: Code Terminal */}
-                    <AnimatedSection delay={200}>
-                        <CodeTerminal />
-                    </AnimatedSection>
-                </div>
+                            return (
+                                <TiltCard key={category.name} sensitivity={5}>
+                                    <div
+                                        className={`group relative p-8 rounded-3xl bg-[#12121a]/80 backdrop-blur-xl border-2 transition-all duration-500 cursor-pointer overflow-hidden h-full ${isActive ? 'border-purple-500/50' : 'border-white/10 hover:border-purple-500/30'
+                                            }`}
+                                        onClick={() => setActiveCategory(isActive ? null : category.name)}
+                                        style={{
+                                            animationDelay: `${idx * 100}ms`
+                                        }}
+                                    >
+                                        {/* Background Glow */}
+                                        <div className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
 
-                {/* Stats Row */}
+                                        {/* Header */}
+                                        <div className="flex items-center gap-4 mb-6">
+                                            <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${category.color} flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}
+                                                style={{ boxShadow: `0 0 30px var(--tw-shadow-color, rgba(168, 85, 247, 0.3))` }}
+                                            >
+                                                <Icon className="w-7 h-7 text-white" />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-2xl font-bold text-white group-hover:text-purple-300 transition-colors">
+                                                    {category.name}
+                                                </h3>
+                                                <p className="text-sm text-gray-500">{category.items.length} technologies</p>
+                                            </div>
+                                        </div>
+
+                                        {/* Tech Items */}
+                                        <div className="flex flex-wrap gap-2">
+                                            {category.items.map((item) => (
+                                                <div
+                                                    key={item.name}
+                                                    className={`relative px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-sm font-medium transition-all duration-300 ${hoveredTech === item.name
+                                                            ? 'bg-purple-500/20 border-purple-500/50 text-purple-300 scale-105'
+                                                            : 'text-gray-400 hover:text-white hover:bg-white/10'
+                                                        }`}
+                                                    onMouseEnter={() => setHoveredTech(item.name)}
+                                                    onMouseLeave={() => setHoveredTech(null)}
+                                                >
+                                                    {item.name}
+
+                                                    {/* Tooltip */}
+                                                    {hoveredTech === item.name && (
+                                                        <div className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-lg bg-black/90 text-white text-xs whitespace-nowrap border border-white/10 z-50">
+                                                            {item.description}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Glow effect */}
+                                        <div className={`absolute -inset-1 bg-gradient-to-r ${category.color} rounded-3xl opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500 -z-10`} />
+                                    </div>
+                                </TiltCard>
+                            );
+                        })}
+                    </div>
+                </AnimatedSection>
+
+                {/* Infinite Marquee */}
+                <AnimatedSection delay={200}>
+                    <div className="relative overflow-hidden py-8">
+                        {/* Fade edges */}
+                        <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-[#0a0a1a] to-transparent z-10" />
+                        <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#0a0a1a] to-transparent z-10" />
+
+                        {/* Scrolling Track */}
+                        <div className="flex gap-6 animate-scroll-left">
+                            {/* Duplicate for infinite loop */}
+                            {[...allTechs, ...allTechs].map((tech, i) => (
+                                <div
+                                    key={`${tech}-${i}`}
+                                    className="flex-shrink-0 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-medium hover:bg-purple-500/20 hover:border-purple-500/30 transition-all cursor-default"
+                                >
+                                    {tech}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </AnimatedSection>
+
+                {/* Stats */}
                 <AnimatedSection delay={300}>
-                    <div className="mt-24 grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
-                        <AnimatedStat value={15} label="Technologies" suffix="+" />
-                        <AnimatedStat value={25} label="API Routes" suffix="+" />
-                        <AnimatedStat value={50} label="Components" suffix="+" />
-                        <AnimatedStat value={100} label="Type Safe" suffix="%" />
-                    </div>
-                </AnimatedSection>
-
-                {/* Tech Pills */}
-                <AnimatedSection delay={400}>
-                    <div className="mt-20 flex flex-wrap justify-center gap-3">
-                        {technologies.map((tech, i) => (
-                            <div
-                                key={tech.name}
-                                className="px-5 py-2.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl text-white font-medium text-sm hover:bg-white/10 hover:border-white/20 transition-all cursor-default"
-                                style={{
-                                    animationDelay: `${i * 50}ms`,
-                                    boxShadow: `inset 0 0 20px ${tech.color}10`
-                                }}
-                            >
-                                {tech.name}
-                            </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16">
+                        {[
+                            { value: "30+", label: "Technologies", icon: Layers, color: "from-cyan-500 to-blue-500" },
+                            { value: "6", label: "Categories", icon: Box, color: "from-purple-500 to-pink-500" },
+                            { value: "100%", label: "Type Safe", icon: Shield, color: "from-emerald-500 to-teal-500" },
+                            { value: "24/7", label: "Online", icon: Activity, color: "from-orange-500 to-red-500" },
+                        ].map((stat, i) => (
+                            <TiltCard key={i} sensitivity={5}>
+                                <div className="relative p-6 md:p-8 rounded-2xl bg-[#12121a]/80 backdrop-blur-xl border border-white/10 text-center group hover:border-purple-500/30 transition-all">
+                                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}>
+                                        <stat.icon className="w-6 h-6 text-white" />
+                                    </div>
+                                    <div className={`text-4xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r ${stat.color} mb-2`}>
+                                        {stat.value}
+                                    </div>
+                                    <p className="text-gray-400 font-medium">{stat.label}</p>
+                                </div>
+                            </TiltCard>
                         ))}
                     </div>
                 </AnimatedSection>
             </div>
+
+            {/* Scroll Animation */}
+            <style>{`
+        @keyframes scroll-left {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-scroll-left {
+          animation: scroll-left 30s linear infinite;
+        }
+        .animate-scroll-left:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
         </section>
     );
 }
