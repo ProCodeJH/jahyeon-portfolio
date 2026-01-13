@@ -390,14 +390,15 @@ export default function Resources() {
       });
     }
 
-    // Flatten tree with depth info for proper display of all nested levels
-    const flattenTree = (nodes: FolderNode[], depth: number = 0): FolderNode[] => {
-      const result: FolderNode[] = [];
+    // Flatten tree with depth info and parent key for collapsible nested folders
+    const flattenTree = (nodes: FolderNode[], depth: number = 0, parentKey: string | null = null): (FolderNode & { parentKey: string | null })[] => {
+      const result: (FolderNode & { parentKey: string | null })[] = [];
       nodes.forEach(node => {
         node.depth = depth;
-        result.push(node);
+        const nodeKey = node.id ? `folder_${node.id}` : node.name;
+        result.push({ ...node, parentKey });
         if (node.children.length > 0) {
-          result.push(...flattenTree(node.children, depth + 1));
+          result.push(...flattenTree(node.children, depth + 1, nodeKey));
         }
       });
       return result;
@@ -753,6 +754,10 @@ export default function Resources() {
                 const hasSubfolders = folder.children.length > 0;
                 const isNested = folder.depth > 0;
                 const indentClass = folder.depth > 0 ? `ml-${Math.min(folder.depth * 4, 12)}` : '';
+
+                // Check if all ancestor folders are expanded (for collapsible nested folders)
+                const isParentExpanded = !folder.parentKey || expandedFolders.has(folder.parentKey);
+                if (!isParentExpanded) return null; // Hide if parent is collapsed
 
                 return (
                   <div
