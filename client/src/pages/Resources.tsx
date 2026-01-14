@@ -554,18 +554,8 @@ export default function Resources() {
       }
     });
 
-    // Add uncategorized folder ONLY for daily_video category
-    if (activeCategory === "daily_video") {
-      const uncategorizedItems = filteredResources?.filter(r => !r.subcategory) || [];
-      if (uncategorizedItems.length > 0) {
-        rootFolders.push({
-          name: "📄 Uncategorized",
-          items: uncategorizedItems,
-          children: [],
-          depth: 0
-        });
-      }
-    }
+    // 데일리영상은 폴더 구조 없이 모든 리소스를 바로 표시
+    // Uncategorized 폴더 제거됨
 
     // Return only root folders (NOT flattened!) - subfolders are in .children
     return rootFolders;
@@ -630,7 +620,25 @@ export default function Resources() {
   const isPPT = (mimeType: string, fileName: string) => mimeType?.includes('presentation') || mimeType?.includes('powerpoint') || fileName?.endsWith('.ppt') || fileName?.endsWith('.pptx');
   const isPDF = (mimeType: string, fileName: string) => mimeType?.includes('pdf') || fileName?.endsWith('.pdf');
   const formatFileSize = (bytes: number) => { if (!bytes) return "N/A"; if (bytes < 1024) return bytes + " B"; if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB"; return (bytes / (1024 * 1024)).toFixed(1) + " MB"; };
-  const getCategoryInfo = (category: string) => CATEGORIES.find(c => c.value === category) || CATEGORIES[0];
+
+  // 카테고리 라벨 매핑 (DB 값 → 표시 이름)
+  const getCategoryInfo = (category: string) => {
+    // 데일리 영상 카테고리
+    if (category === "daily_video" || category === "daily_life") {
+      return { label: "📹 데일리영상", gradient: "from-pink-500 to-rose-500", color: "#EC4899" };
+    }
+    // 수업자료 카테고리들
+    if (LECTURE_CATEGORIES.includes(category)) {
+      const labelMap: Record<string, string> = {
+        "lecture_c": "📘 C/C++",
+        "lecture_arduino": "🔧 아두이노",
+        "lecture_python": "🐍 파이썬",
+        "presentation": "📊 PPT"
+      };
+      return { label: labelMap[category] || "📚 수업자료", gradient: "from-blue-500 to-purple-500", color: "#3B82F6" };
+    }
+    return { label: "📁 기타", gradient: "from-gray-500 to-gray-600", color: "#6B7280" };
+  };
 
   const handleResourceClick = (resource: any) => {
     const isVideo = isYouTubeUrl(resource.fileUrl) || resource.mimeType?.startsWith('video/');
@@ -931,6 +939,60 @@ export default function Resources() {
             <div className="text-center py-32">
               <FileText className="w-16 h-16 text-gray-200 mx-auto mb-4" />
               <h3 className="text-2xl font-semibold mb-2 text-gray-900">No resources found</h3>
+            </div>
+          ) : activeCategory === "daily_video" ? (
+            // 📹 데일리영상: 폴더 없이 영상만 바로 표시
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+              {filteredResources?.map((resource: any, index: number) => {
+                const thumbnail = resource.thumbnailUrl || (isYouTubeUrl(resource.fileUrl) ? getYouTubeThumbnail(resource.fileUrl) : null);
+                const isVideo = isYouTubeUrl(resource.fileUrl) || resource.mimeType?.startsWith('video/');
+                const categoryInfo = getCategoryInfo(resource.category);
+
+                return (
+                  <AnimatedSection key={resource.id} delay={index * 50}>
+                    <TiltCard>
+                      <div
+                        className="group rounded-2xl md:rounded-3xl overflow-hidden bg-white border border-gray-200 hover:border-pink-300 transition-all duration-500 hover:shadow-2xl cursor-pointer"
+                        onClick={() => handleResourceClick(resource)}
+                      >
+                        <div className="aspect-video overflow-hidden relative">
+                          {isVideo ? <VideoThumbnail resource={resource} thumbnail={thumbnail} />
+                            : thumbnail ? <img src={thumbnail} alt={resource.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                              : <div className="w-full h-full bg-gradient-to-br from-pink-100 to-rose-200 flex items-center justify-center"><Video className="w-12 h-12 text-pink-400" /></div>}
+
+                          <div className="absolute top-2 md:top-3 lg:top-4 left-2 md:left-3 lg:left-4">
+                            <span className={`px-2 md:px-3 lg:px-4 py-1 md:py-1.5 lg:py-2 rounded-full text-[10px] md:text-xs font-medium uppercase tracking-wider backdrop-blur-xl bg-gradient-to-r ${categoryInfo.gradient} text-white shadow-lg border-2 border-white/20`}>
+                              {categoryInfo.label}
+                            </span>
+                          </div>
+
+                          <div className="absolute top-2 md:top-3 lg:top-4 right-2 md:right-3 lg:right-4">
+                            <span className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1 md:py-1.5 lg:py-2 rounded-full bg-white backdrop-blur-xl text-purple-600 text-[10px] md:text-xs font-medium border border-gray-200">
+                              <Play className="w-2.5 h-2.5 md:w-3 md:h-3" />재생
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="p-4 md:p-5 lg:p-6">
+                          <h3 className="text-lg md:text-xl font-semibold mb-2 md:mb-3 group-hover:text-pink-600 transition-colors line-clamp-1 text-gray-900">{resource.title}</h3>
+                          {resource.description && <p className="text-gray-600 text-sm md:text-base mb-3 md:mb-4 line-clamp-2">{resource.description}</p>}
+
+                          <div className="flex items-center justify-between text-[10px] md:text-xs text-gray-500 mb-3 md:mb-4">
+                            <span className="flex items-center gap-1"><Eye className="w-2.5 h-2.5 md:w-3 md:h-3 text-pink-600" />{resource.downloadCount || 0} views</span>
+                          </div>
+
+                          <Button
+                            className="w-full rounded-lg md:rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 text-white h-10 md:h-12 text-sm md:text-base shadow-lg shadow-pink-500/30 hover:shadow-pink-500/50 transition-all"
+                            onClick={e => { e.stopPropagation(); handleResourceClick(resource); }}
+                          >
+                            <Play className="w-3 h-3 md:w-4 md:h-4 mr-1.5 md:mr-2" />영상 보기
+                          </Button>
+                        </div>
+                      </div>
+                    </TiltCard>
+                  </AnimatedSection>
+                );
+              })}
             </div>
           ) : (
             <div className="space-y-6">
