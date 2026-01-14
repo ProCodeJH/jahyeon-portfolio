@@ -15,13 +15,10 @@ import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 
 type ProjectCategory = "c_lang" | "arduino" | "python" | "embedded" | "iot";
-type ResourceCategory = "lecture_materials" | "daily_life";
+type ResourceCategory = "lecture" | "daily_life";
 
-// 리소스 카테고리 그룹 (Resources.tsx와 동기화)
-const RESOURCE_GROUPS = {
-  LECTURE_MATERIALS: ["lecture_materials"],
-  DAILY_LIFE: ["daily_life"],
-};
+// 수업자료에 포함되는 실제 DB 카테고리들 (Resources.tsx와 동기화)
+const LECTURE_CATEGORIES = ["lecture_c", "lecture_arduino", "lecture_python", "presentation"];
 
 const PROJECT_CATEGORIES = [
   { value: "c_lang" as const, label: "C/C++", color: "#3B82F6", icon: Terminal },
@@ -33,7 +30,7 @@ const PROJECT_CATEGORIES = [
 
 const RESOURCE_CATEGORIES = [
   // 📚 수업자료
-  { value: "lecture_materials" as const, label: "📚 수업자료", color: "#3B82F6", group: "lecture" },
+  { value: "lecture" as const, label: "📚 수업자료", color: "#3B82F6", group: "lecture" },
   // 📹 데일리영상
   { value: "daily_life" as const, label: "📹 데일리영상", color: "#EC4899", group: "daily" },
 ];
@@ -265,7 +262,7 @@ export default function Admin() {
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [newFolderName, setNewFolderName] = useState("");
   const [parentFolderName, setParentFolderName] = useState("__root__");
-  const [selectedCategory, setSelectedCategory] = useState<ResourceCategory>("presentation");
+  const [selectedCategory, setSelectedCategory] = useState<ResourceCategory>("lecture");
   const [moveTargetParentId, setMoveTargetParentId] = useState<number | null>(null);
 
   const [projectForm, setProjectForm] = useState({
@@ -382,8 +379,15 @@ export default function Admin() {
 
   // Build folder tree structure with nested folder support
   const getFolderTree = (category: ResourceCategory) => {
-    const categoryResources = resources?.filter(r => r.category === category) || [];
-    const categoryFolders = folders?.filter(f => f.category === category) || [];
+    // 수업자료: 여러 카테고리 통합 (Resources.tsx와 동일한 로직)
+    const categoryResources = resources?.filter(r => {
+      if (category === "lecture") return LECTURE_CATEGORIES.includes(r.category);
+      return r.category === category;
+    }) || [];
+    const categoryFolders = folders?.filter(f => {
+      if (category === "lecture") return LECTURE_CATEGORIES.includes(f.category);
+      return f.category === category;
+    }) || [];
 
     interface FolderNode {
       id?: number;
