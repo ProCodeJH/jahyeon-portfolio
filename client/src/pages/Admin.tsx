@@ -15,12 +15,12 @@ import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 
 type ProjectCategory = "c_lang" | "arduino" | "python" | "embedded" | "iot";
-type ResourceCategory = "daily_life" | "lecture_c" | "lecture_arduino" | "lecture_python" | "presentation";
+type ResourceCategory = "lecture_materials" | "daily_life";
 
 // 리소스 카테고리 그룹 (Resources.tsx와 동기화)
 const RESOURCE_GROUPS = {
+  LECTURE_MATERIALS: ["lecture_materials"],
   DAILY_LIFE: ["daily_life"],
-  LECTURE_MATERIALS: ["lecture_c", "lecture_arduino", "lecture_python", "presentation"]
 };
 
 const PROJECT_CATEGORIES = [
@@ -32,13 +32,10 @@ const PROJECT_CATEGORIES = [
 ];
 
 const RESOURCE_CATEGORIES = [
+  // 📚 수업자료
+  { value: "lecture_materials" as const, label: "📚 수업자료", color: "#3B82F6", group: "lecture" },
   // 📹 데일리영상
   { value: "daily_life" as const, label: "📹 데일리영상", color: "#EC4899", group: "daily" },
-  // 📚 수업자료
-  { value: "lecture_c" as const, label: "📘 C/C++ 수업자료", color: "#3B82F6", group: "lecture" },
-  { value: "lecture_arduino" as const, label: "🔧 아두이노 수업자료", color: "#10B981", group: "lecture" },
-  { value: "lecture_python" as const, label: "🐍 파이썬 수업자료", color: "#F59E0B", group: "lecture" },
-  { value: "presentation" as const, label: "📊 프레젠테이션", color: "#8B5CF6", group: "lecture" },
 ];
 
 const ACCEPTED_FILE_TYPES = {
