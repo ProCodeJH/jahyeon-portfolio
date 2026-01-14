@@ -23,7 +23,11 @@ interface ChatState {
     visitorId: string | null;
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+// Use Render production URL for jahyeon.com, otherwise use env var or localhost
+const API_URL = import.meta.env.VITE_API_URL ||
+    (window.location.hostname.includes('jahyeon.com')
+        ? 'https://jahyeon-portfolio.onrender.com'
+        : 'http://localhost:3001');
 
 export function AdminChatWidget() {
     const [isOpen, setIsOpen] = useState(false);
@@ -62,16 +66,6 @@ export function AdminChatWidget() {
     // Connect to WebSocket with graceful degradation
     useEffect(() => {
         if (!isOpen || !chatState.visitorId) return;
-
-        // Skip WebSocket connection if API_URL is not configured or is localhost in production
-        const isProduction = window.location.hostname !== 'localhost';
-        const apiConfigured = API_URL && API_URL !== 'http://localhost:3001';
-
-        if (isProduction && !apiConfigured) {
-            console.log('Chat server not configured for production - running in offline mode');
-            setIsConnected(false);
-            return;
-        }
 
         const socket = io(`${API_URL}/chat`, {
             query: { visitorId: chatState.visitorId },
