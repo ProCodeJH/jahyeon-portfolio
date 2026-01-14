@@ -485,6 +485,10 @@ export default function Resources() {
     if (activeCategory === "lecture") {
       return LECTURE_CATEGORIES.includes(r.category);
     }
+    // 데일리영상: 기존 daily_life와 새 daily_video 모두 포함
+    if (activeCategory === "daily_video") {
+      return r.category === "daily_video" || r.category === "daily_life";
+    }
     return r.category === activeCategory;
   });
 
@@ -492,6 +496,10 @@ export default function Resources() {
   const filteredFolders = folders?.filter(f => {
     if (activeCategory === "lecture") {
       return LECTURE_CATEGORIES.includes(f.category);
+    }
+    // 데일리영상: 기존 daily_life와 새 daily_video 모두 포함
+    if (activeCategory === "daily_video") {
+      return f.category === "daily_video" || f.category === "daily_life";
     }
     return f.category === activeCategory;
   });
