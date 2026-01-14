@@ -15,7 +15,13 @@ import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 
 type ProjectCategory = "c_lang" | "arduino" | "python" | "embedded" | "iot";
-type ResourceCategory = "daily_life" | "lecture_c" | "lecture_arduino" | "lecture_python" | "presentation";
+type ResourceCategory = "daily_video" | "lecture_c" | "lecture_arduino" | "lecture_python" | "presentation";
+
+// 리소스 카테고리 그룹
+const RESOURCE_GROUPS = {
+  DAILY_VIDEO: ["daily_video"],
+  LECTURE_MATERIALS: ["lecture_c", "lecture_arduino", "lecture_python", "presentation"]
+};
 
 const PROJECT_CATEGORIES = [
   { value: "c_lang" as const, label: "C/C++", color: "#3B82F6", icon: Terminal },
@@ -26,11 +32,13 @@ const PROJECT_CATEGORIES = [
 ];
 
 const RESOURCE_CATEGORIES = [
-  { value: "daily_life" as const, label: "Daily Videos", color: "#EC4899" },
-  { value: "lecture_c" as const, label: "C/C++ 강의자료", color: "#3B82F6" },
-  { value: "lecture_arduino" as const, label: "아두이노 강의자료", color: "#10B981" },
-  { value: "lecture_python" as const, label: "파이썬 강의자료", color: "#F59E0B" },
-  { value: "presentation" as const, label: "프레젠테이션", color: "#8B5CF6" },
+  // 📹 데일리 동영상
+  { value: "daily_video" as const, label: "📹 데일리 동영상", color: "#EC4899", group: "daily" },
+  // 📚 수업자료
+  { value: "lecture_c" as const, label: "📘 C/C++ 수업자료", color: "#3B82F6", group: "lecture" },
+  { value: "lecture_arduino" as const, label: "🔧 아두이노 수업자료", color: "#10B981", group: "lecture" },
+  { value: "lecture_python" as const, label: "🐍 파이썬 수업자료", color: "#F59E0B", group: "lecture" },
+  { value: "presentation" as const, label: "📊 프레젠테이션", color: "#8B5CF6", group: "lecture" },
 ];
 
 const ACCEPTED_FILE_TYPES = {

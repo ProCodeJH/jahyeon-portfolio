@@ -16,8 +16,14 @@ import { ResourceCardSkeleton } from "@/components/ui/skeleton";
 const SecureVaultOverlay = lazy(() => import("@/components/3d/SecureVaultOverlay"));
 
 const CATEGORIES = [
-  { value: "all", label: "All", icon: Sparkles, color: "#8B5CF6", gradient: "from-purple-500 to-pink-500" },
-  { value: "daily_life", label: "Daily Videos", icon: Video, color: "#EC4899", gradient: "from-pink-500 to-rose-500" },
+  { value: "all", label: "전체", icon: Sparkles, color: "#8B5CF6", gradient: "from-purple-500 to-pink-500" },
+  // 📹 데일리 동영상
+  { value: "daily_video", label: "📹 데일리 동영상", icon: Video, color: "#EC4899", gradient: "from-pink-500 to-rose-500", group: "daily" },
+  // 📚 수업자료
+  { value: "lecture_c", label: "📘 C/C++", icon: Terminal, color: "#3B82F6", gradient: "from-blue-500 to-cyan-500", group: "lecture" },
+  { value: "lecture_arduino", label: "🔧 아두이노", icon: Cpu, color: "#10B981", gradient: "from-green-500 to-emerald-500", group: "lecture" },
+  { value: "lecture_python", label: "🐍 파이썬", icon: Code, color: "#F59E0B", gradient: "from-yellow-500 to-orange-500", group: "lecture" },
+  { value: "presentation", label: "📊 PPT", icon: Presentation, color: "#8B5CF6", gradient: "from-purple-500 to-violet-500", group: "lecture" },
 ];
 
 // PPT Thumbnail
@@ -390,21 +396,8 @@ export default function Resources() {
       });
     }
 
-    // Flatten tree with depth info and parent key for collapsible nested folders
-    const flattenTree = (nodes: FolderNode[], depth: number = 0, parentKey: string | null = null): (FolderNode & { parentKey: string | null })[] => {
-      const result: (FolderNode & { parentKey: string | null })[] = [];
-      nodes.forEach(node => {
-        node.depth = depth;
-        const nodeKey = node.id ? `folder_${node.id}` : node.name;
-        result.push({ ...node, parentKey });
-        if (node.children.length > 0) {
-          result.push(...flattenTree(node.children, depth + 1, nodeKey));
-        }
-      });
-      return result;
-    };
-
-    return flattenTree(rootFolders);
+    // Return only root folders (NOT flattened!) - subfolders are in .children
+    return rootFolders;
   };
 
   const folderTree = buildFolderTree();
@@ -752,18 +745,11 @@ export default function Resources() {
                 const isExpanded = expandedFolders.has(folderKey);
                 const resourceCount = folder.items.length;
                 const hasSubfolders = folder.children.length > 0;
-                const isNested = folder.depth > 0;
-                const indentClass = folder.depth > 0 ? `ml-${Math.min(folder.depth * 4, 12)}` : '';
-
-                // Check if all ancestor folders are expanded (for collapsible nested folders)
-                const isParentExpanded = !folder.parentKey || expandedFolders.has(folder.parentKey);
-                if (!isParentExpanded) return null; // Hide if parent is collapsed
 
                 return (
                   <div
                     key={folderKey}
-                    className={`bg-white/60 backdrop-blur-xl border border-gray-200/50 rounded-3xl overflow-hidden shadow-lg transition-all ${indentClass} ${isNested ? 'bg-white/40 border-blue-200/50' : ''}`}
-                    style={{ marginLeft: folder.depth > 0 ? `${folder.depth * 1.5}rem` : undefined }}
+                    className="bg-white/60 backdrop-blur-xl border border-gray-200/50 rounded-3xl overflow-hidden shadow-lg"
                   >
                     {/* Folder Header */}
                     <button
@@ -771,8 +757,7 @@ export default function Resources() {
                       className="w-full p-5 md:p-6 flex items-center justify-between hover:bg-white/80 transition-all group"
                     >
                       <div className="flex items-center gap-3 md:gap-4">
-                        {isNested && <span className="text-blue-400 text-lg">↳</span>}
-                        <div className={`w-12 h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center shadow-lg ${isNested ? 'bg-gradient-to-br from-blue-500 to-cyan-500' : 'bg-gradient-to-br from-purple-500 to-blue-500'}`}>
+                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shadow-lg">
                           <FolderOpen className="w-6 h-6 md:w-7 md:h-7 text-white" />
                         </div>
                         <div className="text-left">
@@ -883,13 +868,92 @@ export default function Resources() {
                             );
                           })}
                         </div>
+
+                        {/* Subfolders inside parent */}
+                        {hasSubfolders && (
+                          <div className="mt-6 space-y-4">
+                            {folder.children.map((subfolder) => {
+                              const subfolderKey = subfolder.id ? `folder_${subfolder.id}` : subfolder.name;
+                              const isSubExpanded = expandedFolders.has(subfolderKey);
+                              const subResourceCount = subfolder.items.length;
+
+                              return (
+                                <div key={subfolderKey} className="bg-white/50 border border-gray-200/40 rounded-2xl overflow-hidden ml-4">
+                                  {/* Subfolder Header */}
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); toggleFolder(subfolderKey); }}
+                                    className="w-full p-4 flex items-center justify-between hover:bg-white/70 transition-all group"
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <span className="text-purple-400 text-lg">↳</span>
+                                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow">
+                                        <FolderOpen className="w-5 h-5 text-white" />
+                                      </div>
+                                      <div className="text-left">
+                                        <h4 className="text-lg font-bold text-gray-800 group-hover:text-blue-600 transition-colors">
+                                          📂 {subfolder.name}
+                                        </h4>
+                                        <p className="text-gray-500 text-sm">{subResourceCount} files</p>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center">
+                                      {isSubExpanded ? (
+                                        <ChevronDown className="w-5 h-5 text-blue-600" />
+                                      ) : (
+                                        <ChevronRight className="w-5 h-5 text-gray-400" />
+                                      )}
+                                    </div>
+                                  </button>
+
+                                  {/* Subfolder Contents */}
+                                  {isSubExpanded && subfolder.items.length > 0 && (
+                                    <div className="p-4 pt-0">
+                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        {subfolder.items.map((resource: any) => {
+                                          const canPreview = isYouTubeUrl(resource.fileUrl) || resource.mimeType?.startsWith('video/') || isPPT(resource.mimeType || '', resource.fileName || '') || isPDF(resource.mimeType || '', resource.fileName || '');
+
+                                          return (
+                                            <div
+                                              key={resource.id}
+                                              className={`p-3 bg-white rounded-xl border border-gray-200 hover:border-blue-300 transition-all ${canPreview ? 'cursor-pointer' : ''}`}
+                                              onClick={() => canPreview && handleResourceClick(resource)}
+                                            >
+                                              <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                                                  <FileText className="w-5 h-5 text-gray-400" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                  <p className="font-medium text-gray-900 truncate text-sm">{resource.title}</p>
+                                                  <p className="text-xs text-gray-500 truncate">{resource.fileName}</p>
+                                                </div>
+                                                <Button
+                                                  size="sm"
+                                                  variant="ghost"
+                                                  className="h-8 w-8 p-0"
+                                                  onClick={(e) => { e.stopPropagation(); handleDownload(resource); }}
+                                                >
+                                                  <Download className="w-4 h-4" />
+                                                </Button>
+                                              </div>
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
                 );
               })}
             </div>
-          )}
+          )
+          }
         </div>
       </section>
 
