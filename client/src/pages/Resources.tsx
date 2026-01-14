@@ -26,6 +26,155 @@ const CATEGORIES = [
   { value: "presentation", label: "📊 PPT", icon: Presentation, color: "#8B5CF6", gradient: "from-purple-500 to-violet-500", group: "lecture" },
 ];
 
+// 🔄 RECURSIVE Subfolder Renderer - supports unlimited nesting depth
+interface SubfolderNode {
+  id?: number;
+  name: string;
+  items: any[];
+  children: SubfolderNode[];
+  depth: number;
+}
+
+interface SubfolderRendererProps {
+  subfolders: SubfolderNode[];
+  depth: number;
+  expandedFolders: Set<string>;
+  toggleFolder: (key: string) => void;
+  handleResourceClick: (resource: any) => void;
+  handleDownload: (resource: any) => void;
+  isYouTubeUrl: (url: string) => boolean;
+  isPPT: (mimeType: string, fileName: string) => boolean;
+  isPDF: (mimeType: string, fileName: string) => boolean;
+}
+
+function SubfolderRenderer({
+  subfolders,
+  depth,
+  expandedFolders,
+  toggleFolder,
+  handleResourceClick,
+  handleDownload,
+  isYouTubeUrl,
+  isPPT,
+  isPDF,
+}: SubfolderRendererProps) {
+  const depthColors = [
+    "from-blue-500 to-cyan-500",
+    "from-green-500 to-emerald-500",
+    "from-orange-500 to-amber-500",
+    "from-pink-500 to-rose-500",
+    "from-purple-500 to-violet-500",
+  ];
+  const colorIndex = depth % depthColors.length;
+
+  return (
+    <div className="mt-4 space-y-3">
+      {subfolders.map((subfolder) => {
+        const subfolderKey = subfolder.id ? `folder_${subfolder.id}` : `${subfolder.name}_${depth}`;
+        const isSubExpanded = expandedFolders.has(subfolderKey);
+        const subResourceCount = subfolder.items.length;
+        const hasChildren = subfolder.children && subfolder.children.length > 0;
+        const totalCount = subResourceCount + (hasChildren ? subfolder.children.length : 0);
+
+        return (
+          <div
+            key={subfolderKey}
+            className="bg-white/50 border border-gray-200/40 rounded-2xl overflow-hidden"
+            style={{ marginLeft: `${depth * 16}px` }}
+          >
+            {/* Subfolder Header */}
+            <button
+              onClick={(e) => { e.stopPropagation(); toggleFolder(subfolderKey); }}
+              className="w-full p-3 md:p-4 flex items-center justify-between hover:bg-white/70 transition-all group"
+            >
+              <div className="flex items-center gap-2 md:gap-3">
+                <span className="text-purple-400 text-sm md:text-lg">{"↳".repeat(Math.min(depth, 3))}</span>
+                <div className={`w-8 h-8 md:w-10 md:h-10 rounded-lg bg-gradient-to-br ${depthColors[colorIndex]} flex items-center justify-center shadow`}>
+                  <FolderOpen className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                </div>
+                <div className="text-left">
+                  <h4 className="text-sm md:text-lg font-bold text-gray-800 group-hover:text-blue-600 transition-colors">
+                    📂 {subfolder.name}
+                  </h4>
+                  <p className="text-gray-500 text-xs md:text-sm">
+                    {subResourceCount} file{subResourceCount !== 1 ? 's' : ''}
+                    {hasChildren && `, ${subfolder.children.length} subfolder${subfolder.children.length > 1 ? 's' : ''}`}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center">
+                {isSubExpanded ? (
+                  <ChevronDown className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+                ) : (
+                  <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-gray-400" />
+                )}
+              </div>
+            </button>
+
+            {/* Subfolder Contents */}
+            {isSubExpanded && (
+              <div className="p-3 md:p-4 pt-0 space-y-3">
+                {/* Files in this folder */}
+                {subfolder.items.length > 0 && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {subfolder.items.map((resource: any) => {
+                      const canPreview = isYouTubeUrl(resource.fileUrl) ||
+                        resource.mimeType?.startsWith('video/') ||
+                        isPPT(resource.mimeType || '', resource.fileName || '') ||
+                        isPDF(resource.mimeType || '', resource.fileName || '');
+
+                      return (
+                        <div
+                          key={resource.id}
+                          className={`p-2 md:p-3 bg-white rounded-xl border border-gray-200 hover:border-blue-300 transition-all ${canPreview ? 'cursor-pointer' : ''}`}
+                          onClick={() => canPreview && handleResourceClick(resource)}
+                        >
+                          <div className="flex items-center gap-2 md:gap-3">
+                            <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                              <FileText className="w-4 h-4 md:w-5 md:h-5 text-gray-400" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-gray-900 truncate text-xs md:text-sm">{resource.title}</p>
+                              <p className="text-[10px] md:text-xs text-gray-500 truncate">{resource.fileName}</p>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 w-7 md:h-8 md:w-8 p-0 flex-shrink-0"
+                              onClick={(e) => { e.stopPropagation(); handleDownload(resource); }}
+                            >
+                              <Download className="w-3 h-3 md:w-4 md:h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Recursive: Render nested subfolders */}
+                {hasChildren && (
+                  <SubfolderRenderer
+                    subfolders={subfolder.children}
+                    depth={depth + 1}
+                    expandedFolders={expandedFolders}
+                    toggleFolder={toggleFolder}
+                    handleResourceClick={handleResourceClick}
+                    handleDownload={handleDownload}
+                    isYouTubeUrl={isYouTubeUrl}
+                    isPPT={isPPT}
+                    isPDF={isPDF}
+                  />
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // PPT Thumbnail
 function PPTThumbnail({ resource }: { resource: any }) {
   if (resource.thumbnailUrl) {
@@ -869,82 +1018,19 @@ export default function Resources() {
                           })}
                         </div>
 
-                        {/* Subfolders inside parent */}
+                        {/* Subfolders inside parent - RECURSIVE */}
                         {hasSubfolders && (
-                          <div className="mt-6 space-y-4">
-                            {folder.children.map((subfolder) => {
-                              const subfolderKey = subfolder.id ? `folder_${subfolder.id}` : subfolder.name;
-                              const isSubExpanded = expandedFolders.has(subfolderKey);
-                              const subResourceCount = subfolder.items.length;
-
-                              return (
-                                <div key={subfolderKey} className="bg-white/50 border border-gray-200/40 rounded-2xl overflow-hidden ml-4">
-                                  {/* Subfolder Header */}
-                                  <button
-                                    onClick={(e) => { e.stopPropagation(); toggleFolder(subfolderKey); }}
-                                    className="w-full p-4 flex items-center justify-between hover:bg-white/70 transition-all group"
-                                  >
-                                    <div className="flex items-center gap-3">
-                                      <span className="text-purple-400 text-lg">↳</span>
-                                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow">
-                                        <FolderOpen className="w-5 h-5 text-white" />
-                                      </div>
-                                      <div className="text-left">
-                                        <h4 className="text-lg font-bold text-gray-800 group-hover:text-blue-600 transition-colors">
-                                          📂 {subfolder.name}
-                                        </h4>
-                                        <p className="text-gray-500 text-sm">{subResourceCount} files</p>
-                                      </div>
-                                    </div>
-                                    <div className="flex items-center">
-                                      {isSubExpanded ? (
-                                        <ChevronDown className="w-5 h-5 text-blue-600" />
-                                      ) : (
-                                        <ChevronRight className="w-5 h-5 text-gray-400" />
-                                      )}
-                                    </div>
-                                  </button>
-
-                                  {/* Subfolder Contents */}
-                                  {isSubExpanded && subfolder.items.length > 0 && (
-                                    <div className="p-4 pt-0">
-                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        {subfolder.items.map((resource: any) => {
-                                          const canPreview = isYouTubeUrl(resource.fileUrl) || resource.mimeType?.startsWith('video/') || isPPT(resource.mimeType || '', resource.fileName || '') || isPDF(resource.mimeType || '', resource.fileName || '');
-
-                                          return (
-                                            <div
-                                              key={resource.id}
-                                              className={`p-3 bg-white rounded-xl border border-gray-200 hover:border-blue-300 transition-all ${canPreview ? 'cursor-pointer' : ''}`}
-                                              onClick={() => canPreview && handleResourceClick(resource)}
-                                            >
-                                              <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-                                                  <FileText className="w-5 h-5 text-gray-400" />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                  <p className="font-medium text-gray-900 truncate text-sm">{resource.title}</p>
-                                                  <p className="text-xs text-gray-500 truncate">{resource.fileName}</p>
-                                                </div>
-                                                <Button
-                                                  size="sm"
-                                                  variant="ghost"
-                                                  className="h-8 w-8 p-0"
-                                                  onClick={(e) => { e.stopPropagation(); handleDownload(resource); }}
-                                                >
-                                                  <Download className="w-4 h-4" />
-                                                </Button>
-                                              </div>
-                                            </div>
-                                          );
-                                        })}
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
+                          <SubfolderRenderer
+                            subfolders={folder.children}
+                            depth={1}
+                            expandedFolders={expandedFolders}
+                            toggleFolder={toggleFolder}
+                            handleResourceClick={handleResourceClick}
+                            handleDownload={handleDownload}
+                            isYouTubeUrl={isYouTubeUrl}
+                            isPPT={isPPT}
+                            isPDF={isPDF}
+                          />
                         )}
                       </div>
                     )}
