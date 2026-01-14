@@ -12,7 +12,6 @@ import { AnimatedSection } from "@/components/animations/AnimatedSection";
 import { Navigation } from "@/components/layout/Navigation";
 import { TechnicalScopeSlider } from "@/components/sections/TechnicalScopeSlider";
 import { GitHubActivitySection } from "@/components/sections/GitHubActivity";
-import { LiveTechStack } from "@/components/sections/LiveTechStack";
 import { ShareButtons } from "@/components/ui/ShareButtons";
 import {
   OpenAILogo, GoogleGeminiLogo, AnthropicLogo, GitHubLogo, MicrosoftLogo,
@@ -330,202 +329,307 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 🚀 LIVE TECH STACK - Real-time System Dashboard */}
-      <LiveTechStack />
+      {/* PREMIUM Professional Journey */}
+      <section className="py-24 md:py-40 lg:py-48 px-4 md:px-8 relative">
+        <div className="max-w-7xl mx-auto">
+          <AnimatedSection>
+            <div className="text-center mb-16 md:mb-24">
+              <div className="inline-flex items-center gap-2 md:gap-3 px-5 md:px-8 py-3 md:py-4 rounded-full bg-purple-500/10 border border-purple-500/30 backdrop-blur-xl mb-6 md:mb-8">
+                <Layers className="w-5 md:w-6 h-5 md:h-6 text-purple-400" />
+                <span className="text-sm md:text-base font-bold text-purple-400 tracking-wider uppercase">Career Path</span>
+              </div>
+              <h2 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 md:mb-8 tracking-tight">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 animate-gradient-x">
+                  Professional Journey
+                </span>
+              </h2>
+              <div className="w-32 md:w-48 h-2 md:h-3 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full mx-auto" style={{ boxShadow: '0 0 30px rgba(168, 85, 247, 0.6)' }} />
+            </div>
+          </AnimatedSection>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 max-w-6xl mx-auto">
+            {[
+              {
+                year: "2025",
+                company: "Coding Academy",
+                role: "Coding Instructor",
+                icon: GraduationCap,
+                current: true
+              },
+              {
+                year: "~2024.11",
+                company: "SHL Co., Ltd.",
+                role: "Logistics Systems (Hankook Tire Partner)",
+                icon: Layers,
+                current: false
+              },
+              {
+                year: "2023-24",
+                company: "LG Electronics",
+                role: "Senior Research Engineer",
+                icon: CircuitBoard,
+                current: false
+              },
+              {
+                year: "2022",
+                company: "Nordground",
+                role: "Data Analysis & Optimization",
+                subtitle: "LG Electronics Partner Company",
+                position: "Senior Research Engineer",
+                icon: Sparkles,
+                current: false
+              },
+            ].map((exp, idx) => {
+              const Icon = exp.icon;
+              return (
+                <AnimatedSection key={idx} delay={idx * 100}>
+                  <TiltCard sensitivity={6}>
+                    <div className={`group relative p-8 md:p-12 rounded-3xl bg-[#12121a] border-2 ${exp.current
+                      ? 'border-purple-500/50 shadow-[0_0_40px_rgba(168,85,247,0.25)]'
+                      : 'border-white/10'
+                      } hover:border-purple-500/50 transition-all duration-500 overflow-hidden min-h-[200px] md:min-h-[250px]`}>
+                      {/* Premium Background Effect */}
+                      {exp.current && (
+                        <div className="absolute inset-0 bg-gradient-to-br from-purple-600/15 to-cyan-600/15" />
+                      )}
+
+                      <div className="relative flex items-start gap-6 md:gap-8">
+                        {/* Premium Icon */}
+                        <div className={`w-16 h-16 md:w-24 md:h-24 rounded-2xl md:rounded-3xl bg-gradient-to-br ${exp.current
+                          ? 'from-purple-500 to-cyan-500'
+                          : 'from-gray-600 to-gray-700'
+                          } flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 flex-shrink-0`} style={{ boxShadow: exp.current ? '0 0 40px rgba(168, 85, 247, 0.5)' : 'none' }}>
+                          <Icon className="w-8 h-8 md:w-12 md:h-12 text-white" />
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-3 md:gap-4 mb-3 md:mb-4">
+                            <p className={`text-base md:text-lg font-black font-mono tracking-wider ${exp.current ? 'text-purple-400' : 'text-gray-500'
+                              }`}>
+                              {exp.year}
+                            </p>
+                            {exp.current && (
+                              <span className="px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-500 to-cyan-500 text-white text-sm font-black tracking-wider" style={{ boxShadow: '0 0 20px rgba(168, 85, 247, 0.6)' }}>
+                                CURRENT
+                              </span>
+                            )}
+                          </div>
+                          <h3 className="text-2xl md:text-4xl font-black text-white mb-2 md:mb-3 group-hover:text-purple-300 transition-colors">
+                            {exp.company}
+                          </h3>
+                          <p className="text-lg md:text-xl text-gray-400 font-medium mb-2">{exp.role}</p>
+                          {exp.subtitle && (
+                            <p className="text-sm md:text-base text-purple-400 font-semibold mb-1">{exp.subtitle}</p>
+                          )}
+                          {exp.position && (
+                            <p className="text-sm md:text-base text-gray-500 italic">Position: {exp.position}</p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Premium Border Glow */}
+                      <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-3xl opacity-0 group-hover:opacity-25 blur-xl transition-opacity duration-500 -z-10" />
+                    </div>
+                  </TiltCard>
+                </AnimatedSection>
+              );
+            })}
+          </div>
+        </div>
+      </section>
 
       {/* 🔧 TECHNICAL EXPERTISE - 800+ Tech Stack Showcase */}
       <TechnicalScopeSlider />
 
       {/* 🏆 CERTIFICATIONS & CREDENTIALS - HIDDEN, replaced by YouTube above */}
-      {
-        false && (
-          <section className="py-24 md:py-40 lg:py-48 px-4 md:px-8 relative overflow-hidden">
-            {/* Background Effects */}
-            <div className="absolute top-20 left-10 w-64 md:w-96 h-64 md:h-96 bg-gradient-to-r from-purple-600/15 to-pink-600/15 rounded-full blur-3xl animate-float" />
-            <div className="absolute bottom-20 right-10 w-80 md:w-[500px] h-80 md:h-[500px] bg-gradient-to-r from-cyan-500/15 to-blue-600/15 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+      {false && (
+        <section className="py-24 md:py-40 lg:py-48 px-4 md:px-8 relative overflow-hidden">
+          {/* Background Effects */}
+          <div className="absolute top-20 left-10 w-64 md:w-96 h-64 md:h-96 bg-gradient-to-r from-purple-600/15 to-pink-600/15 rounded-full blur-3xl animate-float" />
+          <div className="absolute bottom-20 right-10 w-80 md:w-[500px] h-80 md:h-[500px] bg-gradient-to-r from-cyan-500/15 to-blue-600/15 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
 
-            <div className="max-w-7xl mx-auto relative z-10">
-              <AnimatedSection>
-                <div className="text-center mb-16 md:mb-24">
-                  <div className="inline-flex items-center gap-2 md:gap-3 px-5 md:px-8 py-3 md:py-4 rounded-full bg-purple-500/10 border border-purple-500/30 backdrop-blur-xl mb-6 md:mb-8">
-                    <Award className="w-5 md:w-6 h-5 md:h-6 text-purple-400" />
-                    <span className="text-sm md:text-base font-bold text-purple-400 tracking-wider uppercase">Credentials</span>
-                  </div>
-                  <h2 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 md:mb-8 tracking-tight">
-                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 animate-gradient-x">
-                      Certifications
-                    </span>
-                  </h2>
-                  <div className="w-32 md:w-48 h-2 md:h-3 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full mx-auto" style={{ boxShadow: '0 0 30px rgba(168, 85, 247, 0.6)' }} />
+          <div className="max-w-7xl mx-auto relative z-10">
+            <AnimatedSection>
+              <div className="text-center mb-16 md:mb-24">
+                <div className="inline-flex items-center gap-2 md:gap-3 px-5 md:px-8 py-3 md:py-4 rounded-full bg-purple-500/10 border border-purple-500/30 backdrop-blur-xl mb-6 md:mb-8">
+                  <Award className="w-5 md:w-6 h-5 md:h-6 text-purple-400" />
+                  <span className="text-sm md:text-base font-bold text-purple-400 tracking-wider uppercase">Credentials</span>
                 </div>
-              </AnimatedSection>
+                <h2 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 md:mb-8 tracking-tight">
+                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 animate-gradient-x">
+                    Certifications
+                  </span>
+                </h2>
+                <div className="w-32 md:w-48 h-2 md:h-3 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full mx-auto" style={{ boxShadow: '0 0 30px rgba(168, 85, 247, 0.6)' }} />
+              </div>
+            </AnimatedSection>
 
-              {/* Certifications Auto-Scroll Animation - ALL VISIBLE */}
-              {certificationsLoading ? (
-                <div className="flex flex-col items-center justify-center py-16">
-                  <Loader2 className="w-12 h-12 animate-spin text-purple-400 mb-4" />
-                  <p className="text-gray-400 text-lg">Loading credentials...</p>
-                </div>
-              ) : !certifications?.length ? (
-                <div className="text-center py-16">
-                  <Award className="w-20 h-20 text-gray-600 mx-auto mb-4" />
-                  <h3 className="text-2xl font-semibold text-gray-400">No certifications yet</h3>
-                </div>
-              ) : (
-                <div className="relative overflow-hidden">
-                  {/* Gradient Overlays */}
-                  <div className="absolute left-0 top-0 bottom-0 w-24 md:w-40 lg:w-60 bg-gradient-to-r from-[#0a0a1a] to-transparent z-10 pointer-events-none" />
-                  <div className="absolute right-0 top-0 bottom-0 w-24 md:w-40 lg:w-60 bg-gradient-to-l from-[#0a0a1a] to-transparent z-10 pointer-events-none" />
+            {/* Certifications Auto-Scroll Animation - ALL VISIBLE */}
+            {certificationsLoading ? (
+              <div className="flex flex-col items-center justify-center py-16">
+                <Loader2 className="w-12 h-12 animate-spin text-purple-400 mb-4" />
+                <p className="text-gray-400 text-lg">Loading credentials...</p>
+              </div>
+            ) : !certifications?.length ? (
+              <div className="text-center py-16">
+                <Award className="w-20 h-20 text-gray-600 mx-auto mb-4" />
+                <h3 className="text-2xl font-semibold text-gray-400">No certifications yet</h3>
+              </div>
+            ) : (
+              <div className="relative overflow-hidden">
+                {/* Gradient Overlays */}
+                <div className="absolute left-0 top-0 bottom-0 w-24 md:w-40 lg:w-60 bg-gradient-to-r from-[#0a0a1a] to-transparent z-10 pointer-events-none" />
+                <div className="absolute right-0 top-0 bottom-0 w-24 md:w-40 lg:w-60 bg-gradient-to-l from-[#0a0a1a] to-transparent z-10 pointer-events-none" />
 
-                  {/* Infinite Auto-Scroll Track */}
-                  <div className="flex gap-8 md:gap-10 lg:gap-12 animate-scroll-left-certifications">
-                    {/* First Set */}
-                    {certifications?.map((cert) => (
-                      <div key={`cert-1-${cert.id}`} className="group flex-shrink-0 w-[380px] md:w-[480px] lg:w-[550px]">
-                        <TiltCard sensitivity={6}>
-                          <div className="rounded-3xl overflow-hidden bg-[#12121a] border border-white/10 hover:border-purple-500/50 transition-all duration-500 shadow-2xl hover:shadow-purple-500/30">
-                            <div className="aspect-[16/10] overflow-hidden relative">
-                              {cert.imageUrl ? (
-                                <img src={cert.imageUrl} alt={cert.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                              ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-purple-900/60 via-blue-900/60 to-pink-900/60 flex items-center justify-center">
-                                  <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center" style={{ boxShadow: '0 0 60px rgba(168, 85, 247, 0.6)' }}>
-                                    <Award className="w-14 h-14 md:w-18 md:h-18 text-white" />
-                                  </div>
+                {/* Infinite Auto-Scroll Track */}
+                <div className="flex gap-8 md:gap-10 lg:gap-12 animate-scroll-left-certifications">
+                  {/* First Set */}
+                  {certifications?.map((cert) => (
+                    <div key={`cert-1-${cert.id}`} className="group flex-shrink-0 w-[380px] md:w-[480px] lg:w-[550px]">
+                      <TiltCard sensitivity={6}>
+                        <div className="rounded-3xl overflow-hidden bg-[#12121a] border border-white/10 hover:border-purple-500/50 transition-all duration-500 shadow-2xl hover:shadow-purple-500/30">
+                          <div className="aspect-[16/10] overflow-hidden relative">
+                            {cert.imageUrl ? (
+                              <img src={cert.imageUrl} alt={cert.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-purple-900/60 via-blue-900/60 to-pink-900/60 flex items-center justify-center">
+                                <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center" style={{ boxShadow: '0 0 60px rgba(168, 85, 247, 0.6)' }}>
+                                  <Award className="w-14 h-14 md:w-18 md:h-18 text-white" />
                                 </div>
-                              )}
-
-                              {/* Verified Badge */}
-                              <div className="absolute top-5 right-5">
-                                <span className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-xl text-purple-300 text-base font-bold border border-white/20" style={{ boxShadow: '0 0 20px rgba(168, 85, 247, 0.3)' }}>
-                                  <ShieldCheck className="w-5 h-5" />Verified
-                                </span>
                               </div>
+                            )}
 
-                              <div className="absolute inset-0 bg-gradient-to-t from-[#12121a] via-transparent to-transparent opacity-70" />
+                            {/* Verified Badge */}
+                            <div className="absolute top-5 right-5">
+                              <span className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-xl text-purple-300 text-base font-bold border border-white/20" style={{ boxShadow: '0 0 20px rgba(168, 85, 247, 0.3)' }}>
+                                <ShieldCheck className="w-5 h-5" />Verified
+                              </span>
                             </div>
 
-                            <div className="p-8 md:p-10 relative">
-                              {/* Certified Badge */}
-                              <div className="absolute -top-5 left-8 md:left-10">
-                                <div className="relative">
-                                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-cyan-500 blur-lg opacity-70"></div>
-                                  <div className="relative px-5 py-2.5 rounded-full bg-gradient-to-r from-purple-600 to-cyan-600 text-white text-base font-black tracking-wider uppercase" style={{ boxShadow: '0 0 30px rgba(168, 85, 247, 0.6)' }}>
-                                    🏆 Certified
-                                  </div>
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#12121a] via-transparent to-transparent opacity-70" />
+                          </div>
+
+                          <div className="p-8 md:p-10 relative">
+                            {/* Certified Badge */}
+                            <div className="absolute -top-5 left-8 md:left-10">
+                              <div className="relative">
+                                <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-cyan-500 blur-lg opacity-70"></div>
+                                <div className="relative px-5 py-2.5 rounded-full bg-gradient-to-r from-purple-600 to-cyan-600 text-white text-base font-black tracking-wider uppercase" style={{ boxShadow: '0 0 30px rgba(168, 85, 247, 0.6)' }}>
+                                  🏆 Certified
                                 </div>
                               </div>
+                            </div>
 
-                              <h3 className="text-2xl md:text-3xl font-black mb-5 mt-5 group-hover:text-purple-300 transition-colors line-clamp-2 text-white leading-tight">
-                                {cert.title}
-                              </h3>
+                            <h3 className="text-2xl md:text-3xl font-black mb-5 mt-5 group-hover:text-purple-300 transition-colors line-clamp-2 text-white leading-tight">
+                              {cert.title}
+                            </h3>
 
-                              <div className="flex items-center gap-4 mb-6">
-                                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500/30 to-cyan-500/30 flex items-center justify-center flex-shrink-0 border border-white/10">
-                                  <Building className="w-7 h-7 text-purple-400" />
-                                </div>
-                                <div className="min-w-0">
-                                  <p className="text-base text-gray-500 font-medium">Issued by</p>
-                                  <p className="text-lg md:text-xl font-bold text-gray-300 line-clamp-1">{cert.issuer}</p>
-                                </div>
+                            <div className="flex items-center gap-4 mb-6">
+                              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500/30 to-cyan-500/30 flex items-center justify-center flex-shrink-0 border border-white/10">
+                                <Building className="w-7 h-7 text-purple-400" />
                               </div>
+                              <div className="min-w-0">
+                                <p className="text-base text-gray-500 font-medium">Issued by</p>
+                                <p className="text-lg md:text-xl font-bold text-gray-300 line-clamp-1">{cert.issuer}</p>
+                              </div>
+                            </div>
 
-                              <div className="flex items-center justify-between pt-5 border-t border-white/10">
-                                <div className="flex items-center gap-2">
-                                  <div className="w-4 h-4 rounded-full bg-emerald-500 animate-pulse"></div>
-                                  <span className="text-base text-emerald-400 font-bold">Active</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  {[1, 2, 3, 4, 5].map((star) => (
-                                    <svg key={star} className="w-6 h-6 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                                      <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                                    </svg>
-                                  ))}
-                                </div>
+                            <div className="flex items-center justify-between pt-5 border-t border-white/10">
+                              <div className="flex items-center gap-2">
+                                <div className="w-4 h-4 rounded-full bg-emerald-500 animate-pulse"></div>
+                                <span className="text-base text-emerald-400 font-bold">Active</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                  <svg key={star} className="w-6 h-6 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                                    <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                                  </svg>
+                                ))}
                               </div>
                             </div>
                           </div>
-                        </TiltCard>
-                      </div>
-                    ))}
-
-                    {/* Duplicate Set for Seamless Loop */}
-                    {certifications?.map((cert) => (
-                      <div key={`cert-2-${cert.id}`} className="group flex-shrink-0 w-[380px] md:w-[480px] lg:w-[550px]">
-                        <TiltCard sensitivity={6}>
-                          <div className="rounded-3xl overflow-hidden bg-[#12121a] border border-white/10 hover:border-purple-500/50 transition-all duration-500 shadow-2xl hover:shadow-purple-500/30">
-                            <div className="aspect-[16/10] overflow-hidden relative">
-                              {cert.imageUrl ? (
-                                <img src={cert.imageUrl} alt={cert.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                              ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-purple-900/60 via-blue-900/60 to-pink-900/60 flex items-center justify-center">
-                                  <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center" style={{ boxShadow: '0 0 60px rgba(168, 85, 247, 0.6)' }}>
-                                    <Award className="w-14 h-14 md:w-18 md:h-18 text-white" />
-                                  </div>
-                                </div>
-                              )}
-                              <div className="absolute top-5 right-5">
-                                <span className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-xl text-purple-300 text-base font-bold border border-white/20" style={{ boxShadow: '0 0 20px rgba(168, 85, 247, 0.3)' }}>
-                                  <ShieldCheck className="w-5 h-5" />Verified
-                                </span>
-                              </div>
-                              <div className="absolute inset-0 bg-gradient-to-t from-[#12121a] via-transparent to-transparent opacity-70" />
-                            </div>
-                            <div className="p-8 md:p-10 relative">
-                              <div className="absolute -top-5 left-8 md:left-10">
-                                <div className="relative">
-                                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-cyan-500 blur-lg opacity-70"></div>
-                                  <div className="relative px-5 py-2.5 rounded-full bg-gradient-to-r from-purple-600 to-cyan-600 text-white text-base font-black tracking-wider uppercase" style={{ boxShadow: '0 0 30px rgba(168, 85, 247, 0.6)' }}>
-                                    🏆 Certified
-                                  </div>
-                                </div>
-                              </div>
-                              <h3 className="text-2xl md:text-3xl font-black mb-5 mt-5 group-hover:text-purple-300 transition-colors line-clamp-2 text-white leading-tight">
-                                {cert.title}
-                              </h3>
-                              <div className="flex items-center gap-4 mb-6">
-                                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500/30 to-cyan-500/30 flex items-center justify-center flex-shrink-0 border border-white/10">
-                                  <Building className="w-7 h-7 text-purple-400" />
-                                </div>
-                                <div className="min-w-0">
-                                  <p className="text-base text-gray-500 font-medium">Issued by</p>
-                                  <p className="text-lg md:text-xl font-bold text-gray-300 line-clamp-1">{cert.issuer}</p>
-                                </div>
-                              </div>
-                              <div className="flex items-center justify-between pt-5 border-t border-white/10">
-                                <div className="flex items-center gap-2">
-                                  <div className="w-4 h-4 rounded-full bg-emerald-500 animate-pulse"></div>
-                                  <span className="text-base text-emerald-400 font-bold">Active</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  {[1, 2, 3, 4, 5].map((star) => (
-                                    <svg key={star} className="w-6 h-6 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                                      <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                                    </svg>
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </TiltCard>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Count Indicator */}
-                  <div className="flex items-center justify-center gap-3 mt-10">
-                    <div className="flex items-center gap-2 px-6 py-3 rounded-full bg-purple-500/10 border border-purple-500/30">
-                      <Award className="w-5 h-5 text-purple-400" />
-                      <span className="text-purple-400 font-bold text-lg">{certifications?.length}</span>
-                      <span className="text-gray-400">Professional Certifications</span>
+                        </div>
+                      </TiltCard>
                     </div>
+                  ))}
+
+                  {/* Duplicate Set for Seamless Loop */}
+                  {certifications?.map((cert) => (
+                    <div key={`cert-2-${cert.id}`} className="group flex-shrink-0 w-[380px] md:w-[480px] lg:w-[550px]">
+                      <TiltCard sensitivity={6}>
+                        <div className="rounded-3xl overflow-hidden bg-[#12121a] border border-white/10 hover:border-purple-500/50 transition-all duration-500 shadow-2xl hover:shadow-purple-500/30">
+                          <div className="aspect-[16/10] overflow-hidden relative">
+                            {cert.imageUrl ? (
+                              <img src={cert.imageUrl} alt={cert.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-purple-900/60 via-blue-900/60 to-pink-900/60 flex items-center justify-center">
+                                <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center" style={{ boxShadow: '0 0 60px rgba(168, 85, 247, 0.6)' }}>
+                                  <Award className="w-14 h-14 md:w-18 md:h-18 text-white" />
+                                </div>
+                              </div>
+                            )}
+                            <div className="absolute top-5 right-5">
+                              <span className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-xl text-purple-300 text-base font-bold border border-white/20" style={{ boxShadow: '0 0 20px rgba(168, 85, 247, 0.3)' }}>
+                                <ShieldCheck className="w-5 h-5" />Verified
+                              </span>
+                            </div>
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#12121a] via-transparent to-transparent opacity-70" />
+                          </div>
+                          <div className="p-8 md:p-10 relative">
+                            <div className="absolute -top-5 left-8 md:left-10">
+                              <div className="relative">
+                                <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-cyan-500 blur-lg opacity-70"></div>
+                                <div className="relative px-5 py-2.5 rounded-full bg-gradient-to-r from-purple-600 to-cyan-600 text-white text-base font-black tracking-wider uppercase" style={{ boxShadow: '0 0 30px rgba(168, 85, 247, 0.6)' }}>
+                                  🏆 Certified
+                                </div>
+                              </div>
+                            </div>
+                            <h3 className="text-2xl md:text-3xl font-black mb-5 mt-5 group-hover:text-purple-300 transition-colors line-clamp-2 text-white leading-tight">
+                              {cert.title}
+                            </h3>
+                            <div className="flex items-center gap-4 mb-6">
+                              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500/30 to-cyan-500/30 flex items-center justify-center flex-shrink-0 border border-white/10">
+                                <Building className="w-7 h-7 text-purple-400" />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-base text-gray-500 font-medium">Issued by</p>
+                                <p className="text-lg md:text-xl font-bold text-gray-300 line-clamp-1">{cert.issuer}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center justify-between pt-5 border-t border-white/10">
+                              <div className="flex items-center gap-2">
+                                <div className="w-4 h-4 rounded-full bg-emerald-500 animate-pulse"></div>
+                                <span className="text-base text-emerald-400 font-bold">Active</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                  <svg key={star} className="w-6 h-6 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                                    <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                                  </svg>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </TiltCard>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Count Indicator */}
+                <div className="flex items-center justify-center gap-3 mt-10">
+                  <div className="flex items-center gap-2 px-6 py-3 rounded-full bg-purple-500/10 border border-purple-500/30">
+                    <Award className="w-5 h-5 text-purple-400" />
+                    <span className="text-purple-400 font-bold text-lg">{certifications?.length}</span>
+                    <span className="text-gray-400">Professional Certifications</span>
                   </div>
                 </div>
-              )}
-            </div>
-          </section>
-        )
-      }
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* 🐙 GITHUB ACTIVITY SECTION */}
       <GitHubActivitySection />

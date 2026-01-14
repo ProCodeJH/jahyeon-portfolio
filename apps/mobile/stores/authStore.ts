@@ -21,7 +21,7 @@ interface AuthStore {
     refreshAccessToken: () => Promise<boolean>;
 }
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://jahyeon-portfolio.onrender.com';
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3001';
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
     admin: null,

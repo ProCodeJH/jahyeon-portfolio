@@ -106,20 +106,7 @@ export function HeroVideoBackground({
                     muted
                     loop
                     playsInline
-                    preload="auto"
-                    onEnded={(e) => {
-                        // Seamless loop: immediately restart
-                        const video = e.currentTarget;
-                        video.currentTime = 0;
-                        video.play().catch(() => { });
-                    }}
-                    onTimeUpdate={(e) => {
-                        // Pre-emptive loop: restart slightly before end to avoid gap
-                        const video = e.currentTarget;
-                        if (video.duration && video.currentTime > video.duration - 0.1) {
-                            video.currentTime = 0;
-                        }
-                    }}
+                    preload="metadata"
                 />
             )}
 
