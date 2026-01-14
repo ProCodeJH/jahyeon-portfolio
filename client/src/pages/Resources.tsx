@@ -126,8 +126,8 @@ function SubfolderRenderer({
                       return (
                         <div
                           key={resource.id}
-                          className={`p-2 md:p-3 bg-white rounded-xl border border-gray-200 hover:border-blue-300 transition-all ${canPreview ? 'cursor-pointer' : ''}`}
-                          onClick={() => canPreview && handleResourceClick(resource)}
+                          className="p-2 md:p-3 bg-white rounded-xl border border-gray-200 hover:border-blue-300 transition-all cursor-pointer"
+                          onClick={() => canPreview ? handleResourceClick(resource) : handleDownload(resource)}
                         >
                           <div className="flex items-center gap-2 md:gap-3">
                             <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
