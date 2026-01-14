@@ -15,9 +15,15 @@ async function bootstrap() {
         }),
     );
 
-    // CORS
+    // CORS - Allow jahyeon.com and localhost
+    const defaultOrigins = [
+        'http://localhost:3000',
+        'http://localhost:5173',
+        'https://jahyeon.com',
+        'https://www.jahyeon.com',
+    ];
     app.enableCors({
-        origin: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3000'],
+        origin: process.env.CORS_ORIGINS?.split(',') || defaultOrigins,
         credentials: true,
     });
 
@@ -28,8 +34,9 @@ async function bootstrap() {
     app.setGlobalPrefix('api');
 
     const port = process.env.PORT || 3001;
-    await app.listen(port);
-    console.log(`🚀 API Server running on http://localhost:${port}`);
+    // Bind to 0.0.0.0 for external access (required for Render, Railway, etc.)
+    await app.listen(port, '0.0.0.0');
+    console.log(`🚀 API Server running on http://0.0.0.0:${port}`);
 }
 
 bootstrap();
