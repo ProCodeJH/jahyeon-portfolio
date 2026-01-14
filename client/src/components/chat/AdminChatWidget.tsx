@@ -23,7 +23,7 @@ interface ChatState {
     visitorId: string | null;
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://jahyeon-portfolio.onrender.com';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 export function AdminChatWidget() {
     const [isOpen, setIsOpen] = useState(false);
@@ -59,13 +59,26 @@ export function AdminChatWidget() {
         }
     }, []);
 
-    // Connect to WebSocket
+    // Connect to WebSocket with graceful degradation
     useEffect(() => {
         if (!isOpen || !chatState.visitorId) return;
+
+        // Skip WebSocket connection if API_URL is not configured or is localhost in production
+        const isProduction = window.location.hostname !== 'localhost';
+        const apiConfigured = API_URL && API_URL !== 'http://localhost:3001';
+
+        if (isProduction && !apiConfigured) {
+            console.log('Chat server not configured for production - running in offline mode');
+            setIsConnected(false);
+            return;
+        }
 
         const socket = io(`${API_URL}/chat`, {
             query: { visitorId: chatState.visitorId },
             transports: ['websocket', 'polling'],
+            timeout: 5000, // 5 second timeout
+            reconnectionAttempts: 3, // Only try 3 times
+            reconnectionDelay: 2000,
         });
 
         socketRef.current = socket;
@@ -106,7 +119,8 @@ export function AdminChatWidget() {
         });
 
         socket.on('connect_error', (error) => {
-            console.error('Connection error:', error);
+            console.warn('Chat connection error (degraded mode):', error.message);
+            // Don't spam console - just go to offline mode after retries exhausted
         });
 
         return () => {
