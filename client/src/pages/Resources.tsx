@@ -16,9 +16,14 @@ import { ResourceCardSkeleton } from "@/components/ui/skeleton";
 const SecureVaultOverlay = lazy(() => import("@/components/3d/SecureVaultOverlay"));
 
 const CATEGORIES = [
-  { value: "all", label: "All", icon: Sparkles, color: "#8B5CF6", gradient: "from-purple-500 to-pink-500" },
-  { value: "daily_life", label: "Daily Videos", icon: Video, color: "#EC4899", gradient: "from-pink-500 to-rose-500" },
+  // 📚 수업자료 (모든 강의 자료 통합)
+  { value: "lecture", label: "📚 수업자료", icon: BookOpen, color: "#3B82F6", gradient: "from-blue-500 to-purple-500" },
+  // 📹 데일리 영상
+  { value: "daily_life", label: "📹 데일리영상", icon: Video, color: "#EC4899", gradient: "from-pink-500 to-rose-500" },
 ];
+
+// 수업자료에 포함되는 카테고리들
+const LECTURE_CATEGORIES = ["lecture_c", "lecture_arduino", "lecture_python", "presentation"];
 
 // PPT Thumbnail
 function PPTThumbnail({ resource }: { resource: any }) {
@@ -306,7 +311,7 @@ export default function Resources() {
   const { data: resources, isLoading } = trpc.resources.list.useQuery();
   const { data: folders } = trpc.folders.list.useQuery();
   const incrementDownload = trpc.resources.incrementDownload.useMutation();
-  const [activeCategory, setActiveCategory] = useState("all");
+  const [activeCategory, setActiveCategory] = useState("lecture");
   const [selectedVideo, setSelectedVideo] = useState<any>(null);
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
   const [selectedCommentResource, setSelectedCommentResource] = useState<any>(null);
@@ -326,8 +331,15 @@ export default function Resources() {
 
   const isStudent = member?.isStudent === true;
 
-  const filteredResources = resources?.filter(r => activeCategory === "all" || r.category === activeCategory);
-  const filteredFolders = folders?.filter(f => activeCategory === "all" || f.category === activeCategory);
+  // 수업자료: 여러 카테고리 통합, 데일리영상: daily_life만
+  const filteredResources = resources?.filter(r => {
+    if (activeCategory === "lecture") return LECTURE_CATEGORIES.includes(r.category);
+    return r.category === activeCategory;
+  });
+  const filteredFolders = folders?.filter(f => {
+    if (activeCategory === "lecture") return LECTURE_CATEGORIES.includes(f.category);
+    return f.category === activeCategory;
+  });
 
   // Build folder tree with nested structure
   interface FolderNode {
@@ -379,15 +391,17 @@ export default function Resources() {
       }
     });
 
-    // Add uncategorized folder
-    const uncategorizedItems = filteredResources?.filter(r => !r.subcategory) || [];
-    if (uncategorizedItems.length > 0) {
-      rootFolders.push({
-        name: "📄 Uncategorized",
-        items: uncategorizedItems,
-        children: [],
-        depth: 0
-      });
+    // Uncategorized 폴더는 데일리영상에서만 표시
+    if (activeCategory === "daily_life") {
+      const uncategorizedItems = filteredResources?.filter(r => !r.subcategory) || [];
+      if (uncategorizedItems.length > 0) {
+        rootFolders.push({
+          name: "📹 영상 목록",
+          items: uncategorizedItems,
+          children: [],
+          depth: 0
+        });
+      }
     }
 
     // Return only root folders (NOT flattened!) - subfolders are in .children
