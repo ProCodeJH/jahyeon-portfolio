@@ -23,6 +23,19 @@ export class AuthController {
     }
 
     @UseGuards(JwtAuthGuard)
+    @Post('devices')
+    async registerDevice(
+        @Req() req: any,
+        @Body() body: { deviceToken: string; deviceType: 'WEB' | 'IOS' | 'ANDROID' },
+    ) {
+        return this.authService.registerDevice(
+            req.user.id,
+            body.deviceToken,
+            body.deviceType,
+        );
+    }
+
+    @UseGuards(JwtAuthGuard)
     @Post('logout')
     async logout(@Req() req: any, @Body('refreshToken') refreshToken?: string) {
         return this.authService.logout(req.user.id, refreshToken);

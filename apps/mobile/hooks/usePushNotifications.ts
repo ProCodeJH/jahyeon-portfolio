@@ -36,24 +36,55 @@ export function usePushNotifications() {
             return;
         }
 
-        // Get Expo push token
-        const token = await Notifications.getExpoPushTokenAsync({
-            projectId: 'your-project-id', // Replace with your Expo project ID
-        });
+        // Get native FCM token (not Expo token) for Firebase Admin SDK
+        try {
+            const nativeToken = await Notifications.getDevicePushTokenAsync();
+            console.log('FCM Token:', nativeToken.data);
+            setExpoPushToken(nativeToken.data);
 
-        setExpoPushToken(token.data);
+            // Auto-register with backend if user is logged in
+            const { accessToken } = useAuthStore.getState();
+            if (accessToken) {
+                await registerDeviceWithBackend(nativeToken.data);
+            }
 
-        // Configure for Android
-        if (Platform.OS === 'android') {
-            Notifications.setNotificationChannelAsync('chat_messages', {
-                name: 'Chat Messages',
-                importance: Notifications.AndroidImportance.MAX,
-                vibrationPattern: [0, 250, 250, 250],
-                lightColor: '#8b5cf6',
-            });
+            // Configure for Android
+            if (Platform.OS === 'android') {
+                await Notifications.setNotificationChannelAsync('chat_messages', {
+                    name: 'Chat Messages',
+                    importance: Notifications.AndroidImportance.MAX,
+                    vibrationPattern: [0, 250, 250, 250],
+                    lightColor: '#8b5cf6',
+                });
+            }
+
+            return nativeToken.data;
+        } catch (error) {
+            console.error('Error getting push token:', error);
+            return null;
         }
+    };
 
-        return token.data;
+    const registerDeviceWithBackend = async (fcmToken: string) => {
+        const { accessToken } = useAuthStore.getState();
+        if (!accessToken || !fcmToken) return;
+
+        try {
+            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/auth/devices`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${accessToken}`,
+                },
+                body: JSON.stringify({
+                    deviceToken: fcmToken,
+                    deviceType: Platform.OS === 'ios' ? 'IOS' : 'ANDROID',
+                }),
+            });
+            console.log('Device registered with backend:', response.status);
+        } catch (error) {
+            console.error('Failed to register device:', error);
+        }
     };
 
     const registerDeviceToken = async (fcmToken: string) => {

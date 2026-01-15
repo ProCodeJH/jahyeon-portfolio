@@ -1,0 +1,29 @@
+{
+    "project_info": {
+        "project_number": "920680268286",
+        "project_id": "jahyeon-portfolio",
+        "storage_bucket": "jahyeon-portfolio.firebasestorage.app"
+    },
+    "client": [
+        {
+            "client_info": {
+                "mobilesdk_app_id": "1:920680268286:android:89232b256f0e5d4ade40af",
+                "android_client_info": {
+                    "package_name": "com.jahyeon.admin"
+                }
+            },
+            "oauth_client": [],
+            "api_key": [
+                {
+                    "current_key": "AIzaSyD8ZD4p7swQ9xto0MDOIlZ_48bespYEKtU"
+                }
+            ],
+            "services": {
+                "appinvite_service": {
+                    "other_platform_oauth_client": []
+                }
+            }
+        }
+    ],
+    "configuration_version": "1"
+}
