@@ -1,5 +1,8 @@
 import { create } from 'zustand';
 import * as SecureStore from 'expo-secure-store';
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+import { Platform } from 'react-native';
 
 interface Admin {
     id: string;
@@ -22,6 +25,60 @@ interface AuthStore {
 }
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3001';
+
+// Register FCM token with backend
+async function registerFCMToken(accessToken: string) {
+    if (!Device.isDevice) {
+        console.log('Push notifications require a physical device');
+        return;
+    }
+
+    try {
+        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+        let finalStatus = existingStatus;
+
+        if (existingStatus !== 'granted') {
+            const { status } = await Notifications.requestPermissionsAsync();
+            finalStatus = status;
+        }
+
+        if (finalStatus !== 'granted') {
+            console.log('Push notification permission denied');
+            return;
+        }
+
+        // Get native FCM token
+        const tokenData = await Notifications.getDevicePushTokenAsync();
+        console.log('FCM Token obtained:', tokenData.data);
+
+        // Register with backend
+        const response = await fetch(`${API_URL}/api/auth/devices`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify({
+                deviceToken: tokenData.data,
+                deviceType: Platform.OS === 'ios' ? 'IOS' : 'ANDROID',
+            }),
+        });
+
+        console.log('Device registration response:', response.status);
+
+        // Setup Android notification channel
+        if (Platform.OS === 'android') {
+            await Notifications.setNotificationChannelAsync('chat_messages', {
+                name: 'Chat Messages',
+                importance: Notifications.AndroidImportance.MAX,
+                vibrationPattern: [0, 250, 250, 250],
+                lightColor: '#8b5cf6',
+            });
+        }
+    } catch (error) {
+        console.error('FCM registration error:', error);
+    }
+}
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
     admin: null,
@@ -67,6 +124,9 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
                 isAuthenticated: true,
                 isLoading: false,
             });
+
+            // Register FCM token after successful login
+            await registerFCMToken(tokens.accessToken);
 
             return true;
         } catch (error) {
