@@ -339,13 +339,24 @@ export default function Admin() {
     }
 
     try {
-      // Find folder in DB
-      const folderInDb = folders?.find(f => f.category === category && f.name === folderName);
+      // Find folder in DB - handle "lecture" category that groups multiple actual categories
+      let folderInDb;
+      if (category === "lecture") {
+        // For lecture category, search across all lecture sub-categories
+        folderInDb = folders?.find(f =>
+          LECTURE_CATEGORIES.includes(f.category) && f.name === folderName
+        );
+      } else {
+        folderInDb = folders?.find(f => f.category === category && f.name === folderName);
+      }
 
       // Move all resources in this folder to Uncategorized
-      const resourcesToMove = resources?.filter(
-        r => r.category === category && r.subcategory === folderName
-      ) || [];
+      const resourcesToMove = resources?.filter(r => {
+        if (category === "lecture") {
+          return LECTURE_CATEGORIES.includes(r.category) && r.subcategory === folderName;
+        }
+        return r.category === category && r.subcategory === folderName;
+      }) || [];
 
       await Promise.all(
         resourcesToMove.map(resource =>
@@ -361,9 +372,13 @@ export default function Admin() {
         await deleteFolder.mutateAsync({ id: folderInDb.id });
       }
 
+      // Refresh the folder list
+      utils.folders.list.invalidate();
+
       toast.success(`Folder "${folderName}" deleted. Files moved to Uncategorized.`);
     } catch (error) {
       toast.error("Failed to delete folder");
+      console.error("Folder delete error:", error);
     }
   };
 
