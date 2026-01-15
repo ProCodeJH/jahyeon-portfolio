@@ -15,15 +15,9 @@ async function bootstrap() {
         }),
     );
 
-    // CORS - Allow jahyeon.com and localhost with full preflight support
-    const defaultOrigins = [
-        'http://localhost:3000',
-        'http://localhost:5173',
-        'https://jahyeon.com',
-        'https://www.jahyeon.com',
-    ];
+    // CORS - Allow all origins dynamically (reflects request origin)
     app.enableCors({
-        origin: process.env.CORS_ORIGINS?.split(',') || defaultOrigins,
+        origin: true, // Dynamically allows any origin
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
         credentials: true,
