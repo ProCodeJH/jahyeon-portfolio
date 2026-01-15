@@ -321,6 +321,7 @@ export const appRouter = t.router({
       id: z.number(),
       name: z.string().min(1).optional(),
       parentId: z.number().nullable().optional(),
+      category: resourceCategoryEnum.optional(), // Added for cross-category moves
       description: z.string().optional(),
     })).mutation(async ({ input }) => {
       const { id, ...data } = input;
@@ -330,6 +331,34 @@ export const appRouter = t.router({
     delete: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
       await deleteFolder(input.id);
       return { success: true };
+    }),
+    // Cleanup duplicate folders in the same category and parent
+    cleanupDuplicates: protectedProcedure.mutation(async () => {
+      const allFolders = await getAllFolders();
+      const seen = new Map<string, number>();
+      const duplicateIds: number[] = [];
+
+      for (const folder of allFolders) {
+        const key = `${folder.category}:${folder.parentId ?? 'null'}:${folder.name.toLowerCase()}`;
+        if (seen.has(key)) {
+          // This is a duplicate - mark for deletion
+          duplicateIds.push(folder.id);
+        } else {
+          seen.set(key, folder.id);
+        }
+      }
+
+      // Delete duplicate folders
+      for (const id of duplicateIds) {
+        await deleteFolder(id);
+        console.log(`[Folders] Deleted duplicate folder id: ${id}`);
+      }
+
+      return {
+        success: true,
+        deletedCount: duplicateIds.length,
+        message: `${duplicateIds.length}개의 중복 폴더가 삭제되었습니다`
+      };
     }),
   }),
 
