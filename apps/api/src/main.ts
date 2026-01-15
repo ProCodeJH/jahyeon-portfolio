@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { IoAdapter } from '@nestjs/platform-socket.io';
+import * as cors from 'cors';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -15,15 +16,14 @@ async function bootstrap() {
         }),
     );
 
-    // CORS - Allow all origins dynamically (reflects request origin)
-    app.enableCors({
-        origin: true, // Dynamically allows any origin
+    // CORS - Use Express cors middleware directly for reliability
+    app.use(cors({
+        origin: true,
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
         credentials: true,
-        preflightContinue: false,
-        optionsSuccessStatus: 204,
-    });
+        optionsSuccessStatus: 200, // Some legacy browsers choke on 204
+    }));
 
     // WebSocket adapter
     app.useWebSocketAdapter(new IoAdapter(app));
