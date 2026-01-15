@@ -15,7 +15,7 @@ async function bootstrap() {
         }),
     );
 
-    // CORS - Allow jahyeon.com and localhost
+    // CORS - Allow jahyeon.com and localhost with full preflight support
     const defaultOrigins = [
         'http://localhost:3000',
         'http://localhost:5173',
@@ -24,7 +24,11 @@ async function bootstrap() {
     ];
     app.enableCors({
         origin: process.env.CORS_ORIGINS?.split(',') || defaultOrigins,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
         credentials: true,
+        preflightContinue: false,
+        optionsSuccessStatus: 204,
     });
 
     // WebSocket adapter
