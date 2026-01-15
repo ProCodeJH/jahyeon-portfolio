@@ -2,13 +2,24 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { usePushNotifications } from '../hooks/usePushNotifications';
+import { useAuthStore } from '../stores/authStore';
 
 export default function RootLayout() {
     const { registerForPushNotifications } = usePushNotifications();
+    const { isAuthenticated, isLoading, loadStoredAuth } = useAuthStore();
 
+    // Load stored auth on app start
     useEffect(() => {
-        registerForPushNotifications();
+        loadStoredAuth();
     }, []);
+
+    // Register for push notifications after auth is loaded and user is authenticated
+    useEffect(() => {
+        if (!isLoading && isAuthenticated) {
+            console.log('User authenticated, registering for push notifications...');
+            registerForPushNotifications();
+        }
+    }, [isLoading, isAuthenticated]);
 
     return (
         <>
@@ -35,3 +46,4 @@ export default function RootLayout() {
         </>
     );
 }
+
