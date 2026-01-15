@@ -1207,6 +1207,34 @@ export default function Admin() {
 
               {/* Student Access Code Section */}
               <AccessCodeInput />
+
+              {/* Folder Cleanup Section */}
+              <div className="space-y-4 p-6 bg-white/[0.03] rounded-xl border border-white/10">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-yellow-500/20 rounded-xl flex items-center justify-center">
+                    <FolderOpen className="h-6 w-6 text-yellow-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-white">Folder Maintenance</h3>
+                    <p className="text-white/50 text-sm">Clean up duplicate folders and fix data integrity issues</p>
+                  </div>
+                </div>
+                <Button
+                  onClick={async () => {
+                    try {
+                      const result = await utils.client.folders.cleanupDuplicates.mutate();
+                      toast.success(result.message || `${result.deletedCount}개의 중복 폴더가 삭제되었습니다`);
+                      utils.folders.list.invalidate();
+                    } catch (error) {
+                      toast.error("중복 폴더 정리 실패");
+                      console.error(error);
+                    }
+                  }}
+                  className="bg-yellow-500 hover:bg-yellow-600 text-black rounded-xl"
+                >
+                  🧹 중복 폴더 정리
+                </Button>
+              </div>
             </div>
           </TabsContent>
         </Tabs>
