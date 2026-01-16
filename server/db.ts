@@ -223,13 +223,43 @@ export async function createFolder(folder: InsertFolder) {
 export async function updateFolder(id: number, folder: Partial<InsertFolder>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.update(folders).set({ ...folder, updatedAt: new Date() }).where(eq(folders.id, id));
+
+  // Filter out undefined values to prevent DB issues
+  const cleanData: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(folder)) {
+    if (value !== undefined) {
+      cleanData[key] = value;
+    }
+  }
+
+  // Only update if there are actual changes
+  if (Object.keys(cleanData).length === 0) {
+    console.log(`[Folders] No changes to update for folder id: ${id}`);
+    return;
+  }
+
+  cleanData.updatedAt = new Date();
+
+  try {
+    await db.update(folders).set(cleanData).where(eq(folders.id, id));
+    console.log(`[Folders] Updated folder id: ${id} with:`, cleanData);
+  } catch (error) {
+    console.error(`[Folders] Failed to update folder id: ${id}`, error);
+    throw error;
+  }
 }
 
 export async function deleteFolder(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.delete(folders).where(eq(folders.id, id));
+
+  try {
+    await db.delete(folders).where(eq(folders.id, id));
+    console.log(`[Folders] Deleted folder id: ${id}`);
+  } catch (error) {
+    console.error(`[Folders] Failed to delete folder id: ${id}`, error);
+    throw error;
+  }
 }
 
 // Settings queries
