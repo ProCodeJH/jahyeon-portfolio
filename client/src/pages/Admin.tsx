@@ -300,15 +300,26 @@ export default function Admin() {
     }
 
     try {
-      // Find folder in DB
-      const folderInDb = folders?.find(f => f.category === renamingFolder.category && f.name === renamingFolder.oldName);
+      // Find folder in DB - handle "lecture" category that groups multiple actual categories
+      let folderInDb;
+      if (renamingFolder.category === "lecture") {
+        // For lecture category, search across all lecture sub-categories
+        folderInDb = folders?.find(f =>
+          LECTURE_CATEGORIES.includes(f.category) && f.name === renamingFolder.oldName
+        );
+      } else {
+        folderInDb = folders?.find(f => f.category === renamingFolder.category && f.name === renamingFolder.oldName);
+      }
 
       // Update folder in DB if it exists
       if (folderInDb) {
+        console.log(`Renaming folder id ${folderInDb.id} from "${renamingFolder.oldName}" to "${renamingFolder.newName}"`);
         await updateFolder.mutateAsync({
           id: folderInDb.id,
-          name: renamingFolder.newName,
+          name: renamingFolder.newName.trim(),
         });
+      } else {
+        console.warn(`Folder not found in DB: ${renamingFolder.oldName} (category: ${renamingFolder.category})`);
       }
 
       // Update all resources in this folder
