@@ -1528,9 +1528,13 @@ export default function Admin() {
                       parentId = parentFolder.id;
                     }
                   }
+                  // Convert UI category to valid DB category
+                  // 'lecture' is a UI-only category that groups multiple DB categories
+                  const dbCategory = selectedCategory === "lecture" ? "presentation" : selectedCategory;
+
                   createFolder.mutate({
                     name: newFolderName.trim(),
-                    category: selectedCategory,
+                    category: dbCategory as any,
                     parentId: parentId,
                     description: "",
                   });
