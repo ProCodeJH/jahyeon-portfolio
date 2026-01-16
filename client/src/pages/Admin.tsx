@@ -333,21 +333,27 @@ export default function Admin() {
     }
   };
 
-  const handleDeleteFolder = async (category: ResourceCategory, folderName: string) => {
+  const handleDeleteFolder = async (category: ResourceCategory, folderName: string, folderId?: number) => {
     if (!confirm(`Delete folder "${folderName}"? All files will be moved to Uncategorized.`)) {
       return;
     }
 
     try {
-      // Find folder in DB - handle "lecture" category that groups multiple actual categories
-      let folderInDb;
-      if (category === "lecture") {
-        // For lecture category, search across all lecture sub-categories
-        folderInDb = folders?.find(f =>
-          LECTURE_CATEGORIES.includes(f.category) && f.name === folderName
-        );
-      } else {
-        folderInDb = folders?.find(f => f.category === category && f.name === folderName);
+      // If we have a direct folder ID, use it; otherwise search for the folder
+      let folderIdToDelete = folderId;
+
+      if (!folderIdToDelete) {
+        // Find folder in DB - handle "lecture" category that groups multiple actual categories
+        let folderInDb;
+        if (category === "lecture") {
+          // For lecture category, search across all lecture sub-categories
+          folderInDb = folders?.find(f =>
+            LECTURE_CATEGORIES.includes(f.category) && f.name === folderName
+          );
+        } else {
+          folderInDb = folders?.find(f => f.category === category && f.name === folderName);
+        }
+        folderIdToDelete = folderInDb?.id;
       }
 
       // Move all resources in this folder to Uncategorized
@@ -358,24 +364,25 @@ export default function Admin() {
         return r.category === category && r.subcategory === folderName;
       }) || [];
 
-      await Promise.all(
-        resourcesToMove.map(resource =>
-          updateResource.mutateAsync({
-            id: resource.id,
-            subcategory: undefined,
-          })
-        )
-      );
-
-      // Delete folder from DB if it exists
-      if (folderInDb) {
-        await deleteFolder.mutateAsync({ id: folderInDb.id });
+      // Update resources first
+      for (const resource of resourcesToMove) {
+        await updateResource.mutateAsync({
+          id: resource.id,
+          subcategory: null,
+        });
       }
 
-      // Refresh the folder list
-      utils.folders.list.invalidate();
+      // Delete folder from DB if we have an ID
+      if (folderIdToDelete) {
+        await deleteFolder.mutateAsync({ id: folderIdToDelete });
+        console.log(`Deleted folder ID: ${folderIdToDelete}`);
+      }
 
-      toast.success(`Folder "${folderName}" deleted. Files moved to Uncategorized.`);
+      // Refresh the data
+      await utils.folders.list.invalidate();
+      await utils.resources.list.invalidate();
+
+      toast.success(`Folder "${folderName}" deleted. ${resourcesToMove.length} files moved to Uncategorized.`);
     } catch (error) {
       toast.error("Failed to delete folder");
       console.error("Folder delete error:", error);
@@ -993,7 +1000,8 @@ export default function Admin() {
                                 size="sm"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleDeleteFolder(selectedCategory, folder.name);
+                                  const folderId = (folder as any).id;
+                                  handleDeleteFolder(selectedCategory, folder.name, folderId);
                                 }}
                                 className="h-7 w-7 p-0 text-red-400 hover:text-red-300 hover:bg-red-500/10"
                                 title="Delete"
