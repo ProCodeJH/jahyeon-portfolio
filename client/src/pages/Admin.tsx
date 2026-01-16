@@ -18,7 +18,7 @@ type ProjectCategory = "c_lang" | "arduino" | "python" | "embedded" | "iot";
 type ResourceCategory = "lecture" | "daily_life";
 
 // 수업자료에 포함되는 실제 DB 카테고리들 (Resources.tsx와 동기화)
-const LECTURE_CATEGORIES = ["lecture_c", "lecture_arduino", "lecture_python", "presentation", "lecture_materials", "c_projects", "python_projects", "arduino_projects"];
+const LECTURE_CATEGORIES = ["lecture_c", "lecture_arduino", "lecture_python", "presentation"];
 
 const PROJECT_CATEGORIES = [
   { value: "c_lang" as const, label: "C/C++", color: "#3B82F6", icon: Terminal },
