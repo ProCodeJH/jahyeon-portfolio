@@ -23,7 +23,7 @@ const CATEGORIES = [
 ];
 
 // 수업자료에 포함되는 카테고리들
-const LECTURE_CATEGORIES = ["lecture_c", "lecture_arduino", "lecture_python", "presentation"];
+const LECTURE_CATEGORIES = ["lecture_c", "lecture_arduino", "lecture_python", "presentation", "lecture_materials", "c_projects", "python_projects", "arduino_projects"];
 
 // PPT Thumbnail
 function PPTThumbnail({ resource }: { resource: any }) {
