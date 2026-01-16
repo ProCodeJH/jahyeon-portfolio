@@ -1477,9 +1477,13 @@ export default function Admin() {
 
             {/* Parent Folder Selector for Nested Folders */}
             {(() => {
+              // When category is 'lecture', check against all LECTURE_CATEGORIES
+              const categoryFilter = (cat: string) => 
+                selectedCategory === "lecture" ? LECTURE_CATEGORIES.includes(cat) : cat === selectedCategory;
+              
               const existingFolders = Array.from(new Set([
-                ...(resources?.filter(r => r.category === selectedCategory && r.subcategory).map(r => r.subcategory) || []),
-                ...(folders?.filter(f => f.category === selectedCategory).map(f => f.name) || [])
+                ...(resources?.filter(r => categoryFilter(r.category) && r.subcategory).map(r => r.subcategory) || []),
+                ...(folders?.filter(f => categoryFilter(f.category)).map(f => f.name) || [])
               ])).filter(Boolean).sort() as string[];
 
               if (existingFolders.length > 0) {
@@ -1534,7 +1538,10 @@ export default function Admin() {
                   // Find parent folder ID if parentFolderName is selected
                   let parentId: number | undefined = undefined;
                   if (parentFolderName !== '__root__') {
-                    const parentFolder = folders?.find(f => f.name === parentFolderName && f.category === selectedCategory);
+                    // For lecture category, search across all LECTURE_CATEGORIES
+                    const parentFolder = selectedCategory === "lecture"
+                      ? folders?.find(f => LECTURE_CATEGORIES.includes(f.category) && f.name === parentFolderName)
+                      : folders?.find(f => f.name === parentFolderName && f.category === selectedCategory);
                     if (parentFolder) {
                       parentId = parentFolder.id;
                     }
@@ -1691,11 +1698,13 @@ export default function Admin() {
                   <SelectItem value="__root__" className="text-white hover:bg-white/10">
                     📁 Root (No parent folder)
                   </SelectItem>
-                  {folders?.filter(f =>
-                    f.category === movingFolder?.category &&
-                    f.id !== movingFolder?.id &&
-                    f.parentId !== movingFolder?.id
-                  ).map(f => (
+                  {/* For lecture category, show all folders from LECTURE_CATEGORIES */}
+                  {folders?.filter(f => {
+                    const matchCategory = movingFolder?.category === "lecture"
+                      ? LECTURE_CATEGORIES.includes(f.category)
+                      : f.category === movingFolder?.category;
+                    return matchCategory && f.id !== movingFolder?.id && f.parentId !== movingFolder?.id;
+                  }).map(f => (
                     <SelectItem key={f.id} value={String(f.id)} className="text-white hover:bg-white/10">
                       📂 {f.name}
                     </SelectItem>
