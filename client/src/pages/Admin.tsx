@@ -38,8 +38,8 @@ const RESOURCE_CATEGORIES = [
 const ACCEPTED_FILE_TYPES = {
   image: ".jpg,.jpeg,.png,.gif,.webp",
   video: ".mp4,.webm,.mov",
-  document: ".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx",
-  all: ".jpg,.jpeg,.png,.gif,.webp,.mp4,.webm,.mov,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.c,.cpp,.py,.ino"
+  document: ".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.html,.htm",
+  all: ".jpg,.jpeg,.png,.gif,.webp,.mp4,.webm,.mov,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.c,.cpp,.py,.ino,.html,.htm,.js,.css,.ts,.tsx,.json"
 };
 
 // ============================================
@@ -1478,9 +1478,9 @@ export default function Admin() {
             {/* Parent Folder Selector for Nested Folders */}
             {(() => {
               // When category is 'lecture', check against all LECTURE_CATEGORIES
-              const categoryFilter = (cat: string) => 
+              const categoryFilter = (cat: string) =>
                 selectedCategory === "lecture" ? LECTURE_CATEGORIES.includes(cat) : cat === selectedCategory;
-              
+
               const existingFolders = Array.from(new Set([
                 ...(resources?.filter(r => categoryFilter(r.category) && r.subcategory).map(r => r.subcategory) || []),
                 ...(folders?.filter(f => categoryFilter(f.category)).map(f => f.name) || [])
