@@ -433,18 +433,32 @@ export default function Resources() {
 
     try {
       await incrementDownload.mutateAsync({ id: resource.id });
+      toast.info(`다운로드 준비 중...`);
 
-      // Use anchor tag with download attribute for reliable file download
+      // Fetch file as blob for cross-origin download
+      const response = await fetch(resource.fileUrl);
+      if (!response.ok) throw new Error('Download failed');
+
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
       const link = document.createElement('a');
-      link.href = resource.fileUrl;
+      link.href = blobUrl;
       link.download = resource.fileName || 'download';
-      link.target = '_blank';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
-      toast.success(`Downloading ${resource.fileName}`);
-    } catch { toast.error("Download failed"); }
+      // Cleanup blob URL
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+
+      toast.success(`다운로드 완료: ${resource.fileName}`);
+    } catch (error) {
+      console.error('Download error:', error);
+      // Fallback: open in new tab
+      window.open(resource.fileUrl, '_blank');
+      toast.info("새 탭에서 열었습니다. 직접 다운로드해주세요.");
+    }
   };
 
   const getYouTubeId = (url: string) => url?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/)?.[1];
