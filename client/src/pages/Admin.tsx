@@ -42,6 +42,30 @@ const ACCEPTED_FILE_TYPES = {
   all: ".jpg,.jpeg,.png,.gif,.webp,.mp4,.webm,.mov,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.c,.cpp,.py,.ino,.html,.htm,.js,.css,.ts,.tsx,.json"
 };
 
+// 확장자 기반 MIME 타입 매핑 (브라우저 file.type이 빈 경우 폴백)
+const EXTENSION_MIME_MAP: Record<string, string> = {
+  '.html': 'text/html',
+  '.htm': 'text/html',
+  '.c': 'text/x-c',
+  '.cpp': 'text/x-c++',
+  '.py': 'text/x-python',
+  '.js': 'text/javascript',
+  '.ts': 'text/typescript',
+  '.tsx': 'text/typescript',
+  '.css': 'text/css',
+  '.json': 'application/json',
+  '.ino': 'text/plain',
+  '.zip': 'application/zip',
+  '.rar': 'application/x-rar-compressed',
+  '.pdf': 'application/pdf',
+};
+
+const getContentType = (file: File): string => {
+  if (file.type && file.type !== '') return file.type;
+  const ext = '.' + file.name.split('.').pop()?.toLowerCase();
+  return EXTENSION_MIME_MAP[ext] || 'application/octet-stream';
+};
+
 // ============================================
 // 🚀 파일 용량: 2GB까지 지원! (Enterprise Grade)
 // ============================================
@@ -541,7 +565,7 @@ export default function Admin() {
         result = await uploadFile.mutateAsync({
           fileName: file.name,
           fileContent: base64,
-          contentType: file.type || "application/octet-stream"
+          contentType: getContentType(file)
         });
         setUploadProgress(100);
       }
@@ -549,15 +573,16 @@ export default function Admin() {
       else {
         // 1. Presigned URL 받기
         setUploadProgress(5);
+        const contentType = getContentType(file);
         const presigned = await getPresignedUrl.mutateAsync({
           fileName: file.name,
-          contentType: file.type || "application/octet-stream",
+          contentType,
           fileSize: file.size,
         });
 
         // 2. R2에 직접 업로드 (진행률 추적)
         setUploadProgress(10);
-        await uploadToPresignedUrl(presigned.presignedUrl, file, (progress) => {
+        await uploadToPresignedUrl(presigned.presignedUrl, file, contentType, (progress) => {
           setUploadProgress(10 + Math.round(progress * 85));
         });
 
@@ -601,7 +626,7 @@ export default function Admin() {
   };
 
   // Presigned URL로 업로드 (진행률 추적)
-  const uploadToPresignedUrl = async (url: string, file: File, onProgress: (progress: number) => void): Promise<void> => {
+  const uploadToPresignedUrl = async (url: string, file: File, contentType: string, onProgress: (progress: number) => void): Promise<void> => {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
 
@@ -623,7 +648,7 @@ export default function Admin() {
       xhr.addEventListener("abort", () => reject(new Error("Upload aborted")));
 
       xhr.open("PUT", url);
-      xhr.setRequestHeader("Content-Type", file.type || "application/octet-stream");
+      xhr.setRequestHeader("Content-Type", contentType);
       xhr.send(file);
     });
   };
