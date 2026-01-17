@@ -172,7 +172,54 @@ function useGitHubStats() {
 
 // ==================== COMPONENTS ====================
 
+// Typing Animation Hook
+function useTypingAnimation() {
+    const codeSnippets = [
+        'const app = express();',
+        'async function deploy() {',
+        'npm run build && deploy',
+        'git push origin main',
+        'docker compose up -d',
+        'Arduino.analogRead(A0)',
+        'SELECT * FROM projects',
+        'npm install @latest',
+    ];
+
+    const [currentText, setCurrentText] = useState('');
+    const [snippetIndex, setSnippetIndex] = useState(0);
+    const [charIndex, setCharIndex] = useState(0);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    useEffect(() => {
+        const currentSnippet = codeSnippets[snippetIndex];
+
+        const timeout = setTimeout(() => {
+            if (!isDeleting) {
+                if (charIndex < currentSnippet.length) {
+                    setCurrentText(currentSnippet.slice(0, charIndex + 1));
+                    setCharIndex(charIndex + 1);
+                } else {
+                    setTimeout(() => setIsDeleting(true), 2000);
+                }
+            } else {
+                if (charIndex > 0) {
+                    setCurrentText(currentSnippet.slice(0, charIndex - 1));
+                    setCharIndex(charIndex - 1);
+                } else {
+                    setIsDeleting(false);
+                    setSnippetIndex((snippetIndex + 1) % codeSnippets.length);
+                }
+            }
+        }, isDeleting ? 30 : 80);
+
+        return () => clearTimeout(timeout);
+    }, [charIndex, isDeleting, snippetIndex]);
+
+    return currentText;
+}
+
 function Hero() {
+    const typingText = useTypingAnimation();
     return (
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-midnight">
             {/* Animated Background Grid */}
@@ -187,17 +234,16 @@ function Hero() {
                 <div className="flex flex-col lg:flex-row items-center gap-16">
                     {/* Left Content */}
                     <div className="flex-1 text-center lg:text-left">
-                        {/* Terminal Badge */}
-                        <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-midnight-card/80 backdrop-blur-xl border border-electric/20 mb-10 shadow-[0_0_40px_rgba(0,255,136,0.1)]">
+                        {/* Live Coding Terminal */}
+                        <div className="inline-flex items-center gap-3 px-5 py-3 rounded-2xl bg-midnight-card/90 backdrop-blur-xl border border-electric/30 mb-10 shadow-[0_0_60px_rgba(0,255,136,0.15)]">
                             <div className="flex gap-1.5">
-                                <span className="w-3 h-3 rounded-full bg-red-500/80" />
+                                <span className="w-3 h-3 rounded-full bg-red-500/80 animate-pulse" />
                                 <span className="w-3 h-3 rounded-full bg-yellow-500/80" />
                                 <span className="w-3 h-3 rounded-full bg-electric/80" />
                             </div>
-                            <span className="font-[family-name:var(--font-mono)] text-sm text-frost/70">
-                                ~/gu-jahyeon
-                            </span>
-                            <span className="w-2 h-4 bg-electric animate-pulse" />
+                            <code className="font-[family-name:var(--font-mono)] text-sm text-electric min-w-[200px]">
+                                {typingText}<span className="inline-block w-2 h-4 bg-electric animate-pulse ml-0.5" />
+                            </code>
                         </div>
 
                         {/* Main Headline */}
@@ -381,19 +427,19 @@ function GitHubStatus() {
     const getEventInfo = (type: string) => {
         switch (type) {
             case 'PushEvent':
-                return { icon: '⬆️', label: 'Push', color: 'text-electric' };
+                return { icon: '⬆️', label: 'Push', color: 'text-electric', bg: 'bg-electric/20' };
             case 'CreateEvent':
-                return { icon: '➕', label: 'Create', color: 'text-accent-cyan' };
+                return { icon: '➕', label: 'Create', color: 'text-accent-cyan', bg: 'bg-accent-cyan/20' };
             case 'PullRequestEvent':
-                return { icon: '🔀', label: 'PR', color: 'text-accent-indigo' };
+                return { icon: '🔀', label: 'PR', color: 'text-accent-indigo', bg: 'bg-accent-indigo/20' };
             case 'IssuesEvent':
-                return { icon: '📋', label: 'Issue', color: 'text-yellow-500' };
+                return { icon: '📋', label: 'Issue', color: 'text-yellow-500', bg: 'bg-yellow-500/20' };
             case 'WatchEvent':
-                return { icon: '👁️', label: 'Star', color: 'text-yellow-400' };
+                return { icon: '⭐', label: 'Star', color: 'text-yellow-400', bg: 'bg-yellow-400/20' };
             case 'ForkEvent':
-                return { icon: '🍴', label: 'Fork', color: 'text-frost' };
+                return { icon: '🍴', label: 'Fork', color: 'text-frost', bg: 'bg-frost/20' };
             default:
-                return { icon: '📌', label: type.replace('Event', ''), color: 'text-frost-muted' };
+                return { icon: '📌', label: type.replace('Event', ''), color: 'text-frost-muted', bg: 'bg-frost/10' };
         }
     };
 
@@ -402,159 +448,232 @@ function GitHubStatus() {
         const date = new Date(dateString);
         const now = new Date();
         const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-        if (seconds < 60) return `${seconds}s ago`;
-        if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-        if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-        return `${Math.floor(seconds / 86400)}d ago`;
+        if (seconds < 60) return `${seconds}s`;
+        if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
+        if (seconds < 86400) return `${Math.floor(seconds / 3600)}h`;
+        return `${Math.floor(seconds / 86400)}d`;
     };
 
     return (
-        <section className="py-32 bg-midnight-card relative overflow-hidden">
-            {/* Background Pattern */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(0,255,136,0.08)_0%,transparent_40%),radial-gradient(circle_at_80%_80%,rgba(99,102,241,0.08)_0%,transparent_40%)]" />
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,255,136,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,255,136,0.015)_1px,transparent_1px)] bg-[size:60px_60px]" />
+        <section className="py-32 bg-midnight relative overflow-hidden">
+            {/* Ultra Premium Background */}
+            <div className="absolute inset-0">
+                {/* Animated Gradient Orbs */}
+                <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-electric/10 rounded-full blur-[180px] animate-pulse" />
+                <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-accent-indigo/15 rounded-full blur-[150px]" style={{ animation: 'pulse 4s ease-in-out infinite alternate' }} />
+                <div className="absolute top-1/2 left-0 w-[400px] h-[400px] bg-accent-cyan/10 rounded-full blur-[120px]" style={{ animation: 'pulse 3s ease-in-out infinite alternate-reverse' }} />
+
+                {/* Grid Pattern */}
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,136,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,136,0.03)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_80%)]" />
+            </div>
 
             <div className="relative z-10 max-w-7xl mx-auto px-6">
-                {/* Header */}
-                <div className="text-center mb-16">
-                    <span className="inline-flex items-center gap-2 font-[family-name:var(--font-mono)] text-electric text-sm tracking-wider uppercase mb-4 px-4 py-2 rounded-full bg-electric/10 border border-electric/20">
-                        <span className="w-2 h-2 rounded-full bg-electric animate-pulse" />
-                        Live Activity
-                    </span>
-                    <h2 className="font-[family-name:var(--font-heading)] text-4xl md:text-6xl font-black text-frost mb-4" style={{ textShadow: '0 0 40px rgba(0,255,136,0.3)' }}>
-                        GitHub Status
+                {/* Ultra Premium Header */}
+                <div className="text-center mb-20">
+                    <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-gradient-to-r from-electric/10 via-accent-cyan/10 to-accent-indigo/10 border border-electric/30 backdrop-blur-xl mb-8 shadow-[0_0_60px_rgba(0,255,136,0.2)]">
+                        <div className="relative">
+                            <span className="w-3 h-3 rounded-full bg-electric animate-ping absolute" />
+                            <span className="w-3 h-3 rounded-full bg-electric relative block" />
+                        </div>
+                        <span className="font-[family-name:var(--font-mono)] text-sm text-frost tracking-wider uppercase">Real-Time Activity</span>
+                        <div className="h-4 w-px bg-frost/20" />
+                        <span className="font-[family-name:var(--font-mono)] text-xs text-electric">Auto-refresh 60s</span>
+                    </div>
+
+                    <h2 className="font-[family-name:var(--font-heading)] text-5xl md:text-7xl font-black mb-6" style={{ textShadow: '0 0 80px rgba(0,255,136,0.4)' }}>
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-electric via-accent-cyan to-electric">
+                            GitHub Status
+                        </span>
                     </h2>
-                    <p className="font-[family-name:var(--font-body)] text-lg text-frost-muted">
-                        Real-time commits, branches, and contributions
+
+                    <p className="font-[family-name:var(--font-body)] text-xl text-frost-muted max-w-2xl mx-auto">
+                        Live commits, branches, and contributions from the code factory
                     </p>
                 </div>
 
-                {/* Stats Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-                    <div className="group p-6 rounded-2xl bg-gradient-to-br from-midnight to-midnight-card border border-electric/20 hover:border-electric/50 transition-all duration-500 hover:scale-105 hover:shadow-[0_0_40px_rgba(0,255,136,0.2)]">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center">
-                                <Star className="w-5 h-5 text-yellow-500" />
+                {/* Ultra Premium Stats Grid */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+                    {/* Stars Card */}
+                    <div className="group relative">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-3xl blur opacity-30 group-hover:opacity-60 transition duration-500" />
+                        <div className="relative p-8 rounded-3xl bg-midnight border border-yellow-500/20 hover:border-yellow-500/50 transition-all duration-500">
+                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-yellow-500/30 to-yellow-600/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                                <Star className="w-7 h-7 text-yellow-500" />
                             </div>
-                            <span className="font-[family-name:var(--font-mono)] text-3xl font-black text-frost">{loading ? '...' : totalStars}</span>
+                            <div className="font-[family-name:var(--font-mono)] text-4xl font-black text-frost mb-2" style={{ textShadow: '0 0 20px rgba(234,179,8,0.3)' }}>
+                                {loading ? '...' : totalStars}
+                            </div>
+                            <div className="font-[family-name:var(--font-body)] text-frost-muted">Total Stars</div>
                         </div>
-                        <span className="font-[family-name:var(--font-body)] text-sm text-frost-muted">Total Stars</span>
                     </div>
-                    <div className="group p-6 rounded-2xl bg-gradient-to-br from-midnight to-midnight-card border border-electric/20 hover:border-electric/50 transition-all duration-500 hover:scale-105 hover:shadow-[0_0_40px_rgba(0,255,136,0.2)]">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 rounded-xl bg-electric/20 flex items-center justify-center">
-                                <Activity className="w-5 h-5 text-electric" />
+
+                    {/* Repos Card */}
+                    <div className="group relative">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-electric to-accent-cyan rounded-3xl blur opacity-30 group-hover:opacity-60 transition duration-500" />
+                        <div className="relative p-8 rounded-3xl bg-midnight border border-electric/20 hover:border-electric/50 transition-all duration-500">
+                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-electric/30 to-accent-cyan/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                                <Activity className="w-7 h-7 text-electric" />
                             </div>
-                            <span className="font-[family-name:var(--font-mono)] text-3xl font-black text-frost">{loading ? '...' : totalRepos}</span>
+                            <div className="font-[family-name:var(--font-mono)] text-4xl font-black text-frost mb-2" style={{ textShadow: '0 0 20px rgba(0,255,136,0.3)' }}>
+                                {loading ? '...' : totalRepos}
+                            </div>
+                            <div className="font-[family-name:var(--font-body)] text-frost-muted">Repositories</div>
                         </div>
-                        <span className="font-[family-name:var(--font-body)] text-sm text-frost-muted">Repositories</span>
                     </div>
-                    <div className="group p-6 rounded-2xl bg-gradient-to-br from-midnight to-midnight-card border border-electric/20 hover:border-electric/50 transition-all duration-500 hover:scale-105 hover:shadow-[0_0_40px_rgba(0,255,136,0.2)]">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 rounded-xl bg-accent-cyan/20 flex items-center justify-center">
-                                <GitFork className="w-5 h-5 text-accent-cyan" />
+
+                    {/* Forks Card */}
+                    <div className="group relative">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-cyan to-accent-indigo rounded-3xl blur opacity-30 group-hover:opacity-60 transition duration-500" />
+                        <div className="relative p-8 rounded-3xl bg-midnight border border-accent-cyan/20 hover:border-accent-cyan/50 transition-all duration-500">
+                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent-cyan/30 to-accent-indigo/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                                <GitFork className="w-7 h-7 text-accent-cyan" />
                             </div>
-                            <span className="font-[family-name:var(--font-mono)] text-3xl font-black text-frost">{loading ? '...' : totalForks}</span>
+                            <div className="font-[family-name:var(--font-mono)] text-4xl font-black text-frost mb-2" style={{ textShadow: '0 0 20px rgba(34,211,238,0.3)' }}>
+                                {loading ? '...' : totalForks}
+                            </div>
+                            <div className="font-[family-name:var(--font-body)] text-frost-muted">Total Forks</div>
                         </div>
-                        <span className="font-[family-name:var(--font-body)] text-sm text-frost-muted">Total Forks</span>
                     </div>
-                    <div className="group p-6 rounded-2xl bg-gradient-to-br from-midnight to-midnight-card border border-electric/20 hover:border-electric/50 transition-all duration-500 hover:scale-105 hover:shadow-[0_0_40px_rgba(0,255,136,0.2)]">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 rounded-xl bg-accent-indigo/20 flex items-center justify-center">
-                                <Github className="w-5 h-5 text-accent-indigo" />
+
+                    {/* Followers Card */}
+                    <div className="group relative">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-indigo to-purple-500 rounded-3xl blur opacity-30 group-hover:opacity-60 transition duration-500" />
+                        <div className="relative p-8 rounded-3xl bg-midnight border border-accent-indigo/20 hover:border-accent-indigo/50 transition-all duration-500">
+                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent-indigo/30 to-purple-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                                <Github className="w-7 h-7 text-accent-indigo" />
                             </div>
-                            <span className="font-[family-name:var(--font-mono)] text-3xl font-black text-frost">{loading ? '...' : followers}</span>
+                            <div className="font-[family-name:var(--font-mono)] text-4xl font-black text-frost mb-2" style={{ textShadow: '0 0 20px rgba(99,102,241,0.3)' }}>
+                                {loading ? '...' : followers}
+                            </div>
+                            <div className="font-[family-name:var(--font-body)] text-frost-muted">Followers</div>
                         </div>
-                        <span className="font-[family-name:var(--font-body)] text-sm text-frost-muted">Followers</span>
                     </div>
                 </div>
 
-                {/* Live Activity Feed */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
-                    {/* Events Timeline */}
-                    <div className="p-6 rounded-2xl bg-midnight border border-midnight-border">
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="font-[family-name:var(--font-heading)] text-xl font-bold text-frost">Live Activity</h3>
-                            <span className="flex items-center gap-2 text-xs text-frost-muted">
-                                <span className="w-2 h-2 rounded-full bg-electric animate-pulse" />
-                                Auto-refresh 60s
-                            </span>
-                        </div>
-                        <div className="space-y-3">
-                            {loading ? (
-                                Array.from({ length: 5 }).map((_, i) => (
-                                    <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-midnight-card animate-pulse">
-                                        <div className="w-8 h-8 rounded-lg bg-midnight-border" />
-                                        <div className="flex-1">
-                                            <div className="h-4 w-24 bg-midnight-border rounded mb-1" />
-                                            <div className="h-3 w-16 bg-midnight-border rounded" />
-                                        </div>
+                {/* Ultra Premium Activity Feed */}
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 mb-16">
+                    {/* Live Activity Timeline - 3 cols */}
+                    <div className="lg:col-span-3 relative">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-electric via-accent-cyan to-accent-indigo rounded-3xl blur opacity-20" />
+                        <div className="relative p-8 rounded-3xl bg-midnight/90 backdrop-blur-xl border border-electric/20">
+                            <div className="flex items-center justify-between mb-8">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-electric/20 to-accent-cyan/10 flex items-center justify-center">
+                                        <Terminal className="w-6 h-6 text-electric" />
                                     </div>
-                                ))
-                            ) : events.length > 0 ? (
-                                events.map((event, i) => {
-                                    const info = getEventInfo(event.type);
-                                    return (
-                                        <div key={event.id || i} className="flex items-center gap-3 p-3 rounded-xl bg-midnight-card/50 border border-midnight-border hover:border-electric/20 transition-all">
-                                            <div className="w-8 h-8 rounded-lg bg-midnight flex items-center justify-center text-lg">
-                                                {info.icon}
+                                    <div>
+                                        <h3 className="font-[family-name:var(--font-heading)] text-2xl font-black text-frost">Activity Stream</h3>
+                                        <p className="font-[family-name:var(--font-mono)] text-xs text-frost-muted">Real-time GitHub events</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-electric/10 border border-electric/30">
+                                    <span className="relative flex h-2 w-2">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-electric opacity-75" />
+                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-electric" />
+                                    </span>
+                                    <span className="font-[family-name:var(--font-mono)] text-xs text-electric">LIVE</span>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                {loading ? (
+                                    Array.from({ length: 6 }).map((_, i) => (
+                                        <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-midnight-card/50 animate-pulse">
+                                            <div className="w-12 h-12 rounded-xl bg-midnight-border" />
+                                            <div className="flex-1">
+                                                <div className="h-5 w-32 bg-midnight-border rounded mb-2" />
+                                                <div className="h-4 w-20 bg-midnight-border rounded" />
                                             </div>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-2">
-                                                    <span className={`font-[family-name:var(--font-mono)] text-sm font-bold ${info.color}`}>{info.label}</span>
-                                                    <span className="font-[family-name:var(--font-body)] text-sm text-frost truncate">{event.repo}</span>
+                                        </div>
+                                    ))
+                                ) : events.length > 0 ? (
+                                    events.map((event, i) => {
+                                        const info = getEventInfo(event.type);
+                                        return (
+                                            <div key={event.id || i} className="group flex items-center gap-4 p-4 rounded-2xl bg-midnight-card/30 border border-transparent hover:border-electric/20 hover:bg-midnight-card/60 transition-all duration-300">
+                                                <div className={`w-12 h-12 rounded-xl ${info.bg} flex items-center justify-center text-2xl group-hover:scale-110 transition-transform`}>
+                                                    {info.icon}
                                                 </div>
-                                                <span className="font-[family-name:var(--font-mono)] text-xs text-frost-muted">{timeAgo(event.createdAt)}</span>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-3 mb-1">
+                                                        <span className={`font-[family-name:var(--font-mono)] text-sm font-bold ${info.color}`}>{info.label}</span>
+                                                        <span className="font-[family-name:var(--font-heading)] text-sm font-semibold text-frost truncate">{event.repo}</span>
+                                                    </div>
+                                                    <span className="font-[family-name:var(--font-mono)] text-xs text-frost-muted">{timeAgo(event.createdAt)} ago</span>
+                                                </div>
+                                                <ChevronRight className="w-5 h-5 text-frost-muted opacity-0 group-hover:opacity-100 transition-opacity" />
                                             </div>
-                                        </div>
-                                    );
-                                })
-                            ) : (
-                                <div className="text-center py-8 text-frost-muted">No recent activity</div>
-                            )}
+                                        );
+                                    })
+                                ) : (
+                                    <div className="text-center py-12 text-frost-muted">No recent activity</div>
+                                )}
+                            </div>
                         </div>
                     </div>
 
-                    {/* Recent Repos */}
-                    <div className="p-6 rounded-2xl bg-midnight border border-midnight-border">
-                        <h3 className="font-[family-name:var(--font-heading)] text-xl font-bold text-frost mb-6">Recent Repositories</h3>
-                        <div className="space-y-3">
-                            {loading ? (
-                                Array.from({ length: 4 }).map((_, i) => (
-                                    <div key={i} className="p-4 rounded-xl bg-midnight-card animate-pulse">
-                                        <div className="h-5 w-32 bg-midnight-border rounded mb-2" />
-                                        <div className="h-4 w-full bg-midnight-border rounded" />
-                                    </div>
-                                ))
-                            ) : (
-                                repos.slice(0, 4).map((repo, i) => (
-                                    <a
-                                        key={i}
-                                        href={repo.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="block p-4 rounded-xl bg-midnight-card/50 border border-midnight-border hover:border-electric/30 transition-all group"
-                                    >
-                                        <div className="flex items-center justify-between mb-1">
-                                            <span className="font-[family-name:var(--font-heading)] text-sm font-bold text-frost group-hover:text-electric transition-colors">{repo.name}</span>
-                                            <div className="flex items-center gap-2 text-xs text-frost-muted">
-                                                <Star className="w-3 h-3" /> {repo.stars}
-                                            </div>
+                    {/* Top Repositories - 2 cols */}
+                    <div className="lg:col-span-2 relative">
+                        <div className="absolute -inset-0.5 bg-gradient-to-b from-accent-indigo via-electric to-accent-cyan rounded-3xl blur opacity-20" />
+                        <div className="relative p-8 rounded-3xl bg-midnight/90 backdrop-blur-xl border border-accent-indigo/20 h-full">
+                            <div className="flex items-center gap-4 mb-8">
+                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-indigo/20 to-electric/10 flex items-center justify-center">
+                                    <Layers className="w-6 h-6 text-accent-indigo" />
+                                </div>
+                                <div>
+                                    <h3 className="font-[family-name:var(--font-heading)] text-2xl font-black text-frost">Top Repos</h3>
+                                    <p className="font-[family-name:var(--font-mono)] text-xs text-frost-muted">Most active projects</p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                {loading ? (
+                                    Array.from({ length: 4 }).map((_, i) => (
+                                        <div key={i} className="p-4 rounded-2xl bg-midnight-card/50 animate-pulse">
+                                            <div className="h-5 w-32 bg-midnight-border rounded mb-2" />
+                                            <div className="h-4 w-full bg-midnight-border rounded" />
                                         </div>
-                                        <p className="font-[family-name:var(--font-body)] text-xs text-frost-muted line-clamp-1">{repo.description}</p>
-                                    </a>
-                                ))
-                            )}
+                                    ))
+                                ) : (
+                                    repos.slice(0, 4).map((repo, i) => (
+                                        <a
+                                            key={i}
+                                            href={repo.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="group block p-4 rounded-2xl bg-midnight-card/30 border border-transparent hover:border-accent-indigo/30 hover:bg-midnight-card/60 transition-all duration-300"
+                                        >
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="font-[family-name:var(--font-heading)] text-sm font-bold text-frost group-hover:text-electric transition-colors">{repo.name}</span>
+                                                <div className="flex items-center gap-3 text-xs text-frost-muted">
+                                                    <span className="flex items-center gap-1"><Star className="w-3 h-3 text-yellow-500" />{repo.stars}</span>
+                                                    <span className="flex items-center gap-1"><GitFork className="w-3 h-3 text-accent-cyan" />{repo.forks}</span>
+                                                </div>
+                                            </div>
+                                            <p className="font-[family-name:var(--font-body)] text-xs text-frost-muted line-clamp-1">{repo.description}</p>
+                                            <div className="mt-2 flex items-center gap-2">
+                                                <span className="w-2 h-2 rounded-full bg-electric" />
+                                                <span className="font-[family-name:var(--font-mono)] text-xs text-frost-muted">{repo.language}</span>
+                                            </div>
+                                        </a>
+                                    ))
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
 
+                {/* Premium CTA Button */}
                 <div className="text-center">
-                    <a href="https://github.com/ProCodeJH" target="_blank" rel="noopener noreferrer">
-                        <Button className="group font-[family-name:var(--font-heading)] px-8 py-4 bg-transparent border-2 border-electric text-electric rounded-2xl font-bold hover:bg-electric hover:text-midnight transition-all h-auto hover:shadow-[0_0_40px_rgba(0,255,136,0.3)]">
-                            <Github className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
-                            View All on GitHub
-                        </Button>
+                    <a href="https://github.com/ProCodeJH" target="_blank" rel="noopener noreferrer" className="group inline-block">
+                        <div className="relative">
+                            <div className="absolute -inset-1 bg-gradient-to-r from-electric via-accent-cyan to-electric rounded-2xl blur opacity-40 group-hover:opacity-80 transition duration-500" />
+                            <Button className="relative font-[family-name:var(--font-heading)] px-10 py-5 bg-midnight border-2 border-electric text-electric rounded-2xl font-bold text-lg hover:bg-electric hover:text-midnight transition-all h-auto">
+                                <Github className="w-6 h-6 mr-3 group-hover:rotate-12 transition-transform duration-500" />
+                                Explore All Repositories
+                                <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
+                            </Button>
+                        </div>
                     </a>
                 </div>
             </div>
