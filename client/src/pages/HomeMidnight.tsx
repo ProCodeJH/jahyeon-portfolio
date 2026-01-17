@@ -83,33 +83,50 @@ const techStack: TechStackItem[] = [
 ];
 
 // ==================== CUSTOM HOOKS ====================
+interface GitHubEvent {
+    id: string;
+    type: string;
+    repo: string;
+    createdAt: string;
+    payload: any;
+}
+
 function useGitHubStats() {
     const [stats, setStats] = useState<{
         repos: GitHubRepo[];
         totalStars: number;
         totalRepos: number;
-        contributions: number;
+        totalForks: number;
+        followers: number;
+        events: GitHubEvent[];
         loading: boolean;
     }>({
         repos: [],
         totalStars: 0,
         totalRepos: 0,
-        contributions: 0,
+        totalForks: 0,
+        followers: 0,
+        events: [],
         loading: true,
     });
 
     useEffect(() => {
         const fetchGitHubData = async () => {
             try {
-                // Using GitHub API to fetch user data
+                // Fetch user data
                 const userRes = await fetch('https://api.github.com/users/ProCodeJH');
                 const userData = await userRes.json();
 
-                const reposRes = await fetch('https://api.github.com/users/ProCodeJH/repos?sort=stars&per_page=6');
+                // Fetch repos
+                const reposRes = await fetch('https://api.github.com/users/ProCodeJH/repos?sort=updated&per_page=30');
                 const reposData = await reposRes.json();
 
+                // Fetch events (commits, PRs, etc.)
+                const eventsRes = await fetch('https://api.github.com/users/ProCodeJH/events?per_page=10');
+                const eventsData = await eventsRes.json();
+
                 if (Array.isArray(reposData)) {
-                    const formattedRepos: GitHubRepo[] = reposData.slice(0, 4).map((repo: any) => ({
+                    const formattedRepos: GitHubRepo[] = reposData.slice(0, 6).map((repo: any) => ({
                         name: repo.name,
                         description: repo.description || 'No description',
                         stars: repo.stargazers_count,
@@ -118,11 +135,23 @@ function useGitHubStats() {
                         url: repo.html_url,
                     }));
 
+                    const formattedEvents: GitHubEvent[] = Array.isArray(eventsData)
+                        ? eventsData.slice(0, 8).map((event: any) => ({
+                            id: event.id,
+                            type: event.type,
+                            repo: event.repo?.name?.split('/')[1] || 'unknown',
+                            createdAt: event.created_at,
+                            payload: event.payload,
+                        }))
+                        : [];
+
                     setStats({
                         repos: formattedRepos,
                         totalStars: reposData.reduce((acc: number, repo: any) => acc + repo.stargazers_count, 0),
                         totalRepos: userData.public_repos || reposData.length,
-                        contributions: 500, // Approximate - actual would need GraphQL API
+                        totalForks: reposData.reduce((acc: number, repo: any) => acc + repo.forks_count, 0),
+                        followers: userData.followers || 0,
+                        events: formattedEvents,
                         loading: false,
                     });
                 }
@@ -133,6 +162,9 @@ function useGitHubStats() {
         };
 
         fetchGitHubData();
+        // Refresh every 60 seconds
+        const interval = setInterval(fetchGitHubData, 60000);
+        return () => clearInterval(interval);
     }, []);
 
     return stats;
@@ -232,8 +264,8 @@ function Hero() {
                             <p className="font-[family-name:var(--font-body)] text-frost-muted mt-2">Projects Built</p>
                         </div>
                         <div className="text-center">
-                            <p className="font-[family-name:var(--font-heading)] text-4xl md:text-5xl font-black text-electric">⭐</p>
-                            <p className="font-[family-name:var(--font-body)] text-frost-muted mt-2">Open Source</p>
+                            <p className="font-[family-name:var(--font-heading)] text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-accent-indigo to-accent-cyan">AI</p>
+                            <p className="font-[family-name:var(--font-body)] text-frost-muted mt-2">Powered</p>
                         </div>
                     </div>
                 </div>
@@ -343,145 +375,185 @@ function TechStack() {
 }
 
 function GitHubStatus() {
-    const { repos, totalStars, totalRepos, loading } = useGitHubStats();
+    const { repos, totalStars, totalRepos, totalForks, followers, events, loading } = useGitHubStats();
 
-    // Simulated activity data for visualization
-    const activityData = Array.from({ length: 52 }, () =>
-        Array.from({ length: 7 }, () => Math.floor(Math.random() * 5))
-    );
+    // Get event icon and color based on type
+    const getEventInfo = (type: string) => {
+        switch (type) {
+            case 'PushEvent':
+                return { icon: '⬆️', label: 'Push', color: 'text-electric' };
+            case 'CreateEvent':
+                return { icon: '➕', label: 'Create', color: 'text-accent-cyan' };
+            case 'PullRequestEvent':
+                return { icon: '🔀', label: 'PR', color: 'text-accent-indigo' };
+            case 'IssuesEvent':
+                return { icon: '📋', label: 'Issue', color: 'text-yellow-500' };
+            case 'WatchEvent':
+                return { icon: '👁️', label: 'Star', color: 'text-yellow-400' };
+            case 'ForkEvent':
+                return { icon: '🍴', label: 'Fork', color: 'text-frost' };
+            default:
+                return { icon: '📌', label: type.replace('Event', ''), color: 'text-frost-muted' };
+        }
+    };
+
+    // Format time ago
+    const timeAgo = (dateString: string) => {
+        const date = new Date(dateString);
+        const now = new Date();
+        const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+        if (seconds < 60) return `${seconds}s ago`;
+        if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+        if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+        return `${Math.floor(seconds / 86400)}d ago`;
+    };
 
     return (
         <section className="py-32 bg-midnight-card relative overflow-hidden">
-            {/* Background */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,255,136,0.02)_1px,transparent_1px)] bg-[size:100px_100px]" />
+            {/* Background Pattern */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(0,255,136,0.08)_0%,transparent_40%),radial-gradient(circle_at_80%_80%,rgba(99,102,241,0.08)_0%,transparent_40%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,255,136,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,255,136,0.015)_1px,transparent_1px)] bg-[size:60px_60px]" />
 
             <div className="relative z-10 max-w-7xl mx-auto px-6">
-                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 mb-16">
-                    <div>
-                        <span className="inline-block font-[family-name:var(--font-mono)] text-electric text-sm tracking-wider uppercase mb-4">Live Activity</span>
-                        <h2 className="font-[family-name:var(--font-heading)] text-4xl md:text-6xl font-black text-frost mb-4">
-                            GitHub Status
-                        </h2>
-                        <p className="font-[family-name:var(--font-body)] text-lg text-frost-muted">
-                            Real-time commits, branches, and contributions
-                        </p>
+                {/* Header */}
+                <div className="text-center mb-16">
+                    <span className="inline-flex items-center gap-2 font-[family-name:var(--font-mono)] text-electric text-sm tracking-wider uppercase mb-4 px-4 py-2 rounded-full bg-electric/10 border border-electric/20">
+                        <span className="w-2 h-2 rounded-full bg-electric animate-pulse" />
+                        Live Activity
+                    </span>
+                    <h2 className="font-[family-name:var(--font-heading)] text-4xl md:text-6xl font-black text-frost mb-4" style={{ textShadow: '0 0 40px rgba(0,255,136,0.3)' }}>
+                        GitHub Status
+                    </h2>
+                    <p className="font-[family-name:var(--font-body)] text-lg text-frost-muted">
+                        Real-time commits, branches, and contributions
+                    </p>
+                </div>
+
+                {/* Stats Grid */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+                    <div className="group p-6 rounded-2xl bg-gradient-to-br from-midnight to-midnight-card border border-electric/20 hover:border-electric/50 transition-all duration-500 hover:scale-105 hover:shadow-[0_0_40px_rgba(0,255,136,0.2)]">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center">
+                                <Star className="w-5 h-5 text-yellow-500" />
+                            </div>
+                            <span className="font-[family-name:var(--font-mono)] text-3xl font-black text-frost">{loading ? '...' : totalStars}</span>
+                        </div>
+                        <span className="font-[family-name:var(--font-body)] text-sm text-frost-muted">Total Stars</span>
+                    </div>
+                    <div className="group p-6 rounded-2xl bg-gradient-to-br from-midnight to-midnight-card border border-electric/20 hover:border-electric/50 transition-all duration-500 hover:scale-105 hover:shadow-[0_0_40px_rgba(0,255,136,0.2)]">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="w-10 h-10 rounded-xl bg-electric/20 flex items-center justify-center">
+                                <Activity className="w-5 h-5 text-electric" />
+                            </div>
+                            <span className="font-[family-name:var(--font-mono)] text-3xl font-black text-frost">{loading ? '...' : totalRepos}</span>
+                        </div>
+                        <span className="font-[family-name:var(--font-body)] text-sm text-frost-muted">Repositories</span>
+                    </div>
+                    <div className="group p-6 rounded-2xl bg-gradient-to-br from-midnight to-midnight-card border border-electric/20 hover:border-electric/50 transition-all duration-500 hover:scale-105 hover:shadow-[0_0_40px_rgba(0,255,136,0.2)]">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="w-10 h-10 rounded-xl bg-accent-cyan/20 flex items-center justify-center">
+                                <GitFork className="w-5 h-5 text-accent-cyan" />
+                            </div>
+                            <span className="font-[family-name:var(--font-mono)] text-3xl font-black text-frost">{loading ? '...' : totalForks}</span>
+                        </div>
+                        <span className="font-[family-name:var(--font-body)] text-sm text-frost-muted">Total Forks</span>
+                    </div>
+                    <div className="group p-6 rounded-2xl bg-gradient-to-br from-midnight to-midnight-card border border-electric/20 hover:border-electric/50 transition-all duration-500 hover:scale-105 hover:shadow-[0_0_40px_rgba(0,255,136,0.2)]">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="w-10 h-10 rounded-xl bg-accent-indigo/20 flex items-center justify-center">
+                                <Github className="w-5 h-5 text-accent-indigo" />
+                            </div>
+                            <span className="font-[family-name:var(--font-mono)] text-3xl font-black text-frost">{loading ? '...' : followers}</span>
+                        </div>
+                        <span className="font-[family-name:var(--font-body)] text-sm text-frost-muted">Followers</span>
+                    </div>
+                </div>
+
+                {/* Live Activity Feed */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
+                    {/* Events Timeline */}
+                    <div className="p-6 rounded-2xl bg-midnight border border-midnight-border">
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="font-[family-name:var(--font-heading)] text-xl font-bold text-frost">Live Activity</h3>
+                            <span className="flex items-center gap-2 text-xs text-frost-muted">
+                                <span className="w-2 h-2 rounded-full bg-electric animate-pulse" />
+                                Auto-refresh 60s
+                            </span>
+                        </div>
+                        <div className="space-y-3">
+                            {loading ? (
+                                Array.from({ length: 5 }).map((_, i) => (
+                                    <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-midnight-card animate-pulse">
+                                        <div className="w-8 h-8 rounded-lg bg-midnight-border" />
+                                        <div className="flex-1">
+                                            <div className="h-4 w-24 bg-midnight-border rounded mb-1" />
+                                            <div className="h-3 w-16 bg-midnight-border rounded" />
+                                        </div>
+                                    </div>
+                                ))
+                            ) : events.length > 0 ? (
+                                events.map((event, i) => {
+                                    const info = getEventInfo(event.type);
+                                    return (
+                                        <div key={event.id || i} className="flex items-center gap-3 p-3 rounded-xl bg-midnight-card/50 border border-midnight-border hover:border-electric/20 transition-all">
+                                            <div className="w-8 h-8 rounded-lg bg-midnight flex items-center justify-center text-lg">
+                                                {info.icon}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`font-[family-name:var(--font-mono)] text-sm font-bold ${info.color}`}>{info.label}</span>
+                                                    <span className="font-[family-name:var(--font-body)] text-sm text-frost truncate">{event.repo}</span>
+                                                </div>
+                                                <span className="font-[family-name:var(--font-mono)] text-xs text-frost-muted">{timeAgo(event.createdAt)}</span>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            ) : (
+                                <div className="text-center py-8 text-frost-muted">No recent activity</div>
+                            )}
+                        </div>
                     </div>
 
-                    {/* Enhanced Stats Cards */}
-                    <div className="flex flex-wrap gap-3">
-                        <div className="p-4 rounded-xl bg-midnight border border-electric/20 shadow-[0_0_20px_rgba(0,255,136,0.1)]">
-                            <div className="flex items-center gap-2 mb-1">
-                                <Star className="w-4 h-4 text-yellow-500" />
-                                <span className="font-[family-name:var(--font-mono)] text-2xl font-bold text-frost">{loading ? '...' : totalStars}</span>
-                            </div>
-                            <span className="font-[family-name:var(--font-body)] text-xs text-frost-muted">Stars</span>
-                        </div>
-                        <div className="p-4 rounded-xl bg-midnight border border-electric/20 shadow-[0_0_20px_rgba(0,255,136,0.1)]">
-                            <div className="flex items-center gap-2 mb-1">
-                                <Activity className="w-4 h-4 text-electric" />
-                                <span className="font-[family-name:var(--font-mono)] text-2xl font-bold text-frost">{loading ? '...' : totalRepos}</span>
-                            </div>
-                            <span className="font-[family-name:var(--font-body)] text-xs text-frost-muted">Repos</span>
-                        </div>
-                        <div className="p-4 rounded-xl bg-midnight border border-electric/20 shadow-[0_0_20px_rgba(0,255,136,0.1)]">
-                            <div className="flex items-center gap-2 mb-1">
-                                <GitFork className="w-4 h-4 text-accent-cyan" />
-                                <span className="font-[family-name:var(--font-mono)] text-2xl font-bold text-frost">500+</span>
-                            </div>
-                            <span className="font-[family-name:var(--font-body)] text-xs text-frost-muted">Commits</span>
+                    {/* Recent Repos */}
+                    <div className="p-6 rounded-2xl bg-midnight border border-midnight-border">
+                        <h3 className="font-[family-name:var(--font-heading)] text-xl font-bold text-frost mb-6">Recent Repositories</h3>
+                        <div className="space-y-3">
+                            {loading ? (
+                                Array.from({ length: 4 }).map((_, i) => (
+                                    <div key={i} className="p-4 rounded-xl bg-midnight-card animate-pulse">
+                                        <div className="h-5 w-32 bg-midnight-border rounded mb-2" />
+                                        <div className="h-4 w-full bg-midnight-border rounded" />
+                                    </div>
+                                ))
+                            ) : (
+                                repos.slice(0, 4).map((repo, i) => (
+                                    <a
+                                        key={i}
+                                        href={repo.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="block p-4 rounded-xl bg-midnight-card/50 border border-midnight-border hover:border-electric/30 transition-all group"
+                                    >
+                                        <div className="flex items-center justify-between mb-1">
+                                            <span className="font-[family-name:var(--font-heading)] text-sm font-bold text-frost group-hover:text-electric transition-colors">{repo.name}</span>
+                                            <div className="flex items-center gap-2 text-xs text-frost-muted">
+                                                <Star className="w-3 h-3" /> {repo.stars}
+                                            </div>
+                                        </div>
+                                        <p className="font-[family-name:var(--font-body)] text-xs text-frost-muted line-clamp-1">{repo.description}</p>
+                                    </a>
+                                ))
+                            )}
                         </div>
                     </div>
                 </div>
 
-                {/* Activity Graph */}
-                <div className="mb-12 p-6 rounded-2xl bg-midnight border border-midnight-border overflow-hidden">
-                    <div className="flex items-center justify-between mb-4">
-                        <span className="font-[family-name:var(--font-heading)] text-lg font-bold text-frost">Contribution Activity</span>
-                        <span className="flex items-center gap-2 text-sm text-frost-muted">
-                            <span className="w-2 h-2 rounded-full bg-electric animate-pulse" />
-                            Live
-                        </span>
-                    </div>
-                    <div className="flex gap-1 overflow-x-auto pb-2">
-                        {activityData.map((week, weekIdx) => (
-                            <div key={weekIdx} className="flex flex-col gap-1">
-                                {week.map((day, dayIdx) => (
-                                    <div
-                                        key={dayIdx}
-                                        className="w-3 h-3 rounded-sm transition-all duration-300 hover:scale-150"
-                                        style={{
-                                            backgroundColor: day === 0 ? 'rgba(255,255,255,0.05)' :
-                                                `rgba(0,255,136,${0.2 + day * 0.2})`,
-                                            animationDelay: `${weekIdx * 20}ms`
-                                        }}
-                                    />
-                                ))}
-                            </div>
-                        ))}
-                    </div>
-                    <div className="flex justify-end gap-2 mt-2 text-xs text-frost-muted">
-                        <span>Less</span>
-                        <div className="flex gap-1">
-                            {[0, 1, 2, 3, 4].map(level => (
-                                <div key={level} className="w-3 h-3 rounded-sm" style={{ backgroundColor: level === 0 ? 'rgba(255,255,255,0.05)' : `rgba(0,255,136,${0.2 + level * 0.2})` }} />
-                            ))}
-                        </div>
-                        <span>More</span>
-                    </div>
-                </div>
-
-                {/* Repos Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {loading ? (
-                        Array.from({ length: 4 }).map((_, i) => (
-                            <div key={i} className="p-6 rounded-2xl bg-midnight border border-midnight-border animate-pulse">
-                                <div className="h-6 w-32 bg-midnight-border rounded mb-3" />
-                                <div className="h-4 w-full bg-midnight-border rounded mb-2" />
-                                <div className="h-4 w-2/3 bg-midnight-border rounded" />
-                            </div>
-                        ))
-                    ) : (
-                        repos.map((repo, i) => (
-                            <a
-                                key={i}
-                                href={repo.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="group p-6 rounded-2xl bg-midnight border border-midnight-border hover:border-electric/30 transition-all duration-300"
-                            >
-                                <div className="flex items-start justify-between mb-3">
-                                    <h3 className="font-[family-name:var(--font-heading)] text-lg font-bold text-frost group-hover:text-electric transition-colors">
-                                        {repo.name}
-                                    </h3>
-                                    <ExternalLink className="w-4 h-4 text-frost-muted group-hover:text-electric transition-colors" />
-                                </div>
-                                <p className="font-[family-name:var(--font-body)] text-sm text-frost-muted mb-4 line-clamp-2">
-                                    {repo.description}
-                                </p>
-                                <div className="flex items-center gap-4 text-sm">
-                                    <span className="flex items-center gap-1 text-frost-muted">
-                                        <span className="w-3 h-3 rounded-full bg-electric" />
-                                        {repo.language}
-                                    </span>
-                                    <span className="flex items-center gap-1 text-frost-muted">
-                                        <Star className="w-3 h-3" />
-                                        {repo.stars}
-                                    </span>
-                                    <span className="flex items-center gap-1 text-frost-muted">
-                                        <GitFork className="w-3 h-3" />
-                                        {repo.forks}
-                                    </span>
-                                </div>
-                            </a>
-                        ))
-                    )}
-                </div>
-
-                <div className="text-center mt-12">
+                <div className="text-center">
                     <a href="https://github.com/ProCodeJH" target="_blank" rel="noopener noreferrer">
-                        <Button className="font-[family-name:var(--font-heading)] px-8 py-4 bg-transparent border-2 border-electric text-electric rounded-2xl font-semibold hover:bg-electric hover:text-midnight transition-all h-auto">
-                            <Github className="w-5 h-5 mr-2" />
-                            View All Repositories
+                        <Button className="group font-[family-name:var(--font-heading)] px-8 py-4 bg-transparent border-2 border-electric text-electric rounded-2xl font-bold hover:bg-electric hover:text-midnight transition-all h-auto hover:shadow-[0_0_40px_rgba(0,255,136,0.3)]">
+                            <Github className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
+                            View All on GitHub
                         </Button>
                     </a>
                 </div>
