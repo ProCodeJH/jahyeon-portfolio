@@ -4,7 +4,7 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import Home from "./pages/Home";
+import Home from "./pages/HomePositivus";
 import Projects from "./pages/Projects";
 // Certifications page removed - merged into Home
 import Resources from "./pages/Resources";
@@ -14,6 +14,7 @@ import Admin from "./pages/Admin";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
+import Positivus from "./pages/Positivus";
 import { useSmoothScroll } from "./hooks/useSmoothScroll";
 import { BackToTop } from "./components/ui/BackToTop";
 import { ScrollProgressBar } from "./components/ui/ScrollProgressBar";
@@ -61,6 +62,7 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/profile" component={Profile} />
+      <Route path="/positivus" component={Positivus} />
       <Route path="/404" component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
