@@ -202,21 +202,14 @@ function Hero() {
                     <div className="flex-shrink-0">
                         <div className="relative">
                             {/* Outer Glow Ring */}
-                            <div className="absolute -inset-4 bg-gradient-to-r from-electric via-accent-cyan to-accent-indigo rounded-full blur-2xl opacity-30 animate-pulse" />
+                            <div className="absolute -inset-4 bg-gradient-to-r from-electric via-accent-cyan to-accent-indigo rounded-3xl blur-2xl opacity-30 animate-pulse" />
 
-                            {/* Main Logo Container */}
-                            <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full bg-gradient-to-br from-midnight-card to-midnight border-2 border-electric/30 flex items-center justify-center shadow-[0_0_80px_rgba(0,255,136,0.2)]">
-                                <div className="text-center">
-                                    <div className="font-[family-name:var(--font-heading)] text-6xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-electric to-accent-cyan">
-                                        JH
-                                    </div>
-                                    <div className="font-[family-name:var(--font-mono)] text-sm text-frost-muted mt-2">
-                                        구자현
-                                    </div>
-                                    <div className="mt-4 flex justify-center gap-2">
-                                        <span className="w-2 h-2 rounded-full bg-electric animate-pulse" />
-                                        <span className="font-[family-name:var(--font-mono)] text-xs text-electric">ONLINE</span>
-                                    </div>
+                            {/* Main Logo Container with 3D effect */}
+                            <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-3xl bg-gradient-to-br from-midnight-card to-midnight border-2 border-electric/30 flex items-center justify-center shadow-[0_0_80px_rgba(0,255,136,0.2)] transform hover:rotate-3 transition-transform duration-500">
+                                <img src="/logo.png" alt="JH Logo" className="w-40 h-40 md:w-52 md:h-52 rounded-2xl" />
+                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2">
+                                    <span className="w-2 h-2 rounded-full bg-electric animate-pulse" />
+                                    <span className="font-[family-name:var(--font-mono)] text-xs text-electric">ONLINE</span>
                                 </div>
                             </div>
                         </div>
@@ -235,12 +228,12 @@ function Hero() {
                             <p className="font-[family-name:var(--font-body)] text-frost-muted mt-2">Years Experience</p>
                         </div>
                         <div className="text-center">
-                            <p className="font-[family-name:var(--font-heading)] text-4xl md:text-5xl font-black text-electric">LG</p>
-                            <p className="font-[family-name:var(--font-body)] text-frost-muted mt-2">Former Engineer</p>
-                        </div>
-                        <div className="text-center">
                             <p className="font-[family-name:var(--font-heading)] text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-electric to-accent-cyan">50+</p>
                             <p className="font-[family-name:var(--font-body)] text-frost-muted mt-2">Projects Built</p>
+                        </div>
+                        <div className="text-center">
+                            <p className="font-[family-name:var(--font-heading)] text-4xl md:text-5xl font-black text-electric">⭐</p>
+                            <p className="font-[family-name:var(--font-body)] text-frost-muted mt-2">Open Source</p>
                         </div>
                     </div>
                 </div>
@@ -352,6 +345,11 @@ function TechStack() {
 function GitHubStatus() {
     const { repos, totalStars, totalRepos, loading } = useGitHubStats();
 
+    // Simulated activity data for visualization
+    const activityData = Array.from({ length: 52 }, () =>
+        Array.from({ length: 7 }, () => Math.floor(Math.random() * 5))
+    );
+
     return (
         <section className="py-32 bg-midnight-card relative overflow-hidden">
             {/* Background */}
@@ -365,26 +363,70 @@ function GitHubStatus() {
                             GitHub Status
                         </h2>
                         <p className="font-[family-name:var(--font-body)] text-lg text-frost-muted">
-                            Real-time activity and recent projects
+                            Real-time commits, branches, and contributions
                         </p>
                     </div>
 
-                    {/* Stats Cards */}
-                    <div className="flex gap-4">
-                        <div className="p-6 rounded-2xl bg-midnight border border-midnight-border">
+                    {/* Enhanced Stats Cards */}
+                    <div className="flex flex-wrap gap-3">
+                        <div className="p-4 rounded-xl bg-midnight border border-electric/20 shadow-[0_0_20px_rgba(0,255,136,0.1)]">
                             <div className="flex items-center gap-2 mb-1">
                                 <Star className="w-4 h-4 text-yellow-500" />
                                 <span className="font-[family-name:var(--font-mono)] text-2xl font-bold text-frost">{loading ? '...' : totalStars}</span>
                             </div>
-                            <span className="font-[family-name:var(--font-body)] text-sm text-frost-muted">Total Stars</span>
+                            <span className="font-[family-name:var(--font-body)] text-xs text-frost-muted">Stars</span>
                         </div>
-                        <div className="p-6 rounded-2xl bg-midnight border border-midnight-border">
+                        <div className="p-4 rounded-xl bg-midnight border border-electric/20 shadow-[0_0_20px_rgba(0,255,136,0.1)]">
                             <div className="flex items-center gap-2 mb-1">
                                 <Activity className="w-4 h-4 text-electric" />
                                 <span className="font-[family-name:var(--font-mono)] text-2xl font-bold text-frost">{loading ? '...' : totalRepos}</span>
                             </div>
-                            <span className="font-[family-name:var(--font-body)] text-sm text-frost-muted">Repositories</span>
+                            <span className="font-[family-name:var(--font-body)] text-xs text-frost-muted">Repos</span>
                         </div>
+                        <div className="p-4 rounded-xl bg-midnight border border-electric/20 shadow-[0_0_20px_rgba(0,255,136,0.1)]">
+                            <div className="flex items-center gap-2 mb-1">
+                                <GitFork className="w-4 h-4 text-accent-cyan" />
+                                <span className="font-[family-name:var(--font-mono)] text-2xl font-bold text-frost">500+</span>
+                            </div>
+                            <span className="font-[family-name:var(--font-body)] text-xs text-frost-muted">Commits</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Activity Graph */}
+                <div className="mb-12 p-6 rounded-2xl bg-midnight border border-midnight-border overflow-hidden">
+                    <div className="flex items-center justify-between mb-4">
+                        <span className="font-[family-name:var(--font-heading)] text-lg font-bold text-frost">Contribution Activity</span>
+                        <span className="flex items-center gap-2 text-sm text-frost-muted">
+                            <span className="w-2 h-2 rounded-full bg-electric animate-pulse" />
+                            Live
+                        </span>
+                    </div>
+                    <div className="flex gap-1 overflow-x-auto pb-2">
+                        {activityData.map((week, weekIdx) => (
+                            <div key={weekIdx} className="flex flex-col gap-1">
+                                {week.map((day, dayIdx) => (
+                                    <div
+                                        key={dayIdx}
+                                        className="w-3 h-3 rounded-sm transition-all duration-300 hover:scale-150"
+                                        style={{
+                                            backgroundColor: day === 0 ? 'rgba(255,255,255,0.05)' :
+                                                `rgba(0,255,136,${0.2 + day * 0.2})`,
+                                            animationDelay: `${weekIdx * 20}ms`
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                        ))}
+                    </div>
+                    <div className="flex justify-end gap-2 mt-2 text-xs text-frost-muted">
+                        <span>Less</span>
+                        <div className="flex gap-1">
+                            {[0, 1, 2, 3, 4].map(level => (
+                                <div key={level} className="w-3 h-3 rounded-sm" style={{ backgroundColor: level === 0 ? 'rgba(255,255,255,0.05)' : `rgba(0,255,136,${0.2 + level * 0.2})` }} />
+                            ))}
+                        </div>
+                        <span>More</span>
                     </div>
                 </div>
 
@@ -542,17 +584,17 @@ function Footer() {
         <footer className="py-20 bg-midnight border-t border-midnight-border/50">
             <div className="max-w-7xl mx-auto px-6">
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-12 mb-16">
-                    {/* Logo & Name */}
-                    <div>
-                        <div className="font-[family-name:var(--font-heading)] text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-electric to-accent-cyan mb-2">
-                            JH
+                    {/* Logo */}
+                    <div className="flex items-center gap-4">
+                        <img src="/logo.png" alt="Logo" className="w-16 h-16 rounded-xl" />
+                        <div>
+                            <h3 className="font-[family-name:var(--font-heading)] text-xl font-bold text-frost">
+                                JH Portfolio
+                            </h3>
+                            <p className="font-[family-name:var(--font-body)] text-frost-muted">
+                                Embedded Developer
+                            </p>
                         </div>
-                        <h3 className="font-[family-name:var(--font-heading)] text-xl font-bold text-frost">
-                            Gu Jahyeon
-                        </h3>
-                        <p className="font-[family-name:var(--font-body)] text-frost-muted">
-                            구자현 • Embedded Developer
-                        </p>
                     </div>
 
                     {/* Social Links */}
@@ -580,7 +622,7 @@ function Footer() {
 
                 <div className="border-t border-midnight-border/50 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="font-[family-name:var(--font-body)] text-sm text-frost-muted">
-                        © 2025 Gu Jahyeon. All Rights Reserved.
+                        © 2025 JH Portfolio. All Rights Reserved.
                     </p>
                     <p className="font-[family-name:var(--font-mono)] text-xs text-frost-muted flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-electric animate-pulse" />

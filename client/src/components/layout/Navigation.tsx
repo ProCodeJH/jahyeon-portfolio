@@ -35,16 +35,16 @@ export function Navigation() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-2xl border-b border-positivus-dark/10">
-        <div className="max-w-7xl mx-auto px-6 md:px-8 py-4 md:py-5">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-midnight/95 backdrop-blur-2xl border-b border-midnight-border">
+        <div className="max-w-7xl mx-auto px-6 md:px-8 py-3 md:py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link href="/">
-              <div className="group cursor-pointer">
-                <span className="font-[family-name:var(--font-space-grotesk)] text-2xl md:text-3xl font-black tracking-tighter text-positivus-dark group-hover:scale-110 transition-all duration-300 inline-block">
-                  JH
+              <div className="group cursor-pointer flex items-center gap-3">
+                <img src="/logo.png" alt="JH Logo" className="w-10 h-10 md:w-12 md:h-12 rounded-lg group-hover:scale-110 transition-all duration-300 shadow-[0_0_20px_rgba(0,255,136,0.3)]" />
+                <span className="hidden md:inline font-[family-name:var(--font-heading)] text-xl font-bold text-frost group-hover:text-electric transition-colors">
+                  Portfolio
                 </span>
-                <div className="h-1 w-0 group-hover:w-full bg-positivus-lime transition-all duration-500 rounded-full" />
               </div>
             </Link>
 
@@ -52,42 +52,41 @@ export function Navigation() {
             <div className="hidden md:flex items-center gap-8">
               {menuItems.map(item => (
                 <Link key={item.name} href={item.path}>
-                  <span className="group font-[family-name:var(--font-space-grotesk)] text-base font-bold text-positivus-dark hover:text-positivus-lime transition-all cursor-pointer relative px-3 py-2">
+                  <span className="group font-[family-name:var(--font-heading)] text-sm font-semibold text-frost hover:text-electric transition-all cursor-pointer relative px-3 py-2">
                     {item.name}
-                    <span className="absolute -bottom-1 left-0 w-0 h-1 bg-positivus-lime group-hover:w-full transition-all duration-300 rounded-full" />
-                    <span className="absolute inset-0 bg-purple-100 rounded-lg opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300 -z-10" />
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-electric group-hover:w-full transition-all duration-300 rounded-full" />
                   </span>
                 </Link>
               ))}
 
               {/* Theme Toggle & Auth Buttons */}
-              <div className="flex items-center gap-3 ml-4 pl-4 border-l border-gray-200">
+              <div className="flex items-center gap-3 ml-4 pl-4 border-l border-midnight-border">
                 <ThemeToggle />
                 {member ? (
                   <>
-                    <span className="text-sm font-medium text-gray-600">
-                      {member.name}님
+                    <span className="text-sm font-medium text-frost-muted">
+                      {member.name}
                     </span>
                     <button
                       onClick={handleLogout}
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition-all"
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-midnight-card hover:bg-electric/10 text-frost text-sm font-medium transition-all border border-midnight-border"
                     >
                       <LogOut className="w-4 h-4" />
-                      로그아웃
+                      Logout
                     </button>
                   </>
                 ) : (
                   <>
                     <Link href="/login">
-                      <button className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition-all">
+                      <button className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-midnight-card hover:bg-electric/10 text-frost text-sm font-medium transition-all border border-midnight-border">
                         <LogIn className="w-4 h-4" />
-                        로그인
+                        Login
                       </button>
                     </Link>
                     <Link href="/register">
-                      <button className="font-[family-name:var(--font-space-grotesk)] flex items-center gap-1.5 px-4 py-2 rounded-[14px] bg-positivus-dark hover:bg-positivus-dark/90 text-white text-sm font-medium transition-all">
+                      <button className="font-[family-name:var(--font-heading)] flex items-center gap-1.5 px-4 py-2 rounded-xl bg-electric hover:bg-electric-dim text-midnight text-sm font-bold transition-all">
                         <UserPlus className="w-4 h-4" />
-                        회원가입
+                        Sign Up
                       </button>
                     </Link>
                   </>
