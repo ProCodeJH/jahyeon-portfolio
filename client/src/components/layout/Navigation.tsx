@@ -35,16 +35,16 @@ export function Navigation() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-2xl border-b border-gray-200/50 shadow-lg shadow-purple-500/5">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-2xl border-b border-positivus-dark/10">
         <div className="max-w-7xl mx-auto px-6 md:px-8 py-4 md:py-5">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link href="/">
               <div className="group cursor-pointer">
-                <span className="text-2xl md:text-3xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 group-hover:scale-110 transition-all duration-300 inline-block">
+                <span className="font-[family-name:var(--font-space-grotesk)] text-2xl md:text-3xl font-black tracking-tighter text-positivus-dark group-hover:scale-110 transition-all duration-300 inline-block">
                   JH
                 </span>
-                <div className="h-1 w-0 group-hover:w-full bg-gradient-to-r from-purple-600 to-blue-600 transition-all duration-500 rounded-full" />
+                <div className="h-1 w-0 group-hover:w-full bg-positivus-lime transition-all duration-500 rounded-full" />
               </div>
             </Link>
 
@@ -52,9 +52,9 @@ export function Navigation() {
             <div className="hidden md:flex items-center gap-8">
               {menuItems.map(item => (
                 <Link key={item.name} href={item.path}>
-                  <span className="group text-base font-bold text-gray-700 hover:text-purple-600 transition-all cursor-pointer relative px-3 py-2">
+                  <span className="group font-[family-name:var(--font-space-grotesk)] text-base font-bold text-positivus-dark hover:text-positivus-lime transition-all cursor-pointer relative px-3 py-2">
                     {item.name}
-                    <span className="absolute -bottom-1 left-0 w-0 h-1 bg-gradient-to-r from-purple-600 to-blue-600 group-hover:w-full transition-all duration-300 rounded-full" />
+                    <span className="absolute -bottom-1 left-0 w-0 h-1 bg-positivus-lime group-hover:w-full transition-all duration-300 rounded-full" />
                     <span className="absolute inset-0 bg-purple-100 rounded-lg opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300 -z-10" />
                   </span>
                 </Link>
@@ -85,7 +85,7 @@ export function Navigation() {
                       </button>
                     </Link>
                     <Link href="/register">
-                      <button className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white text-sm font-medium transition-all shadow-lg shadow-purple-500/20">
+                      <button className="font-[family-name:var(--font-space-grotesk)] flex items-center gap-1.5 px-4 py-2 rounded-[14px] bg-positivus-dark hover:bg-positivus-dark/90 text-white text-sm font-medium transition-all">
                         <UserPlus className="w-4 h-4" />
                         회원가입
                       </button>
@@ -98,7 +98,7 @@ export function Navigation() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-purple-100 transition-colors"
+              className="md:hidden p-2 rounded-lg hover:bg-positivus-lime/20 transition-colors"
               aria-label="Toggle mobile menu"
             >
               {mobileMenuOpen ? (
@@ -124,20 +124,20 @@ export function Navigation() {
               <Link key={item.name} href={item.path}>
                 <div
                   onClick={() => setMobileMenuOpen(false)}
-                  className="group relative overflow-hidden rounded-2xl bg-gradient-to-r from-purple-50 to-blue-50 hover:from-purple-100 hover:to-blue-100 transition-all duration-300"
+                  className="group relative overflow-hidden rounded-2xl bg-positivus-gray hover:bg-positivus-lime/30 transition-all duration-300"
                   style={{
                     animationDelay: `${index * 50}ms`,
                     animation: mobileMenuOpen ? "slideIn 0.3s ease-out forwards" : "none"
                   }}
                 >
                   <div className="px-6 py-4 flex items-center justify-between">
-                    <span className="text-lg font-bold text-gray-800 group-hover:text-purple-600 transition-colors">
+                    <span className="font-[family-name:var(--font-space-grotesk)] text-lg font-bold text-positivus-dark transition-colors">
                       {item.name}
                     </span>
-                    <div className="w-2 h-2 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="w-2 h-2 rounded-full bg-positivus-lime opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                   {/* Animated underline */}
-                  <div className="h-1 w-0 bg-gradient-to-r from-purple-600 to-blue-600 group-hover:w-full transition-all duration-300" />
+                  <div className="h-1 w-0 bg-positivus-lime group-hover:w-full transition-all duration-300" />
                 </div>
               </Link>
             ))}
@@ -171,7 +171,7 @@ export function Navigation() {
                   <Link href="/register" className="flex-1">
                     <button
                       onClick={() => setMobileMenuOpen(false)}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 text-white font-medium transition-all"
+                      className="w-full font-[family-name:var(--font-space-grotesk)] flex items-center justify-center gap-2 px-4 py-3 rounded-[14px] bg-positivus-dark text-white font-medium transition-all"
                     >
                       <UserPlus className="w-4 h-4" />
                       회원가입
