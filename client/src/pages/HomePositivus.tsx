@@ -353,7 +353,7 @@ function FeaturedProjects() {
                     {projects?.slice(0, 3).map((project, index) => (
                         <div
                             key={project.id}
-                            className="group bg-white/5 backdrop-blur-xl rounded-[45px] overflow-hidden border border-white/10 hover:border-positivus-lime/50 transition-all hover:scale-[1.02] duration-300"
+                            className="group bg-positivus-gray rounded-[45px] overflow-hidden border border-positivus-dark shadow-[0px_5px_0px_#191a23] hover:scale-[1.02] transition-all duration-300"
                         >
                             <div className="aspect-video overflow-hidden">
                                 {project.imageUrl ? (
@@ -369,14 +369,14 @@ function FeaturedProjects() {
                                 )}
                             </div>
                             <div className="p-6 md:p-8">
-                                <h3 className="font-[family-name:var(--font-space-grotesk)] text-xl md:text-2xl font-bold text-white mb-2 group-hover:text-positivus-lime transition-colors line-clamp-1">
+                                <h3 className="font-[family-name:var(--font-space-grotesk)] text-xl md:text-2xl font-bold text-positivus-dark mb-2 group-hover:text-positivus-lime transition-colors line-clamp-1">
                                     {project.title}
                                 </h3>
-                                <p className="font-[family-name:var(--font-space-grotesk)] text-sm md:text-base text-white/60 line-clamp-2 mb-4">
+                                <p className="font-[family-name:var(--font-space-grotesk)] text-sm md:text-base text-positivus-dark/70 line-clamp-2 mb-4">
                                     {project.description}
                                 </p>
                                 <Link href="/projects">
-                                    <div className="flex items-center gap-2 text-positivus-lime font-[family-name:var(--font-space-grotesk)] font-medium group/link">
+                                    <div className="flex items-center gap-2 text-positivus-dark font-[family-name:var(--font-space-grotesk)] font-medium group/link">
                                         <span>View Project</span>
                                         <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
                                     </div>
