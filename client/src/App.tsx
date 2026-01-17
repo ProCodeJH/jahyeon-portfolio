@@ -4,7 +4,7 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import Home from "./pages/HomePositivus";
+import Home from "./pages/HomeMidnight";
 import Projects from "./pages/Projects";
 // Certifications page removed - merged into Home
 import Resources from "./pages/Resources";

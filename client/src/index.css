@@ -1,20 +1,42 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500&display=swap');
 
-/* 🔤 HYBRID FONT SYSTEM */
+/* 🌙 MIDNIGHT ENGINEER - Font System */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* Geist Font (Vercel) - Self-hosted or CDN */
+@font-face {
+  font-family: 'Geist';
+  src: url('https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/fonts/GeistVF.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 🔤 MIDNIGHT ENGINEER - Design System */
 :root {
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-display: 'Outfit', 'Inter', system-ui, sans-serif;
-  
-  /* Positivus Theme */
+  /* Typography */
+  --font-heading: 'Geist', 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Midnight Engineer Palette */
+  --midnight: #0A0A0F;
+  --midnight-card: #1A1A24;
+  --midnight-border: #2A2A34;
+  --electric: #00FF88;
+  --electric-dim: #00CC6A;
+  --frost: #E8E8EC;
+  --frost-muted: #8888A0;
+  --accent-indigo: #6366F1;
+  --accent-cyan: #22D3EE;
+
+  /* Legacy Positivus (for compatibility) */
   --positivus-dark: #191A23;
   --positivus-lime: #B9FF66;
   --positivus-gray: #F3F3F3;
   --positivus-muted: #898989;
-  --positivus-white: #FFFFFF;
-  --positivus-black: #000000;
-  --font-space-grotesk: 'Space Grotesk', sans-serif;
+  --font-space-grotesk: 'Geist', 'Inter', sans-serif;
 }
 
 /* 🎬 PREMIUM ANIMATIONS */
@@ -92,7 +114,23 @@
   --radius-xl: calc(var(--radius) + 4px);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  
+
+  /* Midnight Engineer Colors */
+  --color-midnight: var(--midnight);
+  --color-midnight-card: var(--midnight-card);
+  --color-midnight-border: var(--midnight-border);
+  --color-electric: var(--electric);
+  --color-electric-dim: var(--electric-dim);
+  --color-frost: var(--frost);
+  --color-frost-muted: var(--frost-muted);
+  --color-accent-indigo: var(--accent-indigo);
+  --color-accent-cyan: var(--accent-cyan);
+
+  /* Font Families */
+  --font-family-heading: var(--font-heading);
+  --font-family-body: var(--font-body);
+  --font-family-mono: var(--font-mono);
+
   /* Positivus Colors */
   --color-positivus-dark: var(--positivus-dark);
   --color-positivus-lime: var(--positivus-lime);
