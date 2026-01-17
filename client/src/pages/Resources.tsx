@@ -433,7 +433,16 @@ export default function Resources() {
 
     try {
       await incrementDownload.mutateAsync({ id: resource.id });
-      window.open(resource.fileUrl, '_blank');
+
+      // Use anchor tag with download attribute for reliable file download
+      const link = document.createElement('a');
+      link.href = resource.fileUrl;
+      link.download = resource.fileName || 'download';
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
       toast.success(`Downloading ${resource.fileName}`);
     } catch { toast.error("Download failed"); }
   };
