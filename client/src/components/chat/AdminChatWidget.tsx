@@ -212,7 +212,7 @@ export function AdminChatWidget() {
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0, opacity: 0 }}
                         onClick={() => setIsOpen(true)}
-                        className="fixed bottom-6 right-6 w-16 h-16 rounded-full bg-gradient-to-r from-purple-600 to-cyan-600 text-white shadow-2xl hover:shadow-purple-500/50 transition-all hover:scale-110 z-50 flex items-center justify-center group"
+                        className="fixed bottom-6 right-6 w-16 h-16 rounded-full bg-positivus-dark text-positivus-lime shadow-2xl hover:shadow-positivus-dark/50 transition-all hover:scale-110 z-50 flex items-center justify-center group"
                     >
                         <MessageCircle className="w-7 h-7 transition-transform group-hover:scale-110" />
 
@@ -224,7 +224,7 @@ export function AdminChatWidget() {
                         )}
 
                         {/* Pulse Ring */}
-                        <span className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-600 to-cyan-600 animate-ping opacity-30" />
+                        <span className="absolute inset-0 rounded-full bg-positivus-lime animate-ping opacity-30" />
                     </motion.button>
                 )}
             </AnimatePresence>
