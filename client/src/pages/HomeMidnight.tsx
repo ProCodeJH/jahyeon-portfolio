@@ -743,6 +743,308 @@ function FeaturedProjects() {
     );
 }
 
+// ==================== LIVE PROJECT ANALYTICS ====================
+function LiveProjectAnalytics() {
+    // Animated counter hook
+    const useAnimatedCounter = (target: number, duration: number = 2000) => {
+        const [count, setCount] = useState(0);
+        useEffect(() => {
+            let startTime: number;
+            let animationFrame: number;
+            const animate = (currentTime: number) => {
+                if (!startTime) startTime = currentTime;
+                const progress = Math.min((currentTime - startTime) / duration, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                setCount(Math.floor(easeOut * target));
+                if (progress < 1) {
+                    animationFrame = requestAnimationFrame(animate);
+                }
+            };
+            animationFrame = requestAnimationFrame(animate);
+            return () => cancelAnimationFrame(animationFrame);
+        }, [target, duration]);
+        return count;
+    };
+
+    // Project Statistics Data
+    const projectStats = {
+        totalProjects: 913,
+        totalValue: 4850000000, // 48.5억원
+        avgProjectValue: 5310000, // 531만원
+        categories: [
+            { name: 'AI/ML', count: 127, color: '#00FF88', percentage: 14 },
+            { name: 'Web', count: 156, color: '#22D3EE', percentage: 17 },
+            { name: 'App', count: 134, color: '#6366F1', percentage: 15 },
+            { name: 'IoT', count: 98, color: '#F59E0B', percentage: 11 },
+            { name: 'Blockchain', count: 112, color: '#EC4899', percentage: 12 },
+            { name: 'Data', count: 89, color: '#8B5CF6', percentage: 10 },
+            { name: 'Game/VR', count: 108, color: '#10B981', percentage: 12 },
+            { name: 'Others', count: 89, color: '#64748B', percentage: 9 },
+        ],
+        priceTiers: [
+            { name: 'Micro', range: '~10만원', count: 168, color: '#64748B', avgPrice: 50000 },
+            { name: 'Small', range: '10~100만원', count: 254, color: '#22D3EE', avgPrice: 500000 },
+            { name: 'Standard', range: '100~500만원', count: 298, color: '#00FF88', avgPrice: 3000000 },
+            { name: 'High-End', range: '500~1500만원', count: 138, color: '#F59E0B', avgPrice: 10000000 },
+            { name: 'Enterprise', range: '1500만원+', count: 55, color: '#EC4899', avgPrice: 22000000 },
+        ],
+        techStack: [
+            { name: 'React', count: 312 },
+            { name: 'Python', count: 287 },
+            { name: 'Node.js', count: 245 },
+            { name: 'Flutter', count: 189 },
+            { name: 'PostgreSQL', count: 156 },
+            { name: 'AWS', count: 134 },
+            { name: 'Firebase', count: 178 },
+            { name: 'TypeScript', count: 167 },
+        ],
+    };
+
+    // Animated values
+    const animatedTotal = useAnimatedCounter(projectStats.totalProjects, 2500);
+    const animatedValue = useAnimatedCounter(Math.floor(projectStats.totalValue / 100000000), 3000);
+
+    // Live wave animation state
+    const [wavePhase, setWavePhase] = useState(0);
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setWavePhase(p => (p + 1) % 100);
+        }, 50);
+        return () => clearInterval(interval);
+    }, []);
+
+    // Bar animation state
+    const [barsLoaded, setBarsLoaded] = useState(false);
+    useEffect(() => {
+        const timer = setTimeout(() => setBarsLoaded(true), 300);
+        return () => clearTimeout(timer);
+    }, []);
+
+    return (
+        <section className="py-32 bg-midnight relative overflow-hidden">
+            {/* Animated Background */}
+            <div className="absolute inset-0">
+                <div className="absolute top-1/4 right-0 w-[500px] h-[500px] bg-electric/8 rounded-full blur-[150px]" style={{ animation: 'pulse 4s ease-in-out infinite' }} />
+                <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-accent-indigo/10 rounded-full blur-[120px]" style={{ animation: 'pulse 3s ease-in-out infinite alternate' }} />
+
+                {/* Live Wave Lines */}
+                <svg className="absolute bottom-0 left-0 w-full h-32 opacity-20" preserveAspectRatio="none">
+                    <path
+                        d={`M0,50 ${Array.from({ length: 20 }, (_, i) =>
+                            `Q${i * 100 + 50},${50 + Math.sin((wavePhase + i * 10) * 0.1) * 30} ${(i + 1) * 100},50`
+                        ).join(' ')} V100 H0 Z`}
+                        fill="url(#waveGradient)"
+                    />
+                    <defs>
+                        <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="#00FF88" stopOpacity="0.3" />
+                            <stop offset="50%" stopColor="#22D3EE" stopOpacity="0.3" />
+                            <stop offset="100%" stopColor="#6366F1" stopOpacity="0.3" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+
+            <div className="relative z-10 max-w-7xl mx-auto px-6">
+                {/* Header */}
+                <div className="text-center mb-16">
+                    <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-gradient-to-r from-electric/10 via-accent-cyan/10 to-accent-indigo/10 border border-electric/30 backdrop-blur-xl mb-8">
+                        <div className="relative">
+                            <span className="w-3 h-3 rounded-full bg-electric animate-ping absolute" />
+                            <span className="w-3 h-3 rounded-full bg-electric relative block" />
+                        </div>
+                        <span className="font-[family-name:var(--font-mono)] text-sm text-frost tracking-wider uppercase">Live Analytics</span>
+                        <div className="h-4 w-px bg-frost/20" />
+                        <span className="font-[family-name:var(--font-mono)] text-xs text-electric">Real-time Data</span>
+                    </div>
+
+                    <h2 className="font-[family-name:var(--font-heading)] text-5xl md:text-7xl font-black mb-6" style={{ textShadow: '0 0 80px rgba(0,255,136,0.3)' }}>
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-electric via-accent-cyan to-electric">
+                            Project Analytics
+                        </span>
+                    </h2>
+                    <p className="font-[family-name:var(--font-body)] text-xl text-frost-muted max-w-2xl mx-auto">
+                        Real-time project statistics and market insights
+                    </p>
+                </div>
+
+                {/* Main Stats Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+                    {/* Total Projects */}
+                    <div className="group relative">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-electric to-accent-cyan rounded-3xl blur opacity-30 group-hover:opacity-60 transition duration-500" />
+                        <div className="relative p-8 rounded-3xl bg-midnight border border-electric/20 hover:border-electric/50 transition-all duration-500">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-electric/30 to-accent-cyan/10 flex items-center justify-center">
+                                    <Layers className="w-7 h-7 text-electric" />
+                                </div>
+                                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-electric/10 border border-electric/30">
+                                    <span className="w-2 h-2 rounded-full bg-electric animate-pulse" />
+                                    <span className="font-[family-name:var(--font-mono)] text-xs text-electric">LIVE</span>
+                                </div>
+                            </div>
+                            <div className="font-[family-name:var(--font-mono)] text-5xl font-black text-frost mb-2" style={{ textShadow: '0 0 30px rgba(0,255,136,0.4)' }}>
+                                {animatedTotal.toLocaleString()}+
+                            </div>
+                            <div className="font-[family-name:var(--font-body)] text-frost-muted">Total Projects</div>
+                        </div>
+                    </div>
+
+                    {/* Total Value */}
+                    <div className="group relative">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-cyan to-accent-indigo rounded-3xl blur opacity-30 group-hover:opacity-60 transition duration-500" />
+                        <div className="relative p-8 rounded-3xl bg-midnight border border-accent-cyan/20 hover:border-accent-cyan/50 transition-all duration-500">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent-cyan/30 to-accent-indigo/10 flex items-center justify-center">
+                                    <Zap className="w-7 h-7 text-accent-cyan" />
+                                </div>
+                                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-accent-cyan/10 border border-accent-cyan/30">
+                                    <span className="font-[family-name:var(--font-mono)] text-xs text-accent-cyan">KRW</span>
+                                </div>
+                            </div>
+                            <div className="font-[family-name:var(--font-mono)] text-5xl font-black text-frost mb-2" style={{ textShadow: '0 0 30px rgba(34,211,238,0.4)' }}>
+                                {animatedValue}억+
+                            </div>
+                            <div className="font-[family-name:var(--font-body)] text-frost-muted">Total Project Value</div>
+                        </div>
+                    </div>
+
+                    {/* Average Value */}
+                    <div className="group relative">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-indigo to-purple-500 rounded-3xl blur opacity-30 group-hover:opacity-60 transition duration-500" />
+                        <div className="relative p-8 rounded-3xl bg-midnight border border-accent-indigo/20 hover:border-accent-indigo/50 transition-all duration-500">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent-indigo/30 to-purple-500/10 flex items-center justify-center">
+                                    <Activity className="w-7 h-7 text-accent-indigo" />
+                                </div>
+                            </div>
+                            <div className="font-[family-name:var(--font-mono)] text-5xl font-black text-frost mb-2" style={{ textShadow: '0 0 30px rgba(99,102,241,0.4)' }}>
+                                531만
+                            </div>
+                            <div className="font-[family-name:var(--font-body)] text-frost-muted">Average Project Value</div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Charts Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Category Distribution */}
+                    <div className="relative">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-electric/20 via-accent-cyan/20 to-accent-indigo/20 rounded-3xl blur opacity-30" />
+                        <div className="relative p-8 rounded-3xl bg-midnight/90 backdrop-blur-xl border border-electric/20">
+                            <div className="flex items-center justify-between mb-8">
+                                <h3 className="font-[family-name:var(--font-heading)] text-2xl font-black text-frost">Category Distribution</h3>
+                                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-electric/10 border border-electric/30">
+                                    <span className="w-2 h-2 rounded-full bg-electric animate-pulse" />
+                                    <span className="font-[family-name:var(--font-mono)] text-xs text-electric">LIVE</span>
+                                </div>
+                            </div>
+                            <div className="space-y-4">
+                                {projectStats.categories.map((cat, i) => (
+                                    <div key={cat.name} className="group/bar">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="font-[family-name:var(--font-mono)] text-sm text-frost">{cat.name}</span>
+                                            <span className="font-[family-name:var(--font-mono)] text-sm text-frost-muted">{cat.count}</span>
+                                        </div>
+                                        <div className="h-3 bg-midnight-card rounded-full overflow-hidden">
+                                            <div
+                                                className="h-full rounded-full transition-all duration-1000 ease-out"
+                                                style={{
+                                                    width: barsLoaded ? `${cat.percentage * 5}%` : '0%',
+                                                    background: `linear-gradient(90deg, ${cat.color}, ${cat.color}88)`,
+                                                    boxShadow: `0 0 20px ${cat.color}40`,
+                                                    transitionDelay: `${i * 100}ms`,
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Price Tier Distribution */}
+                    <div className="relative">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-indigo/20 via-purple-500/20 to-electric/20 rounded-3xl blur opacity-30" />
+                        <div className="relative p-8 rounded-3xl bg-midnight/90 backdrop-blur-xl border border-accent-indigo/20">
+                            <div className="flex items-center justify-between mb-8">
+                                <h3 className="font-[family-name:var(--font-heading)] text-2xl font-black text-frost">Price Tier Analysis</h3>
+                                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-accent-indigo/10 border border-accent-indigo/30">
+                                    <span className="font-[family-name:var(--font-mono)] text-xs text-accent-indigo">ANALYSIS</span>
+                                </div>
+                            </div>
+                            <div className="flex items-end justify-between h-48 gap-4">
+                                {projectStats.priceTiers.map((tier, i) => (
+                                    <div key={tier.name} className="flex-1 flex flex-col items-center gap-2">
+                                        <div
+                                            className="w-full rounded-t-xl transition-all duration-1000 ease-out relative group/tier"
+                                            style={{
+                                                height: barsLoaded ? `${(tier.count / 300) * 100}%` : '0%',
+                                                background: `linear-gradient(180deg, ${tier.color}, ${tier.color}44)`,
+                                                boxShadow: `0 0 30px ${tier.color}30`,
+                                                transitionDelay: `${i * 150}ms`,
+                                            }}
+                                        >
+                                            <div className="absolute -top-8 left-1/2 -translate-x-1/2 font-[family-name:var(--font-mono)] text-sm text-frost opacity-0 group-hover/tier:opacity-100 transition-opacity">
+                                                {tier.count}
+                                            </div>
+                                        </div>
+                                        <div className="font-[family-name:var(--font-mono)] text-xs text-frost-muted text-center">{tier.name}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Tech Stack Frequency */}
+                <div className="mt-8">
+                    <div className="relative">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-electric/20 to-accent-cyan/20 rounded-3xl blur opacity-30" />
+                        <div className="relative p-8 rounded-3xl bg-midnight/90 backdrop-blur-xl border border-electric/20">
+                            <div className="flex items-center justify-between mb-8">
+                                <h3 className="font-[family-name:var(--font-heading)] text-2xl font-black text-frost">Tech Stack Frequency</h3>
+                                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-electric/10 border border-electric/30">
+                                    <span className="w-2 h-2 rounded-full bg-electric animate-pulse" />
+                                    <span className="font-[family-name:var(--font-mono)] text-xs text-electric">REAL-TIME</span>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                {projectStats.techStack.map((tech, i) => (
+                                    <div
+                                        key={tech.name}
+                                        className="group relative p-4 rounded-2xl bg-midnight-card border border-midnight-border hover:border-electric/30 transition-all duration-300 hover:scale-105"
+                                        style={{ transitionDelay: `${i * 50}ms` }}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <span className="font-[family-name:var(--font-mono)] text-sm font-semibold text-frost">{tech.name}</span>
+                                            <span
+                                                className="font-[family-name:var(--font-mono)] text-lg font-bold text-electric"
+                                                style={{ textShadow: '0 0 10px rgba(0,255,136,0.5)' }}
+                                            >
+                                                {tech.count}
+                                            </span>
+                                        </div>
+                                        <div className="mt-3 h-1.5 bg-midnight rounded-full overflow-hidden">
+                                            <div
+                                                className="h-full bg-gradient-to-r from-electric to-accent-cyan rounded-full transition-all duration-1000"
+                                                style={{
+                                                    width: barsLoaded ? `${(tech.count / 350) * 100}%` : '0%',
+                                                    transitionDelay: `${i * 100 + 500}ms`,
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
 function CTA() {
     return (
         <section className="py-32 bg-gradient-to-b from-midnight-card to-midnight relative overflow-hidden">
@@ -834,6 +1136,7 @@ export default function HomeMidnight() {
             <Services />
             <TechStack />
             <GitHubStatus />
+            <LiveProjectAnalytics />
             <FeaturedProjects />
             <CTA />
             <Footer />
