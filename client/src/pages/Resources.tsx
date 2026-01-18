@@ -758,6 +758,30 @@ export default function Resources() {
         </div>
       </section>
 
+      {/* CSS Animations for Ultra Premium Folders */}
+      <style>{`
+        @keyframes gradientShift {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        @keyframes scanline {
+          0% { transform: translateY(-100%); }
+          100% { transform: translateY(100%); }
+        }
+        @keyframes pulseGlow {
+          0%, 100% { opacity: 0.4; transform: scale(1); }
+          50% { opacity: 0.8; transform: scale(1.1); }
+        }
+        @keyframes folderFloat {
+          0%, 100% { transform: rotateY(-5deg) translateY(0); }
+          50% { transform: rotateY(-5deg) translateY(-3px); }
+        }
+        @keyframes folderSlideIn {
+          from { opacity: 0; transform: translateX(-20px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+      `}</style>
+
       {/* Grid */}
       <section className="py-8 md:py-10 lg:py-12 pb-20 md:pb-24 lg:pb-32 px-4 md:px-8 relative z-10">
         <div className="max-w-7xl mx-auto">
@@ -775,7 +799,7 @@ export default function Resources() {
             </div>
           ) : (
             <div className="space-y-6">
-              {folderTree.map((folder) => {
+              {folderTree.map((folder, folderIndex) => {
                 const folderKey = folder.id ? `folder_${folder.id}` : folder.name;
                 const isExpanded = expandedFolders.has(folderKey);
                 const resourceCount = folder.items.length;
@@ -784,211 +808,280 @@ export default function Resources() {
                 return (
                   <div
                     key={folderKey}
-                    className="bg-white/60 backdrop-blur-xl border border-gray-200/50 rounded-3xl overflow-hidden shadow-lg"
+                    className="group relative"
+                    style={{
+                      animation: `folderSlideIn 0.5s ease-out ${folderIndex * 0.1}s both`
+                    }}
                   >
-                    {/* Folder Header */}
-                    <button
-                      onClick={() => toggleFolder(folderKey)}
-                      className="w-full p-5 md:p-6 flex items-center justify-between hover:bg-white/80 transition-all group"
-                    >
-                      <div className="flex items-center gap-3 md:gap-4">
-                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shadow-lg">
-                          <FolderOpen className="w-6 h-6 md:w-7 md:h-7 text-white" />
-                        </div>
-                        <div className="text-left">
-                          <h3 className="text-xl md:text-2xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors">
-                            {folder.name.startsWith('📄') ? folder.name : `📁 ${folder.name}`}
-                          </h3>
-                          <p className="text-gray-500 text-sm md:text-base">
-                            {resourceCount} {resourceCount === 1 ? 'file' : 'files'}
-                            {hasSubfolders && `, ${folder.children.length} subfolder${folder.children.length > 1 ? 's' : ''}`}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {isExpanded ? (
-                          <ChevronDown className="w-6 h-6 text-purple-600" />
-                        ) : (
-                          <ChevronRight className="w-6 h-6 text-gray-400" />
-                        )}
-                      </div>
-                    </button>
+                    {/* Animated Gradient Border */}
+                    <div
+                      className="absolute -inset-0.5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                      style={{
+                        background: 'linear-gradient(135deg, #00ff88, #00d4ff, #6366f1, #00ff88)',
+                        backgroundSize: '300% 300%',
+                        animation: 'gradientShift 3s ease infinite'
+                      }}
+                    />
 
-                    {/* Folder Contents */}
-                    {isExpanded && (
-                      <div className="p-4 md:p-6 pt-0">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-                          {folder.items.map((resource: any, index: number) => {
-                            const thumbnail = resource.thumbnailUrl || (isYouTubeUrl(resource.fileUrl) ? getYouTubeThumbnail(resource.fileUrl) : null);
-                            const isVideo = isYouTubeUrl(resource.fileUrl) || resource.mimeType?.startsWith('video/');
-                            const isPPTFile = isPPT(resource.mimeType || '', resource.fileName || '');
-                            const isPDFFile = isPDF(resource.mimeType || '', resource.fileName || '');
-                            const canPreview = isVideo || isPPTFile || isPDFFile;
-                            const categoryInfo = getCategoryInfo(resource.category);
+                    {/* Main Card */}
+                    <div className="relative bg-gradient-to-br from-[#0a0a0a] via-[#111] to-[#0a0a0a] backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_40px_rgba(0,255,136,0.1)] group-hover:shadow-[0_0_60px_rgba(0,255,136,0.2)] transition-all duration-500">
 
-                            return (
-                              <AnimatedSection key={resource.id} delay={index * 50}>
-                                <TiltCard>
-                                  <div
-                                    className={`group rounded-2xl md:rounded-3xl overflow-hidden bg-white border border-gray-200 hover:border-purple-300 transition-all duration-500 hover:shadow-2xl ${canPreview ? 'cursor-pointer' : ''}`}
-                                    onClick={() => canPreview && handleResourceClick(resource)}
-                                  >
-                                    <div className="aspect-video overflow-hidden relative">
-                                      {isVideo ? <VideoThumbnail resource={resource} thumbnail={thumbnail} />
-                                        : isPPTFile ? <PPTThumbnail resource={resource} />
-                                          : isPDFFile ? <PDFThumbnail resource={resource} />
-                                            : thumbnail ? <img src={thumbnail} alt={resource.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                              : <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center"><FileText className="w-12 h-12 text-gray-300" /></div>}
+                      {/* Scanline Effect */}
+                      <div
+                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                        style={{
+                          background: 'linear-gradient(180deg, transparent 0%, rgba(0,255,136,0.03) 50%, transparent 100%)',
+                          backgroundSize: '100% 4px',
+                          animation: 'scanline 8s linear infinite'
+                        }}
+                      />
 
-                                      <div className="absolute top-2 md:top-3 lg:top-4 left-2 md:left-3 lg:left-4">
-                                        <span
-                                          className={`px-2 md:px-3 lg:px-4 py-1 md:py-1.5 lg:py-2 rounded-full text-[10px] md:text-xs font-medium uppercase tracking-wider backdrop-blur-xl bg-gradient-to-r ${categoryInfo.gradient} text-white shadow-lg border-2 border-white/20`}
-                                        >
-                                          {categoryInfo.label}
-                                        </span>
-                                      </div>
+                      {/* Folder Header */}
+                      <button
+                        onClick={() => toggleFolder(folderKey)}
+                        className="w-full p-5 md:p-6 flex items-center justify-between hover:bg-white/5 transition-all"
+                      >
+                        <div className="flex items-center gap-4 md:gap-5">
+                          {/* 3D Holographic Folder Icon */}
+                          <div
+                            className="relative w-14 h-14 md:w-16 md:h-16"
+                            style={{ perspective: '200px' }}
+                          >
+                            {/* Glow Ring */}
+                            <div
+                              className="absolute -inset-2 rounded-2xl opacity-60 group-hover:opacity-100 transition-opacity"
+                              style={{
+                                background: 'radial-gradient(circle, rgba(0,255,136,0.3) 0%, transparent 70%)',
+                                animation: 'pulseGlow 2s ease-in-out infinite'
+                              }}
+                            />
 
-                                      {canPreview && (
-                                        <div className="absolute top-2 md:top-3 lg:top-4 right-2 md:right-3 lg:right-4">
-                                          <span className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1 md:py-1.5 lg:py-2 rounded-full bg-white backdrop-blur-xl text-purple-600 text-[10px] md:text-xs font-medium border border-gray-200">
-                                            <Eye className="w-2.5 h-2.5 md:w-3 md:h-3" />Preview
-                                          </span>
-                                        </div>
-                                      )}
-                                    </div>
+                            {/* Folder Container */}
+                            <div
+                              className="relative w-full h-full rounded-2xl bg-gradient-to-br from-electric/30 via-accent-cyan/20 to-accent-indigo/30 border border-electric/40 flex items-center justify-center shadow-[0_0_25px_rgba(0,255,136,0.3)] group-hover:shadow-[0_0_35px_rgba(0,255,136,0.5)] transition-all duration-500"
+                              style={{
+                                transform: 'rotateY(-5deg)',
+                                transformStyle: 'preserve-3d',
+                                animation: 'folderFloat 3s ease-in-out infinite'
+                              }}
+                            >
+                              {/* Folder Icon with Glow */}
+                              <FolderOpen className="w-7 h-7 md:w-8 md:h-8 text-electric drop-shadow-[0_0_10px_rgba(0,255,136,0.8)]" />
 
-                                    <div className="p-4 md:p-5 lg:p-6">
-                                      <h3 className="text-lg md:text-xl font-semibold mb-2 md:mb-3 group-hover:text-purple-600 transition-colors line-clamp-1 text-gray-900">{resource.title}</h3>
-                                      {resource.description && <p className="text-gray-600 text-sm md:text-base mb-3 md:mb-4 line-clamp-2">{resource.description}</p>}
+                              {/* File Count Badge */}
+                              <div className="absolute -top-1 -right-1 w-5 h-5 md:w-6 md:h-6 rounded-full bg-electric flex items-center justify-center shadow-[0_0_10px_rgba(0,255,136,0.6)]">
+                                <span className="text-[10px] md:text-xs font-black text-midnight">{resourceCount}</span>
+                              </div>
+                            </div>
+                          </div>
 
-                                      <div className="flex items-center justify-between text-[10px] md:text-xs text-gray-500 mb-3 md:mb-4">
-                                        <span className="flex items-center gap-1"><Zap className="w-2.5 h-2.5 md:w-3 md:h-3 text-purple-600" />{formatFileSize(resource.fileSize)}</span>
-                                        <span className="flex items-center gap-1"><Download className="w-2.5 h-2.5 md:w-3 md:h-3" />{resource.downloadCount || 0}</span>
-                                      </div>
-
-                                      <div className="flex items-center gap-2 mb-3 md:mb-4">
-                                        <LikeButton resourceId={resource.id} />
-                                        <button
-                                          onClick={(e) => { e.stopPropagation(); setSelectedCommentResource(resource); }}
-                                          className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1.5 md:py-2 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition-all"
-                                        >
-                                          <MessageCircle className="w-3 h-3 md:w-4 md:h-4" />
-                                        </button>
-                                        <div className="flex-1" />
-                                        <span className="flex items-center gap-1 md:gap-1.5 text-pink-600 text-[10px] md:text-xs font-medium">
-                                          <Heart className="w-2.5 h-2.5 md:w-3 md:h-3 fill-current" />
-                                          {resource.downloadCount || 0}
-                                        </span>
-                                      </div>
-
-                                      <div className="flex gap-2 md:gap-3">
-                                        <Button
-                                          className="flex-1 rounded-lg md:rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 text-white h-10 md:h-12 text-sm md:text-base shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all"
-                                          onClick={e => { e.stopPropagation(); canPreview ? handleResourceClick(resource) : handleDownload(resource); }}
-                                        >
-                                          {canPreview ? <><Eye className="w-3 h-3 md:w-4 md:h-4 mr-1.5 md:mr-2" />Preview</> : <><Download className="w-3 h-3 md:w-4 md:h-4 mr-1.5 md:mr-2" />Download</>}
-                                        </Button>
-                                        <Button
-                                          variant="outline"
-                                          className="rounded-lg md:rounded-xl border-gray-300 bg-white hover:bg-gray-100 h-10 md:h-12 w-10 md:w-12 p-0"
-                                          onClick={e => { e.stopPropagation(); handleDownload(resource); }}
-                                        >
-                                          <Download className="w-3 h-3 md:w-4 md:h-4" />
-                                        </Button>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </TiltCard>
-                              </AnimatedSection>
-                            );
-                          })}
+                          {/* Folder Info */}
+                          <div className="text-left">
+                            <h3 className="text-xl md:text-2xl font-black text-white group-hover:text-electric transition-colors" style={{ textShadow: '0 0 20px rgba(0,255,136,0.3)' }}>
+                              {folder.name}
+                            </h3>
+                            <div className="flex items-center gap-3 mt-1">
+                              <span className="px-2 py-0.5 rounded-md bg-electric/20 text-electric text-xs font-mono border border-electric/30">
+                                {resourceCount} {resourceCount === 1 ? 'FILE' : 'FILES'}
+                              </span>
+                              {hasSubfolders && (
+                                <span className="px-2 py-0.5 rounded-md bg-accent-cyan/20 text-accent-cyan text-xs font-mono border border-accent-cyan/30">
+                                  {folder.children.length} SUBDIR
+                                </span>
+                              )}
+                              <span className="flex items-center gap-1.5 text-xs text-white/40 font-mono">
+                                <div className="w-1.5 h-1.5 rounded-full bg-electric animate-pulse" />
+                                READY
+                              </span>
+                            </div>
+                          </div>
                         </div>
 
-                        {/* Subfolders inside parent */}
-                        {hasSubfolders && (
-                          <div className="mt-6 space-y-4">
-                            {folder.children.map((subfolder) => {
-                              const subfolderKey = subfolder.id ? `folder_${subfolder.id}` : subfolder.name;
-                              const isSubExpanded = expandedFolders.has(subfolderKey);
-                              const subResourceCount = subfolder.items.length;
+                        {/* Expand/Collapse Button */}
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${isExpanded ? 'bg-electric/20 border border-electric/40' : 'bg-white/5 border border-white/10'}`}>
+                          {isExpanded ? (
+                            <ChevronDown className="w-5 h-5 text-electric" />
+                          ) : (
+                            <ChevronRight className="w-5 h-5 text-white/40 group-hover:text-white/80 transition-colors" />
+                          )}
+                        </div>
+                      </button>
+
+                      {/* Folder Contents */}
+                      {isExpanded && (
+                        <div className="p-4 md:p-6 pt-0">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+                            {folder.items.map((resource: any, index: number) => {
+                              const thumbnail = resource.thumbnailUrl || (isYouTubeUrl(resource.fileUrl) ? getYouTubeThumbnail(resource.fileUrl) : null);
+                              const isVideo = isYouTubeUrl(resource.fileUrl) || resource.mimeType?.startsWith('video/');
+                              const isPPTFile = isPPT(resource.mimeType || '', resource.fileName || '');
+                              const isPDFFile = isPDF(resource.mimeType || '', resource.fileName || '');
+                              const canPreview = isVideo || isPPTFile || isPDFFile;
+                              const categoryInfo = getCategoryInfo(resource.category);
 
                               return (
-                                <div key={subfolderKey} className="bg-white/50 border border-gray-200/40 rounded-2xl overflow-hidden ml-4">
-                                  {/* Subfolder Header */}
-                                  <button
-                                    onClick={(e) => { e.stopPropagation(); toggleFolder(subfolderKey); }}
-                                    className="w-full p-4 flex items-center justify-between hover:bg-white/70 transition-all group"
-                                  >
-                                    <div className="flex items-center gap-3">
-                                      <span className="text-purple-400 text-lg">↳</span>
-                                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow">
-                                        <FolderOpen className="w-5 h-5 text-white" />
-                                      </div>
-                                      <div className="text-left">
-                                        <h4 className="text-lg font-bold text-gray-800 group-hover:text-blue-600 transition-colors">
-                                          📂 {subfolder.name}
-                                        </h4>
-                                        <p className="text-gray-500 text-sm">{subResourceCount} files</p>
-                                      </div>
-                                    </div>
-                                    <div className="flex items-center">
-                                      {isSubExpanded ? (
-                                        <ChevronDown className="w-5 h-5 text-blue-600" />
-                                      ) : (
-                                        <ChevronRight className="w-5 h-5 text-gray-400" />
-                                      )}
-                                    </div>
-                                  </button>
+                                <AnimatedSection key={resource.id} delay={index * 50}>
+                                  <TiltCard>
+                                    <div
+                                      className={`group rounded-2xl md:rounded-3xl overflow-hidden bg-white border border-gray-200 hover:border-purple-300 transition-all duration-500 hover:shadow-2xl ${canPreview ? 'cursor-pointer' : ''}`}
+                                      onClick={() => canPreview && handleResourceClick(resource)}
+                                    >
+                                      <div className="aspect-video overflow-hidden relative">
+                                        {isVideo ? <VideoThumbnail resource={resource} thumbnail={thumbnail} />
+                                          : isPPTFile ? <PPTThumbnail resource={resource} />
+                                            : isPDFFile ? <PDFThumbnail resource={resource} />
+                                              : thumbnail ? <img src={thumbnail} alt={resource.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                                : <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center"><FileText className="w-12 h-12 text-gray-300" /></div>}
 
-                                  {/* Subfolder Contents */}
-                                  {isSubExpanded && subfolder.items.length > 0 && (
-                                    <div className="p-4 pt-0">
-                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        {subfolder.items.map((resource: any) => {
-                                          const canPreview = isYouTubeUrl(resource.fileUrl) || resource.mimeType?.startsWith('video/') || isPPT(resource.mimeType || '', resource.fileName || '') || isPDF(resource.mimeType || '', resource.fileName || '');
+                                        <div className="absolute top-2 md:top-3 lg:top-4 left-2 md:left-3 lg:left-4">
+                                          <span
+                                            className={`px-2 md:px-3 lg:px-4 py-1 md:py-1.5 lg:py-2 rounded-full text-[10px] md:text-xs font-medium uppercase tracking-wider backdrop-blur-xl bg-gradient-to-r ${categoryInfo.gradient} text-white shadow-lg border-2 border-white/20`}
+                                          >
+                                            {categoryInfo.label}
+                                          </span>
+                                        </div>
 
-                                          return (
-                                            <div
-                                              key={resource.id}
-                                              className={`p-3 bg-white rounded-xl border border-gray-200 hover:border-blue-300 transition-all ${canPreview ? 'cursor-pointer' : ''}`}
-                                              onClick={() => canPreview && handleResourceClick(resource)}
-                                            >
-                                              <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-                                                  <FileText className="w-5 h-5 text-gray-400" />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                  <p className="font-medium text-gray-900 truncate text-sm">{resource.title}</p>
-                                                  <p className="text-xs text-gray-500 truncate">{resource.fileName}</p>
-                                                </div>
-                                                <Button
-                                                  size="sm"
-                                                  variant="ghost"
-                                                  className="h-8 w-8 p-0"
-                                                  onClick={(e) => { e.stopPropagation(); handleDownload(resource); }}
-                                                >
-                                                  <Download className="w-4 h-4" />
-                                                </Button>
-                                              </div>
-                                            </div>
-                                          );
-                                        })}
+                                        {canPreview && (
+                                          <div className="absolute top-2 md:top-3 lg:top-4 right-2 md:right-3 lg:right-4">
+                                            <span className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1 md:py-1.5 lg:py-2 rounded-full bg-white backdrop-blur-xl text-purple-600 text-[10px] md:text-xs font-medium border border-gray-200">
+                                              <Eye className="w-2.5 h-2.5 md:w-3 md:h-3" />Preview
+                                            </span>
+                                          </div>
+                                        )}
+                                      </div>
+
+                                      <div className="p-4 md:p-5 lg:p-6">
+                                        <h3 className="text-lg md:text-xl font-semibold mb-2 md:mb-3 group-hover:text-purple-600 transition-colors line-clamp-1 text-gray-900">{resource.title}</h3>
+                                        {resource.description && <p className="text-gray-600 text-sm md:text-base mb-3 md:mb-4 line-clamp-2">{resource.description}</p>}
+
+                                        <div className="flex items-center justify-between text-[10px] md:text-xs text-gray-500 mb-3 md:mb-4">
+                                          <span className="flex items-center gap-1"><Zap className="w-2.5 h-2.5 md:w-3 md:h-3 text-purple-600" />{formatFileSize(resource.fileSize)}</span>
+                                          <span className="flex items-center gap-1"><Download className="w-2.5 h-2.5 md:w-3 md:h-3" />{resource.downloadCount || 0}</span>
+                                        </div>
+
+                                        <div className="flex items-center gap-2 mb-3 md:mb-4">
+                                          <LikeButton resourceId={resource.id} />
+                                          <button
+                                            onClick={(e) => { e.stopPropagation(); setSelectedCommentResource(resource); }}
+                                            className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1.5 md:py-2 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition-all"
+                                          >
+                                            <MessageCircle className="w-3 h-3 md:w-4 md:h-4" />
+                                          </button>
+                                          <div className="flex-1" />
+                                          <span className="flex items-center gap-1 md:gap-1.5 text-pink-600 text-[10px] md:text-xs font-medium">
+                                            <Heart className="w-2.5 h-2.5 md:w-3 md:h-3 fill-current" />
+                                            {resource.downloadCount || 0}
+                                          </span>
+                                        </div>
+
+                                        <div className="flex gap-2 md:gap-3">
+                                          <Button
+                                            className="flex-1 rounded-lg md:rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 text-white h-10 md:h-12 text-sm md:text-base shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all"
+                                            onClick={e => { e.stopPropagation(); canPreview ? handleResourceClick(resource) : handleDownload(resource); }}
+                                          >
+                                            {canPreview ? <><Eye className="w-3 h-3 md:w-4 md:h-4 mr-1.5 md:mr-2" />Preview</> : <><Download className="w-3 h-3 md:w-4 md:h-4 mr-1.5 md:mr-2" />Download</>}
+                                          </Button>
+                                          <Button
+                                            variant="outline"
+                                            className="rounded-lg md:rounded-xl border-gray-300 bg-white hover:bg-gray-100 h-10 md:h-12 w-10 md:w-12 p-0"
+                                            onClick={e => { e.stopPropagation(); handleDownload(resource); }}
+                                          >
+                                            <Download className="w-3 h-3 md:w-4 md:h-4" />
+                                          </Button>
+                                        </div>
                                       </div>
                                     </div>
-                                  )}
-                                </div>
+                                  </TiltCard>
+                                </AnimatedSection>
                               );
                             })}
                           </div>
-                        )}
-                      </div>
-                    )}
+
+                          {/* Subfolders inside parent */}
+                          {hasSubfolders && (
+                            <div className="mt-6 space-y-4">
+                              {folder.children.map((subfolder) => {
+                                const subfolderKey = subfolder.id ? `folder_${subfolder.id}` : subfolder.name;
+                                const isSubExpanded = expandedFolders.has(subfolderKey);
+                                const subResourceCount = subfolder.items.length;
+
+                                return (
+                                  <div key={subfolderKey} className="bg-white/50 border border-gray-200/40 rounded-2xl overflow-hidden ml-4">
+                                    {/* Subfolder Header */}
+                                    <button
+                                      onClick={(e) => { e.stopPropagation(); toggleFolder(subfolderKey); }}
+                                      className="w-full p-4 flex items-center justify-between hover:bg-white/70 transition-all group"
+                                    >
+                                      <div className="flex items-center gap-3">
+                                        <span className="text-purple-400 text-lg">↳</span>
+                                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow">
+                                          <FolderOpen className="w-5 h-5 text-white" />
+                                        </div>
+                                        <div className="text-left">
+                                          <h4 className="text-lg font-bold text-gray-800 group-hover:text-blue-600 transition-colors">
+                                            📂 {subfolder.name}
+                                          </h4>
+                                          <p className="text-gray-500 text-sm">{subResourceCount} files</p>
+                                        </div>
+                                      </div>
+                                      <div className="flex items-center">
+                                        {isSubExpanded ? (
+                                          <ChevronDown className="w-5 h-5 text-blue-600" />
+                                        ) : (
+                                          <ChevronRight className="w-5 h-5 text-gray-400" />
+                                        )}
+                                      </div>
+                                    </button>
+
+                                    {/* Subfolder Contents */}
+                                    {isSubExpanded && subfolder.items.length > 0 && (
+                                      <div className="p-4 pt-0">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                          {subfolder.items.map((resource: any) => {
+                                            const canPreview = isYouTubeUrl(resource.fileUrl) || resource.mimeType?.startsWith('video/') || isPPT(resource.mimeType || '', resource.fileName || '') || isPDF(resource.mimeType || '', resource.fileName || '');
+
+                                            return (
+                                              <div
+                                                key={resource.id}
+                                                className={`p-3 bg-white rounded-xl border border-gray-200 hover:border-blue-300 transition-all ${canPreview ? 'cursor-pointer' : ''}`}
+                                                onClick={() => canPreview && handleResourceClick(resource)}
+                                              >
+                                                <div className="flex items-center gap-3">
+                                                  <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                                                    <FileText className="w-5 h-5 text-gray-400" />
+                                                  </div>
+                                                  <div className="flex-1 min-w-0">
+                                                    <p className="font-medium text-gray-900 truncate text-sm">{resource.title}</p>
+                                                    <p className="text-xs text-gray-500 truncate">{resource.fileName}</p>
+                                                  </div>
+                                                  <Button
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    className="h-8 w-8 p-0"
+                                                    onClick={(e) => { e.stopPropagation(); handleDownload(resource); }}
+                                                  >
+                                                    <Download className="w-4 h-4" />
+                                                  </Button>
+                                                </div>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 );
               })}
             </div>
-          )
-          }
+          )}
         </div>
       </section>
 
