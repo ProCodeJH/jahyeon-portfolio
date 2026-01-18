@@ -877,7 +877,7 @@ export default function Resources() {
 
                           {/* Folder Info */}
                           <div className="text-left">
-                            <h3 className="text-2xl md:text-3xl lg:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-electric via-accent-cyan to-electric group-hover:from-white group-hover:to-electric transition-all" style={{ textShadow: '0 0 40px rgba(0,255,136,0.5), 0 0 80px rgba(0,255,136,0.3)' }}>
+                            <h3 className="text-2xl md:text-3xl lg:text-4xl font-black text-white group-hover:text-electric transition-all" style={{ textShadow: '0 0 30px rgba(0,255,136,0.4)' }}>
                               {folder.name}
                             </h3>
                             <div className="flex items-center gap-3 mt-2">
@@ -951,7 +951,7 @@ export default function Resources() {
                                       </div>
 
                                       <div className="p-4 md:p-5 lg:p-6">
-                                        <h3 className="text-xl md:text-2xl font-bold mb-2 md:mb-3 text-transparent bg-clip-text bg-gradient-to-r from-frost via-electric to-frost group-hover:from-electric group-hover:to-accent-cyan transition-all line-clamp-1" style={{ textShadow: '0 0 20px rgba(0,255,136,0.3)' }}>{resource.title}</h3>
+                                        <h3 className="text-xl md:text-2xl font-bold text-white group-hover:text-electric transition-all line-clamp-1" style={{ textShadow: '0 0 15px rgba(0,255,136,0.3)' }}>{resource.title}</h3>
                                         {resource.description && <p className="text-frost-muted text-sm md:text-base mb-3 md:mb-4 line-clamp-2 leading-relaxed">{resource.description}</p>}
 
                                         <div className="flex items-center justify-between text-[10px] md:text-xs text-frost-muted mb-3 md:mb-4">
@@ -1018,7 +1018,7 @@ export default function Resources() {
                                           <FolderOpen className="w-5 h-5 text-electric" />
                                         </div>
                                         <div className="text-left">
-                                          <h4 className="text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-electric to-accent-cyan group-hover:from-accent-cyan group-hover:to-electric transition-all" style={{ textShadow: '0 0 25px rgba(0,255,136,0.4)' }}>
+                                          <h4 className="text-xl md:text-2xl font-bold text-white group-hover:text-electric transition-all" style={{ textShadow: '0 0 20px rgba(0,255,136,0.3)' }}>
                                             {subfolder.name}
                                           </h4>
                                           <p className="text-frost-muted text-sm mt-1">
@@ -1053,7 +1053,7 @@ export default function Resources() {
                                                     <FileText className="w-5 h-5 text-electric" />
                                                   </div>
                                                   <div className="flex-1 min-w-0">
-                                                    <p className="font-bold text-frost truncate text-base group-hover:text-electric transition-colors" style={{ textShadow: '0 0 10px rgba(0,255,136,0.2)' }}>{resource.title}</p>
+                                                    <p className="font-bold text-white truncate text-base group-hover:text-electric transition-colors" style={{ textShadow: '0 0 8px rgba(0,255,136,0.2)' }}>{resource.title}</p>
                                                     <p className="text-xs text-frost-muted truncate mt-0.5">{resource.fileName}</p>
                                                   </div>
                                                   <Button
