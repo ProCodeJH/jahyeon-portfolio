@@ -478,21 +478,25 @@ export default function Resources() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0a1a] via-[#12121a] to-[#0a0a1a] text-white overflow-hidden">
+    <div className="min-h-screen bg-midnight text-frost overflow-hidden">
       {/* 🔒 3D SECURE VAULT OVERLAY - Premium Lock Screen */}
       {!isStudent && (
-        <Suspense fallback={<div className="fixed inset-0 z-50 bg-black" />}>
+        <Suspense fallback={<div className="fixed inset-0 z-50 bg-midnight" />}>
           <SecureVaultOverlay
             isAuthenticated={isStudent}
             onUnlockComplete={() => window.location.reload()}
           />
         </Suspense>
       )}
-      {/* Dark Neon Background */}
+      {/* Midnight Neon Background */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-cyan-900/20" />
-        <div className="absolute top-0 left-0 w-[800px] h-[800px] bg-purple-600/15 rounded-full blur-[150px] -translate-x-1/2 -translate-y-1/2" />
-        <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-cyan-600/15 rounded-full blur-[120px] translate-x-1/3 translate-y-1/3" />
+        <div className="absolute inset-0 bg-gradient-to-br from-midnight via-midnight-card to-midnight" />
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-electric/10 rounded-full blur-[180px] animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-accent-indigo/15 rounded-full blur-[150px]" style={{ animation: 'pulse 4s ease-in-out infinite alternate' }} />
+        <div className="absolute top-1/2 left-0 w-[400px] h-[400px] bg-accent-cyan/10 rounded-full blur-[120px]" style={{ animation: 'pulse 3s ease-in-out infinite alternate-reverse' }} />
+
+        {/* Grid Pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,136,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,136,0.03)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_80%)]" />
       </div>
 
       {/* Navigation */}
@@ -502,18 +506,18 @@ export default function Resources() {
       <section className="pt-32 md:pt-36 lg:pt-40 pb-8 md:pb-10 lg:pb-12 px-4 md:px-8 relative z-10">
         <div className="max-w-7xl mx-auto">
           <AnimatedSection>
-            <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center" style={{ boxShadow: '0 0 30px rgba(168, 85, 247, 0.4)' }}>
-                <BookOpen className="w-5 h-5 md:w-6 md:h-6 text-white" />
-              </div>
-              <p className="text-purple-400 font-medium text-xs md:text-sm tracking-wider uppercase">Learning Materials</p>
+            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-gradient-to-r from-electric/10 via-accent-cyan/10 to-accent-indigo/10 border border-electric/30 backdrop-blur-xl mb-8 shadow-[0_0_60px_rgba(0,255,136,0.2)]">
+              <BookOpen className="w-5 h-5 text-electric" />
+              <span className="font-[family-name:var(--font-mono)] text-sm text-frost tracking-wider uppercase">Learning Materials</span>
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 md:mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400">
-              Resources
+            <h1 className="font-[family-name:var(--font-heading)] text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black mb-4 md:mb-6" style={{ textShadow: '0 0 80px rgba(0,255,136,0.4)' }}>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-electric via-accent-cyan to-electric">
+                Resources
+              </span>
             </h1>
-            <p className="text-gray-400 text-base md:text-lg lg:text-xl max-w-2xl">
+            <p className="font-[family-name:var(--font-body)] text-frost-muted text-base md:text-lg lg:text-xl max-w-2xl">
               Access lecture materials, code samples, presentations, and video tutorials.
-              <span className="flex items-center gap-2 text-purple-400 mt-2 md:mt-3 text-sm md:text-base font-medium"><Eye className="w-3 h-3 md:w-4 md:h-4" />Click to preview PPT/PDF files!</span>
+              <span className="flex items-center gap-2 text-electric mt-2 md:mt-3 text-sm md:text-base font-[family-name:var(--font-mono)]"><Eye className="w-3 h-3 md:w-4 md:h-4" />Click to preview PPT/PDF files!</span>
             </p>
           </AnimatedSection>
         </div>
@@ -729,7 +733,7 @@ export default function Resources() {
       )}
 
       {/* Filter */}
-      <section className="py-4 md:py-6 lg:py-8 sticky top-16 md:top-20 lg:top-24 z-40 bg-[#12121a]/80 backdrop-blur-xl border-y border-white/10">
+      <section className="py-4 md:py-6 lg:py-8 sticky top-16 md:top-20 lg:top-24 z-40 bg-midnight/90 backdrop-blur-xl border-y border-electric/10">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <AnimatedSection delay={100}>
             <div className="flex flex-wrap gap-2 md:gap-3">
@@ -740,9 +744,9 @@ export default function Resources() {
                   <button
                     key={category.value}
                     onClick={() => setActiveCategory(category.value)}
-                    className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 lg:px-5 py-2 md:py-2.5 lg:py-3 rounded-full text-xs md:text-sm font-medium transition-all border-2 ${isActive
-                      ? `bg-gradient-to-r ${category.gradient} text-white shadow-lg border-transparent`
-                      : "bg-white/5 text-gray-400 border-white/10 hover:border-purple-500/50 hover:text-purple-400"
+                    className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 lg:px-5 py-2 md:py-2.5 lg:py-3 rounded-full font-[family-name:var(--font-mono)] text-xs md:text-sm font-medium transition-all border ${isActive
+                      ? "bg-electric text-midnight border-electric shadow-[0_0_30px_rgba(0,255,136,0.3)]"
+                      : "bg-midnight-card/50 text-frost-muted border-midnight-border hover:border-electric/50 hover:text-electric"
                       }`}
                   >
                     <Icon className="w-3 h-3 md:w-4 md:h-4" /><span className="hidden sm:inline">{category.label}</span><span className="sm:hidden">{category.label.split(' ')[0]}</span>

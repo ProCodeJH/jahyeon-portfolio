@@ -1258,8 +1258,8 @@ export default function HomeMidnight() {
             <Services />
             <GitHubStatus />
             <LiveProjectAnalytics />
-            <YouTubeShowcase />
             <FeaturedProjects />
+            <YouTubeShowcase />
             <CTA />
             <Footer />
         </div>

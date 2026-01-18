@@ -2,7 +2,7 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { ExternalLink, Github, Loader2, Eye, Code, Play, X, ArrowUpRight, ArrowLeft } from "lucide-react";
+import { ExternalLink, Github, Loader2, Eye, Code, Play, X, ArrowUpRight, ArrowLeft, Layers } from "lucide-react";
 import { TiltCard } from "@/components/effects/TiltCard";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
 import { Navigation } from "@/components/layout/Navigation";
@@ -26,19 +26,22 @@ export default function Projects() {
 
   // 🎨 태그별 색상 생성
   const getTagColor = (tag: string) => {
-    const colors = ['#a855f7', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#06B6D4', '#EC4899', '#EF4444'];
+    const colors = ['#00FF88', '#22D3EE', '#6366F1', '#F59E0B', '#EC4899', '#8B5CF6', '#10B981'];
     const hash = tag.split('').reduce((acc, char) => char.charCodeAt(0) + acc, 0);
     return colors[hash % colors.length];
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0a1a] via-[#12121a] to-[#0a0a1a] text-white overflow-hidden">
-      {/* 🌊 DARK NEON BACKGROUND */}
+    <div className="min-h-screen bg-midnight text-frost overflow-hidden">
+      {/* 🌊 MIDNIGHT NEON BACKGROUND */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-cyan-900/20" />
-        <div className="absolute top-0 left-0 w-[800px] h-[800px] bg-purple-600/15 rounded-full blur-[150px] -translate-x-1/2 -translate-y-1/2" />
-        <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-cyan-600/15 rounded-full blur-[120px] translate-x-1/3 translate-y-1/3" />
-        <div className="absolute top-1/2 left-1/2 w-[500px] h-[500px] bg-pink-600/10 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute inset-0 bg-gradient-to-br from-midnight via-midnight-card to-midnight" />
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-electric/10 rounded-full blur-[180px] animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-accent-indigo/15 rounded-full blur-[150px]" style={{ animation: 'pulse 4s ease-in-out infinite alternate' }} />
+        <div className="absolute top-1/2 left-0 w-[400px] h-[400px] bg-accent-cyan/10 rounded-full blur-[120px]" style={{ animation: 'pulse 3s ease-in-out infinite alternate-reverse' }} />
+
+        {/* Grid Pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,136,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,136,0.03)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_80%)]" />
       </div>
 
       {/* Navigation */}
@@ -49,15 +52,25 @@ export default function Projects() {
         <div className="max-w-7xl mx-auto">
           <AnimatedSection>
             <Link href="/">
-              <button className="flex items-center gap-2 text-gray-400 hover:text-purple-400 transition-colors mb-6 md:mb-8 group">
+              <button className="flex items-center gap-2 text-frost-muted hover:text-electric transition-colors mb-6 md:mb-8 group">
                 <ArrowLeft className="w-4 h-4 md:w-5 md:h-5 group-hover:-translate-x-1 transition-transform" />
-                <span className="text-base md:text-lg">Back to Home</span>
+                <span className="font-[family-name:var(--font-mono)] text-base md:text-lg">Back to Home</span>
               </button>
             </Link>
-            <h1 className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold leading-[0.95] mb-6 md:mb-8 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400">
-              Work.
+
+            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-gradient-to-r from-electric/10 via-accent-cyan/10 to-accent-indigo/10 border border-electric/30 backdrop-blur-xl mb-8 shadow-[0_0_60px_rgba(0,255,136,0.2)]">
+              <Layers className="w-5 h-5 text-electric" />
+              <span className="font-[family-name:var(--font-mono)] text-sm text-frost tracking-wider uppercase">Portfolio</span>
+              <div className="h-4 w-px bg-frost/20" />
+              <span className="font-[family-name:var(--font-mono)] text-xs text-electric">{projects?.length || 0} Projects</span>
+            </div>
+
+            <h1 className="font-[family-name:var(--font-heading)] text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black leading-[0.95] mb-6 md:mb-8" style={{ textShadow: '0 0 80px rgba(0,255,136,0.4)' }}>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-electric via-accent-cyan to-electric">
+                Work.
+              </span>
             </h1>
-            <p className="text-lg md:text-xl lg:text-2xl text-gray-400 max-w-3xl leading-relaxed">
+            <p className="font-[family-name:var(--font-body)] text-lg md:text-xl lg:text-2xl text-frost-muted max-w-3xl leading-relaxed">
               Embedded systems, IoT solutions, and software development projects
               that push the boundaries of innovation.
             </p>
@@ -66,22 +79,22 @@ export default function Projects() {
       </section>
 
       {/* 🏷️ DYNAMIC TAG FILTER - 태그 기반 필터링 */}
-      <section className="py-4 md:py-6 lg:py-8 sticky top-16 md:top-20 lg:top-24 z-40 bg-[#12121a]/80 backdrop-blur-xl border-y border-white/10">
+      <section className="py-4 md:py-6 lg:py-8 sticky top-16 md:top-20 lg:top-24 z-40 bg-midnight/90 backdrop-blur-xl border-y border-electric/10">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <AnimatedSection delay={100}>
             <div className="flex flex-wrap gap-2 md:gap-3">
               {/* All Projects 버튼 */}
               <button
                 onClick={() => setActiveTag("all")}
-                className={`group flex items-center gap-1.5 md:gap-2 px-3 md:px-5 lg:px-6 py-2 md:py-2.5 lg:py-3 rounded-full text-xs md:text-sm lg:text-base font-medium transition-all border-2 ${activeTag === "all"
-                  ? "bg-gradient-to-r from-purple-600 to-cyan-600 text-white border-transparent shadow-lg shadow-purple-500/30"
-                  : "bg-white/5 text-gray-400 border-white/10 hover:border-purple-500/50 hover:text-purple-400"
+                className={`group flex items-center gap-1.5 md:gap-2 px-3 md:px-5 lg:px-6 py-2 md:py-2.5 lg:py-3 rounded-full font-[family-name:var(--font-mono)] text-xs md:text-sm lg:text-base font-medium transition-all border ${activeTag === "all"
+                  ? "bg-electric text-midnight border-electric shadow-[0_0_30px_rgba(0,255,136,0.3)]"
+                  : "bg-midnight-card/50 text-frost-muted border-midnight-border hover:border-electric/50 hover:text-electric"
                   }`}
               >
                 <Code className="w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5" />
                 <span>All Projects</span>
                 {activeTag === "all" && (
-                  <span className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-white animate-pulse" />
+                  <span className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-midnight animate-pulse" />
                 )}
               </button>
 
@@ -90,14 +103,14 @@ export default function Projects() {
                 <button
                   key={tag}
                   onClick={() => setActiveTag(tag)}
-                  className={`group flex items-center gap-1.5 md:gap-2 px-3 md:px-5 lg:px-6 py-2 md:py-2.5 lg:py-3 rounded-full text-xs md:text-sm lg:text-base font-medium transition-all border-2 ${activeTag === tag
-                    ? "bg-gradient-to-r from-purple-600 to-cyan-600 text-white border-transparent shadow-lg shadow-purple-500/30"
-                    : "bg-white/5 text-gray-400 border-white/10 hover:border-purple-500/50 hover:text-purple-400"
+                  className={`group flex items-center gap-1.5 md:gap-2 px-3 md:px-5 lg:px-6 py-2 md:py-2.5 lg:py-3 rounded-full font-[family-name:var(--font-mono)] text-xs md:text-sm lg:text-base font-medium transition-all border ${activeTag === tag
+                    ? "bg-electric text-midnight border-electric shadow-[0_0_30px_rgba(0,255,136,0.3)]"
+                    : "bg-midnight-card/50 text-frost-muted border-midnight-border hover:border-electric/50 hover:text-electric"
                     }`}
                 >
                   <span>{tag}</span>
                   {activeTag === tag && (
-                    <span className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-white animate-pulse" />
+                    <span className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-midnight animate-pulse" />
                   )}
                 </button>
               ))}
@@ -111,14 +124,14 @@ export default function Projects() {
         <div className="max-w-7xl mx-auto">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-32">
-              <Loader2 className="w-12 h-12 animate-spin text-purple-500 mb-4" />
-              <p className="text-gray-500 text-lg">Loading projects...</p>
+              <Loader2 className="w-12 h-12 animate-spin text-electric mb-4" />
+              <p className="font-[family-name:var(--font-mono)] text-frost-muted text-lg">Loading projects...</p>
             </div>
           ) : !filteredProjects?.length ? (
             <div className="text-center py-32">
-              <Code className="w-20 h-20 text-gray-200 mx-auto mb-6" />
-              <h3 className="text-3xl font-bold mb-2 text-gray-900">No projects found</h3>
-              <p className="text-gray-500">Try selecting a different tag</p>
+              <Code className="w-20 h-20 text-frost-muted/30 mx-auto mb-6" />
+              <h3 className="font-[family-name:var(--font-heading)] text-3xl font-bold mb-2 text-frost">No projects found</h3>
+              <p className="text-frost-muted">Try selecting a different tag</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 lg:gap-8">
@@ -129,7 +142,7 @@ export default function Projects() {
                   <AnimatedSection key={project.id} delay={index * 80}>
                     <TiltCard>
                       <div
-                        className="group relative rounded-xl md:rounded-2xl overflow-hidden bg-white border border-gray-200 hover:border-purple-300 transition-all hover:shadow-2xl cursor-pointer"
+                        className="group relative rounded-xl md:rounded-2xl overflow-hidden bg-midnight-card border border-midnight-border hover:border-electric/50 transition-all hover:shadow-[0_0_40px_rgba(0,255,136,0.15)] cursor-pointer"
                         onClick={() => setSelectedProject(project)}
                       >
                         {/* Image Container */}
@@ -141,18 +154,18 @@ export default function Projects() {
                                 alt={project.title}
                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                               />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-purple-900/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
+                              <div className="absolute inset-0 bg-gradient-to-t from-midnight via-midnight/40 to-transparent opacity-70 group-hover:opacity-90 transition-opacity" />
                             </>
                           ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-purple-100 to-blue-100 flex items-center justify-center">
-                              <Code className="w-12 h-12 md:w-16 md:h-16 text-gray-300" />
+                            <div className="w-full h-full bg-gradient-to-br from-midnight-card to-midnight flex items-center justify-center">
+                              <Code className="w-12 h-12 md:w-16 md:h-16 text-frost-muted/30" />
                             </div>
                           )}
 
                           {/* View Count */}
                           <div className="absolute top-3 md:top-4 right-3 md:right-4">
-                            <span className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1 md:py-2 rounded-full bg-white/90 backdrop-blur-xl text-gray-700 text-[10px] md:text-xs font-semibold border border-gray-200">
-                              <Eye className="w-3 h-3" />{project.viewCount}
+                            <span className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1 md:py-2 rounded-full bg-midnight/90 backdrop-blur-xl text-frost text-[10px] md:text-xs font-[family-name:var(--font-mono)] font-semibold border border-electric/20">
+                              <Eye className="w-3 h-3 text-electric" />{project.viewCount}
                             </span>
                           </div>
 
