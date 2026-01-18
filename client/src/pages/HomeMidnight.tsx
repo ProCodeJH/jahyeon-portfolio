@@ -321,51 +321,220 @@ function Hero() {
 }
 
 function ServiceCard({ title, description, icon: Icon, gradient }: ServiceCardProps) {
-    return (
-        <div className={`group relative p-8 rounded-3xl bg-gradient-to-br ${gradient} backdrop-blur-xl border border-frost/5 hover:border-electric/30 transition-all duration-700 hover:scale-[1.02] hover:shadow-[0_20px_60px_rgba(0,255,136,0.1)]`}>
-            {/* Corner Accent */}
-            <div className="absolute top-0 right-0 w-24 h-24 bg-electric/10 rounded-bl-[80px] rounded-tr-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+    const [progress, setProgress] = useState(0);
+    const [isHovered, setIsHovered] = useState(false);
 
-            <div className="relative z-10">
-                <div className="w-16 h-16 rounded-2xl bg-electric/10 border border-electric/20 flex items-center justify-center mb-8 group-hover:scale-110 group-hover:bg-electric/20 transition-all duration-500">
-                    <Icon className="w-8 h-8 text-electric" />
+    useEffect(() => {
+        const timer = setTimeout(() => setProgress(95), 500);
+        return () => clearTimeout(timer);
+    }, []);
+
+    return (
+        <div
+            className={`group relative overflow-hidden rounded-3xl bg-gradient-to-br ${gradient} backdrop-blur-xl border border-frost/5 hover:border-electric/50 transition-all duration-700 hover:shadow-[0_0_80px_rgba(0,255,136,0.15)]`}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
+            {/* Animated Background Grid */}
+            <div className="absolute inset-0 opacity-20">
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,136,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,136,0.05)_1px,transparent_1px)] bg-[size:20px_20px]" />
+            </div>
+
+            {/* Scanning Line Animation */}
+            <div
+                className="absolute inset-0 pointer-events-none overflow-hidden"
+                style={{ opacity: isHovered ? 1 : 0, transition: 'opacity 0.5s' }}
+            >
+                <div
+                    className="absolute w-full h-1 bg-gradient-to-r from-transparent via-electric/60 to-transparent"
+                    style={{ animation: 'scanLine 2s ease-in-out infinite' }}
+                />
+            </div>
+
+            <div className="relative z-10 p-8">
+                {/* Header with Terminal Style */}
+                <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-4">
+                        <div className="relative">
+                            <div className="w-16 h-16 rounded-2xl bg-midnight/80 border border-electric/30 flex items-center justify-center group-hover:border-electric/60 transition-all duration-500">
+                                <Icon className="w-8 h-8 text-electric group-hover:scale-110 transition-transform duration-500" />
+                            </div>
+                            {/* Pulse Ring */}
+                            <div className="absolute -inset-1 rounded-2xl border border-electric/20 opacity-0 group-hover:opacity-100 animate-ping" style={{ animationDuration: '2s' }} />
+                        </div>
+                        <div>
+                            <h3 className="font-[family-name:var(--font-heading)] text-xl font-bold text-frost group-hover:text-electric transition-colors duration-300">
+                                {title}
+                            </h3>
+                            <span className="font-[family-name:var(--font-mono)] text-xs text-electric/60">ACTIVE MODULE</span>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-electric animate-pulse" />
+                        <span className="font-[family-name:var(--font-mono)] text-xs text-electric">ONLINE</span>
+                    </div>
                 </div>
 
-                <h3 className="font-[family-name:var(--font-heading)] text-2xl font-bold text-frost mb-4 group-hover:text-electric transition-colors duration-300">
-                    {title}
-                </h3>
-
-                <p className="font-[family-name:var(--font-body)] text-frost-muted leading-relaxed">
+                {/* Description */}
+                <p className="font-[family-name:var(--font-body)] text-frost-muted leading-relaxed mb-6">
                     {description}
                 </p>
+
+                {/* Progress Bar */}
+                <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                        <span className="font-[family-name:var(--font-mono)] text-xs text-frost-muted">PROFICIENCY</span>
+                        <span className="font-[family-name:var(--font-mono)] text-xs text-electric" style={{ textShadow: '0 0 10px rgba(0,255,136,0.5)' }}>{progress}%</span>
+                    </div>
+                    <div className="h-2 bg-midnight/60 rounded-full overflow-hidden">
+                        <div
+                            className="h-full bg-gradient-to-r from-electric via-accent-cyan to-electric rounded-full transition-all duration-1000 ease-out"
+                            style={{
+                                width: `${progress}%`,
+                                boxShadow: '0 0 20px rgba(0,255,136,0.4)'
+                            }}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {/* Corner Decoration */}
+            <div className="absolute bottom-0 right-0 w-24 h-24 opacity-20 group-hover:opacity-40 transition-opacity">
+                <svg viewBox="0 0 100 100" className="w-full h-full">
+                    <path d="M100 0 L100 100 L0 100" stroke="currentColor" strokeWidth="1" fill="none" className="text-electric" />
+                </svg>
             </div>
         </div>
     );
 }
 
 function Services() {
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [typedCode, setTypedCode] = useState('');
+
+    // Live code typing animation
+    const codeSnippets = [
+        '$ ./deploy --prod --optimize',
+        '> Building 913+ projects...',
+        '✓ All systems operational',
+        '$ git commit -m "Ultra Quality"',
+    ];
+
+    useEffect(() => {
+        let currentSnippet = 0;
+        let currentChar = 0;
+
+        const typeInterval = setInterval(() => {
+            const snippet = codeSnippets[currentSnippet];
+            if (currentChar <= snippet.length) {
+                setTypedCode(snippet.substring(0, currentChar));
+                currentChar++;
+            } else {
+                setTimeout(() => {
+                    currentSnippet = (currentSnippet + 1) % codeSnippets.length;
+                    currentChar = 0;
+                }, 1500);
+            }
+        }, 80);
+
+        return () => clearInterval(typeInterval);
+    }, []);
+
     return (
         <section className="py-32 bg-midnight relative overflow-hidden">
-            {/* Background Decoration */}
-            <div className="absolute top-1/2 left-0 w-[600px] h-[600px] bg-electric/5 rounded-full blur-[200px] -translate-y-1/2" />
+            {/* Ultra Premium Background */}
+            <div className="absolute inset-0">
+                <div className="absolute top-0 left-1/4 w-[800px] h-[800px] bg-electric/8 rounded-full blur-[200px] animate-pulse" />
+                <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-accent-indigo/10 rounded-full blur-[150px]" style={{ animation: 'pulse 4s ease-in-out infinite alternate' }} />
+
+                {/* Animated Grid */}
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,136,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,136,0.02)_1px,transparent_1px)] bg-[size:60px_60px] [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_70%)]" />
+            </div>
 
             <div className="relative z-10 max-w-7xl mx-auto px-6">
+                {/* Ultra Premium Header */}
                 <div className="text-center mb-20">
-                    <span className="inline-block font-[family-name:var(--font-mono)] text-electric text-sm tracking-wider uppercase mb-4">What I Do</span>
-                    <h2 className="font-[family-name:var(--font-heading)] text-4xl md:text-6xl font-black text-frost mb-6">
-                        Expertise
+                    <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-gradient-to-r from-electric/10 via-accent-cyan/10 to-accent-indigo/10 border border-electric/30 backdrop-blur-xl mb-8 shadow-[0_0_60px_rgba(0,255,136,0.2)]">
+                        <div className="relative">
+                            <span className="w-3 h-3 rounded-full bg-electric animate-ping absolute" />
+                            <span className="w-3 h-3 rounded-full bg-electric relative block" />
+                        </div>
+                        <span className="font-[family-name:var(--font-mono)] text-sm text-frost tracking-wider uppercase">Command Center</span>
+                        <div className="h-4 w-px bg-frost/20" />
+                        <span className="font-[family-name:var(--font-mono)] text-xs text-electric">ACTIVE</span>
+                    </div>
+
+                    <h2 className="font-[family-name:var(--font-heading)] text-5xl md:text-7xl font-black mb-6" style={{ textShadow: '0 0 80px rgba(0,255,136,0.4)' }}>
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-electric via-accent-cyan to-electric">
+                            Core Systems
+                        </span>
                     </h2>
                     <p className="font-[family-name:var(--font-body)] text-lg text-frost-muted max-w-2xl mx-auto">
-                        Bridging hardware and software with comprehensive full-stack capabilities
+                        Enterprise-grade engineering capabilities powering 913+ successful projects
                     </p>
                 </div>
 
+                {/* Live Terminal Display */}
+                <div className="relative mb-16">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-electric via-accent-cyan to-accent-indigo rounded-2xl blur-lg opacity-30" />
+                    <div className="relative rounded-2xl overflow-hidden border border-electric/30 shadow-[0_0_60px_rgba(0,255,136,0.1)]">
+                        {/* Terminal Header */}
+                        <div className="flex items-center justify-between px-6 py-4 bg-midnight/95 border-b border-electric/20">
+                            <div className="flex items-center gap-3">
+                                <div className="flex gap-2">
+                                    <span className="w-3 h-3 rounded-full bg-red-500/80" />
+                                    <span className="w-3 h-3 rounded-full bg-yellow-500/80" />
+                                    <span className="w-3 h-3 rounded-full bg-green-500/80" />
+                                </div>
+                                <span className="font-[family-name:var(--font-mono)] text-sm text-frost-muted">system-monitor.sh</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-electric animate-pulse" />
+                                <span className="font-[family-name:var(--font-mono)] text-xs text-electric">LIVE</span>
+                            </div>
+                        </div>
+
+                        {/* Terminal Body */}
+                        <div className="p-6 bg-[#0a0a0a] font-[family-name:var(--font-mono)] text-sm">
+                            <div className="flex items-center gap-2 text-frost-muted mb-2">
+                                <span className="text-electric">$</span>
+                                <span>{typedCode}</span>
+                                <span className="inline-block w-2 h-4 bg-electric animate-pulse" />
+                            </div>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                                {[
+                                    { label: 'PROJECTS', value: '913+', color: 'text-electric' },
+                                    { label: 'UPTIME', value: '99.9%', color: 'text-accent-cyan' },
+                                    { label: 'COMMITS', value: '5.2K+', color: 'text-accent-indigo' },
+                                    { label: 'CLIENTS', value: '200+', color: 'text-yellow-500' },
+                                ].map((stat, i) => (
+                                    <div key={i} className="p-3 rounded-lg bg-midnight-card/50 border border-midnight-border">
+                                        <div className={`text-2xl font-black ${stat.color}`} style={{ textShadow: '0 0 10px currentColor' }}>
+                                            {stat.value}
+                                        </div>
+                                        <div className="text-xs text-frost-muted">{stat.label}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Service Cards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {services.map((service, index) => (
                         <ServiceCard key={index} {...service} />
                     ))}
                 </div>
             </div>
+
+            {/* CSS Animations */}
+            <style>{`
+                @keyframes scanLine {
+                    0% { top: -10%; }
+                    100% { top: 110%; }
+                }
+            `}</style>
         </section>
     );
 }
