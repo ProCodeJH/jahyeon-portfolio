@@ -3,9 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { useState, useEffect } from "react";
 import {
-    ArrowRight, Code, Zap, CircuitBoard, GraduationCap, Terminal, Github, Linkedin, Mail,
-    ChevronRight, Activity, Star, GitFork, ExternalLink, Cpu, Database, Globe, Layers,
-    Smartphone, Server, Cloud, Braces
+    ArrowRight, ArrowUp, Code, Zap, CircuitBoard, GraduationCap, Terminal, Github, Linkedin, Mail,
+    ChevronRight, Activity, Star, GitFork, GitBranch, ExternalLink, Cpu, Database, Globe, Layers,
+    Smartphone, Server, Cloud, Braces, Plus, AlertCircle, Package, Users
 } from "lucide-react";
 import { Navigation } from "@/components/layout/Navigation";
 
@@ -596,19 +596,19 @@ function GitHubStatus() {
     const getEventInfo = (type: string) => {
         switch (type) {
             case 'PushEvent':
-                return { icon: '⬆️', label: 'Push', color: 'text-electric', bg: 'bg-electric/20' };
+                return { icon: <ArrowUp className="w-5 h-5" />, label: 'Push', color: 'text-electric', bg: 'bg-electric/20' };
             case 'CreateEvent':
-                return { icon: '➕', label: 'Create', color: 'text-accent-cyan', bg: 'bg-accent-cyan/20' };
+                return { icon: <Plus className="w-5 h-5" />, label: 'Create', color: 'text-accent-cyan', bg: 'bg-accent-cyan/20' };
             case 'PullRequestEvent':
-                return { icon: '🔀', label: 'PR', color: 'text-accent-indigo', bg: 'bg-accent-indigo/20' };
+                return { icon: <GitBranch className="w-5 h-5" />, label: 'PR', color: 'text-accent-indigo', bg: 'bg-accent-indigo/20' };
             case 'IssuesEvent':
-                return { icon: '📋', label: 'Issue', color: 'text-yellow-500', bg: 'bg-yellow-500/20' };
+                return { icon: <AlertCircle className="w-5 h-5" />, label: 'Issue', color: 'text-yellow-500', bg: 'bg-yellow-500/20' };
             case 'WatchEvent':
-                return { icon: '⭐', label: 'Star', color: 'text-yellow-400', bg: 'bg-yellow-400/20' };
+                return { icon: <Star className="w-5 h-5" />, label: 'Star', color: 'text-yellow-400', bg: 'bg-yellow-400/20' };
             case 'ForkEvent':
-                return { icon: '🍴', label: 'Fork', color: 'text-frost', bg: 'bg-frost/20' };
+                return { icon: <GitFork className="w-5 h-5" />, label: 'Fork', color: 'text-frost', bg: 'bg-frost/20' };
             default:
-                return { icon: '📌', label: type.replace('Event', ''), color: 'text-frost-muted', bg: 'bg-frost/10' };
+                return { icon: <Activity className="w-5 h-5" />, label: type.replace('Event', ''), color: 'text-frost-muted', bg: 'bg-frost/10' };
         }
     };
 
@@ -704,22 +704,22 @@ function GitHubStatus() {
                             </div>
                             <div className="mb-6 pl-4 space-y-2">
                                 <div className="flex items-center gap-4">
-                                    <span className="text-yellow-500">⭐</span>
+                                    <Star className="w-4 h-4 text-yellow-500" />
                                     <span className="text-frost">Total Stars:</span>
                                     <span className="text-electric font-bold" style={{ textShadow: '0 0 10px rgba(0,255,136,0.5)' }}>{loading ? '...' : totalStars}</span>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                    <span className="text-accent-cyan">📦</span>
+                                    <Package className="w-4 h-4 text-accent-cyan" />
                                     <span className="text-frost">Repositories:</span>
                                     <span className="text-accent-cyan font-bold" style={{ textShadow: '0 0 10px rgba(34,211,238,0.5)' }}>{loading ? '...' : totalRepos}</span>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                    <span className="text-accent-indigo">🔀</span>
+                                    <GitFork className="w-4 h-4 text-accent-indigo" />
                                     <span className="text-frost">Total Forks:</span>
                                     <span className="text-accent-indigo font-bold" style={{ textShadow: '0 0 10px rgba(99,102,241,0.5)' }}>{loading ? '...' : totalForks}</span>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                    <span className="text-purple-400">👥</span>
+                                    <Users className="w-4 h-4 text-purple-400" />
                                     <span className="text-frost">Followers:</span>
                                     <span className="text-purple-400 font-bold" style={{ textShadow: '0 0 10px rgba(168,85,247,0.5)' }}>{loading ? '...' : followers}</span>
                                 </div>

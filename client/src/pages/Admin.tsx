@@ -514,18 +514,8 @@ export default function Admin() {
       }
     });
 
-    // Add Uncategorized folder for resources without subcategory
-    const uncategorizedItems = categoryResources.filter(r => !r.subcategory);
-    if (uncategorizedItems.length > 0 || rootFolders.length === 0) {
-      const uncategorized: FolderNode = {
-        name: "Uncategorized",
-        path: "uncategorized",
-        items: uncategorizedItems,
-        children: [],
-        depth: 0
-      };
-      rootFolders.push(uncategorized);
-    }
+    // Resources without subcategory are now NOT shown in a fake "Uncategorized" folder
+    // They are simply not displayed in the folder tree view
 
     // Flatten tree for display (with depth info for indentation)
     const flattenTree = (nodes: FolderNode[], depth: number = 0): FolderNode[] => {
