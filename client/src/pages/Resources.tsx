@@ -923,7 +923,7 @@ export default function Resources() {
                                 <AnimatedSection key={resource.id} delay={index * 50}>
                                   <TiltCard>
                                     <div
-                                      className={`group rounded-2xl md:rounded-3xl overflow-hidden bg-white border border-gray-200 hover:border-purple-300 transition-all duration-500 hover:shadow-2xl ${canPreview ? 'cursor-pointer' : ''}`}
+                                      className={`group rounded-2xl md:rounded-3xl overflow-hidden bg-gradient-to-br from-[#0a0a0a] via-[#111] to-[#0a0a0a] border border-white/10 hover:border-electric/50 transition-all duration-500 hover:shadow-[0_0_40px_rgba(0,255,136,0.2)] ${canPreview ? 'cursor-pointer' : ''}`}
                                       onClick={() => canPreview && handleResourceClick(resource)}
                                     >
                                       <div className="aspect-video overflow-hidden relative">
@@ -931,7 +931,7 @@ export default function Resources() {
                                           : isPPTFile ? <PPTThumbnail resource={resource} />
                                             : isPDFFile ? <PDFThumbnail resource={resource} />
                                               : thumbnail ? <img src={thumbnail} alt={resource.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                                : <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center"><FileText className="w-12 h-12 text-gray-300" /></div>}
+                                                : <div className="w-full h-full bg-gradient-to-br from-midnight-card to-midnight flex items-center justify-center"><FileText className="w-12 h-12 text-frost-muted" /></div>}
 
                                         <div className="absolute top-2 md:top-3 lg:top-4 left-2 md:left-3 lg:left-4">
                                           <span
@@ -943,7 +943,7 @@ export default function Resources() {
 
                                         {canPreview && (
                                           <div className="absolute top-2 md:top-3 lg:top-4 right-2 md:right-3 lg:right-4">
-                                            <span className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1 md:py-1.5 lg:py-2 rounded-full bg-white backdrop-blur-xl text-purple-600 text-[10px] md:text-xs font-medium border border-gray-200">
+                                            <span className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1 md:py-1.5 lg:py-2 rounded-full bg-electric/20 backdrop-blur-xl text-electric text-[10px] md:text-xs font-medium border border-electric/40">
                                               <Eye className="w-2.5 h-2.5 md:w-3 md:h-3" />Preview
                                             </span>
                                           </div>
@@ -951,24 +951,24 @@ export default function Resources() {
                                       </div>
 
                                       <div className="p-4 md:p-5 lg:p-6">
-                                        <h3 className="text-lg md:text-xl font-semibold mb-2 md:mb-3 group-hover:text-purple-600 transition-colors line-clamp-1 text-gray-900">{resource.title}</h3>
-                                        {resource.description && <p className="text-gray-600 text-sm md:text-base mb-3 md:mb-4 line-clamp-2">{resource.description}</p>}
+                                        <h3 className="text-lg md:text-xl font-semibold mb-2 md:mb-3 group-hover:text-electric transition-colors line-clamp-1 text-frost">{resource.title}</h3>
+                                        {resource.description && <p className="text-frost-muted text-sm md:text-base mb-3 md:mb-4 line-clamp-2">{resource.description}</p>}
 
-                                        <div className="flex items-center justify-between text-[10px] md:text-xs text-gray-500 mb-3 md:mb-4">
-                                          <span className="flex items-center gap-1"><Zap className="w-2.5 h-2.5 md:w-3 md:h-3 text-purple-600" />{formatFileSize(resource.fileSize)}</span>
-                                          <span className="flex items-center gap-1"><Download className="w-2.5 h-2.5 md:w-3 md:h-3" />{resource.downloadCount || 0}</span>
+                                        <div className="flex items-center justify-between text-[10px] md:text-xs text-frost-muted mb-3 md:mb-4">
+                                          <span className="flex items-center gap-1"><Zap className="w-2.5 h-2.5 md:w-3 md:h-3 text-electric" />{formatFileSize(resource.fileSize)}</span>
+                                          <span className="flex items-center gap-1"><Download className="w-2.5 h-2.5 md:w-3 md:h-3 text-accent-cyan" />{resource.downloadCount || 0}</span>
                                         </div>
 
                                         <div className="flex items-center gap-2 mb-3 md:mb-4">
                                           <LikeButton resourceId={resource.id} />
                                           <button
                                             onClick={(e) => { e.stopPropagation(); setSelectedCommentResource(resource); }}
-                                            className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1.5 md:py-2 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition-all"
+                                            className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1.5 md:py-2 rounded-full bg-white/10 text-frost-muted hover:bg-white/20 hover:text-frost transition-all"
                                           >
                                             <MessageCircle className="w-3 h-3 md:w-4 md:h-4" />
                                           </button>
                                           <div className="flex-1" />
-                                          <span className="flex items-center gap-1 md:gap-1.5 text-pink-600 text-[10px] md:text-xs font-medium">
+                                          <span className="flex items-center gap-1 md:gap-1.5 text-accent-indigo text-[10px] md:text-xs font-medium">
                                             <Heart className="w-2.5 h-2.5 md:w-3 md:h-3 fill-current" />
                                             {resource.downloadCount || 0}
                                           </span>
@@ -976,14 +976,14 @@ export default function Resources() {
 
                                         <div className="flex gap-2 md:gap-3">
                                           <Button
-                                            className="flex-1 rounded-lg md:rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 text-white h-10 md:h-12 text-sm md:text-base shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all"
+                                            className="flex-1 rounded-lg md:rounded-xl bg-gradient-to-r from-electric to-accent-cyan text-midnight h-10 md:h-12 text-sm md:text-base font-bold shadow-lg shadow-electric/30 hover:shadow-electric/50 transition-all"
                                             onClick={e => { e.stopPropagation(); canPreview ? handleResourceClick(resource) : handleDownload(resource); }}
                                           >
                                             {canPreview ? <><Eye className="w-3 h-3 md:w-4 md:h-4 mr-1.5 md:mr-2" />Preview</> : <><Download className="w-3 h-3 md:w-4 md:h-4 mr-1.5 md:mr-2" />Download</>}
                                           </Button>
                                           <Button
                                             variant="outline"
-                                            className="rounded-lg md:rounded-xl border-gray-300 bg-white hover:bg-gray-100 h-10 md:h-12 w-10 md:w-12 p-0"
+                                            className="rounded-lg md:rounded-xl border-electric/40 bg-electric/10 hover:bg-electric/20 text-electric h-10 md:h-12 w-10 md:w-12 p-0"
                                             onClick={e => { e.stopPropagation(); handleDownload(resource); }}
                                           >
                                             <Download className="w-3 h-3 md:w-4 md:h-4" />
@@ -1006,29 +1006,29 @@ export default function Resources() {
                                 const subResourceCount = subfolder.items.length;
 
                                 return (
-                                  <div key={subfolderKey} className="bg-white/50 border border-gray-200/40 rounded-2xl overflow-hidden ml-4">
+                                  <div key={subfolderKey} className="bg-gradient-to-br from-[#0a0a0a]/80 via-[#111]/80 to-[#0a0a0a]/80 border border-electric/20 rounded-2xl overflow-hidden ml-4 backdrop-blur-sm hover:border-electric/40 transition-all">
                                     {/* Subfolder Header */}
                                     <button
                                       onClick={(e) => { e.stopPropagation(); toggleFolder(subfolderKey); }}
-                                      className="w-full p-4 flex items-center justify-between hover:bg-white/70 transition-all group"
+                                      className="w-full p-4 flex items-center justify-between hover:bg-white/5 transition-all group"
                                     >
                                       <div className="flex items-center gap-3">
-                                        <span className="text-purple-400 text-lg">↳</span>
-                                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow">
-                                          <FolderOpen className="w-5 h-5 text-white" />
+                                        <span className="text-electric text-lg">↳</span>
+                                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-electric/30 to-accent-cyan/30 border border-electric/40 flex items-center justify-center shadow-[0_0_15px_rgba(0,255,136,0.2)]">
+                                          <FolderOpen className="w-5 h-5 text-electric" />
                                         </div>
                                         <div className="text-left">
-                                          <h4 className="text-lg font-bold text-gray-800 group-hover:text-blue-600 transition-colors">
-                                            📂 {subfolder.name}
+                                          <h4 className="text-lg font-bold text-frost group-hover:text-electric transition-colors">
+                                            {subfolder.name}
                                           </h4>
-                                          <p className="text-gray-500 text-sm">{subResourceCount} files</p>
+                                          <p className="text-frost-muted text-sm">{subResourceCount} files</p>
                                         </div>
                                       </div>
                                       <div className="flex items-center">
                                         {isSubExpanded ? (
-                                          <ChevronDown className="w-5 h-5 text-blue-600" />
+                                          <ChevronDown className="w-5 h-5 text-electric" />
                                         ) : (
-                                          <ChevronRight className="w-5 h-5 text-gray-400" />
+                                          <ChevronRight className="w-5 h-5 text-frost-muted group-hover:text-frost transition-colors" />
                                         )}
                                       </div>
                                     </button>
@@ -1043,21 +1043,21 @@ export default function Resources() {
                                             return (
                                               <div
                                                 key={resource.id}
-                                                className={`p-3 bg-white rounded-xl border border-gray-200 hover:border-blue-300 transition-all ${canPreview ? 'cursor-pointer' : ''}`}
+                                                className={`p-3 bg-midnight/50 rounded-xl border border-white/10 hover:border-electric/40 transition-all hover:shadow-[0_0_20px_rgba(0,255,136,0.1)] ${canPreview ? 'cursor-pointer' : ''}`}
                                                 onClick={() => canPreview && handleResourceClick(resource)}
                                               >
                                                 <div className="flex items-center gap-3">
-                                                  <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-                                                    <FileText className="w-5 h-5 text-gray-400" />
+                                                  <div className="w-10 h-10 rounded-lg bg-electric/10 border border-electric/20 flex items-center justify-center flex-shrink-0">
+                                                    <FileText className="w-5 h-5 text-electric" />
                                                   </div>
                                                   <div className="flex-1 min-w-0">
-                                                    <p className="font-medium text-gray-900 truncate text-sm">{resource.title}</p>
-                                                    <p className="text-xs text-gray-500 truncate">{resource.fileName}</p>
+                                                    <p className="font-medium text-frost truncate text-sm">{resource.title}</p>
+                                                    <p className="text-xs text-frost-muted truncate">{resource.fileName}</p>
                                                   </div>
                                                   <Button
                                                     size="sm"
                                                     variant="ghost"
-                                                    className="h-8 w-8 p-0"
+                                                    className="h-8 w-8 p-0 text-electric hover:bg-electric/20 hover:text-electric"
                                                     onClick={(e) => { e.stopPropagation(); handleDownload(resource); }}
                                                   >
                                                     <Download className="w-4 h-4" />
