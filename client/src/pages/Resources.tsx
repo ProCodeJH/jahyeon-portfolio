@@ -768,7 +768,7 @@ export default function Resources() {
                 <ResourceCardSkeleton key={i} />
               ))}
             </div>
-          ) : !filteredResources?.length ? (
+          ) : !folderTree.length && !filteredResources?.length ? (
             <div className="text-center py-32">
               <FileText className="w-16 h-16 text-gray-200 mx-auto mb-4" />
               <h3 className="text-2xl font-semibold mb-2 text-gray-900">No resources found</h3>
