@@ -491,61 +491,80 @@ function GitHubStatus() {
                     </p>
                 </div>
 
-                {/* Ultra Premium Stats Grid */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-                    {/* Stars Card */}
-                    <div className="group relative">
-                        <div className="absolute -inset-0.5 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-3xl blur opacity-30 group-hover:opacity-60 transition duration-500" />
-                        <div className="relative p-8 rounded-3xl bg-midnight border border-yellow-500/20 hover:border-yellow-500/50 transition-all duration-500">
-                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-yellow-500/30 to-yellow-600/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
-                                <Star className="w-7 h-7 text-yellow-500" />
+                {/* Ultra Premium Horizontal Stats Bar */}
+                <div className="relative mb-16">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-yellow-500 via-electric via-accent-cyan to-accent-indigo rounded-3xl blur opacity-40" />
+                    <div className="relative p-6 rounded-3xl bg-midnight/90 backdrop-blur-xl border border-electric/20">
+                        <div className="flex flex-wrap items-center justify-between gap-6 md:gap-4">
+                            {/* Stars */}
+                            <div className="flex items-center gap-4 flex-1 min-w-[140px] group">
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500/30 to-yellow-600/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                    <Star className="w-6 h-6 text-yellow-500" />
+                                </div>
+                                <div>
+                                    <div className="font-[family-name:var(--font-mono)] text-3xl font-black text-frost" style={{ textShadow: '0 0 20px rgba(234,179,8,0.4)' }}>
+                                        {loading ? '...' : totalStars}
+                                    </div>
+                                    <div className="font-[family-name:var(--font-mono)] text-xs text-yellow-500/80">STARS</div>
+                                </div>
                             </div>
-                            <div className="font-[family-name:var(--font-mono)] text-4xl font-black text-frost mb-2" style={{ textShadow: '0 0 20px rgba(234,179,8,0.3)' }}>
-                                {loading ? '...' : totalStars}
-                            </div>
-                            <div className="font-[family-name:var(--font-body)] text-frost-muted">Total Stars</div>
-                        </div>
-                    </div>
 
-                    {/* Repos Card */}
-                    <div className="group relative">
-                        <div className="absolute -inset-0.5 bg-gradient-to-r from-electric to-accent-cyan rounded-3xl blur opacity-30 group-hover:opacity-60 transition duration-500" />
-                        <div className="relative p-8 rounded-3xl bg-midnight border border-electric/20 hover:border-electric/50 transition-all duration-500">
-                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-electric/30 to-accent-cyan/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
-                                <Activity className="w-7 h-7 text-electric" />
-                            </div>
-                            <div className="font-[family-name:var(--font-mono)] text-4xl font-black text-frost mb-2" style={{ textShadow: '0 0 20px rgba(0,255,136,0.3)' }}>
-                                {loading ? '...' : totalRepos}
-                            </div>
-                            <div className="font-[family-name:var(--font-body)] text-frost-muted">Repositories</div>
-                        </div>
-                    </div>
+                            <div className="hidden md:block w-px h-12 bg-gradient-to-b from-transparent via-frost/20 to-transparent" />
 
-                    {/* Forks Card */}
-                    <div className="group relative">
-                        <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-cyan to-accent-indigo rounded-3xl blur opacity-30 group-hover:opacity-60 transition duration-500" />
-                        <div className="relative p-8 rounded-3xl bg-midnight border border-accent-cyan/20 hover:border-accent-cyan/50 transition-all duration-500">
-                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent-cyan/30 to-accent-indigo/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
-                                <GitFork className="w-7 h-7 text-accent-cyan" />
+                            {/* Repos */}
+                            <div className="flex items-center gap-4 flex-1 min-w-[140px] group">
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-electric/30 to-accent-cyan/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                    <Activity className="w-6 h-6 text-electric" />
+                                </div>
+                                <div>
+                                    <div className="font-[family-name:var(--font-mono)] text-3xl font-black text-frost" style={{ textShadow: '0 0 20px rgba(0,255,136,0.4)' }}>
+                                        {loading ? '...' : totalRepos}
+                                    </div>
+                                    <div className="font-[family-name:var(--font-mono)] text-xs text-electric/80">REPOS</div>
+                                </div>
                             </div>
-                            <div className="font-[family-name:var(--font-mono)] text-4xl font-black text-frost mb-2" style={{ textShadow: '0 0 20px rgba(34,211,238,0.3)' }}>
-                                {loading ? '...' : totalForks}
-                            </div>
-                            <div className="font-[family-name:var(--font-body)] text-frost-muted">Total Forks</div>
-                        </div>
-                    </div>
 
-                    {/* Followers Card */}
-                    <div className="group relative">
-                        <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-indigo to-purple-500 rounded-3xl blur opacity-30 group-hover:opacity-60 transition duration-500" />
-                        <div className="relative p-8 rounded-3xl bg-midnight border border-accent-indigo/20 hover:border-accent-indigo/50 transition-all duration-500">
-                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent-indigo/30 to-purple-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
-                                <Github className="w-7 h-7 text-accent-indigo" />
+                            <div className="hidden md:block w-px h-12 bg-gradient-to-b from-transparent via-frost/20 to-transparent" />
+
+                            {/* Forks */}
+                            <div className="flex items-center gap-4 flex-1 min-w-[140px] group">
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-cyan/30 to-accent-indigo/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                    <GitFork className="w-6 h-6 text-accent-cyan" />
+                                </div>
+                                <div>
+                                    <div className="font-[family-name:var(--font-mono)] text-3xl font-black text-frost" style={{ textShadow: '0 0 20px rgba(34,211,238,0.4)' }}>
+                                        {loading ? '...' : totalForks}
+                                    </div>
+                                    <div className="font-[family-name:var(--font-mono)] text-xs text-accent-cyan/80">FORKS</div>
+                                </div>
                             </div>
-                            <div className="font-[family-name:var(--font-mono)] text-4xl font-black text-frost mb-2" style={{ textShadow: '0 0 20px rgba(99,102,241,0.3)' }}>
-                                {loading ? '...' : followers}
+
+                            <div className="hidden md:block w-px h-12 bg-gradient-to-b from-transparent via-frost/20 to-transparent" />
+
+                            {/* Followers */}
+                            <div className="flex items-center gap-4 flex-1 min-w-[140px] group">
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-indigo/30 to-purple-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                    <Github className="w-6 h-6 text-accent-indigo" />
+                                </div>
+                                <div>
+                                    <div className="font-[family-name:var(--font-mono)] text-3xl font-black text-frost" style={{ textShadow: '0 0 20px rgba(99,102,241,0.4)' }}>
+                                        {loading ? '...' : followers}
+                                    </div>
+                                    <div className="font-[family-name:var(--font-mono)] text-xs text-accent-indigo/80">FOLLOWERS</div>
+                                </div>
                             </div>
-                            <div className="font-[family-name:var(--font-body)] text-frost-muted">Followers</div>
+                        </div>
+
+                        {/* Animated Progress Bar */}
+                        <div className="mt-6 h-1.5 bg-midnight rounded-full overflow-hidden">
+                            <div
+                                className="h-full rounded-full bg-gradient-to-r from-yellow-500 via-electric via-accent-cyan to-accent-indigo"
+                                style={{
+                                    width: loading ? '20%' : '100%',
+                                    transition: 'width 2s ease-out',
+                                    boxShadow: '0 0 20px rgba(0,255,136,0.4)'
+                                }}
+                            />
                         </div>
                     </div>
                 </div>
@@ -997,45 +1016,176 @@ function LiveProjectAnalytics() {
                     </div>
                 </div>
 
-                {/* Tech Stack Frequency */}
+                {/* Scrolling Project Names - 913+ Projects */}
                 <div className="mt-8">
                     <div className="relative">
                         <div className="absolute -inset-0.5 bg-gradient-to-r from-electric/20 to-accent-cyan/20 rounded-3xl blur opacity-30" />
                         <div className="relative p-8 rounded-3xl bg-midnight/90 backdrop-blur-xl border border-electric/20">
-                            <div className="flex items-center justify-between mb-8">
-                                <h3 className="font-[family-name:var(--font-heading)] text-2xl font-black text-frost">Tech Stack Frequency</h3>
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="font-[family-name:var(--font-heading)] text-2xl font-black text-frost">913+ Projects Portfolio</h3>
                                 <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-electric/10 border border-electric/30">
                                     <span className="w-2 h-2 rounded-full bg-electric animate-pulse" />
-                                    <span className="font-[family-name:var(--font-mono)] text-xs text-electric">REAL-TIME</span>
+                                    <span className="font-[family-name:var(--font-mono)] text-xs text-electric">AUTO SCROLL</span>
                                 </div>
                             </div>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                {projectStats.techStack.map((tech, i) => (
-                                    <div
-                                        key={tech.name}
-                                        className="group relative p-4 rounded-2xl bg-midnight-card border border-midnight-border hover:border-electric/30 transition-all duration-300 hover:scale-105"
-                                        style={{ transitionDelay: `${i * 50}ms` }}
-                                    >
-                                        <div className="flex items-center justify-between">
-                                            <span className="font-[family-name:var(--font-mono)] text-sm font-semibold text-frost">{tech.name}</span>
+
+                            {/* Project Names Scroller */}
+                            <div className="relative overflow-hidden h-[200px]">
+                                <div className="absolute inset-0 pointer-events-none z-10">
+                                    <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-midnight to-transparent" />
+                                    <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-midnight to-transparent" />
+                                </div>
+
+                                <div className="animate-scroll hover:pause space-y-2 py-4" style={{
+                                    animation: 'scroll 60s linear infinite',
+                                }}>
+                                    {/* Sample project names from the 913 projects */}
+                                    {[
+                                        "AI 기반 고객 맞춤형 추천 시스템", "IoT 스마트 팩토리 모니터링", "React Native 피트니스 앱",
+                                        "블록체인 NFT 마켓플레이스", "Python 주식 자동매매 봇", "Flutter 음식 배달 앱",
+                                        "Vue.js 실시간 채팅 플랫폼", "AWS 클라우드 인프라 구축", "Node.js REST API 서버",
+                                        "PostgreSQL 데이터 분석 대시보드", "Docker 컨테이너 오케스트레이션", "Kubernetes 마이크로서비스",
+                                        "Arduino 스마트홈 컨트롤러", "Raspberry Pi 환경 센서", "RTOS 산업용 임베디드",
+                                        "TensorFlow 이미지 분류 모델", "GPT-4 챗봇 통합", "Stable Diffusion 이미지 생성",
+                                        "Next.js 이커머스 플랫폼", "TypeScript 엔터프라이즈 앱", "GraphQL API 게이트웨이",
+                                        "Firebase 실시간 데이터베이스", "MongoDB 빅데이터 처리", "Redis 캐싱 시스템",
+                                        "Unity VR 게임 개발", "Unreal Engine 3D 시뮬레이션", "WebGL 인터랙티브 시각화",
+                                        "Swift iOS 네이티브 앱", "Kotlin Android 앱 개발", "Cross-platform PWA",
+                                        "Solidity 스마트 컨트랙트", "Web3 DeFi 프로토콜", "Ethereum 지갑 통합",
+                                        "OpenCV 영상 처리", "YOLO 객체 탐지", "자율주행 시뮬레이터",
+                                        "Jenkins CI/CD 파이프라인", "GitHub Actions 자동화", "Terraform IaC",
+                                        "Elasticsearch 검색 엔진", "Kafka 메시지 큐", "Spark 분산 처리",
+                                        "React Three Fiber 3D", "D3.js 데이터 시각화", "Chart.js 대시보드",
+                                        "Stripe 결제 시스템", "PayPal 통합", "암호화폐 결제 게이트웨이",
+                                        "OAuth2 인증 시스템", "JWT 토큰 관리", "SAML SSO 통합",
+                                        "Nginx 리버스 프록시", "Load Balancer 구축", "CDN 최적화",
+                                        "Prometheus 모니터링", "Grafana 대시보드", "ELK 스택 로깅",
+                                        "Python Django CMS", "PHP Laravel 백엔드", "Ruby on Rails API",
+                                        "Go 마이크로서비스", "Rust 시스템 프로그래밍", "C++ 게임 엔진",
+                                    ].map((name, i) => (
+                                        <div
+                                            key={i}
+                                            className="flex items-center gap-3 px-4 py-2 rounded-lg bg-midnight-card/30 hover:bg-midnight-card/60 hover:border-electric/20 border border-transparent transition-all group cursor-pointer"
+                                        >
                                             <span
-                                                className="font-[family-name:var(--font-mono)] text-lg font-bold text-electric"
-                                                style={{ textShadow: '0 0 10px rgba(0,255,136,0.5)' }}
-                                            >
-                                                {tech.count}
-                                            </span>
-                                        </div>
-                                        <div className="mt-3 h-1.5 bg-midnight rounded-full overflow-hidden">
-                                            <div
-                                                className="h-full bg-gradient-to-r from-electric to-accent-cyan rounded-full transition-all duration-1000"
+                                                className="w-2 h-2 rounded-full"
                                                 style={{
-                                                    width: barsLoaded ? `${(tech.count / 350) * 100}%` : '0%',
-                                                    transitionDelay: `${i * 100 + 500}ms`,
+                                                    backgroundColor: ['#00FF88', '#22D3EE', '#6366F1', '#F59E0B', '#EC4899', '#8B5CF6', '#10B981'][i % 7]
                                                 }}
                                             />
+                                            <span className="font-[family-name:var(--font-mono)] text-sm text-frost-muted group-hover:text-frost transition-colors">{name}</span>
+                                            <span className="ml-auto font-[family-name:var(--font-mono)] text-xs text-frost-muted/50 opacity-0 group-hover:opacity-100 transition-opacity">#{i + 1}</span>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
+                                    {/* Duplicate for seamless loop */}
+                                    {[
+                                        "AI 기반 고객 맞춤형 추천 시스템", "IoT 스마트 팩토리 모니터링", "React Native 피트니스 앱",
+                                        "블록체인 NFT 마켓플레이스", "Python 주식 자동매매 봇", "Flutter 음식 배달 앱",
+                                    ].map((name, i) => (
+                                        <div
+                                            key={`dup-${i}`}
+                                            className="flex items-center gap-3 px-4 py-2 rounded-lg bg-midnight-card/30 hover:bg-midnight-card/60 hover:border-electric/20 border border-transparent transition-all group cursor-pointer"
+                                        >
+                                            <span
+                                                className="w-2 h-2 rounded-full"
+                                                style={{ backgroundColor: ['#00FF88', '#22D3EE', '#6366F1', '#F59E0B', '#EC4899', '#8B5CF6'][i % 6] }}
+                                            />
+                                            <span className="font-[family-name:var(--font-mono)] text-sm text-frost-muted group-hover:text-frost transition-colors">{name}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <style>{`
+                                @keyframes scroll {
+                                    0% { transform: translateY(0); }
+                                    100% { transform: translateY(-50%); }
+                                }
+                                .animate-scroll:hover {
+                                    animation-play-state: paused;
+                                }
+                            `}</style>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+// ==================== YOUTUBE SHOWCASE ====================
+function YouTubeShowcase() {
+    return (
+        <section className="py-32 bg-gradient-to-b from-midnight to-midnight-card relative overflow-hidden">
+            {/* Animated Background */}
+            <div className="absolute inset-0">
+                <div className="absolute top-0 left-1/3 w-[500px] h-[500px] bg-red-500/10 rounded-full blur-[150px]" style={{ animation: 'pulse 4s ease-in-out infinite' }} />
+                <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-electric/8 rounded-full blur-[120px]" style={{ animation: 'pulse 3s ease-in-out infinite alternate' }} />
+            </div>
+
+            <div className="relative z-10 max-w-7xl mx-auto px-6">
+                {/* Header */}
+                <div className="text-center mb-16">
+                    <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-gradient-to-r from-red-500/10 via-red-600/10 to-electric/10 border border-red-500/30 backdrop-blur-xl mb-8">
+                        <div className="relative">
+                            <span className="w-3 h-3 rounded-full bg-red-500 animate-ping absolute" />
+                            <span className="w-3 h-3 rounded-full bg-red-500 relative block" />
+                        </div>
+                        <span className="font-[family-name:var(--font-mono)] text-sm text-frost tracking-wider uppercase">YouTube Channel</span>
+                        <div className="h-4 w-px bg-frost/20" />
+                        <span className="font-[family-name:var(--font-mono)] text-xs text-red-400">LIVE</span>
+                    </div>
+
+                    <h2 className="font-[family-name:var(--font-heading)] text-5xl md:text-7xl font-black mb-6" style={{ textShadow: '0 0 80px rgba(239,68,68,0.3)' }}>
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-400 to-electric">
+                            Video Content
+                        </span>
+                    </h2>
+                    <p className="font-[family-name:var(--font-body)] text-xl text-frost-muted max-w-2xl mx-auto">
+                        튜토리얼, 프로젝트 워크스루, 기술 데모 영상
+                    </p>
+                </div>
+
+                {/* Video Container */}
+                <div className="relative max-w-4xl mx-auto">
+                    {/* Glow Effect */}
+                    <div className="absolute -inset-4 bg-gradient-to-r from-red-500/20 via-red-400/20 to-electric/20 rounded-3xl blur-xl opacity-60" />
+
+                    <div className="relative rounded-3xl overflow-hidden border-2 border-red-500/30 hover:border-red-500/60 transition-all duration-500 shadow-[0_0_60px_rgba(239,68,68,0.2)]">
+                        {/* YouTube Embed */}
+                        <div className="aspect-video bg-midnight-card relative">
+                            <iframe
+                                className="w-full h-full"
+                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1"
+                                title="Featured Video"
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                            />
+                        </div>
+
+                        {/* Video Info */}
+                        <div className="p-6 bg-midnight/90 backdrop-blur-xl">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h3 className="font-[family-name:var(--font-heading)] text-xl font-bold text-frost mb-2">
+                                        🎬 Featured Content
+                                    </h3>
+                                    <p className="font-[family-name:var(--font-body)] text-sm text-frost-muted">
+                                        실시간 코딩 세션 및 기술 튜토리얼
+                                    </p>
+                                </div>
+                                <a
+                                    href="https://www.youtube.com/@YourChannel"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-red-500 text-white font-[family-name:var(--font-heading)] font-bold hover:bg-red-600 hover:shadow-[0_0_30px_rgba(239,68,68,0.4)] transition-all"
+                                >
+                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                                    </svg>
+                                    Subscribe
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -1134,9 +1284,9 @@ export default function HomeMidnight() {
             <Navigation />
             <Hero />
             <Services />
-            <TechStack />
             <GitHubStatus />
             <LiveProjectAnalytics />
+            <YouTubeShowcase />
             <FeaturedProjects />
             <CTA />
             <Footer />
