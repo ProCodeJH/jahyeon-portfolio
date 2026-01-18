@@ -491,80 +491,95 @@ function GitHubStatus() {
                     </p>
                 </div>
 
-                {/* Ultra Premium Horizontal Stats Bar */}
+                {/* Ultra Premium Terminal Interface */}
                 <div className="relative mb-16">
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-yellow-500 via-electric via-accent-cyan to-accent-indigo rounded-3xl blur opacity-40" />
-                    <div className="relative p-6 rounded-3xl bg-midnight/90 backdrop-blur-xl border border-electric/20">
-                        <div className="flex flex-wrap items-center justify-between gap-6 md:gap-4">
-                            {/* Stars */}
-                            <div className="flex items-center gap-4 flex-1 min-w-[140px] group">
-                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500/30 to-yellow-600/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                    <Star className="w-6 h-6 text-yellow-500" />
+                    <div className="absolute -inset-1 bg-gradient-to-r from-electric via-accent-cyan to-accent-indigo rounded-3xl blur-lg opacity-40" />
+                    <div className="relative rounded-3xl overflow-hidden border border-electric/30 shadow-[0_0_80px_rgba(0,255,136,0.15)]">
+                        {/* Terminal Header */}
+                        <div className="flex items-center justify-between px-6 py-4 bg-midnight/95 border-b border-electric/20">
+                            <div className="flex items-center gap-3">
+                                <div className="flex gap-2">
+                                    <span className="w-3 h-3 rounded-full bg-red-500/80" />
+                                    <span className="w-3 h-3 rounded-full bg-yellow-500/80" />
+                                    <span className="w-3 h-3 rounded-full bg-green-500/80" />
                                 </div>
-                                <div>
-                                    <div className="font-[family-name:var(--font-mono)] text-3xl font-black text-frost" style={{ textShadow: '0 0 20px rgba(234,179,8,0.4)' }}>
-                                        {loading ? '...' : totalStars}
-                                    </div>
-                                    <div className="font-[family-name:var(--font-mono)] text-xs text-yellow-500/80">STARS</div>
-                                </div>
+                                <span className="font-[family-name:var(--font-mono)] text-sm text-frost-muted">~/ProCodeJH</span>
                             </div>
-
-                            <div className="hidden md:block w-px h-12 bg-gradient-to-b from-transparent via-frost/20 to-transparent" />
-
-                            {/* Repos */}
-                            <div className="flex items-center gap-4 flex-1 min-w-[140px] group">
-                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-electric/30 to-accent-cyan/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                    <Activity className="w-6 h-6 text-electric" />
-                                </div>
-                                <div>
-                                    <div className="font-[family-name:var(--font-mono)] text-3xl font-black text-frost" style={{ textShadow: '0 0 20px rgba(0,255,136,0.4)' }}>
-                                        {loading ? '...' : totalRepos}
-                                    </div>
-                                    <div className="font-[family-name:var(--font-mono)] text-xs text-electric/80">REPOS</div>
-                                </div>
-                            </div>
-
-                            <div className="hidden md:block w-px h-12 bg-gradient-to-b from-transparent via-frost/20 to-transparent" />
-
-                            {/* Forks */}
-                            <div className="flex items-center gap-4 flex-1 min-w-[140px] group">
-                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-cyan/30 to-accent-indigo/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                    <GitFork className="w-6 h-6 text-accent-cyan" />
-                                </div>
-                                <div>
-                                    <div className="font-[family-name:var(--font-mono)] text-3xl font-black text-frost" style={{ textShadow: '0 0 20px rgba(34,211,238,0.4)' }}>
-                                        {loading ? '...' : totalForks}
-                                    </div>
-                                    <div className="font-[family-name:var(--font-mono)] text-xs text-accent-cyan/80">FORKS</div>
-                                </div>
-                            </div>
-
-                            <div className="hidden md:block w-px h-12 bg-gradient-to-b from-transparent via-frost/20 to-transparent" />
-
-                            {/* Followers */}
-                            <div className="flex items-center gap-4 flex-1 min-w-[140px] group">
-                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-indigo/30 to-purple-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                    <Github className="w-6 h-6 text-accent-indigo" />
-                                </div>
-                                <div>
-                                    <div className="font-[family-name:var(--font-mono)] text-3xl font-black text-frost" style={{ textShadow: '0 0 20px rgba(99,102,241,0.4)' }}>
-                                        {loading ? '...' : followers}
-                                    </div>
-                                    <div className="font-[family-name:var(--font-mono)] text-xs text-accent-indigo/80">FOLLOWERS</div>
+                            <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-electric/10 border border-electric/30">
+                                    <span className="relative flex h-2 w-2">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-electric opacity-75" />
+                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-electric" />
+                                    </span>
+                                    <span className="font-[family-name:var(--font-mono)] text-xs text-electric">LIVE</span>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Animated Progress Bar */}
-                        <div className="mt-6 h-1.5 bg-midnight rounded-full overflow-hidden">
-                            <div
-                                className="h-full rounded-full bg-gradient-to-r from-yellow-500 via-electric via-accent-cyan to-accent-indigo"
-                                style={{
-                                    width: loading ? '20%' : '100%',
-                                    transition: 'width 2s ease-out',
-                                    boxShadow: '0 0 20px rgba(0,255,136,0.4)'
-                                }}
-                            />
+                        {/* Terminal Body */}
+                        <div className="p-6 bg-[#0a0a0a] min-h-[300px] font-[family-name:var(--font-mono)] text-sm leading-relaxed">
+                            {/* Git Status Command */}
+                            <div className="mb-4">
+                                <span className="text-electric">$</span>
+                                <span className="text-frost ml-2">git status</span>
+                            </div>
+                            <div className="mb-4 pl-4 text-frost-muted">
+                                <p>On branch <span className="text-electric">main</span></p>
+                                <p>Your branch is up to date with 'origin/main'.</p>
+                            </div>
+
+                            {/* Stats Output */}
+                            <div className="mb-4">
+                                <span className="text-electric">$</span>
+                                <span className="text-frost ml-2">./check-stats.sh</span>
+                            </div>
+                            <div className="mb-6 pl-4 space-y-2">
+                                <div className="flex items-center gap-4">
+                                    <span className="text-yellow-500">⭐</span>
+                                    <span className="text-frost">Total Stars:</span>
+                                    <span className="text-electric font-bold" style={{ textShadow: '0 0 10px rgba(0,255,136,0.5)' }}>{loading ? '...' : totalStars}</span>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <span className="text-accent-cyan">📦</span>
+                                    <span className="text-frost">Repositories:</span>
+                                    <span className="text-accent-cyan font-bold" style={{ textShadow: '0 0 10px rgba(34,211,238,0.5)' }}>{loading ? '...' : totalRepos}</span>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <span className="text-accent-indigo">🔀</span>
+                                    <span className="text-frost">Total Forks:</span>
+                                    <span className="text-accent-indigo font-bold" style={{ textShadow: '0 0 10px rgba(99,102,241,0.5)' }}>{loading ? '...' : totalForks}</span>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <span className="text-purple-400">👥</span>
+                                    <span className="text-frost">Followers:</span>
+                                    <span className="text-purple-400 font-bold" style={{ textShadow: '0 0 10px rgba(168,85,247,0.5)' }}>{loading ? '...' : followers}</span>
+                                </div>
+                            </div>
+
+                            {/* Recent Commits */}
+                            <div className="mb-4">
+                                <span className="text-electric">$</span>
+                                <span className="text-frost ml-2">git log --oneline -5</span>
+                            </div>
+                            <div className="pl-4 space-y-1 text-frost-muted">
+                                {events.slice(0, 5).map((event, i) => {
+                                    const info = getEventInfo(event.type);
+                                    return (
+                                        <div key={event.id || i} className="flex items-center gap-2 group hover:text-frost transition-colors">
+                                            <span className="text-electric/60">{String(i + 1).padStart(2, '0')}.</span>
+                                            <span className={info.color}>[{info.label}]</span>
+                                            <span className="truncate">{event.repo}</span>
+                                            <span className="text-frost-muted/60 ml-auto">{timeAgo(event.createdAt)}</span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Blinking Cursor */}
+                            <div className="mt-6">
+                                <span className="text-electric">$</span>
+                                <span className="inline-block w-2 h-4 bg-electric ml-2 animate-pulse" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -883,66 +898,116 @@ function LiveProjectAnalytics() {
                         </span>
                     </h2>
                     <p className="font-[family-name:var(--font-body)] text-xl text-frost-muted max-w-2xl mx-auto">
-                        Real-time project statistics and market insights
+                        Real-time project portfolio and market insights
                     </p>
                 </div>
 
-                {/* Main Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-                    {/* Total Projects */}
-                    <div className="group relative">
-                        <div className="absolute -inset-0.5 bg-gradient-to-r from-electric to-accent-cyan rounded-3xl blur opacity-30 group-hover:opacity-60 transition duration-500" />
-                        <div className="relative p-8 rounded-3xl bg-midnight border border-electric/20 hover:border-electric/50 transition-all duration-500">
-                            <div className="flex items-center justify-between mb-4">
+                {/* 913+ PROJECTS - Large Scroller */}
+                <div className="relative mb-16">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-electric via-accent-cyan to-accent-indigo rounded-3xl blur-lg opacity-40" />
+                    <div className="relative rounded-3xl overflow-hidden border border-electric/30 shadow-[0_0_60px_rgba(0,255,136,0.15)]">
+                        {/* Header */}
+                        <div className="flex items-center justify-between px-8 py-6 bg-midnight/95 border-b border-electric/20">
+                            <div className="flex items-center gap-4">
                                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-electric/30 to-accent-cyan/10 flex items-center justify-center">
                                     <Layers className="w-7 h-7 text-electric" />
                                 </div>
-                                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-electric/10 border border-electric/30">
-                                    <span className="w-2 h-2 rounded-full bg-electric animate-pulse" />
-                                    <span className="font-[family-name:var(--font-mono)] text-xs text-electric">LIVE</span>
+                                <div>
+                                    <h3 className="font-[family-name:var(--font-mono)] text-4xl font-black text-frost" style={{ textShadow: '0 0 30px rgba(0,255,136,0.4)' }}>
+                                        {animatedTotal.toLocaleString()}+ PROJECTS
+                                    </h3>
+                                    <p className="font-[family-name:var(--font-mono)] text-xs text-frost-muted">Delivered portfolio showcase</p>
                                 </div>
                             </div>
-                            <div className="font-[family-name:var(--font-mono)] text-5xl font-black text-frost mb-2" style={{ textShadow: '0 0 30px rgba(0,255,136,0.4)' }}>
-                                {animatedTotal.toLocaleString()}+
+                            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-electric/10 border border-electric/30">
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-electric opacity-75" />
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-electric" />
+                                </span>
+                                <span className="font-[family-name:var(--font-mono)] text-xs text-electric">AUTO SCROLL</span>
                             </div>
-                            <div className="font-[family-name:var(--font-body)] text-frost-muted">Total Projects</div>
+                        </div>
+
+                        {/* Expanded Project Names Scroller */}
+                        <div className="relative overflow-hidden h-[400px] bg-[#0a0a0a]">
+                            <div className="absolute inset-0 pointer-events-none z-10">
+                                <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-[#0a0a0a] to-transparent" />
+                                <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#0a0a0a] to-transparent" />
+                            </div>
+
+                            <div className="animate-scroll space-y-3 py-6 px-8" style={{
+                                animation: 'scroll 45s linear infinite',
+                            }}>
+                                {[
+                                    "AI 기반 고객 맞춤형 추천 시스템", "IoT 스마트 팩토리 모니터링", "React Native 피트니스 앱",
+                                    "블록체인 NFT 마켓플레이스", "Python 주식 자동매매 봇", "Flutter 음식 배달 앱",
+                                    "Vue.js 실시간 채팅 플랫폼", "AWS 클라우드 인프라 구축", "Node.js REST API 서버",
+                                    "PostgreSQL 데이터 분석 대시보드", "Docker 컨테이너 오케스트레이션", "Kubernetes 마이크로서비스",
+                                    "Arduino 스마트홈 컨트롤러", "Raspberry Pi 환경 센서", "RTOS 산업용 임베디드",
+                                    "TensorFlow 이미지 분류 모델", "GPT-4 챗봇 통합", "Stable Diffusion 이미지 생성",
+                                    "Next.js 이커머스 플랫폼", "TypeScript 엔터프라이즈 앱", "GraphQL API 게이트웨이",
+                                    "Firebase 실시간 데이터베이스", "MongoDB 빅데이터 처리", "Redis 캐싱 시스템",
+                                    "Unity VR 게임 개발", "Unreal Engine 3D 시뮬레이션", "WebGL 인터랙티브 시각화",
+                                    "Swift iOS 네이티브 앱", "Kotlin Android 앱 개발", "Cross-platform PWA",
+                                    "Solidity 스마트 컨트랙트", "Web3 DeFi 프로토콜", "Ethereum 지갑 통합",
+                                    "OpenCV 영상 처리", "YOLO 객체 탐지", "자율주행 시뮬레이터",
+                                    "Jenkins CI/CD 파이프라인", "GitHub Actions 자동화", "Terraform IaC",
+                                    "Elasticsearch 검색 엔진", "Kafka 메시지 큐", "Spark 분산 처리",
+                                    "React Three Fiber 3D", "D3.js 데이터 시각화", "Chart.js 대시보드",
+                                    "Stripe 결제 시스템", "PayPal 통합", "암호화폐 결제 게이트웨이",
+                                    "OAuth2 인증 시스템", "JWT 토큰 관리", "SAML SSO 통합",
+                                    "Nginx 리버스 프록시", "Load Balancer 구축", "CDN 최적화",
+                                    "Prometheus 모니터링", "Grafana 대시보드", "ELK 스택 로깅",
+                                    "Python Django CMS", "PHP Laravel 백엔드", "Ruby on Rails API",
+                                    "Go 마이크로서비스", "Rust 시스템 프로그래밍", "C++ 게임 엔진",
+                                ].map((name, i) => (
+                                    <div
+                                        key={i}
+                                        className="flex items-center gap-4 px-6 py-3 rounded-xl bg-midnight-card/20 hover:bg-midnight-card/50 hover:border-electric/30 border border-transparent transition-all group cursor-pointer"
+                                    >
+                                        <span className="font-[family-name:var(--font-mono)] text-electric/40 text-xs">{String(i + 1).padStart(3, '0')}</span>
+                                        <span
+                                            className="w-2 h-2 rounded-full"
+                                            style={{
+                                                backgroundColor: ['#00FF88', '#22D3EE', '#6366F1', '#F59E0B', '#EC4899', '#8B5CF6', '#10B981'][i % 7]
+                                            }}
+                                        />
+                                        <span className="font-[family-name:var(--font-mono)] text-base text-frost-muted group-hover:text-frost transition-colors flex-1">{name}</span>
+                                        <span className="font-[family-name:var(--font-mono)] text-xs text-frost-muted/30 group-hover:text-electric/50 transition-colors">→</span>
+                                    </div>
+                                ))}
+                                {/* Duplicate for seamless loop */}
+                                {[
+                                    "AI 기반 고객 맞춤형 추천 시스템", "IoT 스마트 팩토리 모니터링", "React Native 피트니스 앱",
+                                    "블록체인 NFT 마켓플레이스", "Python 주식 자동매매 봇", "Flutter 음식 배달 앱",
+                                    "Vue.js 실시간 채팅 플랫폼", "AWS 클라우드 인프라 구축",
+                                ].map((name, i) => (
+                                    <div
+                                        key={`dup-${i}`}
+                                        className="flex items-center gap-4 px-6 py-3 rounded-xl bg-midnight-card/20 hover:bg-midnight-card/50 hover:border-electric/30 border border-transparent transition-all group cursor-pointer"
+                                    >
+                                        <span className="font-[family-name:var(--font-mono)] text-electric/40 text-xs">{String(60 + i + 1).padStart(3, '0')}</span>
+                                        <span
+                                            className="w-2 h-2 rounded-full"
+                                            style={{ backgroundColor: ['#00FF88', '#22D3EE', '#6366F1', '#F59E0B', '#EC4899', '#8B5CF6'][i % 6] }}
+                                        />
+                                        <span className="font-[family-name:var(--font-mono)] text-base text-frost-muted group-hover:text-frost transition-colors flex-1">{name}</span>
+                                        <span className="font-[family-name:var(--font-mono)] text-xs text-frost-muted/30 group-hover:text-electric/50 transition-colors">→</span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
 
-                    {/* Total Value */}
-                    <div className="group relative">
-                        <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-cyan to-accent-indigo rounded-3xl blur opacity-30 group-hover:opacity-60 transition duration-500" />
-                        <div className="relative p-8 rounded-3xl bg-midnight border border-accent-cyan/20 hover:border-accent-cyan/50 transition-all duration-500">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent-cyan/30 to-accent-indigo/10 flex items-center justify-center">
-                                    <Zap className="w-7 h-7 text-accent-cyan" />
-                                </div>
-                                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-accent-cyan/10 border border-accent-cyan/30">
-                                    <span className="font-[family-name:var(--font-mono)] text-xs text-accent-cyan">KRW</span>
-                                </div>
-                            </div>
-                            <div className="font-[family-name:var(--font-mono)] text-5xl font-black text-frost mb-2" style={{ textShadow: '0 0 30px rgba(34,211,238,0.4)' }}>
-                                {animatedValue}억+
-                            </div>
-                            <div className="font-[family-name:var(--font-body)] text-frost-muted">Total Project Value</div>
-                        </div>
-                    </div>
-
-                    {/* Average Value */}
-                    <div className="group relative">
-                        <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-indigo to-purple-500 rounded-3xl blur opacity-30 group-hover:opacity-60 transition duration-500" />
-                        <div className="relative p-8 rounded-3xl bg-midnight border border-accent-indigo/20 hover:border-accent-indigo/50 transition-all duration-500">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent-indigo/30 to-purple-500/10 flex items-center justify-center">
-                                    <Activity className="w-7 h-7 text-accent-indigo" />
-                                </div>
-                            </div>
-                            <div className="font-[family-name:var(--font-mono)] text-5xl font-black text-frost mb-2" style={{ textShadow: '0 0 30px rgba(99,102,241,0.4)' }}>
-                                531만
-                            </div>
-                            <div className="font-[family-name:var(--font-body)] text-frost-muted">Average Project Value</div>
-                        </div>
-                    </div>
+                    <style>{`
+                        @keyframes scroll {
+                            0% { transform: translateY(0); }
+                            100% { transform: translateY(-50%); }
+                        }
+                        .animate-scroll:hover {
+                            animation-play-state: paused;
+                        }
+                    `}</style>
                 </div>
 
                 {/* Charts Grid */}
@@ -1012,99 +1077,6 @@ function LiveProjectAnalytics() {
                                     </div>
                                 ))}
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Scrolling Project Names - 913+ Projects */}
-                <div className="mt-8">
-                    <div className="relative">
-                        <div className="absolute -inset-0.5 bg-gradient-to-r from-electric/20 to-accent-cyan/20 rounded-3xl blur opacity-30" />
-                        <div className="relative p-8 rounded-3xl bg-midnight/90 backdrop-blur-xl border border-electric/20">
-                            <div className="flex items-center justify-between mb-6">
-                                <h3 className="font-[family-name:var(--font-heading)] text-2xl font-black text-frost">913+ Projects Portfolio</h3>
-                                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-electric/10 border border-electric/30">
-                                    <span className="w-2 h-2 rounded-full bg-electric animate-pulse" />
-                                    <span className="font-[family-name:var(--font-mono)] text-xs text-electric">AUTO SCROLL</span>
-                                </div>
-                            </div>
-
-                            {/* Project Names Scroller */}
-                            <div className="relative overflow-hidden h-[200px]">
-                                <div className="absolute inset-0 pointer-events-none z-10">
-                                    <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-midnight to-transparent" />
-                                    <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-midnight to-transparent" />
-                                </div>
-
-                                <div className="animate-scroll hover:pause space-y-2 py-4" style={{
-                                    animation: 'scroll 60s linear infinite',
-                                }}>
-                                    {/* Sample project names from the 913 projects */}
-                                    {[
-                                        "AI 기반 고객 맞춤형 추천 시스템", "IoT 스마트 팩토리 모니터링", "React Native 피트니스 앱",
-                                        "블록체인 NFT 마켓플레이스", "Python 주식 자동매매 봇", "Flutter 음식 배달 앱",
-                                        "Vue.js 실시간 채팅 플랫폼", "AWS 클라우드 인프라 구축", "Node.js REST API 서버",
-                                        "PostgreSQL 데이터 분석 대시보드", "Docker 컨테이너 오케스트레이션", "Kubernetes 마이크로서비스",
-                                        "Arduino 스마트홈 컨트롤러", "Raspberry Pi 환경 센서", "RTOS 산업용 임베디드",
-                                        "TensorFlow 이미지 분류 모델", "GPT-4 챗봇 통합", "Stable Diffusion 이미지 생성",
-                                        "Next.js 이커머스 플랫폼", "TypeScript 엔터프라이즈 앱", "GraphQL API 게이트웨이",
-                                        "Firebase 실시간 데이터베이스", "MongoDB 빅데이터 처리", "Redis 캐싱 시스템",
-                                        "Unity VR 게임 개발", "Unreal Engine 3D 시뮬레이션", "WebGL 인터랙티브 시각화",
-                                        "Swift iOS 네이티브 앱", "Kotlin Android 앱 개발", "Cross-platform PWA",
-                                        "Solidity 스마트 컨트랙트", "Web3 DeFi 프로토콜", "Ethereum 지갑 통합",
-                                        "OpenCV 영상 처리", "YOLO 객체 탐지", "자율주행 시뮬레이터",
-                                        "Jenkins CI/CD 파이프라인", "GitHub Actions 자동화", "Terraform IaC",
-                                        "Elasticsearch 검색 엔진", "Kafka 메시지 큐", "Spark 분산 처리",
-                                        "React Three Fiber 3D", "D3.js 데이터 시각화", "Chart.js 대시보드",
-                                        "Stripe 결제 시스템", "PayPal 통합", "암호화폐 결제 게이트웨이",
-                                        "OAuth2 인증 시스템", "JWT 토큰 관리", "SAML SSO 통합",
-                                        "Nginx 리버스 프록시", "Load Balancer 구축", "CDN 최적화",
-                                        "Prometheus 모니터링", "Grafana 대시보드", "ELK 스택 로깅",
-                                        "Python Django CMS", "PHP Laravel 백엔드", "Ruby on Rails API",
-                                        "Go 마이크로서비스", "Rust 시스템 프로그래밍", "C++ 게임 엔진",
-                                    ].map((name, i) => (
-                                        <div
-                                            key={i}
-                                            className="flex items-center gap-3 px-4 py-2 rounded-lg bg-midnight-card/30 hover:bg-midnight-card/60 hover:border-electric/20 border border-transparent transition-all group cursor-pointer"
-                                        >
-                                            <span
-                                                className="w-2 h-2 rounded-full"
-                                                style={{
-                                                    backgroundColor: ['#00FF88', '#22D3EE', '#6366F1', '#F59E0B', '#EC4899', '#8B5CF6', '#10B981'][i % 7]
-                                                }}
-                                            />
-                                            <span className="font-[family-name:var(--font-mono)] text-sm text-frost-muted group-hover:text-frost transition-colors">{name}</span>
-                                            <span className="ml-auto font-[family-name:var(--font-mono)] text-xs text-frost-muted/50 opacity-0 group-hover:opacity-100 transition-opacity">#{i + 1}</span>
-                                        </div>
-                                    ))}
-                                    {/* Duplicate for seamless loop */}
-                                    {[
-                                        "AI 기반 고객 맞춤형 추천 시스템", "IoT 스마트 팩토리 모니터링", "React Native 피트니스 앱",
-                                        "블록체인 NFT 마켓플레이스", "Python 주식 자동매매 봇", "Flutter 음식 배달 앱",
-                                    ].map((name, i) => (
-                                        <div
-                                            key={`dup-${i}`}
-                                            className="flex items-center gap-3 px-4 py-2 rounded-lg bg-midnight-card/30 hover:bg-midnight-card/60 hover:border-electric/20 border border-transparent transition-all group cursor-pointer"
-                                        >
-                                            <span
-                                                className="w-2 h-2 rounded-full"
-                                                style={{ backgroundColor: ['#00FF88', '#22D3EE', '#6366F1', '#F59E0B', '#EC4899', '#8B5CF6'][i % 6] }}
-                                            />
-                                            <span className="font-[family-name:var(--font-mono)] text-sm text-frost-muted group-hover:text-frost transition-colors">{name}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <style>{`
-                                @keyframes scroll {
-                                    0% { transform: translateY(0); }
-                                    100% { transform: translateY(-50%); }
-                                }
-                                .animate-scroll:hover {
-                                    animation-play-state: paused;
-                                }
-                            `}</style>
                         </div>
                     </div>
                 </div>
