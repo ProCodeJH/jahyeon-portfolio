@@ -22,19 +22,20 @@ import { CookieConsent } from "./components/ui/CookieConsent";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { AdminChatWidget } from "./components/chat/AdminChatWidget";
 
-// Lazy load VirtualWorld3D to isolate Three.js in separate bundle chunk
-const VirtualWorld3D = lazy(() => import("./pages/VirtualWorld3D"));
-
 // Lazy load TinkercadLab for Arduino experiments
 const TinkercadLab = lazy(() => import("./pages/TinkercadLab"));
 
-// Loading fallback for VirtualWorld
-function VirtualWorldLoader() {
+// Lazy load Community and Notes pages
+const Community = lazy(() => import("./pages/Community"));
+const Notes = lazy(() => import("./pages/Notes"));
+
+// Loading fallback
+function PageLoader() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-sky-400 to-sky-200 flex items-center justify-center">
+    <div className="min-h-screen bg-midnight flex items-center justify-center">
       <div className="text-center">
-        <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-white font-medium">로딩 중...</p>
+        <div className="w-16 h-16 border-4 border-electric/30 border-t-electric rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-frost font-medium">로딩 중...</p>
       </div>
     </div>
   );
@@ -48,14 +49,19 @@ function Router() {
       {/* Certifications route removed - content merged into Home */}
       <Route path="/resources" component={Resources} />
       <Route path="/code-editor" component={CodeEditor} />
-      <Route path="/virtual-world">
-        <Suspense fallback={<VirtualWorldLoader />}>
-          <VirtualWorld3D />
+      <Route path="/arduino-lab">
+        <Suspense fallback={<PageLoader />}>
+          <TinkercadLab />
         </Suspense>
       </Route>
-      <Route path="/arduino-lab">
-        <Suspense fallback={<VirtualWorldLoader />}>
-          <TinkercadLab />
+      <Route path="/community">
+        <Suspense fallback={<PageLoader />}>
+          <Community />
+        </Suspense>
+      </Route>
+      <Route path="/notes">
+        <Suspense fallback={<PageLoader />}>
+          <Notes />
         </Suspense>
       </Route>
       <Route path="/admin" component={Admin} />
@@ -79,7 +85,7 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="dark" switchable={true}>
+      <ThemeProvider defaultTheme="dark" switchable={false}>
         <TooltipProvider>
           <Toaster />
           <ScrollProgressBar />
@@ -94,4 +100,3 @@ function App() {
 }
 
 export default App;
-
