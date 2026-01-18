@@ -753,67 +753,179 @@ function GitHubStatus() {
                     </div>
                 </div>
 
-                {/* Ultra Premium Activity Feed */}
+                {/* CI/CD Pipeline Activity Feed */}
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 mb-16">
-                    {/* Live Activity Timeline - 3 cols */}
+                    {/* CI/CD Pipeline Timeline - 3 cols */}
                     <div className="lg:col-span-3 relative">
                         <div className="absolute -inset-0.5 bg-gradient-to-r from-electric via-accent-cyan to-accent-indigo rounded-3xl blur opacity-20" />
                         <div className="relative p-8 rounded-3xl bg-midnight/90 backdrop-blur-xl border border-electric/20">
+                            {/* Pipeline Header */}
                             <div className="flex items-center justify-between mb-8">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-electric/20 to-accent-cyan/10 flex items-center justify-center">
-                                        <Terminal className="w-6 h-6 text-electric" />
+                                    <div className="relative">
+                                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-electric/20 to-accent-cyan/10 flex items-center justify-center">
+                                            <GitBranch className="w-6 h-6 text-electric" />
+                                        </div>
+                                        <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-electric flex items-center justify-center">
+                                            <span className="text-[8px] text-midnight font-bold">{events.length}</span>
+                                        </div>
                                     </div>
                                     <div>
-                                        <h3 className="font-[family-name:var(--font-heading)] text-2xl font-black text-frost">Activity Stream</h3>
-                                        <p className="font-[family-name:var(--font-mono)] text-xs text-frost-muted">Real-time GitHub events</p>
+                                        <h3 className="font-[family-name:var(--font-heading)] text-2xl font-black text-frost">CI/CD Pipeline</h3>
+                                        <p className="font-[family-name:var(--font-mono)] text-xs text-frost-muted">main • Auto-deploy Active</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-electric/10 border border-electric/30">
-                                    <span className="relative flex h-2 w-2">
-                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-electric opacity-75" />
-                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-electric" />
-                                    </span>
-                                    <span className="font-[family-name:var(--font-mono)] text-xs text-electric">LIVE</span>
+                                <div className="flex items-center gap-3">
+                                    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-electric/10 border border-electric/30">
+                                        <span className="relative flex h-2 w-2">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-electric opacity-75" />
+                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-electric" />
+                                        </span>
+                                        <span className="font-[family-name:var(--font-mono)] text-xs text-electric">RUNNING</span>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="space-y-4">
-                                {loading ? (
-                                    Array.from({ length: 6 }).map((_, i) => (
-                                        <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-midnight-card/50 animate-pulse">
-                                            <div className="w-12 h-12 rounded-xl bg-midnight-border" />
-                                            <div className="flex-1">
-                                                <div className="h-5 w-32 bg-midnight-border rounded mb-2" />
-                                                <div className="h-4 w-20 bg-midnight-border rounded" />
-                                            </div>
-                                        </div>
-                                    ))
-                                ) : events.length > 0 ? (
-                                    events.map((event, i) => {
-                                        const info = getEventInfo(event.type);
-                                        return (
-                                            <div key={event.id || i} className="group flex items-center gap-4 p-4 rounded-2xl bg-midnight-card/30 border border-transparent hover:border-electric/20 hover:bg-midnight-card/60 transition-all duration-300">
-                                                <div className={`w-12 h-12 rounded-xl ${info.bg} flex items-center justify-center text-2xl group-hover:scale-110 transition-transform`}>
-                                                    {info.icon}
+                            {/* Pipeline Visualization */}
+                            <div className="relative">
+                                {/* Main Pipeline Line */}
+                                <div className="absolute left-[23px] top-0 bottom-0 w-0.5 bg-gradient-to-b from-electric via-accent-cyan to-accent-indigo opacity-40" />
+
+                                {/* Animated Flow Line */}
+                                <div
+                                    className="absolute left-[23px] w-0.5 bg-gradient-to-b from-electric to-transparent"
+                                    style={{
+                                        height: '60px',
+                                        animation: 'pipelineFlow 3s ease-in-out infinite'
+                                    }}
+                                />
+
+                                <div className="space-y-0">
+                                    {loading ? (
+                                        Array.from({ length: 5 }).map((_, i) => (
+                                            <div key={i} className="flex items-stretch gap-4 animate-pulse">
+                                                <div className="flex flex-col items-center">
+                                                    <div className="w-12 h-12 rounded-full bg-midnight-border" />
+                                                    {i < 4 && <div className="w-0.5 flex-1 bg-midnight-border" />}
                                                 </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center gap-3 mb-1">
-                                                        <span className={`font-[family-name:var(--font-mono)] text-sm font-bold ${info.color}`}>{info.label}</span>
-                                                        <span className="font-[family-name:var(--font-heading)] text-sm font-semibold text-frost truncate">{event.repo}</span>
+                                                <div className="flex-1 pb-6">
+                                                    <div className="p-4 rounded-xl bg-midnight-card/50">
+                                                        <div className="h-5 w-32 bg-midnight-border rounded mb-2" />
+                                                        <div className="h-4 w-20 bg-midnight-border rounded" />
                                                     </div>
-                                                    <span className="font-[family-name:var(--font-mono)] text-xs text-frost-muted">{timeAgo(event.createdAt)} ago</span>
                                                 </div>
-                                                <ChevronRight className="w-5 h-5 text-frost-muted opacity-0 group-hover:opacity-100 transition-opacity" />
                                             </div>
-                                        );
-                                    })
-                                ) : (
-                                    <div className="text-center py-12 text-frost-muted">No recent activity</div>
-                                )}
+                                        ))
+                                    ) : events.length > 0 ? (
+                                        events.slice(0, 6).map((event, i) => {
+                                            const info = getEventInfo(event.type);
+                                            const isFirst = i === 0;
+                                            const isLast = i === Math.min(events.length, 6) - 1;
+
+                                            return (
+                                                <div key={event.id || i} className="group flex items-stretch gap-4">
+                                                    {/* Node & Connector */}
+                                                    <div className="flex flex-col items-center relative">
+                                                        {/* Pipeline Node */}
+                                                        <div className={`relative w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all duration-500 ${isFirst
+                                                                ? 'bg-electric/20 border-electric shadow-[0_0_20px_rgba(0,255,136,0.4)]'
+                                                                : 'bg-midnight-card border-midnight-border group-hover:border-electric/50'
+                                                            }`}>
+                                                            {/* Pulse Animation for First (Running) */}
+                                                            {isFirst && (
+                                                                <>
+                                                                    <div className="absolute inset-0 rounded-full border-2 border-electric animate-ping opacity-30" />
+                                                                    <div className="absolute inset-0 rounded-full bg-electric/10 animate-pulse" />
+                                                                </>
+                                                            )}
+                                                            <div className={info.color}>
+                                                                {info.icon}
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Connector Line to Next Node */}
+                                                        {!isLast && (
+                                                            <div className="relative w-0.5 flex-1 min-h-[40px]">
+                                                                <div className={`absolute inset-0 transition-all duration-300 ${isFirst
+                                                                        ? 'bg-gradient-to-b from-electric to-accent-cyan'
+                                                                        : 'bg-midnight-border group-hover:bg-electric/30'
+                                                                    }`} />
+                                                                {/* Flow Animation Dot */}
+                                                                {isFirst && (
+                                                                    <div
+                                                                        className="absolute w-2 h-2 -left-[3px] rounded-full bg-electric shadow-[0_0_10px_rgba(0,255,136,0.6)]"
+                                                                        style={{ animation: 'flowDot 1.5s ease-in-out infinite' }}
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Event Card */}
+                                                    <div className={`flex-1 pb-5 transition-all duration-300 ${isFirst ? 'pl-0' : ''}`}>
+                                                        <div className={`p-4 rounded-xl border transition-all duration-300 ${isFirst
+                                                                ? 'bg-electric/5 border-electric/30 shadow-[0_0_30px_rgba(0,255,136,0.1)]'
+                                                                : 'bg-midnight-card/30 border-transparent group-hover:border-electric/20 group-hover:bg-midnight-card/60'
+                                                            }`}>
+                                                            <div className="flex items-center justify-between mb-2">
+                                                                <div className="flex items-center gap-3">
+                                                                    <span className={`px-2 py-0.5 rounded-md text-xs font-bold ${isFirst
+                                                                            ? 'bg-electric text-midnight'
+                                                                            : `${info.bg} ${info.color}`
+                                                                        }`}>
+                                                                        {isFirst ? 'RUNNING' : info.label.toUpperCase()}
+                                                                    </span>
+                                                                    <span className="font-[family-name:var(--font-heading)] text-sm font-semibold text-frost">{event.repo}</span>
+                                                                </div>
+                                                                {/* Status Indicator */}
+                                                                <div className={`w-2 h-2 rounded-full ${isFirst ? 'bg-electric animate-pulse' : 'bg-accent-cyan'
+                                                                    }`} />
+                                                            </div>
+                                                            <div className="flex items-center gap-3 text-xs text-frost-muted">
+                                                                <span className="font-[family-name:var(--font-mono)]">{timeAgo(event.createdAt)} ago</span>
+                                                                <span className="opacity-40">•</span>
+                                                                <span className="font-[family-name:var(--font-mono)] text-electric/60">#{String(i + 1).padStart(3, '0')}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })
+                                    ) : (
+                                        <div className="text-center py-12 text-frost-muted">No pipeline activity</div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Pipeline Stats Footer */}
+                            <div className="mt-6 pt-6 border-t border-electric/10 grid grid-cols-3 gap-4">
+                                <div className="text-center">
+                                    <div className="text-2xl font-black text-electric" style={{ textShadow: '0 0 10px rgba(0,255,136,0.5)' }}>{events.length}</div>
+                                    <div className="text-xs text-frost-muted font-[family-name:var(--font-mono)]">TOTAL RUNS</div>
+                                </div>
+                                <div className="text-center">
+                                    <div className="text-2xl font-black text-accent-cyan" style={{ textShadow: '0 0 10px rgba(34,211,238,0.5)' }}>100%</div>
+                                    <div className="text-xs text-frost-muted font-[family-name:var(--font-mono)]">SUCCESS RATE</div>
+                                </div>
+                                <div className="text-center">
+                                    <div className="text-2xl font-black text-accent-indigo" style={{ textShadow: '0 0 10px rgba(99,102,241,0.5)' }}>~2m</div>
+                                    <div className="text-xs text-frost-muted font-[family-name:var(--font-mono)]">AVG DEPLOY</div>
+                                </div>
                             </div>
                         </div>
                     </div>
+
+                    {/* CSS Animations for Pipeline */}
+                    <style>{`
+                        @keyframes pipelineFlow {
+                            0% { top: 0; opacity: 1; }
+                            100% { top: calc(100% - 60px); opacity: 0; }
+                        }
+                        @keyframes flowDot {
+                            0% { top: 0; opacity: 1; }
+                            100% { top: calc(100% - 8px); opacity: 0; }
+                        }
+                    `}</style>
 
                     {/* Top Repositories - 2 cols */}
                     <div className="lg:col-span-2 relative">
