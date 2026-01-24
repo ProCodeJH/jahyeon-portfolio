@@ -1,0 +1,312 @@
+/* Notion-style Block Editor Styles */
+
+.notion-editor {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.notion-editor-content {
+    min-height: 500px;
+}
+
+.notion-editor-content .tiptap {
+    outline: none;
+    padding: 1rem 0;
+}
+
+/* Placeholder */
+.notion-editor-content .tiptap p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    color: rgba(255, 255, 255, 0.3);
+    pointer-events: none;
+    height: 0;
+}
+
+.notion-editor-content .tiptap h1.is-empty::before,
+.notion-editor-content .tiptap h2.is-empty::before,
+.notion-editor-content .tiptap h3.is-empty::before {
+    content: attr(data-placeholder);
+    float: left;
+    color: rgba(255, 255, 255, 0.3);
+    pointer-events: none;
+    height: 0;
+}
+
+/* Typography */
+.notion-editor-content .tiptap p {
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.8;
+    margin: 0.5em 0;
+}
+
+.notion-editor-content .tiptap h1 {
+    color: white;
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 1.5em 0 0.5em 0;
+}
+
+.notion-editor-content .tiptap h2 {
+    color: white;
+    font-size: 1.875rem;
+    font-weight: 600;
+    line-height: 1.35;
+    margin: 1.25em 0 0.5em 0;
+}
+
+.notion-editor-content .tiptap h3 {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 1em 0 0.5em 0;
+}
+
+/* Lists */
+.notion-editor-content .tiptap ul,
+.notion-editor-content .tiptap ol {
+    padding-left: 1.5rem;
+    margin: 0.5em 0;
+}
+
+.notion-editor-content .tiptap li {
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0.25em 0;
+}
+
+.notion-editor-content .tiptap li p {
+    margin: 0;
+}
+
+/* Task List */
+.notion-task-list {
+    list-style: none;
+    padding-left: 0 !important;
+}
+
+.notion-task-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.notion-task-item label {
+    display: flex;
+    align-items: center;
+}
+
+.notion-task-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+    appearance: none;
+    margin-top: 0.25rem;
+}
+
+.notion-task-item input[type="checkbox"]:checked {
+    background: #00ff88;
+    border-color: #00ff88;
+}
+
+.notion-task-item input[type="checkbox"]:checked::after {
+    content: "✓";
+    color: #000;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notion-task-item[data-checked="true"] > div > p {
+    text-decoration: line-through;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Blockquote */
+.notion-editor-content .tiptap blockquote {
+    border-left: 3px solid #00ff88;
+    padding-left: 1rem;
+    margin: 1em 0;
+    color: rgba(255, 255, 255, 0.7);
+    font-style: italic;
+}
+
+/* Code Block */
+.notion-code-block {
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1em 0;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 0.9rem;
+    overflow-x: auto;
+}
+
+.notion-code-block code {
+    color: #e0e0e0;
+}
+
+/* Inline Code */
+.notion-editor-content .tiptap code {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    padding: 0.15rem 0.4rem;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 0.9em;
+    color: #ff79c6;
+}
+
+/* Highlight */
+.notion-editor-content .tiptap mark {
+    background: rgba(255, 224, 102, 0.3);
+    border-radius: 2px;
+    padding: 0 2px;
+}
+
+/* Link */
+.notion-link {
+    color: #00ff88;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+}
+
+.notion-link:hover {
+    color: #00cc6a;
+}
+
+/* Horizontal Rule */
+.notion-editor-content .tiptap hr {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 2em 0;
+}
+
+/* Image */
+.notion-image {
+    max-width: 100%;
+    border-radius: 8px;
+    margin: 1em 0;
+}
+
+/* Bubble Menu */
+.notion-bubble-menu {
+    display: flex;
+    background: #1a1a2e;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0.25rem;
+    gap: 2px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.notion-bubble-menu button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    border-radius: 4px;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.notion-bubble-menu button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.notion-bubble-menu button.is-active {
+    background: rgba(0, 255, 136, 0.2);
+    color: #00ff88;
+}
+
+/* Floating / Slash Menu */
+.notion-floating-menu {
+    background: #1a1a2e;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 0.5rem;
+    min-width: 280px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.notion-slash-menu {
+    display: flex;
+    flex-direction: column;
+}
+
+.notion-slash-menu .menu-label {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    padding: 0.5rem 0.75rem;
+    margin: 0;
+}
+
+.notion-slash-menu button {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+}
+
+.notion-slash-menu button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.notion-slash-menu button svg {
+    color: rgba(255, 255, 255, 0.5);
+    flex-shrink: 0;
+}
+
+.notion-slash-menu button div {
+    display: flex;
+    flex-direction: column;
+}
+
+.notion-slash-menu button span {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.notion-slash-menu button .desc {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 400;
+}
+
+/* Selection */
+.notion-editor-content .tiptap ::selection {
+    background: rgba(0, 255, 136, 0.3);
+}
+
+/* Syntax Highlighting */
+.hljs-comment,
+.hljs-quote { color: #6a737d; }
+.hljs-keyword,
+.hljs-selector-tag { color: #ff79c6; }
+.hljs-string,
+.hljs-attribute { color: #f1fa8c; }
+.hljs-number,
+.hljs-literal { color: #bd93f9; }
+.hljs-function .hljs-title { color: #50fa7b; }
+.hljs-class .hljs-title { color: #8be9fd; }
+.hljs-variable { color: #f8f8f2; }

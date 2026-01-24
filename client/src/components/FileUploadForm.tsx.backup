@@ -1,0 +1,207 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
+import { Upload, Loader2, X, FileVideo, FileImage, FileText } from "lucide-react";
+import { toast } from "sonner";
+
+interface FileUploadFormProps {
+  onUploadComplete: (fileUrl: string, fileKey: string, fileName: string, fileSize: number, mimeType: string) => void;
+  acceptedFileTypes?: string;
+  maxSizeMB?: number;
+  label?: string;
+  category?: "video" | "image" | "document" | "code" | "other";
+}
+
+export function FileUploadForm({ 
+  onUploadComplete, 
+  acceptedFileTypes = "*",
+  maxSizeMB = 500, // Default to 500MB for video support
+  label = "Upload File",
+  category = "other"
+}: FileUploadFormProps) {
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (!selectedFile) return;
+
+    // Check file size
+    const fileSizeMB = selectedFile.size / (1024 * 1024);
+    if (fileSizeMB > maxSizeMB) {
+      toast.error(`File size must be less than ${maxSizeMB}MB`);
+      return;
+    }
+
+    setFile(selectedFile);
+  };
+
+  const handleUpload = async () => {
+    if (!file) {
+      toast.error("Please select a file first");
+      return;
+    }
+
+    setUploading(true);
+    setUploadProgress(0);
+
+    try {
+      // Simulate upload progress
+      const progressInterval = setInterval(() => {
+        setUploadProgress((prev) => {
+          if (prev >= 90) {
+            clearInterval(progressInterval);
+            return 90;
+          }
+          return prev + 10;
+        });
+      }, 300);
+
+      // Read file as base64
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      
+      await new Promise<void>((resolve, reject) => {
+        reader.onload = () => resolve();
+        reader.onerror = () => reject(new Error("Failed to read file"));
+      });
+
+      const base64Data = reader.result as string;
+      const base64Content = base64Data.split(',')[1];
+
+      // Upload to S3 via backend
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fileName: file.name,
+          fileContent: base64Content,
+          contentType: file.type || 'application/octet-stream',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const result = await response.json();
+      const { url, key } = result;
+
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+
+      toast.success("File uploaded successfully");
+      onUploadComplete(url, key, file.name, file.size, file.type || 'application/octet-stream');
+      
+      // Reset form
+      setFile(null);
+      setUploadProgress(0);
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error("Failed to upload file. Please try again.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setFile(null);
+    setUploadProgress(0);
+  };
+
+  const getFileIcon = () => {
+    if (!file) return <Upload className="h-4 w-4 text-primary flex-shrink-0" />;
+    
+    if (file.type.startsWith('video/')) {
+      return <FileVideo className="h-4 w-4 text-primary flex-shrink-0" />;
+    } else if (file.type.startsWith('image/')) {
+      return <FileImage className="h-4 w-4 text-primary flex-shrink-0" />;
+    } else {
+      return <FileText className="h-4 w-4 text-primary flex-shrink-0" />;
+    }
+  };
+
+  return (
+    <Card>
+      <CardContent className="p-6 space-y-4">
+        <div>
+          <Label htmlFor="file-upload">{label}</Label>
+          <div className="mt-2">
+            <Input
+              id="file-upload"
+              type="file"
+              accept={acceptedFileTypes}
+              onChange={handleFileChange}
+              disabled={uploading}
+              className="cursor-pointer"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Maximum file size: {maxSizeMB}MB
+              {category === "video" && " • Supports mp4, mov, avi, webm"}
+            </p>
+          </div>
+        </div>
+
+        {file && (
+          <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              {getFileIcon()}
+              <span className="text-sm truncate">{file.name}</span>
+              <span className="text-xs text-muted-foreground flex-shrink-0">
+                ({(file.size / (1024 * 1024)).toFixed(2)} MB)
+              </span>
+            </div>
+            {!uploading && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleRemoveFile}
+                className="flex-shrink-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        )}
+
+        {uploading && uploadProgress > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Uploading...</span>
+              <span className="font-medium">{uploadProgress}%</span>
+            </div>
+            <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+              <div 
+                className="bg-primary h-full transition-all duration-300"
+                style={{ width: `${uploadProgress}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        <Button 
+          onClick={handleUpload} 
+          disabled={!file || uploading}
+          className="w-full"
+        >
+          {uploading ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Uploading...
+            </>
+          ) : (
+            <>
+              <Upload className="h-4 w-4 mr-2" />
+              Upload File
+            </>
+          )}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}

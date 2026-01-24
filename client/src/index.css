@@ -1,0 +1,335 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* 🌙 MIDNIGHT ENGINEER - Font System */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* Geist Font (Vercel) - Self-hosted or CDN */
+@font-face {
+  font-family: 'Geist';
+  src: url('https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/fonts/GeistVF.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 🔤 MIDNIGHT ENGINEER - Design System */
+:root {
+  /* Typography */
+  --font-heading: 'Geist', 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Midnight Engineer Palette */
+  --midnight: #0A0A0F;
+  --midnight-card: #1A1A24;
+  --midnight-border: #2A2A34;
+  --electric: #00FF88;
+  --electric-dim: #00CC6A;
+  --frost: #E8E8EC;
+  --frost-muted: #8888A0;
+  --accent-indigo: #6366F1;
+  --accent-cyan: #22D3EE;
+
+  /* Legacy Positivus (for compatibility) */
+  --positivus-dark: #191A23;
+  --positivus-lime: #B9FF66;
+  --positivus-gray: #F3F3F3;
+  --positivus-muted: #898989;
+  --font-space-grotesk: 'Geist', 'Inter', sans-serif;
+}
+
+/* 🎬 PREMIUM ANIMATIONS */
+@keyframes gradient-x {
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-20px) rotate(2deg);
+  }
+}
+
+@keyframes draw {
+  0% {
+    stroke-dasharray: 0, 1000;
+  }
+
+  100% {
+    stroke-dasharray: 1000, 0;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-gradient-x {
+  background-size: 200% 200%;
+  animation: gradient-x 5s ease infinite;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-draw {
+  stroke-dasharray: 0, 1000;
+  animation: draw 1.5s ease-out forwards;
+  animation-delay: 0.5s;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Midnight Engineer Colors */
+  --color-midnight: var(--midnight);
+  --color-midnight-card: var(--midnight-card);
+  --color-midnight-border: var(--midnight-border);
+  --color-electric: var(--electric);
+  --color-electric-dim: var(--electric-dim);
+  --color-frost: var(--frost);
+  --color-frost-muted: var(--frost-muted);
+  --color-accent-indigo: var(--accent-indigo);
+  --color-accent-cyan: var(--accent-cyan);
+
+  /* Font Families */
+  --font-family-heading: var(--font-heading);
+  --font-family-body: var(--font-body);
+  --font-family-mono: var(--font-mono);
+
+  /* Positivus Colors */
+  --color-positivus-dark: var(--positivus-dark);
+  --color-positivus-lime: var(--positivus-lime);
+  --color-positivus-gray: var(--positivus-gray);
+  --color-positivus-muted: var(--positivus-muted);
+  --font-family-space-grotesk: var(--font-space-grotesk);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  /* 🌙 SUPER HYBRID ENTERPRISE - Dark Neon Theme (DEFAULT) */
+  /* Deep Space Background */
+  --background: oklch(0.08 0.02 260);
+  --foreground: oklch(0.95 0.01 250);
+
+  /* Cards & Surfaces */
+  --card: oklch(0.12 0.025 260);
+  --card-foreground: oklch(0.95 0.01 250);
+  --popover: oklch(0.12 0.025 260);
+  --popover-foreground: oklch(0.95 0.01 250);
+
+  /* ⚡ Neon Primary - Electric Purple */
+  --primary: oklch(0.65 0.28 290);
+  --primary-foreground: oklch(0.98 0.01 290);
+
+  /* Secondary & Muted */
+  --secondary: oklch(0.18 0.03 260);
+  --secondary-foreground: oklch(0.90 0.01 250);
+  --muted: oklch(0.20 0.025 260);
+  --muted-foreground: oklch(0.70 0.03 250);
+
+  /* 🌟 Neon Accent - Cyan Glow */
+  --accent: oklch(0.75 0.18 195);
+  --accent-foreground: oklch(0.10 0.02 195);
+
+  /* Destructive */
+  --destructive: oklch(0.65 0.25 25);
+  --destructive-foreground: oklch(0.98 0.01 25);
+
+  /* Borders & Inputs */
+  --border: oklch(0.25 0.04 260);
+  --input: oklch(0.20 0.03 260);
+  --ring: oklch(0.65 0.28 290);
+
+  /* Charts - Neon Spectrum */
+  --chart-1: oklch(0.65 0.28 290);
+  /* Neon Purple */
+  --chart-2: oklch(0.75 0.18 195);
+  /* Neon Cyan */
+  --chart-3: oklch(0.70 0.22 330);
+  /* Neon Pink */
+  --chart-4: oklch(0.70 0.20 145);
+  /* Neon Green */
+  --chart-5: oklch(0.75 0.18 60);
+  /* Neon Orange */
+
+  /* Sidebar */
+  --sidebar: oklch(0.10 0.025 260);
+  --sidebar-foreground: oklch(0.92 0.01 250);
+  --sidebar-primary: oklch(0.65 0.28 290);
+  --sidebar-primary-foreground: oklch(0.98 0.01 290);
+  --sidebar-accent: oklch(0.18 0.03 260);
+  --sidebar-accent-foreground: oklch(0.95 0.01 250);
+  --sidebar-border: oklch(0.25 0.04 260);
+  --sidebar-ring: oklch(0.65 0.28 290);
+
+  /* 🎨 Neon Glow Colors */
+  --neon-purple: oklch(0.65 0.28 290);
+  --neon-cyan: oklch(0.75 0.18 195);
+  --neon-pink: oklch(0.70 0.22 330);
+  --neon-green: oklch(0.70 0.20 145);
+
+  --radius: 0.625rem;
+}
+
+.light {
+  /* ☀️ Light Theme (Optional) */
+  --background: oklch(0.98 0.005 250);
+  --foreground: oklch(0.15 0.02 250);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.15 0.02 250);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.15 0.02 250);
+  --primary: oklch(0.45 0.18 290);
+  --primary-foreground: oklch(0.98 0.01 290);
+  --secondary: oklch(0.92 0.01 250);
+  --secondary-foreground: oklch(0.25 0.04 250);
+  --muted: oklch(0.94 0.008 250);
+  --muted-foreground: oklch(0.50 0.05 250);
+  --accent: oklch(0.55 0.15 195);
+  --accent-foreground: oklch(0.15 0.02 195);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(0.88 0.01 250);
+  --input: oklch(0.88 0.01 250);
+  --ring: oklch(0.45 0.18 290);
+  --sidebar: oklch(0.98 0.005 250);
+  --sidebar-foreground: oklch(0.15 0.02 250);
+  --sidebar-accent: oklch(0.92 0.01 250);
+  --sidebar-accent-foreground: oklch(0.25 0.04 250);
+  --sidebar-border: oklch(0.88 0.01 250);
+  --sidebar-ring: oklch(0.45 0.18 290);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [type="button"]:not(:disabled),
+  [type="submit"]:not(:disabled),
+  [type="reset"]:not(:disabled),
+  a[href],
+  select:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled) {
+    @apply cursor-pointer;
+  }
+}
+
+@layer components {
+
+  /**
+   * Custom container utility that centers content and adds responsive padding.
+   *
+   * This overrides Tailwind's default container behavior to:
+   * - Auto-center content (mx-auto)
+   * - Add responsive horizontal padding
+   * - Set max-width for large screens
+   *
+   * Usage: <div className="container">...</div>
+   *
+   * For custom widths, use max-w-* utilities directly:
+   * <div className="max-w-6xl mx-auto px-4">...</div>
+   */
+  .container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    /* 16px - mobile padding */
+    padding-right: 1rem;
+  }
+
+  .flex {
+    min-height: 0;
+    min-width: 0;
+  }
+
+  @media (min-width: 640px) {
+    .container {
+      padding-left: 1.5rem;
+      /* 24px - tablet padding */
+      padding-right: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container {
+      padding-left: 2rem;
+      /* 32px - desktop padding */
+      padding-right: 2rem;
+      max-width: 1280px;
+      /* Standard content width */
+    }
+  }
+}

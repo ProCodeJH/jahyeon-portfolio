@@ -1,0 +1,1 @@
+ALTER TABLE `resources` ADD `subcategory` enum('code','documentation','images');
