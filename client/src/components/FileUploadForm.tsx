@@ -140,14 +140,14 @@ export function FileUploadForm({
   };
 
   const getFileIcon = () => {
-    if (!file) return <Upload className="h-4 w-4 text-primary flex-shrink-0" />;
+    if (!file) return <Upload className="h-4 w-4 text-primary flex-shrink-0" aria-hidden="true" />;
 
     if (file.type.startsWith('video/')) {
-      return <FileVideo className="h-4 w-4 text-primary flex-shrink-0" />;
+      return <FileVideo className="h-4 w-4 text-primary flex-shrink-0" aria-hidden="true" />;
     } else if (file.type.startsWith('image/')) {
-      return <FileImage className="h-4 w-4 text-primary flex-shrink-0" />;
+      return <FileImage className="h-4 w-4 text-primary flex-shrink-0" aria-hidden="true" />;
     } else {
-      return <FileText className="h-4 w-4 text-primary flex-shrink-0" />;
+      return <FileText className="h-4 w-4 text-primary flex-shrink-0" aria-hidden="true" />;
     }
   };
 
@@ -186,23 +186,31 @@ export function FileUploadForm({
                 variant="ghost"
                 size="sm"
                 onClick={handleRemoveFile}
+                aria-label="선택한 파일 제거"
                 className="flex-shrink-0"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4" aria-hidden="true" />
               </Button>
             )}
           </div>
         )}
 
         {uploading && (
-          <div className="space-y-2">
+          <div className="space-y-2" role="status" aria-label="파일 업로드 진행 상황">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">
                 Uploading... {uploadProgress < 100 ? '' : 'Complete!'}
               </span>
-              <span className="font-medium">{uploadProgress}%</span>
+              <span className="font-medium" aria-live="polite">{uploadProgress}%</span>
             </div>
-            <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden">
+            <div
+              className="w-full bg-muted rounded-full h-2.5 overflow-hidden"
+              role="progressbar"
+              aria-valuenow={uploadProgress}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label="업로드 진행률"
+            >
               <div
                 className="bg-primary h-full transition-all duration-300 ease-out"
                 style={{ width: `${uploadProgress}%` }}
@@ -218,16 +226,17 @@ export function FileUploadForm({
           <Button
             onClick={handleUpload}
             disabled={!file || uploading}
+            aria-label={uploading ? "업로드 중..." : "파일 업로드"}
             className="flex-1"
           >
             {uploading ? (
               <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />
                 Uploading...
               </>
             ) : (
               <>
-                <Upload className="h-4 w-4 mr-2" />
+                <Upload className="h-4 w-4 mr-2" aria-hidden="true" />
                 Upload
               </>
             )}
@@ -237,6 +246,7 @@ export function FileUploadForm({
             <Button
               variant="outline"
               onClick={handleCancelUpload}
+              aria-label="업로드 취소"
             >
               Cancel
             </Button>
