@@ -181,9 +181,10 @@ export const SLASH_COMMANDS: SlashCommand[] = [
     { id: "todoList", label: "체크리스트", shortcut: "/todo", icon: "☐", keywords: ["todo", "check", "task"] },
     { id: "toggle", label: "토글", shortcut: "/toggle", icon: "▶", keywords: ["toggle", "collapse", "expand"] },
     {
-        id: "quote", label: "인용", shortcut: "/quote", icon: """, keywords: ["quote", "blockquote"] },
-  { id: "callout", label: "콜아웃", shortcut: "/callout", icon: "💡", keywords: ["callout", "info", "tip"] },
-  { id: "code", label: "코드", shortcut: "/code", icon: "</>", keywords: ["code", "snippet"] },
+        id: "quote", label: "인용", shortcut: "/quote", icon: '"', keywords: ["quote", "blockquote"]
+    },
+    { id: "callout", label: "콜아웃", shortcut: "/callout", icon: "💡", keywords: ["callout", "info", "tip"] },
+    { id: "code", label: "코드", shortcut: "/code", icon: "</>", keywords: ["code", "snippet"] },
     { id: "divider", label: "구분선", shortcut: "/divider", icon: "—", keywords: ["divider", "hr", "line"] },
     { id: "image", label: "이미지", shortcut: "/image", icon: "🖼️", keywords: ["image", "picture", "photo"] },
     { id: "video", label: "비디오", shortcut: "/video", icon: "🎬", keywords: ["video", "youtube"] },
