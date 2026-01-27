@@ -53,18 +53,74 @@ const isAuthenticated = t.middleware(async ({ ctx, next }) => {
 const publicProcedure = t.procedure;
 const protectedProcedure = t.procedure.use(isAuthenticated);
 
+// ============================================
+// 🔐 Upload Error Handling Constants
+// ============================================
+const UPLOAD_ERRORS = {
+  R2_NOT_CONFIGURED: "R2 storage not configured. Please check environment variables.",
+  INVALID_FILE_NAME: "Invalid file name provided.",
+  EMPTY_FILE: "File content is empty.",
+  UPLOAD_FAILED: "Failed to upload file to storage.",
+  PRESIGN_FAILED: "Failed to generate presigned URL.",
+  MAX_SIZE_EXCEEDED: "File exceeds maximum allowed size.",
+  INVALID_CONTENT_TYPE: "Invalid or missing content type.",
+} as const;
+
+// Validate R2 configuration
+function validateR2Config(): { valid: boolean; error?: string } {
+  if (!R2_ENDPOINT) {
+    return { valid: false, error: "R2_ENDPOINT or R2_ACCOUNT_ID is not configured" };
+  }
+  if (!process.env.R2_ACCESS_KEY_ID || !process.env.R2_SECRET_ACCESS_KEY) {
+    return { valid: false, error: "R2 credentials are not configured" };
+  }
+  if (!R2_PUBLIC_URL) {
+    return { valid: false, error: "R2_PUBLIC_URL is not configured" };
+  }
+  return { valid: true };
+}
+
 async function uploadToR2(fileName: string, fileContent: Buffer, contentType: string): Promise<{ url: string; key: string }> {
+  // Validate R2 configuration
+  const configCheck = validateR2Config();
+  if (!configCheck.valid) {
+    console.error("[Upload] R2 configuration error:", configCheck.error);
+    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: UPLOAD_ERRORS.R2_NOT_CONFIGURED });
+  }
+
+  // Validate inputs
+  if (!fileName || fileName.trim() === "") {
+    throw new TRPCError({ code: "BAD_REQUEST", message: UPLOAD_ERRORS.INVALID_FILE_NAME });
+  }
+  if (!fileContent || fileContent.length === 0) {
+    throw new TRPCError({ code: "BAD_REQUEST", message: UPLOAD_ERRORS.EMPTY_FILE });
+  }
+  if (!contentType || contentType.trim() === "") {
+    throw new TRPCError({ code: "BAD_REQUEST", message: UPLOAD_ERRORS.INVALID_CONTENT_TYPE });
+  }
+
   // Preserve UTF-8 characters (Korean, etc.) in filename - only replace path-unsafe characters
   const safeFileName = fileName.replace(/[\/\\:*?"<>|]/g, "_");
   const key = `uploads/${Date.now()}-${encodeURIComponent(safeFileName)}`;
-  await s3Client.send(new PutObjectCommand({
-    Bucket: R2_BUCKET,
-    Key: key,
-    Body: fileContent,
-    ContentType: contentType,
-    ContentDisposition: `inline; filename*=UTF-8''${encodeURIComponent(safeFileName)}`
-  }));
-  return { url: `${R2_PUBLIC_URL}/${key}`, key };
+
+  try {
+    await s3Client.send(new PutObjectCommand({
+      Bucket: R2_BUCKET,
+      Key: key,
+      Body: fileContent,
+      ContentType: contentType,
+      ContentDisposition: `inline; filename*=UTF-8''${encodeURIComponent(safeFileName)}`
+    }));
+    console.log(`[Upload] Successfully uploaded: ${safeFileName} (${fileContent.length} bytes)`);
+    return { url: `${R2_PUBLIC_URL}/${key}`, key };
+  } catch (error) {
+    console.error("[Upload] R2 upload failed:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: `${UPLOAD_ERRORS.UPLOAD_FAILED} (${errorMessage})`,
+    });
+  }
 }
 
 async function deleteFromR2(key: string): Promise<void> {
@@ -108,42 +164,102 @@ export const appRouter = t.router({
 
   upload: t.router({
     // 기존 방식 (10MB 이하)
-    file: protectedProcedure.input(z.object({ fileName: z.string(), fileContent: z.string(), contentType: z.string() })).mutation(async ({ input }) => {
-      const buffer = Buffer.from(input.fileContent, "base64");
-      return uploadToR2(input.fileName, buffer, input.contentType);
+    file: protectedProcedure.input(z.object({
+      fileName: z.string().min(1, "File name is required"),
+      fileContent: z.string().min(1, "File content is required"),
+      contentType: z.string().min(1, "Content type is required")
+    })).mutation(async ({ input }) => {
+      try {
+        // Validate base64 content
+        let buffer: Buffer;
+        try {
+          buffer = Buffer.from(input.fileContent, "base64");
+        } catch (e) {
+          console.error("[Upload] Invalid base64 content:", e);
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid file content encoding (expected base64)" });
+        }
+
+        // Check file size (10MB limit for base64 upload)
+        const MAX_BASE64_SIZE = 10 * 1024 * 1024;
+        if (buffer.length > MAX_BASE64_SIZE) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `File too large for base64 upload. Max ${MAX_BASE64_SIZE / 1024 / 1024}MB. Use presigned URL for larger files.`
+          });
+        }
+
+        return await uploadToR2(input.fileName, buffer, input.contentType);
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
+        console.error("[Upload] Unexpected error in file upload:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: error instanceof Error ? error.message : "Failed to process file upload"
+        });
+      }
     }),
 
     // ============================================
     // 🚀 Presigned URL (2GB까지 지원 - Enterprise Grade)
     // ============================================
     getPresignedUrl: protectedProcedure.input(z.object({
-      fileName: z.string(),
-      contentType: z.string(),
-      fileSize: z.number(),
+      fileName: z.string().min(1, "File name is required"),
+      contentType: z.string().min(1, "Content type is required"),
+      fileSize: z.number().min(1, "File size must be greater than 0"),
     })).mutation(async ({ input }) => {
+      // Validate R2 configuration first
+      const configCheck = validateR2Config();
+      if (!configCheck.valid) {
+        console.error("[Upload] R2 configuration error:", configCheck.error);
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: UPLOAD_ERRORS.R2_NOT_CONFIGURED });
+      }
+
       const MAX_SIZE = 2 * 1024 * 1024 * 1024; // 2GB - Enterprise Grade
+      const MIN_SIZE = 1; // At least 1 byte
+
+      if (input.fileSize < MIN_SIZE) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "File size must be at least 1 byte" });
+      }
       if (input.fileSize > MAX_SIZE) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "File too large. Max 2GB allowed." });
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `File too large. Maximum allowed: ${MAX_SIZE / 1024 / 1024 / 1024}GB (${MAX_SIZE} bytes). Your file: ${input.fileSize} bytes`
+        });
+      }
+
+      // Validate file name
+      if (!input.fileName || input.fileName.trim() === "") {
+        throw new TRPCError({ code: "BAD_REQUEST", message: UPLOAD_ERRORS.INVALID_FILE_NAME });
       }
 
       // Preserve UTF-8 characters (Korean, etc.) in filename
       const safeFileName = input.fileName.replace(/[\/\\:*?"<>|]/g, "_");
       const key = `uploads/${Date.now()}-${encodeURIComponent(safeFileName)}`;
 
-      const command = new PutObjectCommand({
-        Bucket: R2_BUCKET,
-        Key: key,
-        ContentType: input.contentType,
-        ContentDisposition: `inline; filename*=UTF-8''${encodeURIComponent(safeFileName)}`
-      });
+      try {
+        const command = new PutObjectCommand({
+          Bucket: R2_BUCKET,
+          Key: key,
+          ContentType: input.contentType,
+          ContentDisposition: `inline; filename*=UTF-8''${encodeURIComponent(safeFileName)}`
+        });
 
-      const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+        const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+        console.log(`[Upload] Generated presigned URL for: ${safeFileName} (${input.fileSize} bytes)`);
 
-      return {
-        presignedUrl,
-        key,
-        publicUrl: `${R2_PUBLIC_URL}/${key}`,
-      };
+        return {
+          presignedUrl,
+          key,
+          publicUrl: `${R2_PUBLIC_URL}/${key}`,
+        };
+      } catch (error) {
+        console.error("[Upload] Failed to generate presigned URL:", error);
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `${UPLOAD_ERRORS.PRESIGN_FAILED} (${errorMessage})`
+        });
+      }
     }),
 
     // Stub for chunked uploads (client compatibility)
@@ -765,13 +881,49 @@ export const appRouter = t.router({
     // --- Image Upload for Posts ---
     uploadImage: publicProcedure.input(z.object({
       memberId: z.number(),
-      fileName: z.string(),
-      fileContent: z.string(),
-      contentType: z.string(),
+      fileName: z.string().min(1, "File name is required"),
+      fileContent: z.string().min(1, "File content is required"),
+      contentType: z.string().min(1, "Content type is required"),
     })).mutation(async ({ input }) => {
-      const buffer = Buffer.from(input.fileContent, "base64");
-      const result = await uploadToR2(input.fileName, buffer, input.contentType);
-      return result;
+      try {
+        // Validate content type is an image
+        const allowedImageTypes = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"];
+        if (!allowedImageTypes.includes(input.contentType.toLowerCase())) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `Invalid image type: ${input.contentType}. Allowed types: ${allowedImageTypes.join(", ")}`
+          });
+        }
+
+        // Parse base64 content
+        let buffer: Buffer;
+        try {
+          buffer = Buffer.from(input.fileContent, "base64");
+        } catch (e) {
+          console.error("[Community Upload] Invalid base64 content:", e);
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid image content encoding (expected base64)" });
+        }
+
+        // Check image size (5MB limit for community images)
+        const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+        if (buffer.length > MAX_IMAGE_SIZE) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `Image too large. Maximum allowed: ${MAX_IMAGE_SIZE / 1024 / 1024}MB`
+          });
+        }
+
+        const result = await uploadToR2(input.fileName, buffer, input.contentType);
+        console.log(`[Community Upload] Member ${input.memberId} uploaded image: ${input.fileName}`);
+        return result;
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
+        console.error("[Community Upload] Unexpected error:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: error instanceof Error ? error.message : "Failed to upload image"
+        });
+      }
     }),
   }),
 });
