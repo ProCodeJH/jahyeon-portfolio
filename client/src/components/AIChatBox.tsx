@@ -190,6 +190,8 @@ export function AIChatBox({
   return (
     <div
       ref={containerRef}
+      role="region"
+      aria-label="AI 채팅"
       className={cn(
         "flex flex-col bg-card text-card-foreground rounded-lg border shadow-sm",
         className
@@ -223,7 +225,7 @@ export function AIChatBox({
             </div>
           </div>
         ) : (
-          <ScrollArea className="h-full">
+          <ScrollArea className="h-full" role="log" aria-label="메시지 목록" aria-live="polite">
             <div className="flex flex-col space-y-4 p-4">
               {displayMessages.map((message, index) => {
                 // Apply min-height to last message only if NOT loading (when loading, the loading indicator gets it)
@@ -283,6 +285,8 @@ export function AIChatBox({
               {isLoading && (
                 <div
                   className="flex items-start gap-3"
+                  role="status"
+                  aria-label="AI가 응답 생성 중"
                   style={
                     minHeightForLastMessage > 0
                       ? { minHeight: `${minHeightForLastMessage}px` }
@@ -290,10 +294,11 @@ export function AIChatBox({
                   }
                 >
                   <div className="size-8 shrink-0 mt-1 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Sparkles className="size-4 text-primary" />
+                    <Sparkles className="size-4 text-primary" aria-hidden="true" />
                   </div>
                   <div className="rounded-lg bg-muted px-4 py-2.5">
-                    <Loader2 className="size-4 animate-spin text-muted-foreground" />
+                    <Loader2 className="size-4 animate-spin text-muted-foreground" aria-hidden="true" />
+                    <span className="sr-only">AI가 응답을 생성하고 있습니다</span>
                   </div>
                 </div>
               )}
@@ -321,12 +326,13 @@ export function AIChatBox({
           type="submit"
           size="icon"
           disabled={!input.trim() || isLoading}
+          aria-label={isLoading ? "AI 응답 대기 중" : "메시지 전송"}
           className="shrink-0 h-[38px] w-[38px]"
         >
           {isLoading ? (
-            <Loader2 className="size-4 animate-spin" />
+            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
           ) : (
-            <Send className="size-4" />
+            <Send className="size-4" aria-hidden="true" />
           )}
         </Button>
       </form>

@@ -35,7 +35,7 @@ export function Navigation() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-midnight/95 backdrop-blur-2xl border-b border-midnight-border">
+      <nav role="navigation" aria-label="메인 네비게이션" className="fixed top-0 left-0 right-0 z-50 bg-midnight/95 backdrop-blur-2xl border-b border-midnight-border">
         <div className="max-w-7xl mx-auto px-6 md:px-8 py-3 md:py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
@@ -49,7 +49,7 @@ export function Navigation() {
             </Link>
 
             {/* Desktop Menu */}
-            <div className="hidden md:flex items-center gap-8">
+            <div className="hidden md:flex items-center gap-8" role="menubar" aria-label="데스크톱 메뉴">
               {menuItems.map(item => (
                 <Link key={item.name} href={item.path}>
                   <span className="group font-[family-name:var(--font-heading)] text-sm font-semibold text-frost hover:text-electric transition-all cursor-pointer relative px-3 py-2">
@@ -67,23 +67,24 @@ export function Navigation() {
                     </span>
                     <button
                       onClick={handleLogout}
+                      aria-label="로그아웃"
                       className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-midnight-card hover:bg-electric/10 text-frost text-sm font-medium transition-all border border-midnight-border"
                     >
-                      <LogOut className="w-4 h-4" />
+                      <LogOut className="w-4 h-4" aria-hidden="true" />
                       Logout
                     </button>
                   </>
                 ) : (
                   <>
                     <Link href="/login">
-                      <button className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-midnight-card hover:bg-electric/10 text-frost text-sm font-medium transition-all border border-midnight-border">
-                        <LogIn className="w-4 h-4" />
+                      <button aria-label="로그인" className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-midnight-card hover:bg-electric/10 text-frost text-sm font-medium transition-all border border-midnight-border">
+                        <LogIn className="w-4 h-4" aria-hidden="true" />
                         Login
                       </button>
                     </Link>
                     <Link href="/register">
-                      <button className="font-[family-name:var(--font-heading)] flex items-center gap-1.5 px-4 py-2 rounded-xl bg-electric hover:bg-electric-dim text-midnight text-sm font-bold transition-all">
-                        <UserPlus className="w-4 h-4" />
+                      <button aria-label="회원가입" className="font-[family-name:var(--font-heading)] flex items-center gap-1.5 px-4 py-2 rounded-xl bg-electric hover:bg-electric-dim text-midnight text-sm font-bold transition-all">
+                        <UserPlus className="w-4 h-4" aria-hidden="true" />
                         Sign Up
                       </button>
                     </Link>
@@ -96,7 +97,9 @@ export function Navigation() {
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden p-2 rounded-lg hover:bg-positivus-lime/20 transition-colors"
-              aria-label="Toggle mobile menu"
+              aria-label={mobileMenuOpen ? "모바일 메뉴 닫기" : "모바일 메뉴 열기"}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-menu-panel"
             >
               {mobileMenuOpen ? (
                 <X className="w-6 h-6 text-gray-700" />
@@ -110,13 +113,16 @@ export function Navigation() {
 
       {/* Mobile Menu Panel */}
       <div
+        id="mobile-menu-panel"
+        role="menu"
+        aria-label="모바일 네비게이션 메뉴"
         className={`fixed top-[73px] left-0 right-0 z-40 md:hidden bg-white/95 backdrop-blur-2xl border-b border-gray-200/50 shadow-2xl transition-all duration-300 ease-in-out ${mobileMenuOpen
           ? "translate-y-0 opacity-100"
           : "-translate-y-full opacity-0 pointer-events-none"
           }`}
       >
         <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2" role="menuitem">
             {menuItems.map((item, index) => (
               <Link key={item.name} href={item.path}>
                 <div
@@ -148,9 +154,10 @@ export function Navigation() {
                   </div>
                   <button
                     onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
+                    aria-label="로그아웃"
                     className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium transition-all"
                   >
-                    <LogOut className="w-4 h-4" />
+                    <LogOut className="w-4 h-4" aria-hidden="true" />
                     로그아웃
                   </button>
                 </div>
@@ -159,18 +166,20 @@ export function Navigation() {
                   <Link href="/login" className="flex-1">
                     <button
                       onClick={() => setMobileMenuOpen(false)}
+                      aria-label="로그인"
                       className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium transition-all"
                     >
-                      <LogIn className="w-4 h-4" />
+                      <LogIn className="w-4 h-4" aria-hidden="true" />
                       로그인
                     </button>
                   </Link>
                   <Link href="/register" className="flex-1">
                     <button
                       onClick={() => setMobileMenuOpen(false)}
+                      aria-label="회원가입"
                       className="w-full font-[family-name:var(--font-space-grotesk)] flex items-center justify-center gap-2 px-4 py-3 rounded-[14px] bg-positivus-dark text-white font-medium transition-all"
                     >
-                      <UserPlus className="w-4 h-4" />
+                      <UserPlus className="w-4 h-4" aria-hidden="true" />
                       회원가입
                     </button>
                   </Link>
@@ -184,6 +193,8 @@ export function Navigation() {
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
         <div
+          role="presentation"
+          aria-hidden="true"
           className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30 md:hidden"
           onClick={() => setMobileMenuOpen(false)}
         />
