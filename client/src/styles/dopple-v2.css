@@ -1,0 +1,429 @@
+/**
+ * Dopple Press V2 - Exact Clone CSS
+ * Based on dopplepress.com/design analysis
+ * 
+ * Key fonts: Termina, Brice Bold Expanded, DIN Next
+ * Colors: Cream #FDFBF4, Dark #393735, Accent colors per section
+ */
+
+/* ==================== FONTS ==================== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+/* ==================== BASE ==================== */
+:root {
+    /* Dopple Colors */
+    --dopple-cream: #FDFBF4;
+    --dopple-dark: #393735;
+    --dopple-red: #F45156;
+    --dopple-green: #A5CA6D;
+    --dopple-pink: #E69AC5;
+    --dopple-blue: #88B9D2;
+    --dopple-yellow: #EEDC46;
+    --dopple-orange: #FF6816;
+    --dopple-purple: #959DEE;
+
+    /* Typography */
+    --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.dopple-page {
+    font-family: var(--font-main);
+    background: var(--dopple-cream);
+    color: var(--dopple-dark);
+    min-height: 100vh;
+}
+
+/* ==================== HEADER ==================== */
+.dopple-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 48px;
+    mix-blend-mode: difference;
+    transition: all 0.3s ease;
+}
+
+.dopple-header.scrolled {
+    padding: 16px 48px;
+}
+
+.dopple-logo {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #FDFBF4;
+    text-decoration: none;
+}
+
+.dopple-nav {
+    display: flex;
+    gap: 40px;
+}
+
+.dopple-nav-item {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: #FDFBF4;
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+}
+
+.dopple-nav-item:hover {
+    opacity: 0.6;
+}
+
+.dopple-nav-item.active {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+/* ==================== HERO ==================== */
+.dopple-hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 120px 48px 80px;
+    background: var(--dopple-cream);
+    position: relative;
+}
+
+.dopple-hero-scroll {
+    position: absolute;
+    top: 120px;
+    left: 48px;
+    display: flex;
+    flex-direction: column;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--dopple-dark);
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+.dopple-hero-scroll:hover {
+    opacity: 1;
+}
+
+.dopple-hero-content {
+    max-width: 1000px;
+    margin-left: 80px;
+}
+
+.dopple-hero-tags {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    color: var(--dopple-dark);
+    margin-bottom: 32px;
+    text-transform: uppercase;
+}
+
+.dopple-hero-intro {
+    font-size: clamp(24px, 3.5vw, 40px);
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--dopple-dark);
+}
+
+.dopple-hero-intro strong {
+    font-weight: 700;
+}
+
+/* ==================== PROJECT SECTIONS ==================== */
+.dopple-project {
+    min-height: 100vh;
+    display: flex;
+    align-items: stretch;
+    position: relative;
+}
+
+.dopple-project-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    min-height: 100vh;
+}
+
+/* Gallery (Left Side) */
+.dopple-project-gallery {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px;
+    position: relative;
+}
+
+.dopple-project-image-container {
+    width: 100%;
+    max-width: 500px;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dopple-project-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.5s ease;
+}
+
+.dopple-project:hover .dopple-project-image {
+    transform: scale(1.02);
+}
+
+.dopple-gallery-nav {
+    display: flex;
+    gap: 16px;
+    margin-top: 32px;
+}
+
+.dopple-arrow-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.dopple-arrow-btn:hover {
+    transform: scale(1.1);
+}
+
+/* Project Info (Right Side) */
+.dopple-project-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px 80px;
+}
+
+.dopple-project-title {
+    font-size: clamp(32px, 5vw, 56px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-bottom: 48px;
+}
+
+.dopple-info-block {
+    margin-bottom: 32px;
+}
+
+.dopple-info-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.dopple-info-text {
+    font-size: 15px;
+    line-height: 1.7;
+    opacity: 0.85;
+    max-width: 480px;
+}
+
+/* ==================== STATS SECTION ==================== */
+.dopple-stats {
+    padding: 100px 48px;
+    background: var(--dopple-dark);
+    color: var(--dopple-cream);
+    text-align: center;
+}
+
+.dopple-stats-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    margin-bottom: 64px;
+    opacity: 0.6;
+}
+
+.dopple-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 48px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.dopple-stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.dopple-stat-value {
+    font-size: clamp(40px, 6vw, 64px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.dopple-stat-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    opacity: 0.6;
+}
+
+/* ==================== FOOTER ==================== */
+.dopple-footer {
+    padding: 64px 48px;
+    background: var(--dopple-cream);
+    border-top: 1px solid rgba(57, 55, 53, 0.1);
+}
+
+.dopple-footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+}
+
+.dopple-footer-nav {
+    display: flex;
+    gap: 40px;
+}
+
+.dopple-footer-nav a {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    color: var(--dopple-dark);
+    text-decoration: none;
+    transition: opacity 0.3s;
+}
+
+.dopple-footer-nav a:hover {
+    opacity: 0.5;
+}
+
+.dopple-footer-social {
+    display: flex;
+    gap: 24px;
+}
+
+.dopple-footer-social a {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--dopple-dark);
+    text-decoration: none;
+    opacity: 0.4;
+    transition: opacity 0.3s;
+}
+
+.dopple-footer-social a:hover {
+    opacity: 1;
+}
+
+.dopple-footer-copy {
+    font-size: 12px;
+    opacity: 0.4;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 1024px) {
+    .dopple-header {
+        padding: 16px 24px;
+    }
+
+    .dopple-nav {
+        display: none;
+    }
+
+    .dopple-hero {
+        padding: 100px 24px 60px;
+    }
+
+    .dopple-hero-scroll {
+        left: 24px;
+        top: 100px;
+    }
+
+    .dopple-hero-content {
+        margin-left: 0;
+    }
+
+    .dopple-project-inner {
+        grid-template-columns: 1fr;
+    }
+
+    .dopple-project-gallery {
+        padding: 40px 24px;
+        min-height: 50vh;
+    }
+
+    .dopple-project-info {
+        padding: 40px 24px;
+    }
+
+    .dopple-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 32px;
+    }
+}
+
+@media (max-width: 640px) {
+    .dopple-hero-intro {
+        font-size: 20px;
+    }
+
+    .dopple-project-title {
+        font-size: 28px;
+        margin-bottom: 32px;
+    }
+
+    .dopple-info-text {
+        font-size: 14px;
+    }
+
+    .dopple-stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .dopple-stat-value {
+        font-size: 32px;
+    }
+
+    .dopple-footer-nav {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 24px;
+    }
+}
+
+/* ==================== SCROLL BEHAVIOR ==================== */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Subtle grain texture */
+.dopple-page::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+}
