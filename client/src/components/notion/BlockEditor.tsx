@@ -1,4 +1,4 @@
-import { useEditor, EditorContent, BubbleMenu, FloatingMenu } from "@tiptap/react";
+import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import Highlight from "@tiptap/extension-highlight";
@@ -98,7 +98,7 @@ export function BlockEditor({
     // Auto-save functionality
     useEffect(() => {
         if (!autoSave || !editor || !onSave) return;
-        
+
         const timer = setTimeout(() => {
             onSave(editor.getJSON());
         }, autoSaveDelay);
@@ -153,41 +153,68 @@ export function BlockEditor({
 
     return (
         <div className="notion-editor">
-            {/* Bubble Menu - appears on text selection */}
-            <BubbleMenu
-                editor={editor}
-                tippyOptions={{ duration: 100 }}
-                className="notion-bubble-menu"
-            >
+            {/* Toolbar */}
+            <div className="notion-toolbar">
                 <button
                     onClick={() => editor.chain().focus().toggleBold().run()}
                     className={editor.isActive("bold") ? "is-active" : ""}
+                    title="Bold"
                 >
                     <Bold className="w-4 h-4" />
                 </button>
                 <button
                     onClick={() => editor.chain().focus().toggleItalic().run()}
                     className={editor.isActive("italic") ? "is-active" : ""}
+                    title="Italic"
                 >
                     <Italic className="w-4 h-4" />
                 </button>
                 <button
                     onClick={() => editor.chain().focus().toggleStrike().run()}
                     className={editor.isActive("strike") ? "is-active" : ""}
+                    title="Strikethrough"
                 >
                     <Strikethrough className="w-4 h-4" />
                 </button>
                 <button
                     onClick={() => editor.chain().focus().toggleCode().run()}
                     className={editor.isActive("code") ? "is-active" : ""}
+                    title="Code"
                 >
                     <Code className="w-4 h-4" />
                 </button>
-                <button
-                    onClick={() => editor.chain().focus().toggleHighlight().run()}
-                    className={editor.isActive("highlight") ? "is-active" : ""}
-                >
-                    <span className="w-4 h-4 bg-yellow-300 rounded text-[10px] font-bold">H</span>
+                <div className="toolbar-divider" />
+                <button onClick={() => handleSlashCommand("h1")} title="Heading 1">
+                    <Heading1 className="w-4 h-4" />
+                </button>
+                <button onClick={() => handleSlashCommand("h2")} title="Heading 2">
+                    <Heading2 className="w-4 h-4" />
+                </button>
+                <button onClick={() => handleSlashCommand("h3")} title="Heading 3">
+                    <Heading3 className="w-4 h-4" />
+                </button>
+                <div className="toolbar-divider" />
+                <button onClick={() => handleSlashCommand("bullet")} title="Bullet List">
+                    <List className="w-4 h-4" />
+                </button>
+                <button onClick={() => handleSlashCommand("numbered")} title="Numbered List">
+                    <ListOrdered className="w-4 h-4" />
+                </button>
+                <button onClick={() => handleSlashCommand("todo")} title="To-do List">
+                    <CheckSquare className="w-4 h-4" />
+                </button>
+                <div className="toolbar-divider" />
+                <button onClick={() => handleSlashCommand("quote")} title="Quote">
+                    <Quote className="w-4 h-4" />
+                </button>
+                <button onClick={() => handleSlashCommand("code")} title="Code Block">
+                    <Code2 className="w-4 h-4" />
+                </button>
+                <button onClick={() => handleSlashCommand("divider")} title="Divider">
+                    <Minus className="w-4 h-4" />
+                </button>
+                <button onClick={() => handleSlashCommand("image")} title="Image">
+                    <ImageIcon className="w-4 h-4" />
                 </button>
                 <button
                     onClick={() => {
@@ -197,91 +224,11 @@ export function BlockEditor({
                         }
                     }}
                     className={editor.isActive("link") ? "is-active" : ""}
+                    title="Link"
                 >
                     <LinkIcon className="w-4 h-4" />
                 </button>
-            </BubbleMenu>
-
-            {/* Floating Menu - appears on empty lines */}
-            <FloatingMenu
-                editor={editor}
-                tippyOptions={{ duration: 100 }}
-                className="notion-floating-menu"
-            >
-                <div className="notion-slash-menu">
-                    <p className="menu-label">Basic blocks</p>
-                    <button onClick={() => handleSlashCommand("h1")}>
-                        <Heading1 className="w-5 h-5" />
-                        <div>
-                            <span>Heading 1</span>
-                            <span className="desc">Big section heading</span>
-                        </div>
-                    </button>
-                    <button onClick={() => handleSlashCommand("h2")}>
-                        <Heading2 className="w-5 h-5" />
-                        <div>
-                            <span>Heading 2</span>
-                            <span className="desc">Medium section heading</span>
-                        </div>
-                    </button>
-                    <button onClick={() => handleSlashCommand("h3")}>
-                        <Heading3 className="w-5 h-5" />
-                        <div>
-                            <span>Heading 3</span>
-                            <span className="desc">Small section heading</span>
-                        </div>
-                    </button>
-                    <button onClick={() => handleSlashCommand("bullet")}>
-                        <List className="w-5 h-5" />
-                        <div>
-                            <span>Bullet List</span>
-                            <span className="desc">Create a simple bullet list</span>
-                        </div>
-                    </button>
-                    <button onClick={() => handleSlashCommand("numbered")}>
-                        <ListOrdered className="w-5 h-5" />
-                        <div>
-                            <span>Numbered List</span>
-                            <span className="desc">Create a numbered list</span>
-                        </div>
-                    </button>
-                    <button onClick={() => handleSlashCommand("todo")}>
-                        <CheckSquare className="w-5 h-5" />
-                        <div>
-                            <span>To-do List</span>
-                            <span className="desc">Track tasks with a to-do list</span>
-                        </div>
-                    </button>
-                    <button onClick={() => handleSlashCommand("quote")}>
-                        <Quote className="w-5 h-5" />
-                        <div>
-                            <span>Quote</span>
-                            <span className="desc">Capture a quote</span>
-                        </div>
-                    </button>
-                    <button onClick={() => handleSlashCommand("code")}>
-                        <Code2 className="w-5 h-5" />
-                        <div>
-                            <span>Code Block</span>
-                            <span className="desc">Capture a code snippet</span>
-                        </div>
-                    </button>
-                    <button onClick={() => handleSlashCommand("divider")}>
-                        <Minus className="w-5 h-5" />
-                        <div>
-                            <span>Divider</span>
-                            <span className="desc">Visual divider line</span>
-                        </div>
-                    </button>
-                    <button onClick={() => handleSlashCommand("image")}>
-                        <ImageIcon className="w-5 h-5" />
-                        <div>
-                            <span>Image</span>
-                            <span className="desc">Embed an image</span>
-                        </div>
-                    </button>
-                </div>
-            </FloatingMenu>
+            </div>
 
             {/* Main Editor Content */}
             <EditorContent editor={editor} className="notion-editor-content" />
