@@ -27,10 +27,7 @@ export function Navigation() {
   const menuItems = [
     { name: "Work", path: "/projects" },
     { name: "Resources", path: "/resources" },
-    { name: "Code Editor", path: "/code-editor" },
-    { name: "Arduino", path: "/arduino-lab" },
-    { name: "Community", path: "/community", icon: MessageSquare },
-    { name: "Notion", path: "/notes", icon: FileText }
+    { name: "Workspace", path: "/workspace", icon: FileText }
   ];
 
   return (
