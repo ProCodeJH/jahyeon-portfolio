@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Favicon Optimized Version of Supreme Logo -->
+  <defs>
+    <linearGradient id="favGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7B2FFF"/>
+      <stop offset="50%" style="stop-color:#5F72FF"/>
+      <stop offset="100%" style="stop-color:#00C6FF"/>
+    </linearGradient>
+    <linearGradient id="coreGrad" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF"/>
+      <stop offset="100%" style="stop-color:#00D9FF"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Hexagon Frame -->
+  <polygon 
+    points="16,2 28,9 28,23 16,30 4,23 4,9" 
+    stroke="url(#favGrad)" 
+    stroke-width="2" 
+    fill="none"
+  />
+  
+  <!-- Inner Cube Top -->
+  <polygon points="16,8 22,12 16,16 10,12" fill="url(#favGrad)"/>
+  <!-- Inner Cube Left -->
+  <polygon points="10,12 16,16 16,22 10,18" fill="#5F72FF"/>
+  <!-- Inner Cube Right -->
+  <polygon points="22,12 16,16 16,22 22,18" fill="#7B2FFF"/>
+  
+  <!-- Core -->
+  <circle cx="16" cy="14" r="3" fill="url(#coreGrad)"/>
+</svg>
