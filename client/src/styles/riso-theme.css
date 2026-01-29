@@ -1,0 +1,341 @@
+/**
+ * Risograph Design System
+ * Inspired by Dopple Press aesthetic
+ */
+
+/* ==================== CSS VARIABLES ==================== */
+:root {
+  /* Primary Riso Ink Colors */
+  --riso-pink: #ff6b9d;
+  --riso-pink-light: #ffb3c6;
+  --riso-orange: #ff8c42;
+  --riso-orange-light: #ffbb85;
+  --riso-cyan: #00d4ff;
+  --riso-cyan-light: #7ee8ff;
+  --riso-blue: #3b82f6;
+  --riso-yellow: #fbbf24;
+  --riso-teal: #14b8a6;
+  --riso-magenta: #e91e8c;
+  
+  /* Background & Paper */
+  --riso-cream: #faf7f2;
+  --riso-paper: #f5f0e8;
+  --riso-paper-dark: #e8e0d5;
+  
+  /* Text Colors */
+  --riso-dark: #1a1a2e;
+  --riso-text: #374151;
+  --riso-text-muted: #6b7280;
+  
+  /* Gradients */
+  --riso-gradient-1: linear-gradient(135deg, var(--riso-pink) 0%, var(--riso-orange) 100%);
+  --riso-gradient-2: linear-gradient(135deg, var(--riso-cyan) 0%, var(--riso-blue) 100%);
+  --riso-gradient-3: linear-gradient(135deg, var(--riso-teal) 0%, var(--riso-cyan) 100%);
+}
+
+/* ==================== BASE STYLES ==================== */
+.riso-bg {
+  background-color: var(--riso-cream);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+/* ==================== TYPOGRAPHY ==================== */
+.riso-heading {
+  font-family: 'Inter', 'Space Grotesk', system-ui, sans-serif;
+  font-weight: 900;
+  color: var(--riso-dark);
+  letter-spacing: -0.02em;
+}
+
+.riso-heading-gradient {
+  background: var(--riso-gradient-1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.riso-body {
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--riso-text);
+  line-height: 1.7;
+}
+
+.riso-mono {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* ==================== MISREGISTRATION EFFECT ==================== */
+.riso-misregister {
+  position: relative;
+}
+
+.riso-misregister::before,
+.riso-misregister::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+.riso-misregister::before {
+  color: var(--riso-cyan);
+  transform: translate(-2px, 1px);
+  opacity: 0.7;
+}
+
+.riso-misregister::after {
+  color: var(--riso-pink);
+  transform: translate(2px, -1px);
+  opacity: 0.7;
+}
+
+/* Text shadow version for simpler usage */
+.riso-shadow {
+  text-shadow: 
+    2px 1px 0 var(--riso-cyan),
+    -2px -1px 0 var(--riso-pink);
+}
+
+.riso-shadow-sm {
+  text-shadow: 
+    1px 0.5px 0 var(--riso-cyan),
+    -1px -0.5px 0 var(--riso-pink);
+}
+
+/* ==================== CARDS ==================== */
+.riso-card {
+  background: white;
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 
+    8px 8px 0 var(--riso-pink),
+    16px 16px 0 var(--riso-cyan);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.riso-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.riso-card:hover {
+  transform: translate(-4px, -4px);
+  box-shadow: 
+    12px 12px 0 var(--riso-pink),
+    24px 24px 0 var(--riso-cyan);
+}
+
+.riso-card-alt {
+  box-shadow: 
+    8px 8px 0 var(--riso-orange),
+    16px 16px 0 var(--riso-teal);
+}
+
+.riso-card-alt:hover {
+  box-shadow: 
+    12px 12px 0 var(--riso-orange),
+    24px 24px 0 var(--riso-teal);
+}
+
+/* ==================== BUTTONS ==================== */
+.riso-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 3px solid var(--riso-dark);
+  border-radius: 0.75rem;
+  background: var(--riso-yellow);
+  color: var(--riso-dark);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 4px 4px 0 var(--riso-dark);
+}
+
+.riso-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--riso-dark);
+}
+
+.riso-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--riso-dark);
+}
+
+.riso-btn-pink {
+  background: var(--riso-pink);
+  color: white;
+}
+
+.riso-btn-cyan {
+  background: var(--riso-cyan);
+  color: var(--riso-dark);
+}
+
+/* ==================== IMAGES ==================== */
+.riso-image {
+  border-radius: 1rem;
+  box-shadow: 
+    6px 6px 0 var(--riso-pink),
+    12px 12px 0 var(--riso-cyan);
+  transition: all 0.3s ease;
+}
+
+.riso-image:hover {
+  transform: translate(-3px, -3px) rotate(-1deg);
+  box-shadow: 
+    9px 9px 0 var(--riso-pink),
+    18px 18px 0 var(--riso-cyan);
+}
+
+/* ==================== GALLERY GRID ==================== */
+.riso-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.riso-gallery-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  aspect-ratio: 1;
+}
+
+.riso-gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.riso-gallery-item:hover img {
+  transform: scale(1.05);
+}
+
+/* ==================== NAVIGATION ==================== */
+.riso-nav {
+  background: rgba(250, 247, 242, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 3px solid var(--riso-dark);
+}
+
+.riso-nav-link {
+  font-weight: 600;
+  color: var(--riso-dark);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.riso-nav-link:hover {
+  background: var(--riso-yellow);
+}
+
+.riso-nav-link.active {
+  background: var(--riso-pink);
+  color: white;
+}
+
+/* ==================== HERO SECTION ==================== */
+.riso-hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.riso-hero-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 20% 30%, var(--riso-pink-light) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, var(--riso-cyan-light) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, var(--riso-orange-light) 0%, transparent 50%);
+  opacity: 0.3;
+}
+
+/* ==================== FOOTER ==================== */
+.riso-footer {
+  background: var(--riso-dark);
+  color: white;
+  padding: 4rem 2rem;
+}
+
+.riso-footer a {
+  color: var(--riso-cyan);
+  transition: color 0.2s ease;
+}
+
+.riso-footer a:hover {
+  color: var(--riso-pink);
+}
+
+/* ==================== ANIMATIONS ==================== */
+@keyframes riso-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes riso-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.riso-float {
+  animation: riso-float 3s ease-in-out infinite;
+}
+
+.riso-pulse {
+  animation: riso-pulse 2s ease-in-out infinite;
+}
+
+/* ==================== UTILITIES ==================== */
+.riso-grain {
+  position: relative;
+}
+
+.riso-grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 10;
+}
+
+.riso-overprint {
+  mix-blend-mode: multiply;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .riso-card {
+    box-shadow: 
+      4px 4px 0 var(--riso-pink),
+      8px 8px 0 var(--riso-cyan);
+  }
+  
+  .riso-card:hover {
+    box-shadow: 
+      6px 6px 0 var(--riso-pink),
+      12px 12px 0 var(--riso-cyan);
+  }
+}
