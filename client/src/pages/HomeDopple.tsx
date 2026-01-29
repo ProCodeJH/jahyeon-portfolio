@@ -103,14 +103,16 @@ const projects = [
     },
 ];
 
-// Dopple Face Icon
-function DoppleFace({ className = "" }: { className?: string }) {
+// Supreme Quantum Logo
+function SupremeLogo({ className = "", size = 48 }: { className?: string; size?: number }) {
     return (
-        <svg className={`dopple-face ${className}`} viewBox="0 0 60 60" fill="currentColor">
-            <circle cx="18" cy="25" r="10" />
-            <circle cx="42" cy="25" r="10" />
-            <path d="M15 40 Q30 55 45 40" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
-        </svg>
+        <object
+            type="image/svg+xml"
+            data="/logo-supreme.svg"
+            className={className}
+            style={{ width: size, height: size, pointerEvents: 'none' }}
+            aria-label="Jahyeon Logo"
+        />
     );
 }
 
@@ -119,7 +121,7 @@ function Header() {
     return (
         <header className="dp4-header">
             <Link href="/" className="dp4-logo">
-                <DoppleFace />
+                <SupremeLogo size={50} />
             </Link>
             <nav className="dp4-nav">
                 <Link href="/">PROJECTS</Link>
@@ -143,7 +145,7 @@ function Hero() {
             <h1 className="dp4-hero-title">JAHYEON</h1>
             <div className="dp4-hero-subtitle">
                 <span>EMBEDDED</span>
-                <DoppleFace className="dp4-hero-face" />
+                <SupremeLogo className="dp4-hero-face" size={60} />
                 <span className="dp4-pill">DEVELOPER</span>
             </div>
             <div className="dp4-scroll-cta">
@@ -169,10 +171,10 @@ function IntroSection() {
             </div>
             <div className="dp4-intro-right">
                 <div className="dp4-faces-anim">
-                    <DoppleFace />
-                    <DoppleFace />
-                    <DoppleFace />
-                    <DoppleFace />
+                    <SupremeLogo size={40} />
+                    <SupremeLogo size={40} />
+                    <SupremeLogo size={40} />
+                    <SupremeLogo size={40} />
                 </div>
                 <p className="dp4-intro-text">
                     Led by embedded systems engineer <strong>Gu Jahyeon</strong>,
