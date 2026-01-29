@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- JAHYEON TECH LOGO V5 - Ultimate Premium Isometric Cube + Code -->
+  <defs>
+    <linearGradient id="cubeTop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#818CF8"/>
+      <stop offset="100%" style="stop-color:#6366F1"/>
+    </linearGradient>
+    <linearGradient id="cubeLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4F46E5"/>
+      <stop offset="100%" style="stop-color:#3730A3"/>
+    </linearGradient>
+    <linearGradient id="cubeRight" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#7C3AED"/>
+      <stop offset="100%" style="stop-color:#5B21B6"/>
+    </linearGradient>
+    <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#22D3EE"/>
+      <stop offset="100%" style="stop-color:#A855F7"/>
+    </linearGradient>
+    <filter id="cubeGlow">
+      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#4F46E5" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+  
+  <!-- Isometric cube -->
+  <!-- Top face -->
+  <polygon 
+    points="100,35 155,65 100,95 45,65" 
+    fill="url(#cubeTop)"
+    filter="url(#cubeGlow)"
+  />
+  <!-- Left face -->
+  <polygon 
+    points="45,65 100,95 100,155 45,125" 
+    fill="url(#cubeLeft)"
+  />
+  <!-- Right face -->
+  <polygon 
+    points="155,65 100,95 100,155 155,125" 
+    fill="url(#cubeRight)"
+  />
+  
+  <!-- Code lines on left face -->
+  <line x1="55" y1="80" x2="80" y2="93" stroke="#22D3EE" stroke-width="2" stroke-linecap="round"/>
+  <line x1="55" y1="90" x2="70" y2="98" stroke="#22D3EE" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+  <line x1="55" y1="100" x2="85" y2="116" stroke="#22D3EE" stroke-width="2" stroke-linecap="round"/>
+  <line x1="55" y1="110" x2="65" y2="115" stroke="#22D3EE" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+  
+  <!-- Code lines on right face -->
+  <line x1="145" y1="80" x2="120" y2="93" stroke="#A855F7" stroke-width="2" stroke-linecap="round"/>
+  <line x1="145" y1="90" x2="130" y2="98" stroke="#A855F7" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+  <line x1="145" y1="100" x2="115" y2="116" stroke="#A855F7" stroke-width="2" stroke-linecap="round"/>
+  <line x1="145" y1="110" x2="135" y2="115" stroke="#A855F7" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+  
+  <!-- Top face circuit pattern -->
+  <circle cx="100" cy="65" r="8" fill="none" stroke="#fff" stroke-width="2" opacity="0.5"/>
+  <circle cx="100" cy="65" r="3" fill="#fff" opacity="0.8"/>
+  
+  <!-- Floating circuit nodes around cube -->
+  <circle cx="30" cy="85" r="4" fill="url(#lineGrad)"/>
+  <circle cx="170" cy="85" r="4" fill="url(#lineGrad)"/>
+  <circle cx="100" cy="175" r="5" fill="url(#lineGrad)"/>
+  
+  <!-- Connection lines -->
+  <line x1="34" y1="85" x2="45" y2="80" stroke="url(#lineGrad)" stroke-width="1.5" opacity="0.5"/>
+  <line x1="166" y1="85" x2="155" y2="80" stroke="url(#lineGrad)" stroke-width="1.5" opacity="0.5"/>
+  <line x1="100" y1="170" x2="100" y2="155" stroke="url(#lineGrad)" stroke-width="1.5" opacity="0.5"/>
+  
+  <!-- Top floating node -->
+  <circle cx="100" cy="20" r="4" fill="url(#lineGrad)"/>
+  <line x1="100" y1="24" x2="100" y2="35" stroke="url(#lineGrad)" stroke-width="1.5" opacity="0.5"/>
+</svg>

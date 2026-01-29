@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- JAHYEON TECH LOGO - Premium Circuit/Code Geometric -->
+  <defs>
+    <!-- Gradient -->
+    <linearGradient id="techGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4361EE"/>
+      <stop offset="50%" style="stop-color:#7C3AED"/>
+      <stop offset="100%" style="stop-color:#EC4899"/>
+    </linearGradient>
+    
+    <!-- Glow Filter -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Main Hexagon Frame -->
+  <polygon 
+    points="100,10 175,55 175,145 100,190 25,145 25,55" 
+    stroke="url(#techGrad)" 
+    stroke-width="3" 
+    fill="none"
+    filter="url(#glow)"
+  />
+  
+  <!-- Inner Circuit Pattern -->
+  <!-- Horizontal lines -->
+  <line x1="50" y1="70" x2="85" y2="70" stroke="url(#techGrad)" stroke-width="2"/>
+  <line x1="115" y1="70" x2="150" y2="70" stroke="url(#techGrad)" stroke-width="2"/>
+  <line x1="50" y1="130" x2="85" y2="130" stroke="url(#techGrad)" stroke-width="2"/>
+  <line x1="115" y1="130" x2="150" y2="130" stroke="url(#techGrad)" stroke-width="2"/>
+  
+  <!-- Vertical connections -->
+  <line x1="85" y1="70" x2="85" y2="90" stroke="url(#techGrad)" stroke-width="2"/>
+  <line x1="115" y1="70" x2="115" y2="90" stroke="url(#techGrad)" stroke-width="2"/>
+  <line x1="85" y1="110" x2="85" y2="130" stroke="url(#techGrad)" stroke-width="2"/>
+  <line x1="115" y1="110" x2="115" y2="130" stroke="url(#techGrad)" stroke-width="2"/>
+  
+  <!-- Center processor square -->
+  <rect x="80" y="85" width="40" height="30" rx="4" stroke="url(#techGrad)" stroke-width="2.5" fill="none"/>
+  
+  <!-- Center "J" letterform integrated -->
+  <path 
+    d="M95 92 L95 105 Q95 110 90 110 L88 110" 
+    stroke="url(#techGrad)" 
+    stroke-width="3" 
+    stroke-linecap="round"
+    fill="none"
+  />
+  <line x1="105" y1="92" x2="105" y2="108" stroke="url(#techGrad)" stroke-width="3" stroke-linecap="round"/>
+  
+  <!-- Corner circuit nodes -->
+  <circle cx="50" cy="70" r="4" fill="url(#techGrad)"/>
+  <circle cx="150" cy="70" r="4" fill="url(#techGrad)"/>
+  <circle cx="50" cy="130" r="4" fill="url(#techGrad)"/>
+  <circle cx="150" cy="130" r="4" fill="url(#techGrad)"/>
+  
+  <!-- Top/Bottom accents -->
+  <line x1="100" y1="25" x2="100" y2="50" stroke="url(#techGrad)" stroke-width="2"/>
+  <line x1="100" y1="150" x2="100" y2="175" stroke="url(#techGrad)" stroke-width="2"/>
+  <circle cx="100" cy="50" r="3" fill="url(#techGrad)"/>
+  <circle cx="100" cy="150" r="3" fill="url(#techGrad)"/>
+  
+  <!-- Decorative brackets -->
+  <path d="M35 85 L35 100 L40 100" stroke="url(#techGrad)" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <path d="M165 85 L165 100 L160 100" stroke="url(#techGrad)" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <path d="M35 115 L35 100" stroke="url(#techGrad)" stroke-width="2" stroke-linecap="round"/>
+  <path d="M165 115 L165 100" stroke="url(#techGrad)" stroke-width="2" stroke-linecap="round"/>
+</svg>

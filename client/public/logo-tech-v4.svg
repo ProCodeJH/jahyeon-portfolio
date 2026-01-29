@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- JAHYEON TECH LOGO V4 - Abstract J Monogram + Circuit -->
+  <defs>
+    <linearGradient id="jGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4F46E5"/>
+      <stop offset="100%" style="stop-color:#06B6D4"/>
+    </linearGradient>
+    <linearGradient id="jGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#EC4899"/>
+      <stop offset="100%" style="stop-color:#F59E0B"/>
+    </linearGradient>
+    <filter id="dropShadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#4F46E5" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Background subtle circle -->
+  <circle cx="100" cy="100" r="85" stroke="url(#jGrad)" stroke-width="1" fill="none" opacity="0.2"/>
+  
+  <!-- Main J letterform - modern geometric -->
+  <path 
+    d="M75 45 L140 45 L140 55 L105 55 L105 130 Q105 155 80 155 L55 155 L55 145 L80 145 Q95 145 95 130 L95 55 L75 55 Z" 
+    fill="url(#jGrad)"
+    filter="url(#dropShadow)"
+  />
+  
+  <!-- Accent bar -->
+  <rect x="145" y="65" width="8" height="60" rx="4" fill="url(#jGrad2)"/>
+  
+  <!-- Circuit nodes -->
+  <circle cx="149" cy="65" r="4" fill="url(#jGrad2)"/>
+  <circle cx="149" cy="95" r="3" fill="url(#jGrad2)"/>
+  <circle cx="149" cy="125" r="4" fill="url(#jGrad2)"/>
+  
+  <!-- Horizontal circuit lines -->
+  <line x1="153" y1="65" x2="175" y2="65" stroke="url(#jGrad2)" stroke-width="2"/>
+  <line x1="153" y1="125" x2="175" y2="125" stroke="url(#jGrad2)" stroke-width="2"/>
+  
+  <!-- Small detail nodes -->
+  <circle cx="175" cy="65" r="3" fill="url(#jGrad2)"/>
+  <circle cx="175" cy="125" r="3" fill="url(#jGrad2)"/>
+  
+  <!-- Bottom accent -->
+  <line x1="55" y1="165" x2="95" y2="165" stroke="url(#jGrad)" stroke-width="3" stroke-linecap="round"/>
+</svg>

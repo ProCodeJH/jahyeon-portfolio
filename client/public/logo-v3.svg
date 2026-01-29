@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 60" fill="none">
+  <!-- GJ Logo - Text + Icon Combo -->
+  <!-- Eye Icon -->
+  <circle cx="20" cy="30" r="12" fill="#4361EE"/>
+  <circle cx="44" cy="30" r="12" fill="#4361EE"/>
+  <circle cx="16" cy="26" r="3" fill="#FDFBF4"/>
+  <circle cx="40" cy="26" r="3" fill="#FDFBF4"/>
+  
+  <!-- GJ Text -->
+  <text x="65" y="42" font-family="Inter, sans-serif" font-weight="900" font-size="28" fill="#4361EE">GJ</text>
+</svg>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" fill="none">
+  <!-- GJ Logo - Simple Wink Face (Dopple Exact Style) -->
+  <!-- Left eye - full -->
+  <circle cx="18" cy="26" r="10" fill="#4361EE"/>
+  
+  <!-- Right eye - wink line -->
+  <path d="M35 26 L47 26" stroke="#4361EE" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Smile -->
+  <path d="M14 42 Q30 54 46 42" stroke="#4361EE" stroke-width="3" stroke-linecap="round" fill="none"/>
+</svg>
