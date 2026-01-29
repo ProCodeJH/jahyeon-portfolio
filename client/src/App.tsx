@@ -4,7 +4,7 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import Home from "./pages/HomeRiso";
+import Home from "./pages/HomeDopple";
 import Projects from "./pages/Projects";
 import Resources from "./pages/Resources";
 import { lazy, Suspense } from "react";
