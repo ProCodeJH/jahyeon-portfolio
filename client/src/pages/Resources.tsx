@@ -1,15 +1,10 @@
-import { useState, useEffect, lazy, Suspense } from "react";
+import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
-import { Download, Loader2, FileText, Video, ExternalLink, Play, Presentation, Terminal, Cpu, Code, X, Eye, Sparkles, BookOpen, Zap, Heart, MessageCircle, Send, FolderOpen, ChevronDown, ChevronRight, Lock, School, UserPlus, LogIn } from "lucide-react";
+import { Download, Loader2, FileText, Video, ExternalLink, Play, Presentation, X, Eye, BookOpen, Zap, Heart, MessageCircle, Send, FolderOpen, ChevronDown, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
-import { GradientMeshBackground } from "@/components/backgrounds/GradientMeshBackground";
-import { SubtleDots } from "@/components/backgrounds/SubtleDots";
-import { TiltCard } from "@/components/effects/TiltCard";
-import { AnimatedSection } from "@/components/animations/AnimatedSection";
-import { ResourceCardSkeleton } from "@/components/ui/skeleton";
 import "../styles/dopple-v4.css";
 
 // Supreme Quantum Logo
@@ -17,11 +12,11 @@ function SupremeLogo({ size = 48 }: { size?: number }) {
   return (
     <svg viewBox="0 0 100 100" style={{ width: size, height: size }} xmlns="http://www.w3.org/2000/svg">
       <style>{`
-                @keyframes spin1 { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-                @keyframes spin2 { from { transform: rotate(120deg); } to { transform: rotate(480deg); } }
-                @keyframes spin3 { from { transform: rotate(240deg); } to { transform: rotate(600deg); } }
-                @keyframes pulse { 0%, 100% { opacity: 0.7; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1.1); } }
-            `}</style>
+        @keyframes spin1 { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes spin2 { from { transform: rotate(120deg); } to { transform: rotate(480deg); } }
+        @keyframes spin3 { from { transform: rotate(240deg); } to { transform: rotate(600deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 0.7; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1.1); } }
+      `}</style>
       <defs>
         <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#4361EE" />
@@ -40,29 +35,7 @@ function SupremeLogo({ size = 48 }: { size?: number }) {
   );
 }
 
-// Dopple Header Component
-function DoppleHeader() {
-  return (
-    <header className="dp4-header" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100 }}>
-      <Link href="/" className="dp4-logo">
-        <SupremeLogo size={70} />
-      </Link>
-      <nav className="dp4-nav">
-        <Link href="/">PROJECTS</Link>
-        <Link href="/resources">RESOURCES</Link>
-        <Link href="/blog">BLOG</Link>
-      </nav>
-      <a href="mailto:contact@jahyeon.com" className="dp4-send">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path d="M22 2L11 13" />
-          <polygon points="22,2 15,22 11,13 2,9" />
-        </svg>
-      </a>
-    </header>
-  );
-}
-
-// Messenger Widget Component
+// Messenger Widget
 function MessengerWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState('');
@@ -117,98 +90,54 @@ function MessengerWidget() {
   );
 }
 
-// Lazy load 3D Secure Vault Overlay for performance
-const SecureVaultOverlay = lazy(() => import("@/components/3d/SecureVaultOverlay"));
-
 const CATEGORIES = [
-  // 📚 수업자료 (모든 강의 자료 통합)
-  { value: "lecture", label: "📚 수업자료", icon: BookOpen, color: "#3B82F6", gradient: "from-blue-500 to-purple-500" },
-  // 📹 데일리 영상
-  { value: "daily_life", label: "📹 데일리영상", icon: Video, color: "#EC4899", gradient: "from-pink-500 to-rose-500" },
+  { value: "lecture", label: "📚 수업자료", icon: BookOpen, color: "#4361EE" },
+  { value: "daily_life", label: "📹 데일리영상", icon: Video, color: "#EC4899" },
 ];
 
-// 수업자료에 포함되는 카테고리 (기존 데이터 호환성 유지)
 const LECTURE_CATEGORIES = ["lecture_c", "lecture_arduino", "lecture_python", "presentation", "lecture_materials"];
 
-// PPT Thumbnail
+// PPT Thumbnail Component
 function PPTThumbnail({ resource }: { resource: any }) {
   if (resource.thumbnailUrl) {
-    return <img src={resource.thumbnailUrl} alt={resource.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />;
+    return <img src={resource.thumbnailUrl} alt={resource.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />;
   }
-
   return (
-    <div className="w-full h-full bg-gradient-to-br from-orange-200 via-red-100 to-purple-200 flex flex-col items-center justify-center relative overflow-hidden group-hover:from-orange-300 group-hover:to-purple-300 transition-all duration-500">
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-6 left-6 w-20 h-14 border-2 border-orange-400/30 rounded-lg" />
-        <div className="absolute bottom-6 right-6 w-16 h-16 border-2 border-purple-400/30 rounded-full" />
-      </div>
-      <div className="relative z-10 flex flex-col items-center">
-        <div className="w-28 h-20 bg-white rounded-lg border-2 border-gray-200 shadow-xl mb-4 flex items-center justify-center overflow-hidden">
-          <div className="text-center p-2">
-            <div className="w-16 h-1 bg-orange-400 rounded mb-2" />
-            <div className="w-12 h-1 bg-gray-300 rounded mb-1" />
-            <div className="w-14 h-1 bg-gray-200 rounded" />
-          </div>
-        </div>
-        <p className="text-gray-700 font-medium text-sm text-center px-4 line-clamp-1">{resource.title}</p>
-        <div className="flex items-center gap-1 mt-2">
-          <Presentation className="w-3 h-3 text-orange-600" />
-          <span className="text-orange-600 text-xs font-mono">.PPTX</span>
-        </div>
-      </div>
+    <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #ff9a56, #ff6b6b)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Presentation style={{ width: 48, height: 48, color: 'white' }} />
     </div>
   );
 }
 
-// PDF Thumbnail
+// PDF Thumbnail Component
 function PDFThumbnail({ resource }: { resource: any }) {
   if (resource.thumbnailUrl) {
-    return <img src={resource.thumbnailUrl} alt={resource.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />;
+    return <img src={resource.thumbnailUrl} alt={resource.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />;
   }
-
   return (
-    <div className="w-full h-full bg-gradient-to-br from-red-200 via-pink-100 to-rose-200 flex flex-col items-center justify-center relative overflow-hidden group-hover:from-red-300 group-hover:to-rose-300 transition-all duration-500">
-      <div className="relative z-10 flex flex-col items-center">
-        <div className="w-24 h-28 bg-white rounded-lg border-2 border-gray-200 shadow-xl mb-4 flex flex-col items-center justify-center p-3">
-          <div className="w-full space-y-1.5">
-            <div className="w-full h-1 bg-red-400 rounded" />
-            <div className="w-4/5 h-1 bg-gray-300 rounded" />
-            <div className="w-full h-1 bg-gray-200 rounded" />
-            <div className="w-3/4 h-1 bg-gray-200 rounded" />
-          </div>
-        </div>
-        <p className="text-gray-700 font-medium text-sm text-center px-4 line-clamp-1">{resource.title}</p>
-        <div className="flex items-center gap-1 mt-2">
-          <FileText className="w-3 h-3 text-red-600" />
-          <span className="text-red-600 text-xs font-mono">.PDF</span>
-        </div>
-      </div>
+    <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #ef4444, #dc2626)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <FileText style={{ width: 48, height: 48, color: 'white' }} />
     </div>
   );
 }
 
-// Video Thumbnail
+// Video Thumbnail Component
 function VideoThumbnail({ resource, thumbnail }: { resource: any; thumbnail: string | null }) {
   if (thumbnail) {
     return (
-      <>
-        <img src={thumbnail} alt={resource.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-          <div className="w-20 h-20 rounded-full bg-white/90 backdrop-blur-xl flex items-center justify-center shadow-2xl hover:scale-110 transition-transform">
-            <Play className="w-8 h-8 text-purple-600 ml-1" />
+      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+        <img src={thumbnail} alt={resource.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.3)' }}>
+          <div style={{ width: 56, height: 56, background: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
+            <Play style={{ width: 24, height: 24, color: '#333', marginLeft: 4 }} />
           </div>
         </div>
-      </>
+      </div>
     );
   }
-
   return (
-    <div className="w-full h-full bg-gradient-to-br from-purple-200 via-indigo-100 to-blue-200 flex flex-col items-center justify-center relative">
-      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-        <Play className="w-10 h-10 text-white ml-1" />
-      </div>
-      <p className="text-gray-700 mt-4 text-sm">Video</p>
+    <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #7B2FFF, #4361EE)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Play style={{ width: 48, height: 48, color: 'white', marginLeft: 4 }} />
     </div>
   );
 }
@@ -222,52 +151,154 @@ function DocumentPreviewModal({ resource, onClose }: { resource: any; onClose: (
   const getGooglePreviewUrl = (fileUrl: string) => `https://docs.google.com/gview?url=${encodeURIComponent(fileUrl)}&embedded=true`;
 
   const isPPT = resource.mimeType?.includes('presentation') || resource.mimeType?.includes('powerpoint') || resource.fileName?.endsWith('.ppt') || resource.fileName?.endsWith('.pptx');
-  const isPDF = resource.mimeType?.includes('pdf') || resource.fileName?.endsWith('.pdf');
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex flex-col" onClick={onClose}>
-      <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 md:p-4 border-b border-gray-200 bg-white gap-3" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center gap-3 md:gap-4 min-w-0">
-          <div className={`w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0 ${isPPT ? 'bg-gradient-to-br from-orange-500 to-red-500' : 'bg-gradient-to-br from-red-500 to-pink-500'}`}>
-            {isPPT ? <Presentation className="w-5 h-5 md:w-6 md:h-6 text-white" /> : <FileText className="w-5 h-5 md:w-6 md:h-6 text-white" />}
+    <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)', display: 'flex', flexDirection: 'column' }} onClick={onClose}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', background: 'white', borderBottom: '1px solid #eee' }} onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <div style={{ width: 48, height: 48, borderRadius: 12, background: isPPT ? 'linear-gradient(135deg, #ff9a56, #ff6b6b)' : 'linear-gradient(135deg, #ef4444, #dc2626)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {isPPT ? <Presentation style={{ width: 24, height: 24, color: 'white' }} /> : <FileText style={{ width: 24, height: 24, color: 'white' }} />}
           </div>
-          <div className="min-w-0">
-            <h3 className="text-base md:text-lg font-semibold text-gray-900 line-clamp-1">{resource.title}</h3>
-            <p className="text-gray-500 text-xs md:text-sm line-clamp-1">{resource.fileName}</p>
+          <div>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: '#333' }}>{resource.title}</h3>
+            <p style={{ fontSize: '0.9rem', color: '#888' }}>{resource.fileName}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2 md:gap-3 w-full sm:w-auto">
-          <a href={resource.fileUrl} target="_blank" rel="noopener noreferrer" className="hidden sm:block">
-            <Button variant="outline" className="rounded-lg md:rounded-xl border-gray-300 text-gray-900 hover:bg-gray-100 h-9 md:h-10 px-3 md:px-4 text-sm"><ExternalLink className="w-3 h-3 md:w-4 md:h-4 mr-1.5 md:mr-2" />New Tab</Button>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <a href={resource.fileUrl} download>
+            <Button style={{ background: 'linear-gradient(135deg, #4361EE, #7B2FFF)', color: 'white', borderRadius: 12 }}>
+              <Download style={{ width: 16, height: 16, marginRight: 8 }} />Download
+            </Button>
           </a>
-          <a href={resource.fileUrl} download className="flex-1 sm:flex-none">
-            <Button className="w-full rounded-lg md:rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 text-white h-9 md:h-10 px-3 md:px-4 text-sm"><Download className="w-3 h-3 md:w-4 md:h-4 mr-1.5 md:mr-2" />Download</Button>
-          </a>
-          <button onClick={onClose} className="w-9 h-9 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-gray-100 flex items-center justify-center hover:bg-gray-200 flex-shrink-0"><X className="w-4 h-4 md:w-5 md:h-5 text-gray-900" /></button>
+          <button onClick={onClose} style={{ width: 40, height: 40, borderRadius: 12, background: '#f0f0f0', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <X style={{ width: 20, height: 20, color: '#333' }} />
+          </button>
         </div>
       </div>
-      <div className="relative flex-1 bg-gray-100" onClick={e => e.stopPropagation()}>
+      <div style={{ flex: 1, background: '#f5f5f5', position: 'relative' }} onClick={e => e.stopPropagation()}>
         {loading && !error && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
-            <div className="text-center">
-              <Loader2 className="w-12 h-12 animate-spin text-purple-500 mx-auto mb-4" />
-              <p className="text-gray-600">Loading preview...</p>
-            </div>
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'white', zIndex: 10 }}>
+            <Loader2 style={{ width: 48, height: 48, color: '#4361EE', animation: 'spin 1s linear infinite' }} />
           </div>
         )}
         {error ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-600 mb-4">Preview not available</p>
-              <a href={resource.fileUrl} download><Button className="rounded-xl bg-purple-500"><Download className="w-4 h-4 mr-2" />Download</Button></a>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column', gap: 16 }}>
+            <FileText style={{ width: 64, height: 64, color: '#ddd' }} />
+            <p style={{ color: '#888' }}>Preview not available</p>
+            <a href={resource.fileUrl} download>
+              <Button style={{ background: 'linear-gradient(135deg, #4361EE, #7B2FFF)', color: 'white', borderRadius: 12 }}>
+                <Download style={{ width: 16, height: 16, marginRight: 8 }} />Download
+              </Button>
+            </a>
           </div>
         ) : isPPT ? (
-          <iframe src={getOfficePreviewUrl(resource.fileUrl)} className="w-full h-full bg-white" onLoad={() => setLoading(false)} onError={() => { setLoading(false); setError(true); }} />
+          <iframe src={getOfficePreviewUrl(resource.fileUrl)} style={{ width: '100%', height: '100%', border: 'none', background: 'white' }} onLoad={() => setLoading(false)} onError={() => { setLoading(false); setError(true); }} />
         ) : (
-          <iframe src={getGooglePreviewUrl(resource.fileUrl)} className="w-full h-full" onLoad={() => setLoading(false)} onError={() => { setLoading(false); setError(true); }} />
+          <iframe src={getGooglePreviewUrl(resource.fileUrl)} style={{ width: '100%', height: '100%', border: 'none' }} onLoad={() => setLoading(false)} onError={() => { setLoading(false); setError(true); }} />
         )}
+      </div>
+    </div>
+  );
+}
+
+// Video Modal
+function VideoModal({ resource, onClose }: { resource: any; onClose: () => void }) {
+  const getYouTubeId = (url: string) => url?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/)?.[1];
+  const isYouTubeUrl = (url: string) => url?.includes('youtube.com') || url?.includes('youtu.be');
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }} onClick={onClose}>
+      <div style={{ width: '100%', maxWidth: 1000, background: 'white', borderRadius: 24, overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
+        <div style={{ padding: 16, borderBottom: '1px solid #eee', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: 'linear-gradient(135deg, #7B2FFF, #4361EE)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Video style={{ width: 20, height: 20, color: 'white' }} />
+            </div>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: '#333' }}>{resource.title}</h3>
+          </div>
+          <button onClick={onClose} style={{ width: 36, height: 36, borderRadius: 18, background: '#f0f0f0', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <X style={{ width: 18, height: 18, color: '#333' }} />
+          </button>
+        </div>
+        <div style={{ aspectRatio: '16/9', background: 'black' }}>
+          {isYouTubeUrl(resource.fileUrl) ? (
+            <iframe src={`https://www.youtube.com/embed/${getYouTubeId(resource.fileUrl)}?autoplay=1`} style={{ width: '100%', height: '100%', border: 'none' }} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+          ) : (
+            <video controls autoPlay style={{ width: '100%', height: '100%' }}><source src={resource.fileUrl} type={resource.mimeType} /></video>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Comments Modal
+function CommentsModal({ resource, onClose }: { resource: any; onClose: () => void }) {
+  const [newComment, setNewComment] = useState("");
+  const { data: comments, refetch } = trpc.comments.list.useQuery({ resourceId: resource.id });
+  const createComment = trpc.comments.create.useMutation({
+    onSuccess: () => { refetch(); setNewComment(""); toast.success("댓글이 추가되었습니다!"); },
+    onError: () => toast.error("댓글 추가 실패"),
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+    createComment.mutate({ resourceId: resource.id, content: newComment.trim() });
+  };
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }} onClick={onClose}>
+      <div style={{ width: '100%', maxWidth: 600, maxHeight: '80vh', background: 'white', borderRadius: 24, overflow: 'hidden', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
+        <div style={{ padding: 20, borderBottom: '1px solid #eee', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: 'linear-gradient(135deg, #4361EE, #7B2FFF)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <MessageCircle style={{ width: 20, height: 20, color: 'white' }} />
+            </div>
+            <div>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: '#333' }}>댓글</h3>
+              <p style={{ fontSize: '0.85rem', color: '#888' }}>{resource.title}</p>
+            </div>
+          </div>
+          <button onClick={onClose} style={{ width: 36, height: 36, borderRadius: 18, background: '#f0f0f0', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <X style={{ width: 18, height: 18, color: '#333' }} />
+          </button>
+        </div>
+
+        <div style={{ flex: 1, overflowY: 'auto', padding: 20 }}>
+          {!comments?.length ? (
+            <div style={{ textAlign: 'center', padding: 40, color: '#888' }}>
+              <MessageCircle style={{ width: 48, height: 48, opacity: 0.3, margin: '0 auto 12px' }} />
+              <p>첫 댓글을 남겨보세요!</p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {comments.map((comment: any) => (
+                <div key={comment.id} style={{ background: '#f8f8f8', padding: 16, borderRadius: 12 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <span style={{ fontWeight: 600, color: '#4361EE', fontSize: '0.9rem' }}>{comment.authorName}</span>
+                    <span style={{ fontSize: '0.75rem', color: '#aaa' }}>{new Date(comment.createdAt).toLocaleDateString()}</span>
+                  </div>
+                  <p style={{ color: '#555', fontSize: '0.9rem' }}>{comment.content}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div style={{ padding: 20, borderTop: '1px solid #eee' }}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', gap: 12 }}>
+            <Input
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="댓글을 입력하세요..."
+              style={{ flex: 1, borderRadius: 12, height: 44 }}
+            />
+            <Button type="submit" disabled={!newComment.trim() || createComment.isPending} style={{ borderRadius: 12, height: 44, width: 44, padding: 0, background: 'linear-gradient(135deg, #4361EE, #7B2FFF)', color: 'white' }}>
+              {createComment.isPending ? <Loader2 style={{ width: 18, height: 18, animation: 'spin 1s linear infinite' }} /> : <Send style={{ width: 18, height: 18 }} />}
+            </Button>
+          </form>
+        </div>
       </div>
     </div>
   );
@@ -293,122 +324,21 @@ function LikeButton({ resourceId }: { resourceId: number }) {
     <button
       onClick={handleLike}
       disabled={toggleLike.isPending}
-      className={`flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1.5 md:py-2 rounded-full transition-all ${likeStatus?.userLiked
-        ? "bg-pink-100 text-pink-600 hover:bg-pink-200"
-        : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-        }`}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 6,
+        padding: '8px 12px',
+        borderRadius: 20,
+        border: 'none',
+        background: likeStatus?.userLiked ? '#ffe4e6' : '#f0f0f0',
+        color: likeStatus?.userLiked ? '#ec4899' : '#888',
+        cursor: 'pointer',
+        transition: 'all 0.2s'
+      }}
     >
-      <Heart className={`w-3 h-3 md:w-4 md:h-4 ${likeStatus?.userLiked ? "fill-current" : ""}`} />
+      <Heart style={{ width: 16, height: 16, fill: likeStatus?.userLiked ? '#ec4899' : 'transparent' }} />
     </button>
-  );
-}
-
-// Comments Modal
-function CommentsModal({ resource, onClose }: { resource: any; onClose: () => void }) {
-  const [newComment, setNewComment] = useState("");
-  const { data: comments, refetch } = trpc.comments.list.useQuery({ resourceId: resource.id });
-  const createComment = trpc.comments.create.useMutation({
-    onSuccess: () => { refetch(); setNewComment(""); toast.success("Comment added!"); },
-    onError: () => toast.error("Failed to add comment"),
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newComment.trim()) return;
-    createComment.mutate({
-      resourceId: resource.id,
-      content: newComment.trim(),
-    });
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4 md:p-6" onClick={onClose}>
-      <div className="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl md:rounded-3xl overflow-hidden bg-white border border-gray-200" onClick={e => e.stopPropagation()}>
-        <div className="p-4 md:p-6 border-b border-gray-200 flex items-start justify-between gap-3">
-          <div className="flex items-start gap-3 min-w-0">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center flex-shrink-0">
-              <MessageCircle className="w-5 h-5 md:w-6 md:h-6 text-white" />
-            </div>
-            <div className="min-w-0">
-              <h3 className="text-base md:text-lg font-semibold text-gray-900">Comments</h3>
-              <p className="text-gray-500 text-xs md:text-sm line-clamp-1">{resource.title}</p>
-            </div>
-          </div>
-          <button onClick={onClose} className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 flex-shrink-0">
-            <X className="w-4 h-4 md:w-5 md:h-5 text-gray-900" />
-          </button>
-        </div>
-
-        <div className="p-4 md:p-6 max-h-[50vh] md:max-h-[60vh] overflow-y-auto flex-1">
-          {!comments?.length ? (
-            <div className="text-center py-8 md:py-12">
-              <MessageCircle className="w-10 h-10 md:w-12 md:h-12 text-gray-300 mx-auto mb-2 md:mb-3" />
-              <p className="text-gray-500 text-sm md:text-base">No comments yet. Be the first!</p>
-            </div>
-          ) : (
-            <div className="space-y-3 md:space-y-4">
-              {comments.map((comment: any) => (
-                <div key={comment.id} className="bg-gray-50 border border-gray-200 rounded-lg md:rounded-xl p-3 md:p-4">
-                  <div className="flex items-start justify-between mb-1.5 md:mb-2 gap-2">
-                    <span className="text-purple-600 text-xs md:text-sm font-medium">{comment.authorName}</span>
-                    <span className="text-gray-400 text-[10px] md:text-xs flex-shrink-0">{new Date(comment.createdAt).toLocaleDateString()}</span>
-                  </div>
-                  <p className="text-gray-700 text-xs md:text-sm">{comment.content}</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="p-4 md:p-6 border-t border-gray-200">
-          <form onSubmit={handleSubmit} className="flex gap-2 md:gap-3">
-            <Input
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Write a comment..."
-              className="flex-1 bg-gray-100 border-gray-200 text-gray-900 placeholder:text-gray-500 rounded-lg md:rounded-xl h-10 md:h-12 text-sm md:text-base"
-            />
-            <Button
-              type="submit"
-              disabled={!newComment.trim() || createComment.isPending}
-              className="rounded-lg md:rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 text-white h-10 md:h-12 w-10 md:w-auto md:px-6"
-            >
-              {createComment.isPending ? <Loader2 className="w-3 h-3 md:w-4 md:h-4 animate-spin" /> : <Send className="w-3 h-3 md:w-4 md:h-4" />}
-            </Button>
-          </form>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Video Modal
-function VideoModal({ resource, onClose }: { resource: any; onClose: () => void }) {
-  const getYouTubeId = (url: string) => url?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/)?.[1];
-  const isYouTubeUrl = (url: string) => url?.includes('youtube.com') || url?.includes('youtu.be');
-
-  return (
-    <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 md:p-6" onClick={onClose}>
-      <div className="relative w-full max-w-6xl rounded-2xl md:rounded-3xl overflow-hidden bg-white border border-gray-200" onClick={e => e.stopPropagation()}>
-        <div className="p-3 md:p-4 border-b border-gray-200 flex items-start justify-between gap-3">
-          <div className="flex items-start gap-3 md:gap-4 min-w-0">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center flex-shrink-0"><Video className="w-5 h-5 md:w-6 md:h-6 text-white" /></div>
-            <div className="min-w-0">
-              <h3 className="text-base md:text-lg font-semibold text-gray-900 line-clamp-1">{resource.title}</h3>
-              {resource.description && <p className="text-gray-500 text-xs md:text-sm line-clamp-1">{resource.description}</p>}
-            </div>
-          </div>
-          <button onClick={onClose} className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 flex-shrink-0"><X className="w-4 h-4 md:w-5 md:h-5 text-gray-900" /></button>
-        </div>
-        <div className="aspect-video bg-black">
-          {isYouTubeUrl(resource.fileUrl) ? (
-            <iframe src={`https://www.youtube.com/embed/${getYouTubeId(resource.fileUrl)}?autoplay=1`} className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
-          ) : (
-            <video controls autoPlay className="w-full h-full"><source src={resource.fileUrl} type={resource.mimeType} /></video>
-          )}
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -422,21 +352,6 @@ export default function Resources() {
   const [selectedCommentResource, setSelectedCommentResource] = useState<any>(null);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
 
-  // Member state from localStorage
-  const [member, setMember] = useState<{ id: number; name: string; isStudent: boolean; academyName?: string } | null>(null);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("member");
-    if (stored) {
-      try {
-        setMember(JSON.parse(stored));
-      } catch { }
-    }
-  }, []);
-
-  const isStudent = member?.isStudent === true;
-
-  // 수업자료: 여러 카테고리 통합, 데일리영상: daily_life만
   const filteredResources = resources?.filter(r => {
     if (activeCategory === "lecture") return LECTURE_CATEGORIES.includes(r.category);
     return r.category === activeCategory;
@@ -446,7 +361,6 @@ export default function Resources() {
     return f.category === activeCategory;
   });
 
-  // Build folder tree with nested structure
   interface FolderNode {
     id?: number;
     name: string;
@@ -460,20 +374,11 @@ export default function Resources() {
     const folderById = new Map<number, FolderNode>();
     const rootFolders: FolderNode[] = [];
 
-    // Create all folder nodes
     filteredFolders?.forEach(folder => {
-      const node: FolderNode = {
-        id: folder.id,
-        name: folder.name,
-        items: [],
-        children: [],
-        depth: 0,
-        parentId: folder.parentId
-      };
+      const node: FolderNode = { id: folder.id, name: folder.name, items: [], children: [], depth: 0, parentId: folder.parentId };
       folderById.set(folder.id, node);
     });
 
-    // Build tree structure
     filteredFolders?.forEach(folder => {
       const node = folderById.get(folder.id)!;
       if (folder.parentId && folderById.has(folder.parentId)) {
@@ -485,31 +390,21 @@ export default function Resources() {
       }
     });
 
-    // Add resources to folders by subcategory name
     filteredResources?.forEach(resource => {
       const folderName = resource.subcategory;
       if (folderName) {
         const folder = Array.from(folderById.values()).find(f => f.name === folderName);
-        if (folder) {
-          folder.items.push(resource);
-        }
+        if (folder) folder.items.push(resource);
       }
     });
 
-    // Uncategorized 폴더는 데일리영상에서만 표시
     if (activeCategory === "daily_life") {
       const uncategorizedItems = filteredResources?.filter(r => !r.subcategory) || [];
       if (uncategorizedItems.length > 0) {
-        rootFolders.push({
-          name: "📹 영상 목록",
-          items: uncategorizedItems,
-          children: [],
-          depth: 0
-        });
+        rootFolders.push({ name: "📹 영상 목록", items: uncategorizedItems, children: [], depth: 0 });
       }
     }
 
-    // Return only root folders (NOT flattened!) - subfolders are in .children
     return rootFolders;
   };
 
@@ -517,22 +412,16 @@ export default function Resources() {
 
   const toggleFolder = (folder: string) => {
     const newExpanded = new Set(expandedFolders);
-    if (newExpanded.has(folder)) {
-      newExpanded.delete(folder);
-    } else {
-      newExpanded.add(folder);
-    }
+    if (newExpanded.has(folder)) newExpanded.delete(folder);
+    else newExpanded.add(folder);
     setExpandedFolders(newExpanded);
   };
 
   const handleDownload = async (resource: any) => {
-    // Open access - no login required
-
     try {
       await incrementDownload.mutateAsync({ id: resource.id });
       toast.info(`다운로드 준비 중...`);
 
-      // Fetch file as blob for cross-origin download
       const response = await fetch(resource.fileUrl);
       if (!response.ok) throw new Error('Download failed');
 
@@ -546,15 +435,12 @@ export default function Resources() {
       link.click();
       document.body.removeChild(link);
 
-      // Cleanup blob URL
       setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
-
       toast.success(`다운로드 완료: ${resource.fileName}`);
     } catch (error) {
       console.error('Download error:', error);
-      // Fallback: open in new tab
       window.open(resource.fileUrl, '_blank');
-      toast.info("새 탭에서 열었습니다. 직접 다운로드해주세요.");
+      toast.info("새 탭에서 열었습니다.");
     }
   };
 
@@ -575,187 +461,134 @@ export default function Resources() {
   };
 
   return (
-    <div className="min-h-screen bg-midnight text-frost overflow-hidden">
-      {/* Resources are now directly accessible */}
-      {/* Midnight Neon Background */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-br from-midnight via-midnight-card to-midnight" />
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-electric/10 rounded-full blur-[180px] animate-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-accent-indigo/15 rounded-full blur-[150px]" style={{ animation: 'pulse 4s ease-in-out infinite alternate' }} />
-        <div className="absolute top-1/2 left-0 w-[400px] h-[400px] bg-accent-cyan/10 rounded-full blur-[120px]" style={{ animation: 'pulse 3s ease-in-out infinite alternate-reverse' }} />
-
-        {/* Grid Pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,136,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,136,0.03)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_80%)]" />
-      </div>
-
-      {/* Dopple Header */}
-      <DoppleHeader />
-
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #FDF8F3 0%, #FAF5EF 50%, #F8F2EB 100%)', fontFamily: "'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif" }}>
       {/* Header */}
-      <section className="pt-32 md:pt-36 lg:pt-40 pb-8 md:pb-10 lg:pb-12 px-4 md:px-8 relative z-10">
-        <div className="max-w-7xl mx-auto">
-          <AnimatedSection>
-            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-gradient-to-r from-electric/10 via-accent-cyan/10 to-accent-indigo/10 border border-electric/30 backdrop-blur-xl mb-8 shadow-[0_0_60px_rgba(0,255,136,0.2)]">
-              <BookOpen className="w-5 h-5 text-electric" />
-              <span className="font-[family-name:var(--font-mono)] text-sm text-frost tracking-wider uppercase">Learning Materials</span>
-            </div>
-            <h1 className="font-[family-name:var(--font-heading)] text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black mb-4 md:mb-6" style={{ textShadow: '0 0 80px rgba(0,255,136,0.4)' }}>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-electric via-accent-cyan to-electric">
-                Resources
-              </span>
+      <header className="dp4-header">
+        <Link href="/" className="dp4-logo">
+          <SupremeLogo size={70} />
+        </Link>
+        <nav className="dp4-nav">
+          <Link href="/">PROJECTS</Link>
+          <Link href="/resources">RESOURCES</Link>
+          <Link href="/blog">BLOG</Link>
+        </nav>
+        <a href="mailto:contact@jahyeon.com" className="dp4-send">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M22 2L11 13" />
+            <polygon points="22,2 15,22 11,13 2,9" />
+          </svg>
+        </a>
+      </header>
+
+      {/* Main Content */}
+      <main style={{ paddingTop: 120, paddingBottom: 80 }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
+
+          {/* Hero Section */}
+          <div style={{ textAlign: 'center', marginBottom: 48 }}>
+            <h1 style={{
+              fontSize: 'clamp(2.5rem, 6vw, 4rem)',
+              fontWeight: 800,
+              background: 'linear-gradient(135deg, #4361EE, #7B2FFF, #00D9FF)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              marginBottom: 16
+            }}>
+              수업 자료실
             </h1>
-            <p className="font-[family-name:var(--font-body)] text-frost-muted text-base md:text-lg lg:text-xl max-w-2xl">
-              Access lecture materials, code samples, presentations, and video tutorials.
-              <span className="flex items-center gap-2 text-electric mt-2 md:mt-3 text-sm md:text-base font-[family-name:var(--font-mono)]"><Eye className="w-3 h-3 md:w-4 md:h-4" />Click to preview PPT/PDF files!</span>
+            <p style={{ fontSize: '1.2rem', color: '#666', maxWidth: 600, margin: '0 auto' }}>
+              강의 자료, 코드 샘플, PPT, 영상 자료를 다운로드하세요
             </p>
-          </AnimatedSection>
-        </div>
-      </section>
+            <p style={{ fontSize: '0.95rem', color: '#4361EE', marginTop: 12 }}>
+              ✨ 클릭하면 PPT/PDF 미리보기 가능!
+            </p>
+          </div>
 
+          {/* Category Filter */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 48, flexWrap: 'wrap' }}>
+            {CATEGORIES.map(category => {
+              const Icon = category.icon;
+              const isActive = activeCategory === category.value;
+              return (
+                <button
+                  key={category.value}
+                  onClick={() => setActiveCategory(category.value)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '12px 24px',
+                    borderRadius: 24,
+                    border: 'none',
+                    background: isActive ? category.color : 'white',
+                    color: isActive ? 'white' : '#666',
+                    fontSize: '1rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    boxShadow: isActive ? `0 4px 20px ${category.color}40` : '0 2px 8px rgba(0,0,0,0.08)',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  <Icon style={{ width: 18, height: 18 }} />
+                  {category.label}
+                </button>
+              );
+            })}
+          </div>
 
-      {/* Filter */}
-      <section className="py-4 md:py-6 lg:py-8 sticky top-16 md:top-20 lg:top-24 z-40 bg-midnight/90 backdrop-blur-xl border-y border-electric/10">
-        <div className="max-w-7xl mx-auto px-4 md:px-8">
-          <AnimatedSection delay={100}>
-            <div className="flex flex-wrap gap-2 md:gap-3">
-              {CATEGORIES.map(category => {
-                const Icon = category.icon;
-                const isActive = activeCategory === category.value;
-                return (
-                  <button
-                    key={category.value}
-                    onClick={() => setActiveCategory(category.value)}
-                    className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 lg:px-5 py-2 md:py-2.5 lg:py-3 rounded-full font-[family-name:var(--font-mono)] text-xs md:text-sm font-medium transition-all border ${isActive
-                      ? "bg-electric text-midnight border-electric shadow-[0_0_30px_rgba(0,255,136,0.3)]"
-                      : "bg-midnight-card/50 text-frost-muted border-midnight-border hover:border-electric/50 hover:text-electric"
-                      }`}
-                  >
-                    <Icon className="w-3 h-3 md:w-4 md:h-4" /><span className="hidden sm:inline">{category.label}</span><span className="sm:hidden">{category.label.split(' ')[0]}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </AnimatedSection>
-        </div>
-      </section>
-
-      {/* CSS Animations for Ultra Premium Folders */}
-      <style>{`
-        @keyframes gradientShift {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-        @keyframes scanline {
-          0% { transform: translateY(-100%); }
-          100% { transform: translateY(100%); }
-        }
-        @keyframes pulseGlow {
-          0%, 100% { opacity: 0.4; transform: scale(1); }
-          50% { opacity: 0.8; transform: scale(1.1); }
-        }
-        @keyframes folderFloat {
-          0%, 100% { transform: rotateY(-5deg) translateY(0); }
-          50% { transform: rotateY(-5deg) translateY(-3px); }
-        }
-        @keyframes folderSlideIn {
-          from { opacity: 0; transform: translateX(-20px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-      `}</style>
-
-      {/* Grid */}
-      <section className="py-8 md:py-10 lg:py-12 pb-20 md:pb-24 lg:pb-32 px-4 md:px-8 relative z-10">
-        <div className="max-w-7xl mx-auto">
+          {/* Content */}
           {isLoading ? (
-            // 🎭 SKELETON UI - Premium loading experience
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-              {[...Array(6)].map((_, i) => (
-                <ResourceCardSkeleton key={i} />
-              ))}
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 80 }}>
+              <Loader2 style={{ width: 48, height: 48, color: '#4361EE', animation: 'spin 1s linear infinite' }} />
             </div>
           ) : !folderTree.length && !filteredResources?.length ? (
-            <div className="text-center py-32">
-              <FileText className="w-16 h-16 text-gray-200 mx-auto mb-4" />
-              <h3 className="text-2xl font-semibold mb-2 text-gray-900">No resources found</h3>
+            <div style={{ textAlign: 'center', padding: 80, color: '#888' }}>
+              <FileText style={{ width: 64, height: 64, opacity: 0.3, margin: '0 auto 16px' }} />
+              <p style={{ fontSize: '1.2rem' }}>등록된 자료가 없습니다</p>
             </div>
           ) : activeCategory === "daily_life" ? (
-            /* 데일리 영상: 폴더 없이 영상만 직접 표시 */
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+            /* Daily Video Grid */
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 24 }}>
               {filteredResources?.map((resource, idx) => {
                 const isVideo = isYouTubeUrl(resource.fileUrl) || resource.mimeType?.startsWith('video/');
                 const thumbUrl = resource.thumbnailUrl || (isYouTubeUrl(resource.fileUrl) ? getYouTubeThumbnail(resource.fileUrl) : null);
-                const categoryInfo = getCategoryInfo(resource.category);
 
                 return (
                   <div
                     key={resource.id}
-                    className="group relative bg-gradient-to-br from-[#0a0a0a] via-[#111] to-[#0a0a0a] backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(0,255,136,0.1)] hover:shadow-[0_0_60px_rgba(0,255,136,0.2)] transition-all duration-500"
-                    style={{ animation: `folderSlideIn 0.5s ease-out ${idx * 0.05}s both` }}
+                    onClick={() => handleResourceClick(resource)}
+                    style={{
+                      background: 'white',
+                      borderRadius: 20,
+                      overflow: 'hidden',
+                      boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s, box-shadow 0.2s'
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(0,0,0,0.12)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.08)'; }}
                   >
-                    {/* Thumbnail */}
-                    <div className="relative aspect-video bg-black/50 overflow-hidden">
+                    <div style={{ aspectRatio: '16/9', position: 'relative', overflow: 'hidden' }}>
                       {thumbUrl ? (
-                        <img src={thumbUrl} alt={resource.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <img src={thumbUrl} alt={resource.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900">
-                          <Play className="w-12 h-12 text-white/30" />
+                        <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #7B2FFF, #4361EE)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <Play style={{ width: 48, height: 48, color: 'white' }} />
                         </div>
                       )}
-
-                      {/* Play overlay */}
                       {isVideo && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-all">
-                          <div className="w-14 h-14 bg-white/90 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                            <Play className="w-6 h-6 text-black ml-1" />
+                        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.2)' }}>
+                          <div style={{ width: 56, height: 56, background: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
+                            <Play style={{ width: 24, height: 24, color: '#333', marginLeft: 4 }} />
                           </div>
                         </div>
                       )}
-
-                      {/* Category badge */}
-                      <div className="absolute top-3 left-3">
-                        <span className="px-2 py-1 text-xs font-bold rounded-lg" style={{ backgroundColor: categoryInfo.color, color: 'white' }}>
-                          {categoryInfo.label}
-                        </span>
-                      </div>
-
-                      {/* Preview button */}
-                      <button
-                        onClick={() => handleResourceClick(resource)}
-                        className="absolute top-3 right-3 px-3 py-1 bg-electric/90 text-black text-xs font-bold rounded-lg hover:bg-electric transition-colors"
-                      >
-                        ⊙ Preview
-                      </button>
                     </div>
-
-                    {/* Info */}
-                    <div className="p-4">
-                      <h3 className="text-white font-bold text-lg truncate mb-1">{resource.title}</h3>
-                      <p className="text-white/40 text-sm flex items-center gap-2">
+                    <div style={{ padding: 20 }}>
+                      <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#333', marginBottom: 8 }}>{resource.title}</h3>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 16, color: '#888', fontSize: '0.85rem' }}>
                         <span>✦ {formatFileSize(resource.fileSize)}</span>
                         <span>⬇ {resource.downloadCount || 0}</span>
-                        <span className="ml-auto text-electric">♥</span>
-                      </p>
-
-                      {/* Actions */}
-                      <div className="flex gap-2 mt-4">
-                        <button className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-                          <Heart className="w-4 h-4 text-white/60" />
-                        </button>
-                        <button className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-                          <MessageCircle className="w-4 h-4 text-white/60" />
-                        </button>
-                        <button
-                          onClick={() => handleResourceClick(resource)}
-                          className="flex-1 flex items-center justify-center gap-2 py-2 bg-electric hover:bg-electric/80 text-black font-bold rounded-xl transition-all"
-                        >
-                          ⊙ Preview
-                        </button>
-                        <button
-                          onClick={() => handleDownload(resource)}
-                          className="p-2 rounded-lg bg-electric/20 hover:bg-electric/30 transition-colors"
-                        >
-                          <Download className="w-4 h-4 text-electric" />
-                        </button>
                       </div>
                     </div>
                   </div>
@@ -763,7 +596,8 @@ export default function Resources() {
               })}
             </div>
           ) : (
-            <div className="space-y-6">
+            /* Folder Grid */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               {folderTree.map((folder, folderIndex) => {
                 const folderKey = folder.id ? `folder_${folder.id}` : folder.name;
                 const isExpanded = expandedFolders.has(folderKey);
@@ -771,293 +605,224 @@ export default function Resources() {
                 const hasSubfolders = folder.children.length > 0;
 
                 return (
-                  <div
-                    key={folderKey}
-                    className="group relative"
-                    style={{
-                      animation: `folderSlideIn 0.5s ease-out ${folderIndex * 0.1}s both`
-                    }}
-                  >
-                    {/* Animated Gradient Border */}
-                    <div
-                      className="absolute -inset-0.5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  <div key={folderKey} style={{ background: 'white', borderRadius: 24, overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
+                    {/* Folder Header */}
+                    <button
+                      onClick={() => toggleFolder(folderKey)}
                       style={{
-                        background: 'linear-gradient(135deg, #00ff88, #00d4ff, #6366f1, #00ff88)',
-                        backgroundSize: '300% 300%',
-                        animation: 'gradientShift 3s ease infinite'
+                        width: '100%',
+                        padding: 24,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        border: 'none',
+                        background: 'transparent',
+                        cursor: 'pointer',
+                        transition: 'background 0.2s'
                       }}
-                    />
+                      onMouseEnter={e => e.currentTarget.style.background = '#f8f8f8'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                        <div style={{
+                          width: 56,
+                          height: 56,
+                          borderRadius: 16,
+                          background: 'linear-gradient(135deg, #4361EE, #7B2FFF)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          boxShadow: '0 4px 20px rgba(67, 97, 238, 0.3)'
+                        }}>
+                          <FolderOpen style={{ width: 28, height: 28, color: 'white' }} />
+                        </div>
+                        <div style={{ textAlign: 'left' }}>
+                          <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#333', marginBottom: 4 }}>{folder.name}</h3>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <span style={{ padding: '4px 12px', background: '#f0f4ff', color: '#4361EE', borderRadius: 8, fontSize: '0.85rem', fontWeight: 600 }}>
+                              {resourceCount} FILES
+                            </span>
+                            {hasSubfolders && (
+                              <span style={{ padding: '4px 12px', background: '#f0fff4', color: '#10b981', borderRadius: 8, fontSize: '0.85rem', fontWeight: 600 }}>
+                                {folder.children.length} FOLDERS
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 12,
+                        background: isExpanded ? '#4361EE' : '#f0f0f0',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.2s'
+                      }}>
+                        {isExpanded ? (
+                          <ChevronDown style={{ width: 20, height: 20, color: 'white' }} />
+                        ) : (
+                          <ChevronRight style={{ width: 20, height: 20, color: '#888' }} />
+                        )}
+                      </div>
+                    </button>
 
-                    {/* Main Card */}
-                    <div className="relative bg-gradient-to-br from-[#0a0a0a] via-[#111] to-[#0a0a0a] backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_40px_rgba(0,255,136,0.1)] group-hover:shadow-[0_0_60px_rgba(0,255,136,0.2)] transition-all duration-500">
+                    {/* Folder Contents */}
+                    {isExpanded && (
+                      <div style={{ padding: '0 24px 24px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20 }}>
+                          {folder.items.map((resource: any) => {
+                            const thumbnail = resource.thumbnailUrl || (isYouTubeUrl(resource.fileUrl) ? getYouTubeThumbnail(resource.fileUrl) : null);
+                            const isVideo = isYouTubeUrl(resource.fileUrl) || resource.mimeType?.startsWith('video/');
+                            const isPPTFile = isPPT(resource.mimeType || '', resource.fileName || '');
+                            const isPDFFile = isPDF(resource.mimeType || '', resource.fileName || '');
+                            const canPreview = isVideo || isPPTFile || isPDFFile;
 
-                      {/* Scanline Effect */}
-                      <div
-                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-                        style={{
-                          background: 'linear-gradient(180deg, transparent 0%, rgba(0,255,136,0.03) 50%, transparent 100%)',
-                          backgroundSize: '100% 4px',
-                          animation: 'scanline 8s linear infinite'
-                        }}
-                      />
+                            return (
+                              <div
+                                key={resource.id}
+                                onClick={() => canPreview && handleResourceClick(resource)}
+                                style={{
+                                  background: '#f8f8f8',
+                                  borderRadius: 16,
+                                  overflow: 'hidden',
+                                  cursor: canPreview ? 'pointer' : 'default',
+                                  transition: 'transform 0.2s, box-shadow 0.2s',
+                                  border: '1px solid #eee'
+                                }}
+                                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.1)'; }}
+                                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
+                              >
+                                <div style={{ aspectRatio: '16/9', position: 'relative', overflow: 'hidden' }}>
+                                  {isVideo ? <VideoThumbnail resource={resource} thumbnail={thumbnail} />
+                                    : isPPTFile ? <PPTThumbnail resource={resource} />
+                                      : isPDFFile ? <PDFThumbnail resource={resource} />
+                                        : thumbnail ? <img src={thumbnail} alt={resource.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                          : <div style={{ width: '100%', height: '100%', background: '#e5e5e5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><FileText style={{ width: 48, height: 48, color: '#bbb' }} /></div>}
 
-                      {/* Folder Header */}
-                      <button
-                        onClick={() => toggleFolder(folderKey)}
-                        className="w-full p-5 md:p-6 flex items-center justify-between hover:bg-white/5 transition-all"
-                      >
-                        <div className="flex items-center gap-4 md:gap-5">
-                          {/* 3D Holographic Folder Icon */}
-                          <div
-                            className="relative w-14 h-14 md:w-16 md:h-16"
-                            style={{ perspective: '200px' }}
-                          >
-                            {/* Glow Ring */}
-                            <div
-                              className="absolute -inset-2 rounded-2xl opacity-60 group-hover:opacity-100 transition-opacity"
-                              style={{
-                                background: 'radial-gradient(circle, rgba(0,255,136,0.3) 0%, transparent 70%)',
-                                animation: 'pulseGlow 2s ease-in-out infinite'
-                              }}
-                            />
-
-                            {/* Folder Container */}
-                            <div
-                              className="relative w-full h-full rounded-2xl bg-gradient-to-br from-electric/30 via-accent-cyan/20 to-accent-indigo/30 border border-electric/40 flex items-center justify-center shadow-[0_0_25px_rgba(0,255,136,0.3)] group-hover:shadow-[0_0_35px_rgba(0,255,136,0.5)] transition-all duration-500"
-                              style={{
-                                transform: 'rotateY(-5deg)',
-                                transformStyle: 'preserve-3d',
-                                animation: 'folderFloat 3s ease-in-out infinite'
-                              }}
-                            >
-                              {/* Folder Icon with Glow */}
-                              <FolderOpen className="w-7 h-7 md:w-8 md:h-8 text-electric drop-shadow-[0_0_10px_rgba(0,255,136,0.8)]" />
-
-                              {/* File Count Badge */}
-                              <div className="absolute -top-1 -right-1 w-5 h-5 md:w-6 md:h-6 rounded-full bg-electric flex items-center justify-center shadow-[0_0_10px_rgba(0,255,136,0.6)]">
-                                <span className="text-[10px] md:text-xs font-black text-midnight">{resourceCount}</span>
+                                  {canPreview && (
+                                    <div style={{ position: 'absolute', top: 12, right: 12, padding: '6px 12px', background: 'rgba(67,97,238,0.9)', color: 'white', borderRadius: 8, fontSize: '0.75rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                                      <Eye style={{ width: 14, height: 14 }} />Preview
+                                    </div>
+                                  )}
+                                </div>
+                                <div style={{ padding: 16 }}>
+                                  <h4 style={{ fontSize: '1rem', fontWeight: 600, color: '#333', marginBottom: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{resource.title}</h4>
+                                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                                    <span style={{ fontSize: '0.8rem', color: '#888' }}>{formatFileSize(resource.fileSize)}</span>
+                                    <span style={{ fontSize: '0.8rem', color: '#888' }}>⬇ {resource.downloadCount || 0}</span>
+                                  </div>
+                                  <div style={{ display: 'flex', gap: 8 }}>
+                                    <LikeButton resourceId={resource.id} />
+                                    <button
+                                      onClick={(e) => { e.stopPropagation(); setSelectedCommentResource(resource); }}
+                                      style={{ padding: '8px 12px', borderRadius: 20, border: 'none', background: '#f0f0f0', color: '#888', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                                    >
+                                      <MessageCircle style={{ width: 16, height: 16 }} />
+                                    </button>
+                                    <div style={{ flex: 1 }} />
+                                    <button
+                                      onClick={(e) => { e.stopPropagation(); handleDownload(resource); }}
+                                      style={{
+                                        padding: '8px 16px',
+                                        borderRadius: 20,
+                                        border: 'none',
+                                        background: 'linear-gradient(135deg, #4361EE, #7B2FFF)',
+                                        color: 'white',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 6,
+                                        fontWeight: 600,
+                                        fontSize: '0.85rem'
+                                      }}
+                                    >
+                                      <Download style={{ width: 14, height: 14 }} />
+                                      Download
+                                    </button>
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          </div>
-
-                          {/* Folder Info */}
-                          <div className="text-left">
-                            <h3 className="text-2xl md:text-3xl lg:text-4xl font-black text-white group-hover:text-electric transition-all" style={{ textShadow: '0 0 30px rgba(0,255,136,0.4)' }}>
-                              {folder.name}
-                            </h3>
-                            <div className="flex items-center gap-3 mt-2">
-                              <span className="px-3 py-1 rounded-lg bg-electric/20 text-electric text-sm font-bold font-mono border border-electric/40 shadow-[0_0_10px_rgba(0,255,136,0.2)]">
-                                {resourceCount} {resourceCount === 1 ? 'FILE' : 'FILES'}
-                              </span>
-                              {hasSubfolders && (
-                                <span className="px-3 py-1 rounded-lg bg-accent-cyan/20 text-accent-cyan text-sm font-bold font-mono border border-accent-cyan/40 shadow-[0_0_10px_rgba(34,211,238,0.2)]">
-                                  {folder.children.length} SUBDIR
-                                </span>
-                              )}
-                              <span className="flex items-center gap-1.5 text-xs text-white/40 font-mono">
-                                <div className="w-1.5 h-1.5 rounded-full bg-electric animate-pulse" />
-                                READY
-                              </span>
-                            </div>
-                          </div>
+                            );
+                          })}
                         </div>
 
-                        {/* Expand/Collapse Button */}
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${isExpanded ? 'bg-electric/20 border border-electric/40' : 'bg-white/5 border border-white/10'}`}>
-                          {isExpanded ? (
-                            <ChevronDown className="w-5 h-5 text-electric" />
-                          ) : (
-                            <ChevronRight className="w-5 h-5 text-white/40 group-hover:text-white/80 transition-colors" />
-                          )}
-                        </div>
-                      </button>
-
-                      {/* Folder Contents */}
-                      {isExpanded && (
-                        <div className="p-4 md:p-6 pt-0">
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-                            {folder.items.map((resource: any, index: number) => {
-                              const thumbnail = resource.thumbnailUrl || (isYouTubeUrl(resource.fileUrl) ? getYouTubeThumbnail(resource.fileUrl) : null);
-                              const isVideo = isYouTubeUrl(resource.fileUrl) || resource.mimeType?.startsWith('video/');
-                              const isPPTFile = isPPT(resource.mimeType || '', resource.fileName || '');
-                              const isPDFFile = isPDF(resource.mimeType || '', resource.fileName || '');
-                              const canPreview = isVideo || isPPTFile || isPDFFile;
-                              const categoryInfo = getCategoryInfo(resource.category);
+                        {/* Subfolders */}
+                        {hasSubfolders && (
+                          <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
+                            {folder.children.map((subfolder) => {
+                              const subfolderKey = subfolder.id ? `folder_${subfolder.id}` : subfolder.name;
+                              const isSubExpanded = expandedFolders.has(subfolderKey);
+                              const subResourceCount = subfolder.items.length;
 
                               return (
-                                <AnimatedSection key={resource.id} delay={index * 50}>
-                                  <TiltCard>
-                                    <div
-                                      className={`group rounded-2xl md:rounded-3xl overflow-hidden bg-gradient-to-br from-[#0a0a0a] via-[#111] to-[#0a0a0a] border border-white/10 hover:border-electric/50 transition-all duration-500 hover:shadow-[0_0_40px_rgba(0,255,136,0.2)] ${canPreview ? 'cursor-pointer' : ''}`}
-                                      onClick={() => canPreview && handleResourceClick(resource)}
-                                    >
-                                      <div className="aspect-video overflow-hidden relative">
-                                        {isVideo ? <VideoThumbnail resource={resource} thumbnail={thumbnail} />
-                                          : isPPTFile ? <PPTThumbnail resource={resource} />
-                                            : isPDFFile ? <PDFThumbnail resource={resource} />
-                                              : thumbnail ? <img src={thumbnail} alt={resource.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                                : <div className="w-full h-full bg-gradient-to-br from-midnight-card to-midnight flex items-center justify-center"><FileText className="w-12 h-12 text-frost-muted" /></div>}
-
-                                        <div className="absolute top-2 md:top-3 lg:top-4 left-2 md:left-3 lg:left-4">
-                                          <span
-                                            className={`px-2 md:px-3 lg:px-4 py-1 md:py-1.5 lg:py-2 rounded-full text-[10px] md:text-xs font-medium uppercase tracking-wider backdrop-blur-xl bg-gradient-to-r ${categoryInfo.gradient} text-white shadow-lg border-2 border-white/20`}
-                                          >
-                                            {categoryInfo.label}
-                                          </span>
-                                        </div>
-
-                                        {canPreview && (
-                                          <div className="absolute top-2 md:top-3 lg:top-4 right-2 md:right-3 lg:right-4">
-                                            <span className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1 md:py-1.5 lg:py-2 rounded-full bg-electric/20 backdrop-blur-xl text-electric text-[10px] md:text-xs font-medium border border-electric/40">
-                                              <Eye className="w-2.5 h-2.5 md:w-3 md:h-3" />Preview
-                                            </span>
-                                          </div>
-                                        )}
+                                <div key={subfolderKey} style={{ background: '#f8f8f8', borderRadius: 16, overflow: 'hidden', marginLeft: 24, border: '1px solid #eee' }}>
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); toggleFolder(subfolderKey); }}
+                                    style={{ width: '100%', padding: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: 'none', background: 'transparent', cursor: 'pointer' }}
+                                  >
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                      <span style={{ color: '#4361EE', fontSize: '1.2rem' }}>↳</span>
+                                      <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #4361EE40, #7B2FFF40)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <FolderOpen style={{ width: 18, height: 18, color: '#4361EE' }} />
                                       </div>
-
-                                      <div className="p-4 md:p-5 lg:p-6">
-                                        <h3 className="text-xl md:text-2xl font-bold text-white group-hover:text-electric transition-all line-clamp-1" style={{ textShadow: '0 0 15px rgba(0,255,136,0.3)' }}>{resource.title}</h3>
-                                        {resource.description && <p className="text-frost-muted text-sm md:text-base mb-3 md:mb-4 line-clamp-2 leading-relaxed">{resource.description}</p>}
-
-                                        <div className="flex items-center justify-between text-[10px] md:text-xs text-frost-muted mb-3 md:mb-4">
-                                          <span className="flex items-center gap-1"><Zap className="w-2.5 h-2.5 md:w-3 md:h-3 text-electric" />{formatFileSize(resource.fileSize)}</span>
-                                          <span className="flex items-center gap-1"><Download className="w-2.5 h-2.5 md:w-3 md:h-3 text-accent-cyan" />{resource.downloadCount || 0}</span>
-                                        </div>
-
-                                        <div className="flex items-center gap-2 mb-3 md:mb-4">
-                                          <LikeButton resourceId={resource.id} />
-                                          <button
-                                            onClick={(e) => { e.stopPropagation(); setSelectedCommentResource(resource); }}
-                                            className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1.5 md:py-2 rounded-full bg-white/10 text-frost-muted hover:bg-white/20 hover:text-frost transition-all"
-                                          >
-                                            <MessageCircle className="w-3 h-3 md:w-4 md:h-4" />
-                                          </button>
-                                          <div className="flex-1" />
-                                          <span className="flex items-center gap-1 md:gap-1.5 text-accent-indigo text-[10px] md:text-xs font-medium">
-                                            <Heart className="w-2.5 h-2.5 md:w-3 md:h-3 fill-current" />
-                                            {resource.downloadCount || 0}
-                                          </span>
-                                        </div>
-
-                                        <div className="flex gap-2 md:gap-3">
-                                          <Button
-                                            className="flex-1 rounded-lg md:rounded-xl bg-gradient-to-r from-electric to-accent-cyan text-midnight h-10 md:h-12 text-sm md:text-base font-bold shadow-lg shadow-electric/30 hover:shadow-electric/50 transition-all"
-                                            onClick={e => { e.stopPropagation(); canPreview ? handleResourceClick(resource) : handleDownload(resource); }}
-                                          >
-                                            {canPreview ? <><Eye className="w-3 h-3 md:w-4 md:h-4 mr-1.5 md:mr-2" />Preview</> : <><Download className="w-3 h-3 md:w-4 md:h-4 mr-1.5 md:mr-2" />Download</>}
-                                          </Button>
-                                          <Button
-                                            variant="outline"
-                                            className="rounded-lg md:rounded-xl border-electric/40 bg-electric/10 hover:bg-electric/20 text-electric h-10 md:h-12 w-10 md:w-12 p-0"
-                                            onClick={e => { e.stopPropagation(); handleDownload(resource); }}
-                                          >
-                                            <Download className="w-3 h-3 md:w-4 md:h-4" />
-                                          </Button>
-                                        </div>
+                                      <div style={{ textAlign: 'left' }}>
+                                        <h4 style={{ fontSize: '1.1rem', fontWeight: 600, color: '#333' }}>{subfolder.name}</h4>
+                                        <span style={{ fontSize: '0.85rem', color: '#888' }}>{subResourceCount} files</span>
                                       </div>
                                     </div>
-                                  </TiltCard>
-                                </AnimatedSection>
+                                    {isSubExpanded ? <ChevronDown style={{ width: 18, height: 18, color: '#4361EE' }} /> : <ChevronRight style={{ width: 18, height: 18, color: '#888' }} />}
+                                  </button>
+
+                                  {isSubExpanded && subfolder.items.length > 0 && (
+                                    <div style={{ padding: '0 16px 16px' }}>
+                                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 12 }}>
+                                        {subfolder.items.map((resource: any) => (
+                                          <div
+                                            key={resource.id}
+                                            style={{ padding: 12, background: 'white', borderRadius: 12, border: '1px solid #eee', display: 'flex', alignItems: 'center', gap: 12 }}
+                                          >
+                                            <div style={{ width: 36, height: 36, borderRadius: 8, background: '#f0f4ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                              <FileText style={{ width: 18, height: 18, color: '#4361EE' }} />
+                                            </div>
+                                            <div style={{ flex: 1, minWidth: 0 }}>
+                                              <p style={{ fontWeight: 600, color: '#333', fontSize: '0.9rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{resource.title}</p>
+                                              <p style={{ fontSize: '0.75rem', color: '#888' }}>{resource.fileName}</p>
+                                            </div>
+                                            <button
+                                              onClick={() => handleDownload(resource)}
+                                              style={{ width: 32, height: 32, borderRadius: 8, border: 'none', background: '#f0f4ff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                            >
+                                              <Download style={{ width: 16, height: 16, color: '#4361EE' }} />
+                                            </button>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
                               );
                             })}
                           </div>
-
-                          {/* Subfolders inside parent */}
-                          {hasSubfolders && (
-                            <div className="mt-6 space-y-4">
-                              {folder.children.map((subfolder) => {
-                                const subfolderKey = subfolder.id ? `folder_${subfolder.id}` : subfolder.name;
-                                const isSubExpanded = expandedFolders.has(subfolderKey);
-                                const subResourceCount = subfolder.items.length;
-
-                                return (
-                                  <div key={subfolderKey} className="bg-gradient-to-br from-[#0a0a0a]/80 via-[#111]/80 to-[#0a0a0a]/80 border border-electric/20 rounded-2xl overflow-hidden ml-4 backdrop-blur-sm hover:border-electric/40 transition-all">
-                                    {/* Subfolder Header */}
-                                    <button
-                                      onClick={(e) => { e.stopPropagation(); toggleFolder(subfolderKey); }}
-                                      className="w-full p-4 flex items-center justify-between hover:bg-white/5 transition-all group"
-                                    >
-                                      <div className="flex items-center gap-3">
-                                        <span className="text-electric text-lg">↳</span>
-                                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-electric/30 to-accent-cyan/30 border border-electric/40 flex items-center justify-center shadow-[0_0_15px_rgba(0,255,136,0.2)]">
-                                          <FolderOpen className="w-5 h-5 text-electric" />
-                                        </div>
-                                        <div className="text-left">
-                                          <h4 className="text-xl md:text-2xl font-bold text-white group-hover:text-electric transition-all" style={{ textShadow: '0 0 20px rgba(0,255,136,0.3)' }}>
-                                            {subfolder.name}
-                                          </h4>
-                                          <p className="text-frost-muted text-sm mt-1">
-                                            <span className="text-electric font-bold">{subResourceCount}</span> files
-                                          </p>
-                                        </div>
-                                      </div>
-                                      <div className="flex items-center">
-                                        {isSubExpanded ? (
-                                          <ChevronDown className="w-5 h-5 text-electric" />
-                                        ) : (
-                                          <ChevronRight className="w-5 h-5 text-frost-muted group-hover:text-frost transition-colors" />
-                                        )}
-                                      </div>
-                                    </button>
-
-                                    {/* Subfolder Contents */}
-                                    {isSubExpanded && subfolder.items.length > 0 && (
-                                      <div className="p-4 pt-0">
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                          {subfolder.items.map((resource: any) => {
-                                            const canPreview = isYouTubeUrl(resource.fileUrl) || resource.mimeType?.startsWith('video/') || isPPT(resource.mimeType || '', resource.fileName || '') || isPDF(resource.mimeType || '', resource.fileName || '');
-
-                                            return (
-                                              <div
-                                                key={resource.id}
-                                                className={`p-3 bg-midnight/50 rounded-xl border border-white/10 hover:border-electric/40 transition-all hover:shadow-[0_0_20px_rgba(0,255,136,0.1)] ${canPreview ? 'cursor-pointer' : ''}`}
-                                                onClick={() => canPreview && handleResourceClick(resource)}
-                                              >
-                                                <div className="flex items-center gap-3">
-                                                  <div className="w-10 h-10 rounded-lg bg-electric/10 border border-electric/20 flex items-center justify-center flex-shrink-0">
-                                                    <FileText className="w-5 h-5 text-electric" />
-                                                  </div>
-                                                  <div className="flex-1 min-w-0">
-                                                    <p className="font-bold text-white truncate text-base group-hover:text-electric transition-colors" style={{ textShadow: '0 0 8px rgba(0,255,136,0.2)' }}>{resource.title}</p>
-                                                    <p className="text-xs text-frost-muted truncate mt-0.5">{resource.fileName}</p>
-                                                  </div>
-                                                  <Button
-                                                    size="sm"
-                                                    variant="ghost"
-                                                    className="h-8 w-8 p-0 text-electric hover:bg-electric/20 hover:text-electric"
-                                                    onClick={(e) => { e.stopPropagation(); handleDownload(resource); }}
-                                                  >
-                                                    <Download className="w-4 h-4" />
-                                                  </Button>
-                                                </div>
-                                              </div>
-                                            );
-                                          })}
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 );
               })}
             </div>
           )}
         </div>
-      </section>
+      </main>
 
+      {/* Modals */}
       {selectedVideo && <VideoModal resource={selectedVideo} onClose={() => setSelectedVideo(null)} />}
       {selectedDocument && <DocumentPreviewModal resource={selectedDocument} onClose={() => setSelectedDocument(null)} />}
       {selectedCommentResource && <CommentsModal resource={selectedCommentResource} onClose={() => setSelectedCommentResource(null)} />}
 
-      {/* Dopple Footer */}
-      <footer className="dp4-footer" style={{ position: 'relative', zIndex: 10 }}>
+      {/* Footer */}
+      <footer className="dp4-footer">
         <nav className="dp4-footer-nav">
           <Link href="/">PROJECTS</Link>
           <Link href="/resources">RESOURCES</Link>
@@ -1069,6 +834,11 @@ export default function Resources() {
 
       {/* Messenger Widget */}
       <MessengerWidget />
-    </div >
+
+      {/* CSS Animation */}
+      <style>{`
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      `}</style>
+    </div>
   );
 }
