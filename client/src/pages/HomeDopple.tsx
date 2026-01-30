@@ -103,15 +103,52 @@ const projects = [
     },
 ];
 
-// Supreme Quantum Logo
-function SupremeLogo({ className = "", size = 48 }: { className?: string; size?: number }) {
+// Supreme Quantum Logo - Inline SVG with CSS Animations
+function SupremeLogo({ size = 48 }: { size?: number }) {
     return (
-        <iframe
-            src="/logo-supreme.svg"
-            className={className}
-            style={{ width: size, height: size, border: 'none', background: 'transparent', pointerEvents: 'none' }}
-            title="Jahyeon Logo"
-        />
+        <svg
+            viewBox="0 0 100 100"
+            style={{ width: size, height: size }}
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <style>{`
+                @keyframes spin1 { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+                @keyframes spin2 { from { transform: rotate(120deg); } to { transform: rotate(480deg); } }
+                @keyframes spin3 { from { transform: rotate(240deg); } to { transform: rotate(600deg); } }
+                @keyframes pulse { 0%, 100% { opacity: 0.7; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1.1); } }
+                .orbit1 { animation: spin1 8s linear infinite; transform-origin: 50px 50px; }
+                .orbit2 { animation: spin2 12s linear infinite; transform-origin: 50px 50px; }
+                .orbit3 { animation: spin3 16s linear infinite; transform-origin: 50px 50px; }
+                .core { animation: pulse 2s ease-in-out infinite; transform-origin: 50px 50px; }
+            `}</style>
+            <defs>
+                <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#00D9FF" />
+                    <stop offset="100%" stopColor="#00FF87" />
+                </linearGradient>
+                <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#FF00E5" />
+                    <stop offset="100%" stopColor="#FF6B00" />
+                </linearGradient>
+                <linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#7B2FFF" />
+                    <stop offset="100%" stopColor="#00C6FF" />
+                </linearGradient>
+            </defs>
+            {/* Rotating Orbits */}
+            <ellipse className="orbit1" cx="50" cy="50" rx="45" ry="18" stroke="url(#g1)" strokeWidth="1" fill="none" opacity="0.5" />
+            <ellipse className="orbit2" cx="50" cy="50" rx="45" ry="18" stroke="url(#g2)" strokeWidth="1" fill="none" opacity="0.5" />
+            <ellipse className="orbit3" cx="50" cy="50" rx="45" ry="18" stroke="url(#g3)" strokeWidth="1" fill="none" opacity="0.5" />
+            {/* Hexagon */}
+            <polygon points="50,15 78,31 78,69 50,85 22,69 22,31" stroke="url(#g3)" strokeWidth="2" fill="none" />
+            {/* Cube */}
+            <polygon points="50,28 68,38 50,48 32,38" fill="url(#g3)" opacity="0.9" />
+            <polygon points="32,38 50,48 50,65 32,55" fill="#5F72FF" opacity="0.85" />
+            <polygon points="68,38 50,48 50,65 68,55" fill="#7B2FFF" opacity="0.85" />
+            {/* Core */}
+            <circle className="core" cx="50" cy="45" r="8" fill="url(#g1)" opacity="0.8" />
+            <circle cx="50" cy="45" r="4" fill="#fff" />
+        </svg>
     );
 }
 
@@ -120,7 +157,7 @@ function Header() {
     return (
         <header className="dp4-header">
             <Link href="/" className="dp4-logo">
-                <SupremeLogo size={50} />
+                <SupremeLogo size={70} />
             </Link>
             <nav className="dp4-nav">
                 <Link href="/">PROJECTS</Link>
@@ -144,7 +181,7 @@ function Hero() {
             <h1 className="dp4-hero-title">JAHYEON</h1>
             <div className="dp4-hero-subtitle">
                 <span>EMBEDDED</span>
-                <SupremeLogo className="dp4-hero-face" size={60} />
+                <SupremeLogo size={100} />
                 <span className="dp4-pill">DEVELOPER</span>
             </div>
             <div className="dp4-scroll-cta">
@@ -170,10 +207,10 @@ function IntroSection() {
             </div>
             <div className="dp4-intro-right">
                 <div className="dp4-faces-anim">
-                    <SupremeLogo size={40} />
-                    <SupremeLogo size={40} />
-                    <SupremeLogo size={40} />
-                    <SupremeLogo size={40} />
+                    <SupremeLogo size={60} />
+                    <SupremeLogo size={60} />
+                    <SupremeLogo size={60} />
+                    <SupremeLogo size={60} />
                 </div>
                 <p className="dp4-intro-text">
                     Led by embedded systems engineer <strong>Gu Jahyeon</strong>,
