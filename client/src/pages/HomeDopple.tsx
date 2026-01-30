@@ -344,6 +344,93 @@ function Footer() {
     );
 }
 
+// Floating Messenger Chat Widget
+function MessengerWidget() {
+    const [isOpen, setIsOpen] = useState(false);
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [message, setMessage] = useState('');
+    const [sent, setSent] = useState(false);
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        // Open mailto with pre-filled content
+        const subject = encodeURIComponent(`Message from ${name}`);
+        const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
+        window.location.href = `mailto:contact@jahyeon.com?subject=${subject}&body=${body}`;
+        setSent(true);
+        setTimeout(() => {
+            setSent(false);
+            setIsOpen(false);
+            setName('');
+            setEmail('');
+            setMessage('');
+        }, 2000);
+    };
+
+    return (
+        <>
+            {/* Floating Chat Bubble */}
+            <button
+                className="messenger-bubble"
+                onClick={() => setIsOpen(!isOpen)}
+                aria-label="Open messenger"
+            >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                </svg>
+            </button>
+
+            {/* Chat Modal */}
+            {isOpen && (
+                <div className="messenger-modal">
+                    <div className="messenger-header">
+                        <span>💬 메시지 보내기</span>
+                        <button onClick={() => setIsOpen(false)}>✕</button>
+                    </div>
+                    {sent ? (
+                        <div className="messenger-sent">
+                            <span>✅</span>
+                            <p>메일 앱이 열립니다!</p>
+                        </div>
+                    ) : (
+                        <form onSubmit={handleSubmit} className="messenger-form">
+                            <input
+                                type="text"
+                                placeholder="이름"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                required
+                            />
+                            <input
+                                type="email"
+                                placeholder="이메일"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
+                            <textarea
+                                placeholder="메시지를 입력하세요..."
+                                value={message}
+                                onChange={(e) => setMessage(e.target.value)}
+                                required
+                                rows={4}
+                            />
+                            <button type="submit" className="messenger-send">
+                                <span>보내기</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M22 2L11 13" />
+                                    <polygon points="22,2 15,22 11,13 2,9" />
+                                </svg>
+                            </button>
+                        </form>
+                    )}
+                </div>
+            )}
+        </>
+    );
+}
+
 // Main
 export default function HomeDopple() {
     return (
@@ -356,6 +443,7 @@ export default function HomeDopple() {
             ))}
             <Stats />
             <Footer />
+            <MessengerWidget />
         </div>
     );
 }

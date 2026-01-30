@@ -593,6 +593,139 @@
     }
 }
 
+/* ==================== MESSENGER WIDGET ==================== */
+.messenger-bubble {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, #7B2FFF, #00D9FF);
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(123, 47, 255, 0.4);
+    z-index: 10000;
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.messenger-bubble svg {
+    width: 28px;
+    height: 28px;
+}
+
+.messenger-bubble:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(123, 47, 255, 0.6);
+}
+
+.messenger-modal {
+    position: fixed;
+    bottom: 100px;
+    right: 24px;
+    width: 320px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
+    z-index: 10001;
+    overflow: hidden;
+}
+
+.messenger-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #7B2FFF, #00D9FF);
+    color: white;
+    font-weight: 600;
+}
+
+.messenger-header button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    opacity: 0.8;
+}
+
+.messenger-header button:hover {
+    opacity: 1;
+}
+
+.messenger-form {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.messenger-form input,
+.messenger-form textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+
+.messenger-form input:focus,
+.messenger-form textarea:focus {
+    outline: none;
+    border-color: #7B2FFF;
+}
+
+.messenger-form textarea {
+    resize: none;
+}
+
+.messenger-send {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px;
+    background: linear-gradient(135deg, #7B2FFF, #00D9FF);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.messenger-send svg {
+    width: 18px;
+    height: 18px;
+}
+
+.messenger-send:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(123, 47, 255, 0.4);
+}
+
+.messenger-sent {
+    padding: 40px;
+    text-align: center;
+}
+
+.messenger-sent span {
+    font-size: 48px;
+}
+
+.messenger-sent p {
+    margin-top: 12px;
+    color: #666;
+}
+
 /* Grain overlay */
 .dp4-page::after {
     content: '';
