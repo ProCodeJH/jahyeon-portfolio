@@ -523,7 +523,7 @@ export default function Register() {
                 <nav className="dp4-footer-nav">
                     <Link href="/">PROJECTS</Link>
                     <Link href="/resources">RESOURCES</Link>
-                    <a href="https://github.com/ProCodeJH">GITHUB</a>
+                    <Link href="/blog">BLOG</Link>
                     <a href="mailto:contact@jahyeon.com">CONTACT</a>
                 </nav>
                 <p>© 2024 Gu Jahyeon. Embedded Developer & Educator.</p>

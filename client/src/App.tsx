@@ -12,6 +12,7 @@ import Admin from "./pages/Admin";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
+import Blog from "./pages/Blog";
 import { useSmoothScroll } from "./hooks/useSmoothScroll";
 import { BackToTop } from "./components/ui/BackToTop";
 import { ScrollProgressBar } from "./components/ui/ScrollProgressBar";
@@ -55,6 +56,7 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/profile" component={Profile} />
+      <Route path="/blog" component={Blog} />
       <Route path="/404" component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

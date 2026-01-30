@@ -178,7 +178,7 @@ function Header() {
             <nav className="dp4-nav">
                 <Link href="/">PROJECTS</Link>
                 <Link href="/resources">RESOURCES</Link>
-                <a href="https://github.com/ProCodeJH" target="_blank">BLOG</a>
+                <Link href="/blog">BLOG</Link>
             </nav>
             <a href="mailto:contact@jahyeon.com" className="dp4-send">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -336,7 +336,7 @@ function Footer() {
             <nav className="dp4-footer-nav">
                 <Link href="/">PROJECTS</Link>
                 <Link href="/resources">RESOURCES</Link>
-                <a href="https://github.com/ProCodeJH">GITHUB</a>
+                <Link href="/blog">BLOG</Link>
                 <a href="mailto:contact@jahyeon.com">CONTACT</a>
             </nav>
             <p>© 2024 Gu Jahyeon. Embedded Developer & Educator.</p>
