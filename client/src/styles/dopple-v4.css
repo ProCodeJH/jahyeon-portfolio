@@ -387,17 +387,16 @@
 .dp4-masonry {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    grid-auto-rows: minmax(200px, 1fr);
-    gap: 4px;
+    grid-auto-rows: minmax(280px, auto);
+    gap: 6px;
     width: 100%;
-    min-height: 500px;
-    max-height: 80vh;
+    min-height: 700px;
 }
 
 .dp4-masonry-item {
     overflow: hidden;
     position: relative;
-    min-height: 200px;
+    min-height: 280px;
     background: #eee;
 }
 
@@ -416,7 +415,7 @@
 /* First item spans 2 rows = bigger feature image */
 .dp4-masonry-large {
     grid-row: span 2;
-    min-height: 400px;
+    min-height: 566px;
 }
 
 /* Old gallery styles for backwards compatibility */
