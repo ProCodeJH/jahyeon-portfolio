@@ -89,12 +89,61 @@
     font-size: clamp(100px, 18vw, 260px);
     font-weight: 900;
     line-height: 0.85;
-    color: var(--blue);
     letter-spacing: -0.02em;
-    /* Risograph texture */
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E");
-    background-clip: text;
+    /* Animated gradient text */
+    background: linear-gradient(135deg,
+            #4361EE 0%,
+            #7B2FFF 25%,
+            #00D9FF 50%,
+            #4361EE 75%,
+            #7B2FFF 100%);
+    background-size: 300% 300%;
     -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientShift 6s ease-in-out infinite;
+    /* Glow effect */
+    filter: drop-shadow(0 0 30px rgba(67, 97, 238, 0.3)) drop-shadow(0 0 60px rgba(123, 47, 255, 0.15));
+    /* Risograph texture overlay */
+    position: relative;
+}
+
+.dp4-hero-title::after {
+    content: 'JAHYEON';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #4361EE, #00D9FF);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    opacity: 0;
+    animation: textFlicker 4s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+@keyframes textFlicker {
+
+    0%,
+    90%,
+    100% {
+        opacity: 0;
+    }
+
+    92%,
+    95% {
+        opacity: 0.3;
+    }
 }
 
 .dp4-hero-subtitle {
