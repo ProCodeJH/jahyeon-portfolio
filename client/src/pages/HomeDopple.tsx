@@ -106,12 +106,11 @@ const projects = [
 // Supreme Quantum Logo
 function SupremeLogo({ className = "", size = 48 }: { className?: string; size?: number }) {
     return (
-        <object
-            type="image/svg+xml"
-            data="/logo-supreme.svg"
+        <iframe
+            src="/logo-supreme.svg"
             className={className}
-            style={{ width: size, height: size, pointerEvents: 'none' }}
-            aria-label="Jahyeon Logo"
+            style={{ width: size, height: size, border: 'none', background: 'transparent', pointerEvents: 'none' }}
+            title="Jahyeon Logo"
         />
     );
 }
