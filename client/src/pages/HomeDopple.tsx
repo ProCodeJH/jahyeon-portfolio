@@ -21,10 +21,10 @@ const projects = [
         media: [
             "/riso/dopple_circuit.png",
             "/riso/riso_arduino.png",
+            "/riso/riso_sensors.png",
             "/riso/riso_soldering.png",
-            "/riso/dopple_hands.png",
             "/riso/riso_robot.png",
-            "/riso/riso_embedded_dev_1769726045698.png",
+            "/riso/dopple_hands.png",
         ],
     },
     {
@@ -39,10 +39,10 @@ const projects = [
         media: [
             "/riso/dopple_code.png",
             "/riso/riso_terminal.png",
+            "/riso/riso_coffee.png",
             "/riso/riso_dashboard.png",
-            "/riso/dopple_workspace.png",
             "/riso/riso_ui_design.png",
-            "/riso/riso_web_dev_1769726143789.png",
+            "/riso/dopple_workspace.png",
         ],
     },
     {
@@ -57,8 +57,9 @@ const projects = [
         media: [
             "/riso/dopple_ai.png",
             "/riso/riso_neural.png",
-            "/riso/riso_ai_robot_1769726128019.png",
             "/riso/riso_dashboard.png",
+            "/riso/riso_ai_robot_1769726128019.png",
+            "/riso/riso_terminal.png",
             "/riso/dopple_code.png",
         ],
     },
@@ -73,9 +74,10 @@ const projects = [
         outcome: "Infrastructure serving millions of requests. Kubernetes clusters, automated deployments, monitoring for multiple organizations.",
         media: [
             "/riso/dopple_cloud.png",
+            "/riso/riso_server.png",
+            "/riso/riso_team.png",
             "/riso/riso_dashboard.png",
             "/riso/riso_terminal.png",
-            "/riso/riso_server_cloud_1769726159655.png",
             "/riso/dopple_workspace.png",
         ],
     },
@@ -91,9 +93,10 @@ const projects = [
         media: [
             "/riso/dopple_mobile.png",
             "/riso/riso_ui_design.png",
+            "/riso/riso_coffee.png",
             "/riso/riso_mobile_app_1769726178940.png",
-            "/riso/dopple_code.png",
             "/riso/riso_dashboard.png",
+            "/riso/dopple_code.png",
         ],
     },
     {
@@ -108,6 +111,7 @@ const projects = [
         media: [
             "/riso/dopple_classroom.png",
             "/riso/riso_workshop.png",
+            "/riso/riso_team.png",
             "/riso/riso_arduino.png",
             "/riso/dopple_hands.png",
             "/riso/riso_coding_abstract_1769726112572.png",
@@ -271,19 +275,8 @@ function Accordion({
     );
 }
 
-// Project Section
+// Project Section - Dense Masonry Grid
 function ProjectSection({ project }: { project: typeof projects[0] }) {
-    const galleryRef = useRef<HTMLDivElement>(null);
-
-    const scroll = (dir: 'left' | 'right') => {
-        if (galleryRef.current) {
-            galleryRef.current.scrollBy({
-                left: dir === 'left' ? -400 : 400,
-                behavior: 'smooth'
-            });
-        }
-    };
-
     return (
         <section
             className="dp4-project"
@@ -304,19 +297,16 @@ function ProjectSection({ project }: { project: typeof projects[0] }) {
             </div>
 
             <div className="dp4-project-right">
-                <div className="dp4-gallery" ref={galleryRef}>
+                <div className="dp4-masonry">
                     {project.media.map((src, idx) => (
-                        <div key={idx} className="dp4-gallery-item">
+                        <div
+                            key={idx}
+                            className={`dp4-masonry-item ${idx === 0 ? 'dp4-masonry-large' : ''}`}
+                        >
                             <img src={src} alt={`${project.title} ${idx + 1}`} />
                         </div>
                     ))}
                 </div>
-                <button
-                    className="dp4-arrow"
-                    onClick={() => scroll('right')}
-                >
-                    →
-                </button>
             </div>
         </section>
     );

@@ -378,10 +378,44 @@
 .dp4-project-right {
     position: relative;
     display: flex;
-    align-items: center;
+    align-items: stretch;
     overflow: hidden;
+    padding: 12px;
 }
 
+/* DENSE MASONRY GRID */
+.dp4-masonry {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 4px;
+    width: 100%;
+    height: 80vh;
+    min-height: 500px;
+}
+
+.dp4-masonry-item {
+    overflow: hidden;
+    position: relative;
+}
+
+.dp4-masonry-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.dp4-masonry-item:hover img {
+    transform: scale(1.05);
+}
+
+/* First item spans 2 rows = bigger feature image */
+.dp4-masonry-large {
+    grid-row: span 2;
+}
+
+/* Old gallery styles for backwards compatibility */
 .dp4-gallery {
     display: flex;
     gap: 16px;
