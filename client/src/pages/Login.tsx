@@ -1,11 +1,41 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Loader2, Phone, Lock, ArrowRight, Sparkles } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import "../styles/dopple-v4.css";
+
+// Supreme Quantum Logo - Inline SVG with CSS Animations
+function SupremeLogo({ size = 48 }: { size?: number }) {
+    return (
+        <svg
+            viewBox="0 0 100 100"
+            style={{ width: size, height: size }}
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <style>{`
+                @keyframes spin1 { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+                @keyframes spin2 { from { transform: rotate(120deg); } to { transform: rotate(480deg); } }
+                @keyframes spin3 { from { transform: rotate(240deg); } to { transform: rotate(600deg); } }
+                @keyframes pulse { 0%, 100% { opacity: 0.7; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1.1); } }
+            `}</style>
+            <defs>
+                <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#4361EE" />
+                    <stop offset="50%" stopColor="#7B2FFF" />
+                    <stop offset="100%" stopColor="#00D9FF" />
+                </linearGradient>
+            </defs>
+            <g transform="translate(50,50)">
+                <ellipse rx="35" ry="12" fill="none" stroke="url(#grad1)" strokeWidth="2" opacity="0.6" style={{ animation: 'spin1 8s linear infinite', transformOrigin: 'center' }} />
+                <ellipse rx="35" ry="12" fill="none" stroke="url(#grad1)" strokeWidth="2" opacity="0.6" style={{ animation: 'spin2 8s linear infinite', transformOrigin: 'center' }} />
+                <ellipse rx="35" ry="12" fill="none" stroke="url(#grad1)" strokeWidth="2" opacity="0.6" style={{ animation: 'spin3 8s linear infinite', transformOrigin: 'center' }} />
+                <circle r="12" fill="url(#grad1)" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
+                <circle r="6" fill="white" opacity="0.9" />
+            </g>
+        </svg>
+    );
+}
 
 export default function Login() {
     const [, setLocation] = useLocation();
@@ -15,7 +45,6 @@ export default function Login() {
     const login = trpc.members.login.useMutation({
         onSuccess: (data) => {
             toast.success(`${data.member.name}님, 환영합니다!`);
-            // Store member info and token in localStorage
             localStorage.setItem("member", JSON.stringify(data.member));
             localStorage.setItem("memberToken", data.token);
             setLocation("/");
@@ -32,81 +61,165 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
-            {/* Background Effects */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
-                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
-            </div>
+        <div className="dp4-page" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+            {/* Header */}
+            <header className="dp4-header">
+                <Link href="/" className="dp4-logo">
+                    <SupremeLogo size={70} />
+                </Link>
+                <nav className="dp4-nav">
+                    <Link href="/">PROJECTS</Link>
+                    <Link href="/resources">RESOURCES</Link>
+                </nav>
+                <a href="mailto:contact@jahyeon.com" className="dp4-send">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <path d="M22 2L11 13" />
+                        <polygon points="22,2 15,22 11,13 2,9" />
+                    </svg>
+                </a>
+            </header>
 
-            <div className="relative w-full max-w-md">
-                {/* Header */}
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/30 mb-4">
-                        <Sparkles className="w-4 h-4 text-blue-400" />
-                        <span className="text-sm font-medium text-blue-400">Welcome Back</span>
+            {/* Main Content */}
+            <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '120px 24px 60px' }}>
+                <div style={{ width: '100%', maxWidth: '420px' }}>
+                    {/* Logo */}
+                    <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+                        <SupremeLogo size={80} />
+                        <h1 style={{
+                            fontSize: '48px',
+                            fontWeight: 900,
+                            marginTop: '16px',
+                            background: 'linear-gradient(135deg, #4361EE, #7B2FFF)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent'
+                        }}>
+                            로그인
+                        </h1>
+                        <p style={{ color: '#666', marginTop: '8px' }}>계정에 로그인하세요</p>
                     </div>
-                    <h1 className="text-3xl font-bold text-white mb-2">로그인</h1>
-                    <p className="text-white/60">계정에 로그인하세요</p>
-                </div>
 
-                {/* Form Card */}
-                <div className="bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-2xl p-6 space-y-6">
-                    <div>
-                        <Label className="text-white/70">핸드폰 번호</Label>
-                        <div className="mt-1.5 relative">
-                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
-                            <Input
+                    {/* Form */}
+                    <div style={{
+                        background: 'white',
+                        borderRadius: '24px',
+                        padding: '32px',
+                        boxShadow: '0 8px 40px rgba(0,0,0,0.08)',
+                        border: '1px solid #eee'
+                    }}>
+                        <div style={{ marginBottom: '20px' }}>
+                            <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#333', marginBottom: '8px' }}>
+                                📱 핸드폰 번호
+                            </label>
+                            <input
+                                type="tel"
                                 value={phone}
                                 onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, ""))}
                                 placeholder="01012345678"
-                                className="pl-10 bg-white/5 border-white/10 text-white"
                                 maxLength={11}
+                                style={{
+                                    width: '100%',
+                                    padding: '14px 16px',
+                                    fontSize: '16px',
+                                    border: '2px solid #eee',
+                                    borderRadius: '12px',
+                                    outline: 'none',
+                                    transition: 'border-color 0.2s'
+                                }}
+                                onFocus={(e) => e.target.style.borderColor = '#7B2FFF'}
+                                onBlur={(e) => e.target.style.borderColor = '#eee'}
                             />
                         </div>
-                    </div>
 
-                    <div>
-                        <Label className="text-white/70">비밀번호</Label>
-                        <div className="mt-1.5 relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
-                            <Input
+                        <div style={{ marginBottom: '24px' }}>
+                            <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#333', marginBottom: '8px' }}>
+                                🔒 비밀번호
+                            </label>
+                            <input
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="비밀번호 입력"
-                                className="pl-10 bg-white/5 border-white/10 text-white"
+                                style={{
+                                    width: '100%',
+                                    padding: '14px 16px',
+                                    fontSize: '16px',
+                                    border: '2px solid #eee',
+                                    borderRadius: '12px',
+                                    outline: 'none',
+                                    transition: 'border-color 0.2s'
+                                }}
+                                onFocus={(e) => e.target.style.borderColor = '#7B2FFF'}
+                                onBlur={(e) => e.target.style.borderColor = '#eee'}
                                 onKeyDown={(e) => e.key === "Enter" && handleLogin()}
                             />
                         </div>
+
+                        <button
+                            onClick={handleLogin}
+                            disabled={login.isPending}
+                            style={{
+                                width: '100%',
+                                padding: '16px',
+                                fontSize: '16px',
+                                fontWeight: 700,
+                                color: 'white',
+                                background: 'linear-gradient(135deg, #7B2FFF, #00D9FF)',
+                                border: 'none',
+                                borderRadius: '12px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '8px',
+                                transition: 'transform 0.2s, box-shadow 0.2s'
+                            }}
+                            onMouseOver={(e) => {
+                                e.currentTarget.style.transform = 'translateY(-2px)';
+                                e.currentTarget.style.boxShadow = '0 8px 25px rgba(123, 47, 255, 0.4)';
+                            }}
+                            onMouseOut={(e) => {
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = 'none';
+                            }}
+                        >
+                            {login.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+                            로그인 →
+                        </button>
                     </div>
 
-                    <Button
-                        onClick={handleLogin}
-                        disabled={login.isPending}
-                        className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-6"
-                    >
-                        {login.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                        로그인
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                </div>
-
-                {/* Footer */}
-                <p className="text-center text-white/40 mt-6">
-                    계정이 없으신가요?{" "}
-                    <Link href="/register" className="text-blue-400 hover:underline">
-                        회원가입
-                    </Link>
-                </p>
-
-                {/* Student Info */}
-                <div className="mt-8 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
-                    <p className="text-amber-400 text-sm text-center">
-                        💡 <strong>Resource</strong> 학원 수업자료는 학원 학생들만 확인 및 다운 가능합니다.
+                    {/* Footer Links */}
+                    <p style={{ textAlign: 'center', color: '#666', marginTop: '24px' }}>
+                        계정이 없으신가요?{" "}
+                        <Link href="/register" style={{ color: '#7B2FFF', fontWeight: 600 }}>
+                            회원가입
+                        </Link>
                     </p>
+
+                    {/* Info Box */}
+                    <div style={{
+                        marginTop: '24px',
+                        padding: '16px',
+                        background: 'linear-gradient(135deg, rgba(123, 47, 255, 0.1), rgba(0, 217, 255, 0.1))',
+                        borderRadius: '12px',
+                        border: '1px solid rgba(123, 47, 255, 0.2)'
+                    }}>
+                        <p style={{ fontSize: '14px', color: '#666', textAlign: 'center' }}>
+                            💡 <strong style={{ color: '#7B2FFF' }}>Resource</strong> 학원 수업자료는 학원 학생들만 확인 및 다운 가능합니다.
+                        </p>
+                    </div>
                 </div>
-            </div>
+            </main>
+
+            {/* Footer */}
+            <footer className="dp4-footer">
+                <nav className="dp4-footer-nav">
+                    <Link href="/">PROJECTS</Link>
+                    <Link href="/resources">RESOURCES</Link>
+                    <a href="https://github.com/ProCodeJH">GITHUB</a>
+                    <a href="mailto:contact@jahyeon.com">CONTACT</a>
+                </nav>
+                <p>© 2024 Gu Jahyeon. Embedded Developer & Educator.</p>
+            </footer>
         </div>
     );
 }

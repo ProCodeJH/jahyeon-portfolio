@@ -9,8 +9,113 @@ import { GradientMeshBackground } from "@/components/backgrounds/GradientMeshBac
 import { SubtleDots } from "@/components/backgrounds/SubtleDots";
 import { TiltCard } from "@/components/effects/TiltCard";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
-import { Navigation } from "@/components/layout/Navigation";
 import { ResourceCardSkeleton } from "@/components/ui/skeleton";
+import "../styles/dopple-v4.css";
+
+// Supreme Quantum Logo
+function SupremeLogo({ size = 48 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 100 100" style={{ width: size, height: size }} xmlns="http://www.w3.org/2000/svg">
+      <style>{`
+                @keyframes spin1 { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+                @keyframes spin2 { from { transform: rotate(120deg); } to { transform: rotate(480deg); } }
+                @keyframes spin3 { from { transform: rotate(240deg); } to { transform: rotate(600deg); } }
+                @keyframes pulse { 0%, 100% { opacity: 0.7; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1.1); } }
+            `}</style>
+      <defs>
+        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#4361EE" />
+          <stop offset="50%" stopColor="#7B2FFF" />
+          <stop offset="100%" stopColor="#00D9FF" />
+        </linearGradient>
+      </defs>
+      <g transform="translate(50,50)">
+        <ellipse rx="35" ry="12" fill="none" stroke="url(#grad1)" strokeWidth="2" opacity="0.6" style={{ animation: 'spin1 8s linear infinite', transformOrigin: 'center' }} />
+        <ellipse rx="35" ry="12" fill="none" stroke="url(#grad1)" strokeWidth="2" opacity="0.6" style={{ animation: 'spin2 8s linear infinite', transformOrigin: 'center' }} />
+        <ellipse rx="35" ry="12" fill="none" stroke="url(#grad1)" strokeWidth="2" opacity="0.6" style={{ animation: 'spin3 8s linear infinite', transformOrigin: 'center' }} />
+        <circle r="12" fill="url(#grad1)" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
+        <circle r="6" fill="white" opacity="0.9" />
+      </g>
+    </svg>
+  );
+}
+
+// Dopple Header Component
+function DoppleHeader() {
+  return (
+    <header className="dp4-header" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100 }}>
+      <Link href="/" className="dp4-logo">
+        <SupremeLogo size={70} />
+      </Link>
+      <nav className="dp4-nav">
+        <Link href="/">PROJECTS</Link>
+        <Link href="/resources">RESOURCES</Link>
+        <a href="https://github.com/ProCodeJH" target="_blank">BLOG</a>
+      </nav>
+      <a href="mailto:contact@jahyeon.com" className="dp4-send">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <path d="M22 2L11 13" />
+          <polygon points="22,2 15,22 11,13 2,9" />
+        </svg>
+      </a>
+    </header>
+  );
+}
+
+// Messenger Widget Component
+function MessengerWidget() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+  const [sent, setSent] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const subject = encodeURIComponent(`Message from ${name}`);
+    const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
+    window.location.href = `mailto:contact@jahyeon.com?subject=${subject}&body=${body}`;
+    setSent(true);
+    setTimeout(() => {
+      setSent(false);
+      setIsOpen(false);
+      setName('');
+      setEmail('');
+      setMessage('');
+    }, 2000);
+  };
+
+  return (
+    <>
+      <button className="messenger-bubble" onClick={() => setIsOpen(!isOpen)} aria-label="Open messenger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+        </svg>
+      </button>
+      {isOpen && (
+        <div className="messenger-modal">
+          <div className="messenger-header">
+            <span>💬 메시지 보내기</span>
+            <button onClick={() => setIsOpen(false)}>✕</button>
+          </div>
+          {sent ? (
+            <div className="messenger-sent"><span>✅</span><p>메일 앱이 열립니다!</p></div>
+          ) : (
+            <form onSubmit={handleSubmit} className="messenger-form">
+              <input type="text" placeholder="이름" value={name} onChange={(e) => setName(e.target.value)} required />
+              <input type="email" placeholder="이메일" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <textarea placeholder="메시지를 입력하세요..." value={message} onChange={(e) => setMessage(e.target.value)} required rows={4} />
+              <button type="submit" className="messenger-send">
+                <span>보내기</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 2L11 13" /><polygon points="22,2 15,22 11,13 2,9" /></svg>
+              </button>
+            </form>
+          )}
+        </div>
+      )}
+    </>
+  );
+}
 
 // Lazy load 3D Secure Vault Overlay for performance
 const SecureVaultOverlay = lazy(() => import("@/components/3d/SecureVaultOverlay"));
@@ -499,8 +604,8 @@ export default function Resources() {
         <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,136,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,136,0.03)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_80%)]" />
       </div>
 
-      {/* Navigation */}
-      <Navigation />
+      {/* Dopple Header */}
+      <DoppleHeader />
 
       {/* Header */}
       <section className="pt-32 md:pt-36 lg:pt-40 pb-8 md:pb-10 lg:pb-12 px-4 md:px-8 relative z-10">
@@ -1174,6 +1279,20 @@ export default function Resources() {
       {selectedVideo && <VideoModal resource={selectedVideo} onClose={() => setSelectedVideo(null)} />}
       {selectedDocument && <DocumentPreviewModal resource={selectedDocument} onClose={() => setSelectedDocument(null)} />}
       {selectedCommentResource && <CommentsModal resource={selectedCommentResource} onClose={() => setSelectedCommentResource(null)} />}
+
+      {/* Dopple Footer */}
+      <footer className="dp4-footer" style={{ position: 'relative', zIndex: 10 }}>
+        <nav className="dp4-footer-nav">
+          <Link href="/">PROJECTS</Link>
+          <Link href="/resources">RESOURCES</Link>
+          <a href="https://github.com/ProCodeJH">GITHUB</a>
+          <a href="mailto:contact@jahyeon.com">CONTACT</a>
+        </nav>
+        <p>© 2024 Gu Jahyeon. Embedded Developer & Educator.</p>
+      </footer>
+
+      {/* Messenger Widget */}
+      <MessengerWidget />
     </div>
   );
 }
