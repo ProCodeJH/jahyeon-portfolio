@@ -20,9 +20,11 @@ const projects = [
         outcome: "50+ embedded projects delivered including smart home automation, industrial sensors, IoT gateways. Custom libraries and frameworks used across devices.",
         media: [
             "/riso/dopple_circuit.png",
+            "/riso/riso_arduino.png",
+            "/riso/riso_soldering.png",
             "/riso/dopple_hands.png",
+            "/riso/riso_robot.png",
             "/riso/riso_embedded_dev_1769726045698.png",
-            "/riso/riso_tech_grid_1769726028754.png",
         ],
     },
     {
@@ -36,9 +38,11 @@ const projects = [
         outcome: "20+ web applications including portfolios, e-commerce, SaaS tools. React, Next.js, Express, PostgreSQL for production solutions.",
         media: [
             "/riso/dopple_code.png",
+            "/riso/riso_terminal.png",
+            "/riso/riso_dashboard.png",
             "/riso/dopple_workspace.png",
+            "/riso/riso_ui_design.png",
             "/riso/riso_web_dev_1769726143789.png",
-            "/riso/riso_coding_abstract_1769726112572.png",
         ],
     },
     {
@@ -52,7 +56,9 @@ const projects = [
         outcome: "AI-powered chatbots, recommendation systems, computer vision apps. Deployed using TensorFlow, PyTorch, and cloud AI services.",
         media: [
             "/riso/dopple_ai.png",
+            "/riso/riso_neural.png",
             "/riso/riso_ai_robot_1769726128019.png",
+            "/riso/riso_dashboard.png",
             "/riso/dopple_code.png",
         ],
     },
@@ -67,6 +73,8 @@ const projects = [
         outcome: "Infrastructure serving millions of requests. Kubernetes clusters, automated deployments, monitoring for multiple organizations.",
         media: [
             "/riso/dopple_cloud.png",
+            "/riso/riso_dashboard.png",
+            "/riso/riso_terminal.png",
             "/riso/riso_server_cloud_1769726159655.png",
             "/riso/dopple_workspace.png",
         ],
@@ -82,8 +90,10 @@ const projects = [
         outcome: "10+ mobile apps on App Store and Play Store. 50K+ downloads with 4.5+ star ratings across applications.",
         media: [
             "/riso/dopple_mobile.png",
+            "/riso/riso_ui_design.png",
             "/riso/riso_mobile_app_1769726178940.png",
             "/riso/dopple_code.png",
+            "/riso/riso_dashboard.png",
         ],
     },
     {
@@ -97,8 +107,10 @@ const projects = [
         outcome: "500+ students trained. 90% completion rate with many entering tech careers. Multiple courses running simultaneously.",
         media: [
             "/riso/dopple_classroom.png",
-            "/riso/riso_coding_abstract_1769726112572.png",
+            "/riso/riso_workshop.png",
+            "/riso/riso_arduino.png",
             "/riso/dopple_hands.png",
+            "/riso/riso_coding_abstract_1769726112572.png",
         ],
     },
 ];
