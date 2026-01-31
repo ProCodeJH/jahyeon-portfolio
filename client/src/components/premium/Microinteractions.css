@@ -1,0 +1,254 @@
+/* Micro-interaction Styles */
+
+/* Tilt Card */
+.tilt-card {
+    position: relative;
+    transform-style: preserve-3d;
+    cursor: pointer;
+}
+
+.tilt-card-glare {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+/* Ripple Button */
+.ripple-button {
+    position: relative;
+    overflow: hidden;
+    padding: 14px 28px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ripple-button--primary {
+    background: linear-gradient(135deg, #7B2FFF, #00D9FF);
+    color: white;
+    box-shadow: 0 4px 15px rgba(123, 47, 255, 0.3);
+}
+
+.ripple-button--primary:hover {
+    box-shadow: 0 8px 25px rgba(123, 47, 255, 0.4);
+}
+
+.ripple-button--secondary {
+    background: rgba(123, 47, 255, 0.1);
+    color: #7B2FFF;
+    border: 1px solid rgba(123, 47, 255, 0.3);
+}
+
+.ripple-button--outline {
+    background: transparent;
+    color: #7B2FFF;
+    border: 2px solid #7B2FFF;
+}
+
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    transform: scale(0);
+    animation: ripple-animation 0.6s ease-out;
+    pointer-events: none;
+    background: rgba(255, 255, 255, 0.4);
+}
+
+@keyframes ripple-animation {
+    to {
+        transform: scale(4);
+        opacity: 0;
+        width: 200px;
+        height: 200px;
+        margin-left: -100px;
+        margin-top: -100px;
+    }
+}
+
+/* Glow Button */
+.glow-button {
+    position: relative;
+    overflow: hidden;
+    padding: 16px 32px;
+    background: linear-gradient(135deg, #7B2FFF, #4361EE);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(123, 47, 255, 0.3);
+}
+
+.glow-button-glow {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    transition: background 0.1s;
+}
+
+.glow-button-content {
+    position: relative;
+    z-index: 1;
+}
+
+.glow-button:hover {
+    box-shadow: 0 8px 30px rgba(123, 47, 255, 0.5);
+}
+
+/* Hover Scale */
+.hover-scale {
+    cursor: pointer;
+    will-change: transform;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading-spinner-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 3px solid transparent;
+    border-top-color: #7B2FFF;
+    border-radius: 50%;
+}
+
+.loading-spinner-ring--secondary {
+    width: 70%;
+    height: 70%;
+    border-top-color: #00D9FF;
+    border-width: 2px;
+}
+
+.loading-spinner-dot {
+    width: 8px;
+    height: 8px;
+    background: linear-gradient(135deg, #7B2FFF, #00D9FF);
+    border-radius: 50%;
+}
+
+/* Page Loader */
+.page-loader {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #FDFBF4 0%, #F8F2EB 100%);
+    z-index: 99999;
+}
+
+.page-loader-content {
+    text-align: center;
+}
+
+.page-loader-content p {
+    margin-top: 24px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #7B2FFF;
+    letter-spacing: 0.1em;
+}
+
+/* Floating animation for elements */
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.float-animation {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Pulse animation */
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 20px rgba(123, 47, 255, 0.3);
+    }
+
+    50% {
+        box-shadow: 0 0 40px rgba(123, 47, 255, 0.6);
+    }
+}
+
+.pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Shimmer effect */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.shimmer {
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.3) 50%,
+            rgba(255, 255, 255, 0) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 2s ease-in-out infinite;
+}
+
+/* Gradient border animation */
+@keyframes gradient-border {
+
+    0%,
+    100% {
+        border-color: #7B2FFF;
+    }
+
+    50% {
+        border-color: #00D9FF;
+    }
+}
+
+.gradient-border-animated {
+    animation: gradient-border 3s ease-in-out infinite;
+}
+
+/* Typing cursor */
+@keyframes blink {
+
+    0%,
+    50% {
+        opacity: 1;
+    }
+
+    51%,
+    100% {
+        opacity: 0;
+    }
+}
+
+.typing-cursor::after {
+    content: '|';
+    animation: blink 1s ease-in-out infinite;
+    color: #7B2FFF;
+    margin-left: 2px;
+}
