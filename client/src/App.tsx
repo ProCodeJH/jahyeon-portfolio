@@ -19,6 +19,8 @@ import { ScrollProgressBar } from "./components/ui/ScrollProgressBar";
 import { CookieConsent } from "./components/ui/CookieConsent";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { AdminChatWidget } from "./components/chat/AdminChatWidget";
+// 🚀 Premium Animation Components
+import CustomCursor from "./components/premium/CustomCursor";
 
 // Notion-style Workspace
 const Workspace = lazy(() => import("./pages/NotesPage"));
@@ -77,6 +79,8 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <ScrollProgressBar />
+          {/* 🚀 Premium Custom Cursor */}
+          <CustomCursor />
           <Router />
           <BackToTop />
           <CookieConsent />

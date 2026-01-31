@@ -1,0 +1,103 @@
+/* Custom Cursor Styles */
+
+/* Hide default cursor on desktop */
+@media (hover: hover) and (pointer: fine) {
+    body {
+        cursor: none !important;
+    }
+
+    a,
+    button,
+    [role="button"],
+    input,
+    textarea,
+    select,
+    .cursor-hover {
+        cursor: none !important;
+    }
+}
+
+/* Main cursor dot */
+.custom-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 12px;
+    height: 12px;
+    background: linear-gradient(135deg, #7B2FFF, #00D9FF);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 99999;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s ease, height 0.2s ease, background 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 20px rgba(123, 47, 255, 0.5);
+}
+
+.custom-cursor.hovering {
+    width: 60px;
+    height: 60px;
+    background: rgba(123, 47, 255, 0.15);
+    backdrop-filter: blur(4px);
+    border: 2px solid rgba(123, 47, 255, 0.5);
+    box-shadow: 0 0 30px rgba(123, 47, 255, 0.3);
+}
+
+.custom-cursor.clicking {
+    transform: translate(-50%, -50%) scale(0.8);
+}
+
+.custom-cursor .cursor-text {
+    font-size: 10px;
+    font-weight: 700;
+    color: #7B2FFF;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+/* Cursor ring/trail */
+.cursor-ring {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(123, 47, 255, 0.3);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 99998;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
+}
+
+.cursor-ring.hovering {
+    width: 80px;
+    height: 80px;
+    border-color: rgba(0, 217, 255, 0.5);
+    opacity: 0.5;
+}
+
+.cursor-ring.clicking {
+    transform: translate(-50%, -50%) scale(0.9);
+    border-color: rgba(123, 47, 255, 0.8);
+}
+
+/* Animation for cursor pulse */
+@keyframes cursorPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 20px rgba(123, 47, 255, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 35px rgba(123, 47, 255, 0.8);
+    }
+}
+
+.custom-cursor:not(.hovering) {
+    animation: cursorPulse 2s ease-in-out infinite;
+}
