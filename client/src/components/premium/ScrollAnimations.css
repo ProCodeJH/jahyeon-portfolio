@@ -1,0 +1,163 @@
+/* Scroll Animation Styles */
+
+.scroll-reveal {
+    will-change: transform, opacity;
+}
+
+.parallax {
+    will-change: transform;
+}
+
+.stagger-container {
+    will-change: contents;
+}
+
+.stagger-item {
+    will-change: transform, opacity;
+}
+
+/* Text reveal */
+.text-reveal {
+    overflow: hidden;
+}
+
+.text-reveal-word {
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: top;
+}
+
+/* Magnetic button */
+.magnetic-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    will-change: transform;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+}
+
+/* Hero parallax layers */
+.hero-parallax-container {
+    position: relative;
+    overflow: hidden;
+    min-height: 100vh;
+}
+
+.hero-parallax-layer {
+    position: absolute;
+    inset: 0;
+    will-change: transform;
+}
+
+.hero-parallax-layer--back {
+    z-index: 1;
+}
+
+.hero-parallax-layer--mid {
+    z-index: 2;
+}
+
+.hero-parallax-layer--front {
+    z-index: 3;
+}
+
+/* Scroll progress indicator */
+.scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #7B2FFF, #00D9FF);
+    z-index: 99999;
+    transform-origin: left;
+    will-change: transform;
+}
+
+/* Card reveal animation class */
+.card-reveal {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+    transition: none;
+}
+
+.card-reveal.revealed {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* Hover lift effect */
+.hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(123, 47, 255, 0.15);
+}
+
+/* Scale on scroll effect */
+.scale-on-scroll {
+    will-change: transform;
+}
+
+/* Kinetic text */
+.kinetic-text {
+    overflow: hidden;
+}
+
+.kinetic-text span {
+    display: inline-block;
+}
+
+/* Wave text animation */
+@keyframes waveText {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.wave-text span {
+    display: inline-block;
+    animation: waveText 1s ease-in-out infinite;
+}
+
+.wave-text span:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.wave-text span:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.wave-text span:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+.wave-text span:nth-child(4) {
+    animation-delay: 0.3s;
+}
+
+.wave-text span:nth-child(5) {
+    animation-delay: 0.4s;
+}
+
+.wave-text span:nth-child(6) {
+    animation-delay: 0.5s;
+}
+
+.wave-text span:nth-child(7) {
+    animation-delay: 0.6s;
+}
+
+.wave-text span:nth-child(8) {
+    animation-delay: 0.7s;
+}
