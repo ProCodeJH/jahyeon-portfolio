@@ -5,3 +5,4 @@ export { default as PageTransition } from './PageTransition';
 export * from './PageTransition';
 export * from './ScrollAnimations';
 export * from './Microinteractions';
+export * from './PremiumUI';
